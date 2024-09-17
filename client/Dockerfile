@@ -1,5 +1,5 @@
-# Use the LTS node Alpine image as the base image
-FROM node:lts-alpine
+# Stage 1: Build
+FROM node:lts-alpine AS build
 
 # Set the working directory inside the container
 WORKDIR /app
@@ -8,7 +8,7 @@ WORKDIR /app
 COPY package*.json ./
 
 # Install the app dependencies
-RUN npm install
+RUN npm ci
 
 # Copy the rest of the app source code to the working directory
 COPY . .
@@ -16,8 +16,20 @@ COPY . .
 # Build the VueJS app
 RUN npm run build
 
+# Stage 2: Serve
+FROM node:lts-alpine
+
+# Set the working directory inside the container
+WORKDIR /app
+
+# Copy the built application from the build stage
+COPY --from=build /app/dist /app
+
+# Install the serve package
+RUN npm install -g serve
+
 # Expose the port on which the app will run
 EXPOSE 8080
 
 # Define the command to start the app
-CMD [ "npm", "run", "serve" ]
+CMD ["serve", "-s", "/app", "-l", "8080"]
