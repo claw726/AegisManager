@@ -1,5 +1,7 @@
 # aegis-manager
 
+Note: this is for running locally. Use the instructions on the main (../README)[README] to run in Docker
+
 ## Project setup
 ```
 npm install
