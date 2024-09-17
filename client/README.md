@@ -1,6 +1,6 @@
 # aegis-manager
 
-Note: this is for running locally. Use the instructions on the main [README](../README.md) to run in Docker
+> Note: this is for running locally. Use the instructions on the main [README](../README.md) to run in Docker
 
 ## Project setup
 ```
