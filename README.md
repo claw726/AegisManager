@@ -19,7 +19,6 @@ Aegis is a project management system designed to simplify task management for sm
 Open a terminal in the `./client` directory and run the following command to build the Docker image:
 
 ```
-bash
 docker build -t aegis-client .
 ```
 
@@ -28,7 +27,6 @@ docker build -t aegis-client .
 Once the image is built, you can run a container from it using the following command:
 
 ```
-bash
 docker run -p 8080:8080 aegis-client
 ```
 
