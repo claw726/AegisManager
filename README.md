@@ -34,6 +34,7 @@ docker run -p 8080:8080 aegis-client
 ### Step 3: Verify the Application
 After running the container, you can verify that your frontend application is running by accessing [https://localhost:8080](https://localhost:8080) in your web browser. You should see your Vue.js application up and running.
 
+> Get an error stating that the certificate is invalid? Go to `advanced` and click `accept anyways`
 
 ## License
 This project is licensed under the GPL-3.0 License. See the [LICENSE](LICENSE) file for details.
