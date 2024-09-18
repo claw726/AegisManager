@@ -1,6 +1,6 @@
 # Aegis Project README
 
-![Aegis Logo](./icon/Check-icon.png)
+<img src="./icon/Check-icon.png" alt="Aegis Logo" width="-1" height="256">
 
 ## Overview
 Aegis is a project management system designed to simplify task management for small teams and individual users. It focuses on core features like task creation, assignment, and progress tracking without unnecessary complexity.
