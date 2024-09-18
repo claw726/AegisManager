@@ -25,6 +25,12 @@ WORKDIR /app
 # Copy the built application from the build stage
 COPY --from=build /app/dist /app
 
+# Install openssl
+RUN apk add --no-cache openssl
+
+# Generate SSL/TLS certificates
+RUN openssl req -x509 -newkey rsa:2048 -nodes -keyout localhost.key -out localhost.crt -days 365 -subj "/C=US/ST=State/L=Locality/O=Organization/CN=localhost"
+
 # Install the serve package
 RUN npm install -g serve
 
@@ -32,4 +38,4 @@ RUN npm install -g serve
 EXPOSE 8080
 
 # Define the command to start the app
-CMD ["serve", "-s", "/app", "-l", "8080"]
+CMD ["serve", "-s", "/app", "-l", "8080", "--ssl-cert", "localhost.crt", "--ssl-key", "localhost.key"]
