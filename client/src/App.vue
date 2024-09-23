@@ -24,7 +24,7 @@
 
       <!-- Right Column: Decorative Image -->
       <div>
-        <img src="../../icon/Check-icon.png" alt="Check Icon" class="w-96" />
+        <img src="Check-icon.png" alt="Check Icon" class="w-96" />
       </div>
     </div>
   </div>
