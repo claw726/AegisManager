@@ -3,8 +3,8 @@
     <div class="relative w-full h-20 bg-secondary flex items-center justify-between px-6">
       <div @click="goToHome" class="text-white font-bold text-lg">Aegis Manager</div>
       <div class="flex space-x-4">
-        <button @click="goToLogin"  class="bg-primary border-2 border-highlight text-white font-semibold py-2 px-4 rounded">Log In</button>
-        <button @click="goToCreateAcct" class="border-2 border-highlight text-white font-semibold py-2 px-4 rounded">Sign Up</button>
+        <button @click="goToLogin"  class="bg-primary border border-highlight text-white font-semibold py-2 px-4 rounded">Log In</button>
+        <button @click="goToCreateAcct" class="bg-primary border border-highlight text-white font-semibold py-2 px-4 rounded">Sign Up</button>
       </div>
     </div>
 </template>

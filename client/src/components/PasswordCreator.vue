@@ -6,7 +6,7 @@
         type="password"
         v-model="password"
         @input="checkStrength"
-        class="w-full border border-gray-300 rounded-lg p-3"
+        class="w-full border border-highlight rounded-lg p-3"
       />
       <div class="mt-2 text-sm" :class="strengthColor">{{ strengthMessage }}</div>
     </div>

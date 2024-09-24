@@ -1,6 +1,6 @@
 <template>
   <div class="relative w-full h-screen bg-background">
-    <!-- NavBar should be at the top -->
+    <!-- NavBar  -->
     <NavBar />
 
     <!-- Main Content -->
@@ -14,17 +14,17 @@
           <!-- First Name -->
           <div class="w-full md:w-1/2 px-4 mb-4">
             <label class="block text-sm font-semibold text-gray-800 mb-2">First Name</label>
-            <input type="text" v-model="user.firstName" class="w-full border border-gray-300 rounded-lg p-3" />
+            <input type="text" v-model="user.firstName" class="w-full border border-highlight rounded-lg p-3" />
           </div>
           <!-- Last Name -->
           <div class="w-full md:w-1/2 px-4 mb-4">
             <label class="block text-sm font-semibold text-gray-800 mb-2">Last Name</label>
-            <input type="text" v-model="user.lastName" class="w-full border border-gray-300 rounded-lg p-3" />
+            <input type="text" v-model="user.lastName" class="w-full border border-highlight rounded-lg p-3" />
           </div>
           <!-- Email Address -->
           <div class="w-full md:w-1/2 px-4 mb-4">
             <label class="block text-sm font-semibold text-gray-800 mb-2">Email Address</label>
-            <input type="email" v-model="user.email" class="w-full border border-gray-300 rounded-lg p-3" />
+            <input type="email" v-model="user.email" class="w-full border border-highlight rounded-lg p-3" />
           </div>
           <!-- Profile Picture -->
           <div class="w-full md:w-1/2 px-4 mb-4">
