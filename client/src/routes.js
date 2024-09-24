@@ -12,6 +12,11 @@ const router = createRouter({
                     path: '/createAccount',
                     name: 'CreateAcct',
                     component: () => import('./views/UserCreation.vue')
+                },
+                {
+                    path: '/login',
+                    name: 'Login',
+                    component: () => import('./views/LoginPage.vue')
                 }
             ],
     });
