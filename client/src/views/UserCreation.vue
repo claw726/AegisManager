@@ -131,9 +131,14 @@
         // Add new account to existing accounts
         accounts.push(this.user);
 
+        // Set the CurrentUser to the newly created account
+        localStorage.setItem('CurrentUser', JSON.stringify(this.user));
+
         // Store updated accounts in local storage
         localStorage.setItem('userAccounts', JSON.stringify(accounts)); // Store user data in local storage
-        alert('Form submitted successfully!');
+
+        // Redirect to the dashboard
+        this.$router.push({ name: 'Dashboard' });
       },
       updatePassword(password) {
         this.user.password = password;
