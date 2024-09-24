@@ -5,7 +5,7 @@
       <div class="text-white font-bold text-lg">Aegis Manager</div>
       <div class="flex space-x-4">
         <button @click="goToLogin"  class="bg-primary border-2 border-highlight text-white font-semibold py-2 px-4 rounded">Log In</button>
-        <button class="border-2 border-highlight text-white font-semibold py-2 px-4 rounded">Sign Up</button>
+        <button @click="goToCreateAcct" class="border-2 border-highlight text-white font-semibold py-2 px-4 rounded">Sign Up</button>
       </div>
     </div>
 
@@ -18,7 +18,7 @@
           <p class="mt-4 text-xl font-medium text-gray-800">A simple, intuitive project management system for teams and individuals.</p>
         </div>
         <div class="flex space-x-4">
-          <button class="bg-zinc-800 text-white font-semibold py-3 px-6 rounded">Get Started Now 🚀</button>
+          <button @click="goToCreateAcct" class="bg-zinc-800 text-white font-semibold py-3 px-6 rounded">Get Started Now 🚀</button>
         </div>
       </div>
 
@@ -36,6 +36,9 @@ export default {
   methods: {
     goToLogin() {
       this.$router.push({ name: 'Login' });
+    },
+    goToCreateAcct() {
+      this.$router.push({ name: 'CreateAcct' });
     }
   }
 };
