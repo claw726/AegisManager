@@ -79,7 +79,7 @@
          if (file) {
            try {
              const options = {
-               maxSizeMB: 1,
+               maxSizeMB: 0.064,
                maxWidthOrHeight: 128,
                useWebWorker: true,
              };
@@ -100,15 +100,40 @@
       createUserJson() {
         const userJson = JSON.stringify(this.user, null, 2);
         console.log('User JSON:', userJson);
-        // You can further process the JSON or display it as needed
+        return userJson;
       },
       submitForm() {
+        // TODO: when server is setup, request all user accounts and check if email already exists
         if (!this.imageUploaded || !this.user.firstName || !this.user.lastName || !this.user.email) {
           alert('Please fill out all fields and upload an image.');
-        } else {
-          alert('Form submitted successfully!');
-          console.log('User Data:', this.user);
+          return;
         }
+        // Validate email
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(this.user.email)) {
+          alert('Please enter a valid email address.');
+          return;
+        } 
+
+        let accounts = [];
+        // Retrieve existing accounts from local storage
+        const existingAccounts = localStorage.getItem('userAccounts');
+        if (existingAccounts) {
+          accounts = JSON.parse(existingAccounts);
+
+          // Check if email already exists
+          const emailExists = accounts.some((account) => account.email === this.user.email);
+          if (emailExists) {
+            alert('This email is already registered. Please use a different email.');
+            return;
+          }
+        }
+        // Add new account to existing accounts
+        accounts.push(this.user);
+
+        // Store updated accounts in local storage
+        localStorage.setItem('userAccounts', JSON.stringify(accounts)); // Store user data in local storage
+        alert('Form submitted successfully!');
       },
       updatePassword(password) {
         this.user.password = password;
