@@ -8,3 +8,5 @@ client/.gradle/8.8/fileHashes/fileHashes.lock
 client/.gradle/buildOutputCleanup/buildOutputCleanup.lock
 client/.gradle/buildOutputCleanup/cache.properties
 client/.gradle/vcs-1/gc.properties
+client/src/views/Logo.vue
+.DS_Store
