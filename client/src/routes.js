@@ -11,25 +11,37 @@ const router = createRouter({
                 {
                     path: '/createAccount',
                     name: 'CreateAcct',
-                    component: () => import('./views/UserCreation.vue')
+                    component: () => import('./views/UserCreation.vue'),
+                    meta: {requiresGuest: true},
                 },
                 {
                     path: '/login',
                     name: 'Login',
-                    component: () => import('./views/LoginPage.vue')
+                    component: () => import('./views/LoginPage.vue'),
+                    meta: {requiresGuest: true},
                 },
                 {
                     path: '/dashboard',
                     name: 'Dashboard',
-                    component: () => import('./views/DashboardView.vue')
-                },
-                {
-                    path: '/logo',
-                    name: 'Logo',
-                    component: () => import('./views/Logo.vue')
-
+                    component: () => import('./views/DashboardView.vue'),
+                    meta: {requiresAuth: true},
                 }
             ],
     });
+
+// Navigation Guard
+router.beforeEach((to, from, next) => {
+    const isLoggedIn = !!localStorage.getItem('CurrentUser');
+
+    if (to.matched.some(record => record.meta.requiresAuth) && !isLoggedIn) {
+        // Redirect to login if trying to access a protected route without being logged in
+        next({ name: 'Login' });
+    } else if (to.matched.some(record => record.meta.requiresGuest) && isLoggedIn) {
+        // Redirect to dashboard if trying to access login or create account while logged in
+        next({ name: 'Dashboard' });
+    } else {
+        next();
+    }
+});
 
 export default router;
