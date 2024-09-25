@@ -70,64 +70,72 @@
         imageUploaded: false, // Track if an image has been uploaded
       };
     },
+    watch: {
+      'user.email'(newEmail) {
+        this.user.email = newEmail.trim();
+        this.user.email = newEmail.toLowerCase();
+      },
+      'user.password'(newPassword) {
+        this.user.password = newPassword.trim();
+      },
+    },
     methods: {
       triggerFileInput() {
         this.$refs.fileInput.click();
       },
       async handleFileUpload(event) {
-         const file = event.target.files[0];
-         if (file) {
-           try {
-             const options = {
-               maxSizeMB: 0.064,
-               maxWidthOrHeight: 512,
-               useWebWorker: true,
-             };
-             const compressedFile = await imageCompression(file, options);
-             const reader = new FileReader();
-             reader.onload = (e) => {
-                const imageDataUrl = e.target.result;
-                const image = new Image();
-                image.onload = async () => {
-                  const canvas = document.createElement('canvas');
-                  const ctx = canvas.getContext('2d');
-                  const { width: imageWidth, height: imageHeight } = image;
-                  const aspectRatio = imageWidth / imageHeight;
-                  let newWidth, newHeight;
-                  if (aspectRatio < 1) {
-                    newWidth = imageWidth;
-                    newHeight = newWidth;
-                  } else {
-                    newWidth = imageHeight;
-                    newHeight = newWidth;
-                  }
-                  const x = (imageWidth - newWidth) / 2;
-                  const y = (imageHeight - newHeight) / 2;
-                  canvas.width = newWidth;
-                  canvas.height = newHeight;
-                  ctx.drawImage(image, x, y, newWidth, newHeight, 0, 0, newWidth, newHeight);
-                  const croppedDataURL = canvas.toDataURL('image/jpeg', 0.92);
-                  const blob = await fetch(croppedDataURL).then(res => res.blob());
-                  const newFile = new File([blob], file.name, { type: 'image/jpeg' });
-                  const compressedCroppedFile = await imageCompression(newFile, options);
-                  const reader = new FileReader();
-                  reader.onload = (e) => {
-                    this.user.profilePicture = e.target.result;
-                    this.imageUploaded = true;
-                  };
-                  reader.readAsDataURL(compressedCroppedFile);
+        const file = event.target.files[0];
+        if (file) {
+          try {
+            const options = {
+              maxSizeMB: 0.064,
+              maxWidthOrHeight: 512,
+              useWebWorker: true,
+            };
+            const reader = new FileReader();
+            reader.onload = (e) => {
+              const imageDataUrl = e.target.result;
+              const image = new Image();
+              image.onload = async () => {
+                const canvas = document.createElement('canvas');
+                const ctx = canvas.getContext('2d');
+                const { width: imageWidth, height: imageHeight } = image;
+                const aspectRatio = imageWidth / imageHeight;
+                let newWidth, newHeight;
+                if (aspectRatio < 1) {
+                  newWidth = imageWidth;
+                  newHeight = newWidth;
+                } else {
+                  newWidth = imageHeight;
+                  newHeight = newWidth;
+                }
+                const x = (imageWidth - newWidth) / 2;
+                const y = (imageHeight - newHeight) / 2;
+                canvas.width = newWidth;
+                canvas.height = newHeight;
+                ctx.drawImage(image, x, y, newWidth, newHeight, 0, 0, newWidth, newHeight);
+                const croppedDataURL = canvas.toDataURL('image/jpeg', 0.92);
+                const blob = await fetch(croppedDataURL).then(res => res.blob());
+                const newFile = new File([blob], file.name, { type: 'image/jpeg' });
+                const compressedCroppedFile = await imageCompression(newFile, options);
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                  this.user.profilePicture = e.target.result;
+                  this.imageUploaded = true;
                 };
-                image.src = imageDataUrl;
-             };
-             reader.readAsDataURL(compressedFile);
-           } catch (error) {
-             console.error('Error compressing image:', error);
-             alert('An error occurred while compressing the image. Please try again with a new file.');
-           }
-         } else {
-           alert('Please select a valid image format.');
-         }
-        },
+                reader.readAsDataURL(compressedCroppedFile);
+              };
+              image.src = imageDataUrl;
+            };
+            reader.readAsDataURL(file);
+          } catch (error) {
+            console.error('Error compressing image:', error);
+            alert('An error occurred while compressing the image. Please try again with a new file.');
+          }
+        } else {
+          alert('Please select a valid image format.');
+        }
+      },
       createUserJson() {
         const userJson = JSON.stringify(this.user, null, 2);
         console.log('User JSON:', userJson);

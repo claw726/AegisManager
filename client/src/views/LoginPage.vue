@@ -36,6 +36,15 @@
         password: '',
       };
     },
+    watch: {
+      'user.email'(newEmail) {
+        this.user.email = newEmail.trim();
+        this.user.email = newEmail.toLowerCase();
+      },
+      'user.password'(newPassword) {
+        this.user.password = newPassword.trim();
+      },
+    },
     methods: {
       login() {
         if (!this.email || !this.password) {
