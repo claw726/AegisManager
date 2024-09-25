@@ -6,7 +6,7 @@
     <!-- Main Content and Decorative Image -->
     <div class="flex justify-between items-center h-full px-28">
       <!-- Left Column: Main Content and Call to Action -->
-      <div class="flex flex-col space-y-8">
+      <div class="flex flex-col space-y-8 w-1/2">
         <div>
           <h1 class="text-5xl font-extrabold text-primary">Streamline your projects with Ægis</h1>
           <p class="mt-4 text-xl font-medium text-gray-800">A simple, intuitive project management system for teams and individuals.</p>
@@ -17,8 +17,8 @@
       </div>
 
       <!-- Right Column: Decorative Image -->
-      <div>
-        <img src="Check-icon.png" alt="Check Icon" class="w-96" />
+      <div class="w-1/2">
+        <img src="Check-icon.png" alt="Check Icon" class="" />
       </div>
     </div>
   </div>
