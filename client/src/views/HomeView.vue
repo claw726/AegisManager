@@ -8,7 +8,7 @@
       <!-- Left Column: Main Content and Call to Action -->
       <div class="flex flex-col space-y-8">
         <div>
-          <h1 class="text-5xl font-extrabold text-primary">Streamline your projects with Aegis</h1>
+          <h1 class="text-5xl font-extrabold text-primary">Streamline your projects with Ægis</h1>
           <p class="mt-4 text-xl font-medium text-gray-800">A simple, intuitive project management system for teams and individuals.</p>
         </div>
         <div class="flex space-x-4">

@@ -1,6 +1,6 @@
 <template>
     <div class="relative w-full h-20 bg-secondary flex items-center justify-between px-6">
-      <div class="text-white font-bold text-lg cursor-pointer" @click="goToHome">Aegis Manager</div>
+      <div class="text-white font-bold text-lg cursor-pointer" @click="goToHome">Ægis Manager</div>
       <div class="flex space-x-4">
         <button v-if="isLoggedIn" @click="logout" class="bg-primary border-2 border-highlight text-white font-semibold py-2 px-4 rounded">Log Out</button>
         <template v-else>
