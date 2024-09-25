@@ -86,12 +86,43 @@
              const compressedFile = await imageCompression(file, options);
              const reader = new FileReader();
              reader.onload = (e) => {
-               this.user.profilePicture = e.target.result;
-               this.imageUploaded = true;
+                const imageDataUrl = e.target.result;
+                const image = new Image();
+                image.onload = async () => {
+                  const canvas = document.createElement('canvas');
+                  const ctx = canvas.getContext('2d');
+                  const { width: imageWidth, height: imageHeight } = image;
+                  const aspectRatio = imageWidth / imageHeight;
+                  let newWidth, newHeight;
+                  if (aspectRatio < 1) {
+                    newWidth = imageWidth;
+                    newHeight = newWidth;
+                  } else {
+                    newWidth = imageHeight;
+                    newHeight = newWidth;
+                  }
+                  const x = (imageWidth - newWidth) / 2;
+                  const y = (imageHeight - newHeight) / 2;
+                  canvas.width = newWidth;
+                  canvas.height = newHeight;
+                  ctx.drawImage(image, x, y, newWidth, newHeight, 0, 0, newWidth, newHeight);
+                  const croppedDataURL = canvas.toDataURL('image/jpeg', 0.92);
+                  const blob = await fetch(croppedDataURL).then(res => res.blob());
+                  const newFile = new File([blob], file.name, { type: 'image/jpeg' });
+                  const compressedCroppedFile = await imageCompression(newFile, options);
+                  const reader = new FileReader();
+                  reader.onload = (e) => {
+                    this.user.profilePicture = e.target.result;
+                    this.imageUploaded = true;
+                  };
+                  reader.readAsDataURL(compressedCroppedFile);
+                };
+                image.src = imageDataUrl;
              };
              reader.readAsDataURL(compressedFile);
            } catch (error) {
              console.error('Error compressing image:', error);
+             alert('An error occurred while compressing the image. Please try again with a new file.');
            }
          } else {
            alert('Please select a valid image format.');
