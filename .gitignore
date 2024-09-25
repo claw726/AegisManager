@@ -1,7 +1,8 @@
 SCRUM Logs/Week 1.txt
-client/.gradle/*
-server/.gradle/*
+client/.gradle
+server/.gradle
 
 .DS_Store
-server/.gradle/8.8/fileHashes/fileHashes.lock
 client/src/views/Logo.vue
+
+*.lock
