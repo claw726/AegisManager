@@ -41,12 +41,12 @@
       };
     },
     watch: {
-      'user.email'(newEmail) {
-        this.user.email = newEmail.trim();
-        this.user.email = newEmail.toLowerCase();
+      'email'(newEmail) {
+        this.email = newEmail.trim();
+        this.email = newEmail.toLowerCase();
       },
-      'user.password'(newPassword) {
-        this.user.password = newPassword.trim();
+      'password'(newPassword) {
+        this.password = newPassword.trim();
       },
     },
     methods: {
