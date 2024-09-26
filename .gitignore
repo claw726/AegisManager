@@ -1,6 +1,5 @@
 SCRUM Logs/Week 1.txt
-client/.gradle
-server/.gradle
+**/.gradle
 
 .DS_Store
 client/src/views/Logo.vue
