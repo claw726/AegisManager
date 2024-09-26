@@ -1,8 +1,14 @@
 <template>
   <div class="relative w-full h-20 bg-secondary flex items-center justify-between px-6">
+    <!-- Brand Name -->
     <div class="text-white font-bold text-lg cursor-pointer" @click="goToHome">Ægis Manager</div>
+    <!-- Navigation Buttons -->
     <div class="flex space-x-4">
+
+      <!-- If the user is logged in, show the logout button -->
       <button v-if="isLoggedIn" @click="logout" class="bg-primary border-2 border-highlight text-white font-semibold py-2 px-4 rounded">Log Out</button>
+
+      <!-- If the user is not logged in, show the login and sign up buttons -->
       <template v-else>
         <button @click="goToLogin" class="bg-primary border border-highlight text-white font-semibold py-2 px-4 rounded">Log In</button>
         <button @click="goToCreateAcct" class="bg-primary border border-highlight text-white font-semibold py-2 px-4 rounded">Sign Up</button>
@@ -19,26 +25,26 @@ export default {
   computed: {
     ...mapState(['isLoggedIn']),
   },
-  created() {
-    this.checkLoginStatus();
-  },
   methods: {
     ...mapActions(['logout']),
+    // Check if the user is logged in
     checkLoginStatus() {
-      // Check if the CurrentUser.json exists in local storage
       this.$store.dispatch('checkLoginStatus');
     },
+    // Navigate to the home page
     goToHome() {
       this.$router.push({ name: 'Home' });
     },
+    // Navigate to the login page
     goToLogin() {
-      this.$router.push({ name: 'Login' });
+      this.$router.push({ name: 'Login' }); 
     },
+    // Navigate to the create account page
     goToCreateAcct() {
       this.$router.push({ name: 'CreateAcct' });
     },
+    // Logout the user and navigate to the home page
     logout() {
-      // Remove the CurrentUser.json from local storage
       this.$store.dispatch('logout');
       this.$router.push({ name: 'Home' });
     },

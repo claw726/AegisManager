@@ -19,6 +19,7 @@ export default new Vuex.Store({
       commit('setLoginStatus', true);
     },
     logout({ commit }) {
+      localStorage.removeItem('CurrentUser')
       commit('setLoginStatus', false);
     },
   },

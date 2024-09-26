@@ -1,5 +1,5 @@
 <template>
-  <div class="relative w-full h-screen bg-white">
+  <div v-if="!isLoggedIn" class="relative w-full h-screen bg-white">
     <NavBar />
 
     <!-- Profile Section -->
