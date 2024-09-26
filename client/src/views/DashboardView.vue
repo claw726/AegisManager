@@ -4,7 +4,7 @@
 
     <!-- Profile Section -->
     <div class="absolute left-32 top-36 flex items-center">
-      <img :src="user.profilePicture" alt="Profile Picture" class="w-48 h-48 rounded-full" />
+      <img :src="user.profilePicture" alt="Profile Picture" class="w-48 h-48 rounded-full drop-shadow-xl" />
       <div class="ml-8">
         <div class="text-4xl font-bold text-primary">{{ user.firstName }} {{ user.lastName }}</div>
         <div class="text-2xl font-semibold text-secondary">Welcome to your dashboard!</div>
