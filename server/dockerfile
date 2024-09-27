@@ -15,7 +15,7 @@ COPY . /app/
 WORKDIR /app
 
 # Build the project
-RUN ./gradlew build || return 0
+RUN ./gradlew build --no-daemon || return 0
 
 # Create a new stage for the runtime environment
 FROM eclipse-temurin:17
