@@ -13,13 +13,4 @@ public class UserController {
 
     @Autowired
     private UserService userService;
-
-    @PostMapping("/create")
-    public ResponseEntity<String> createUser(String email, String name, String password) {
-        if (userService.createUser(email, name, password)) {
-            return ResponseEntity.ok("User created successfully");
-        } else {
-            return ResponseEntity.badRequest().body("User already exists or there was an error");
-        }
-    }
 }

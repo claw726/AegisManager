@@ -6,19 +6,19 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "Orgs")
+@Table(name = "orgs")
 public class OrgModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int OrgID;
 
-    @Column(name = "OrgName")
+    @Column(name = "name")
     private String OrgName;
 
-    @Column(name = "OrgDescription")
+    @Column(name = "description")
     private String OrgDescription;
 
-    @Column(name = "OrgOwnerID")
+    @Column(name = "ownderID")
     private int OrgOwnerID;
 
     @ManyToMany(mappedBy = "Orgs")

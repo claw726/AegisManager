@@ -12,8 +12,8 @@ public class UserModel {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int UserID;
 
-    @Column(name = "UserName")
-    private String UserName;
+    @Column(name = "user_name")
+    private String userName;
 
     @Column(name = "email")
     private String email;
@@ -26,24 +26,38 @@ public class UserModel {
     )
     private Set<OrgModel> Orgs = new HashSet<>();
 
-    @Column(name = "PWHash")
+    @Column(name = "password_hash")
     private String PWHash;
 
-    @Column(name = "TwoFactorAuthInfo")
+    @Column(name = "auth_info")
     private String TwoFactorAuthInfo;
 
-    @Column(name = "PasswordResetToken")
+    @Column(name = "password_reset_token")
     private String PasswordResetToken;
 
-    @Column(name = "IsLoggedIn")
+    @Column(name = "is_logged_in")
     private Boolean IsLoggedIn;
 
+    @Column(name = "failed_login_attempts")
+    private int failedLoginAttempts;
+
+    @Column(name = "is_locked")
+    private boolean isLocked;
+
+    public int getUserID() {
+        return UserID;
+    }
+
+    public void setUserID(int userID) {
+        UserID = userID;
+    }
+
     public String getUserName() {
-        return UserName;
+        return userName;
     }
 
     public void setUserName(String userName) {
-        UserName = userName;
+        this.userName = userName;
     }
 
     public String getEmail() {
@@ -92,6 +106,22 @@ public class UserModel {
 
     public void setLoggedIn(Boolean loggedIn) {
         IsLoggedIn = loggedIn;
+    }
+
+    public int getFailedLoginAttempts() {
+        return failedLoginAttempts;
+    }
+
+    public void setFailedLoginAttempts(int failedLoginAttempts) {
+        this.failedLoginAttempts = failedLoginAttempts;
+    }
+
+    public boolean isLocked() {
+        return isLocked;
+    }
+
+    public void setLocked(boolean locked) {
+        isLocked = locked;
     }
 }
 
