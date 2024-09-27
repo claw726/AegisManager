@@ -2,7 +2,7 @@
     <div class="relative w-full h-screen bg-background">
       <NavBar />
   
-      <div class="flex flex-col items-center mt-20">
+      <div v-if="!isLoggedIn" class="flex flex-col items-center mt-20">
         <div class="text-3xl font-bold text-primary">Login</div>
         <div class="text-xl font-semibold text-secondary mt-2">Access Your Aegis Account</div>
   
@@ -25,16 +25,29 @@
   
   <script>
   import NavBar from '@/components/NavBar.vue';
+  import { mapState } from 'vuex';
   
   export default {
     components: {
       NavBar,
+    },
+    computed: {
+      ...mapState(['isLoggedIn']),
     },
     data() {
       return {
         email: '',
         password: '',
       };
+    },
+    watch: {
+      'email'(newEmail) {
+        this.email = newEmail.trim();
+        this.email = newEmail.toLowerCase();
+      },
+      'password'(newPassword) {
+        this.password = newPassword.trim();
+      },
     },
     methods: {
       login() {
@@ -50,7 +63,9 @@
   
           if (user) {
             // Redirect to a different page or perform other actions upon successful login
+            this.$store.dispatch('login');
             localStorage.setItem('CurrentUser', JSON.stringify(user));
+            
             this.$router.push({ name: 'Dashboard' });
           } else {
             alert('Invalid email or password.');

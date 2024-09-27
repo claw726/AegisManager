@@ -1,47 +1,53 @@
 <template>
-    <div class="relative w-full h-20 bg-secondary flex items-center justify-between px-6">
-      <div class="text-white font-bold text-lg cursor-pointer" @click="goToHome">Ægis Manager</div>
-      <div class="flex space-x-4">
-        <button v-if="isLoggedIn" @click="logout" class="bg-primary border-2 border-highlight text-white font-semibold py-2 px-4 rounded">Log Out</button>
-        <template v-else>
-          <button @click="goToLogin" class="bg-primary border border-highlight text-white font-semibold py-2 px-4 rounded">Log In</button>
-          <button @click="goToCreateAcct" class="bg-primary border border-highlight text-white font-semibold py-2 px-4 rounded">Sign Up</button>
-        </template>
-      </div>
+  <div class="relative w-full h-20 bg-secondary flex items-center justify-between px-6">
+    <!-- Brand Name -->
+    <div class="text-white font-bold text-lg cursor-pointer" @click="goToHome">Ægis Manager</div>
+    <!-- Navigation Buttons -->
+    <div class="flex space-x-4">
+
+      <!-- If the user is logged in, show the logout button -->
+      <button v-if="isLoggedIn" @click="logout" class="bg-primary border-2 border-highlight text-white font-semibold py-2 px-4 rounded">Log Out</button>
+
+      <!-- If the user is not logged in, show the login and sign up buttons -->
+      <template v-else>
+        <button @click="goToLogin" class="bg-primary border border-highlight text-white font-semibold py-2 px-4 rounded">Log In</button>
+        <button @click="goToCreateAcct" class="bg-primary border border-highlight text-white font-semibold py-2 px-4 rounded">Sign Up</button>
+      </template>
     </div>
-  </template>
-  
-  <script>
-  export default {
-    name: 'NavBar',
-    data() {
-      return {
-        isLoggedIn: false,
-      };
+  </div>
+</template>
+
+<script>
+import { mapState, mapActions } from 'vuex';
+
+export default {
+  name: 'NavBar',
+  computed: {
+    ...mapState(['isLoggedIn']),
+  },
+  methods: {
+    ...mapActions(['logout']),
+    // Check if the user is logged in
+    checkLoginStatus() {
+      this.$store.dispatch('checkLoginStatus');
     },
-    created() {
-      this.checkLoginStatus();
+    // Navigate to the home page
+    goToHome() {
+      this.$router.push({ name: 'Home' });
     },
-    methods: {
-      checkLoginStatus() {
-        // Check if the CurrentUser.json exists in local storage
-        this.isLoggedIn = !!localStorage.getItem('CurrentUser');
-      },
-      goToHome() {
-        this.$router.push({ name: 'Home' });
-      },
-      goToLogin() {
-        this.$router.push({ name: 'Login' });
-      },
-      goToCreateAcct() {
-        this.$router.push({ name: 'CreateAcct' });
-      },
-      logout() {
-        // Remove the CurrentUser.json from local storage
-        localStorage.removeItem('CurrentUser');
-        this.$router.push({ name: 'Home' });
-        this.isLoggedIn = false;
-      },
+    // Navigate to the login page
+    goToLogin() {
+      this.$router.push({ name: 'Login' }); 
     },
-  };
-  </script>
+    // Navigate to the create account page
+    goToCreateAcct() {
+      this.$router.push({ name: 'CreateAcct' });
+    },
+    // Logout the user and navigate to the home page
+    logout() {
+      this.$store.dispatch('logout');
+      this.$router.push({ name: 'Home' });
+    },
+  },
+};
+</script>

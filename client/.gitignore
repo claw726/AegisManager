@@ -24,7 +24,6 @@ pnpm-debug.log*
 *.crt
 *.key
 
-.gradle/*
-../server/.gradle/*
+**/.gradle/*
 
 *.lock
