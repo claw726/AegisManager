@@ -22,11 +22,19 @@ Aegis is a project management system designed to simplify task management for sm
 Open a terminal in the `./client` directory and run the following command to build the Docker image:
 
 ```
+docker-compose build
+```
+
+
+### Step 2: Run the Docker Container
+Once the image is built, you can run a container from it using the following command:
+
+```
 docker-compose up
 ```
 
 
-### Step 2: Verify the Application
+### Step 3: Verify the Application
 After running the container, you can verify that your frontend application is running by accessing [https://localhost:8080](https://localhost:8080) in your web browser. You should see your Vue.js application up and running.
 
 > Get an error stating that the certificate is invalid? Go to `advanced` and click `accept anyways`
@@ -37,12 +45,18 @@ After running the container, you can verify that your frontend application is ru
 Open a terminal in the `./server` directory and run the following command to build the Docker image:
 
 ```
-docker-compose -up
+docker-compose -build
 ```
 
-### Step 2: ???
+###  Step 2: Run the docker image
 
-### Step 3: Profit!
+```
+docker-compose up
+```
+
+### Step 3: ???
+
+### Step 4: Profit
 
 ## License
 This project is licensed under the GPL-3.0 License. See the [LICENSE](LICENSE) file for details.
