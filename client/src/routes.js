@@ -26,6 +26,18 @@ const router = createRouter({
       name: 'Dashboard',
       component: () => import('./views/DashboardView.vue'),
       meta: {requiresAuth: true},
+    },
+    {
+      path: '/userOrgs',
+      name: 'viewOrgs',
+      component: () => import('./views/OrgView.vue'),
+      meta: {requiresAuth: true},
+    },
+    {
+      path: '/createOrg',
+      name: 'createOrg',
+      component: () => import('./views/CreateOrgView.vue'),
+      meta: {requiresAuth: true},
     }
   ],
 });
