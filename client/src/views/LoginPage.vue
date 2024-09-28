@@ -25,14 +25,14 @@
   
   <script>
   import NavBar from '@/components/NavBar.vue';
-  import { mapState } from 'vuex';
+  import { mapState, mapActions } from 'vuex';
   
   export default {
     components: {
       NavBar,
     },
     computed: {
-      ...mapState(['isLoggedIn']),
+      ...mapState(['isLoggedIn', 'userEmail', 'userFirstName', 'userLastName', 'userPhoto']),
     },
     data() {
       return {
@@ -63,8 +63,8 @@
   
           if (user) {
             // Redirect to a different page or perform other actions upon successful login
-            this.$store.dispatch('login');
-            localStorage.setItem('CurrentUser', JSON.stringify(user));
+            this.$store.dispatch('login', this.email);
+            // localStorage.setItem('CurrentUser', JSON.stringify(user));
             
             this.$router.push({ name: 'Dashboard' });
           } else {

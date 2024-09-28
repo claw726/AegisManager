@@ -5,9 +5,9 @@
     <div v-if="isLoggedIn">
       <!-- Profile Section -->
       <div class="relative flex justify-center h-screen/3 py-12">
-        <img :src="user.profilePicture" alt="Profile Picture" class="w-48 h-48 rounded-full drop-shadow-xl col-span-1" />
+        <img :src="userPhoto" alt="Profile Picture" class="w-48 h-48 rounded-full drop-shadow-xl col-span-1" />
         <div class="ml-8 flex flex-col justify-center">
-          <div class="text-4xl font-bold text-primary">{{ user.firstName }} {{ user.lastName }}</div>
+          <div class="text-4xl font-bold text-primary">{{ userFirstName }} {{ userLastName }}</div>
           <div class="text-2xl font-semibold text-secondary">Welcome to your dashboard!</div>
           <div class="py-4 flex-col">
             <button class="bg-primary text-white rounded-lg p-4" @click="goToViewOrgs">Your Organizations 🏢</button>
@@ -52,23 +52,10 @@
       };
     },
     computed: {
-      ...mapState(['isLoggedIn']),
-    },
-    created() {
-      this.loadUserData();
+      ...mapState(['isLoggedIn', 'userEmail', 'userFirstName', 'userLastName', 'userPhoto']),
     },
     methods: {
-      loadUserData() {
-        // Retrieve the current user's data from local storage
-        const currentUser = localStorage.getItem('CurrentUser');
-        if (currentUser) {
-          this.user = JSON.parse(currentUser);
-        } else {
-          // Redirect to the login page
-          this.$router.push({ name: 'Login' });
-          // Optionally, redirect to the login page or handle the case where no user is logged in
-        }
-      },
+
       goToViewOrgs() {
         this.$router.push({ name: 'viewOrgs' });
       },
