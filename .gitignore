@@ -3,9 +3,6 @@ SCRUM Logs/Week 1.txt
 
 .DS_Store
 client/src/views/Logo.vue
-<<<<<<< HEAD
-node_modules/*
-=======
 
 *.lock
 
@@ -21,4 +18,3 @@ node_modules/
 # Gradle
 server/.gradle/
 server/build/
->>>>>>> 6015e776f254bdafd1a45b314468bdbeecf4a4e8
