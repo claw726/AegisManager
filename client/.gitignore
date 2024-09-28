@@ -23,3 +23,7 @@ pnpm-debug.log*
 *.sw?
 *.crt
 *.key
+
+**/.gradle/*
+
+*.lock

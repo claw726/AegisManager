@@ -1,7 +1,11 @@
 {
   "dependencies": {
+<<<<<<< HEAD
     "build": "^0.1.4",
     "package.json": "^2.0.1",
     "serve": "^14.2.3"
+=======
+    "vuex": "^4.0.2"
+>>>>>>> 6015e776f254bdafd1a45b314468bdbeecf4a4e8
   }
 }

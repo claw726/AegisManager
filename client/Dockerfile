@@ -29,7 +29,7 @@ COPY --from=build /app/dist /app
 RUN apk add --no-cache openssl
 
 # Generate SSL/TLS certificates
-RUN openssl req -x509 -newkey rsa:2048 -nodes -keyout localhost.key -out localhost.crt -days 365 -subj "/C=US/ST=State/L=Locality/O=Organization/CN=localhost"
+RUN openssl req -x509 -newkey rsa:2048 -nodes -keyout localhost.key -out localhost.crt -days 365 -subj "/C=US/ST=Indiana/L=PurdueUniversity/O=CS307-Group18/CN=localhost"
 
 # Install the serve package
 RUN npm install -g serve

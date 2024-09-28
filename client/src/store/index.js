@@ -12,7 +12,7 @@
      },
      actions: {
        login({ commit }) {
-         localStorage.setItem('CurrentUser', 'user data');
+         localStorage.setItem('CurrentUser', 'userAccounts');
          commit('setLoginStatus', true);
        },
        logout({ commit }, router) {
