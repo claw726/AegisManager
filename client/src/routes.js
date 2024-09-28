@@ -25,6 +25,20 @@ const router = createRouter({
                     name: 'Dashboard',
                     component: () => import('./views/DashboardView.vue'),
                     meta: {requiresAuth: true},
+                },
+
+                {
+                    path: '/todolist',
+                    name: 'TDList',
+                    component: () => import('./views/ToDoListView.vue'),
+                    meta: {requiresAuth: true},
+                },
+
+                {
+                    path: '/taskdetail',
+                    name: 'TaskDetail',
+                    component: () => import('./views/TaskDetail.vue'),
+                    props: true // Allow passing route params as props
                 }
             ],
     });

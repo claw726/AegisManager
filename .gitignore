@@ -5,3 +5,4 @@ server/.gradle/*
 .DS_Store
 server/.gradle/8.8/fileHashes/fileHashes.lock
 client/src/views/Logo.vue
+node_modules/*
