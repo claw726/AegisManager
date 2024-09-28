@@ -36,7 +36,7 @@
   </template>
 
 <script>
-import NavBar from '../components/NavBar.vue';
+import NavBar from '@/components/NavBar.vue';
 import { mapState } from 'vuex';
 import imageCompression from 'browser-image-compression'
 

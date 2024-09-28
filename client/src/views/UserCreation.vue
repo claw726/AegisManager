@@ -201,16 +201,19 @@
         }
         // Add new account to existing accounts
         accounts.push(this.user);
-
-        // make isLoggedIn true
-        this.login(this.user.email);
-
+        
         // // Set the CurrentUser to the newly created account
         // localStorage.setItem('CurrentUser', JSON.stringify(this.user));
 
         // Store updated accounts in local storage
         localStorage.setItem('userAccounts', JSON.stringify(accounts)); // Store user data in local storage
 
+        // make isLoggedIn true
+        this.$store.dispatch('login', this.user.email);
+
+        setTimeout(goToDash, 100);
+      },
+      goToDash(){
         // Redirect to the dashboard
         this.$router.push({ name: 'Dashboard' });
       },

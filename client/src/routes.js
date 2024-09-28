@@ -28,7 +28,7 @@ const router = createRouter({
       meta: {requiresAuth: true},
     },
     {
-      path: '/userOrgs',
+      path: '/organizations',
       name: 'viewOrgs',
       component: () => import('./views/OrgView.vue'),
       meta: {requiresAuth: true},
@@ -37,6 +37,12 @@ const router = createRouter({
       path: '/createOrg',
       name: 'createOrg',
       component: () => import('./views/CreateOrgView.vue'),
+      meta: {requiresAuth: true},
+    },
+    {
+      path: '/organization/:index',
+      name: 'OrganizationDashboard',
+      component: () => import('./views/OrgDashView.vue'),
       meta: {requiresAuth: true},
     }
   ],
