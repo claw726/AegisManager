@@ -28,12 +28,18 @@
         <button class="dashboard-button">Search</button>
       </div>
       <div class="h-1 bg-accent drop-shadow-lg rounded mx-16" />
+
+      <!-- Create Project Button -->
+      <div class="flex flex-col items-center">
+        <button @click="goToCreateProject" class="dashboard-button mt-8">Create New Project</button>
+      </div>
+
+      <!-- List of Projects -->
       <div class="grid grid-cols-4 gap-4 m-8">
         <ProjCard v-for="project in projects" :key="project.id" :project="project" />
       </div>
-      <div class="flex flex-col items-center">
-        <button @click="goToCreateProject" class="dashboard-button ">Create New Task</button>
-      </div>
+
+      
     </div>
 </template>
   
@@ -52,25 +58,7 @@
     data() {
       return {
         org: null,
-        projects: [
-        {
-          id: 1,
-          image: 'https://images7.alphacoders.com/131/1314501.jpg',
-          title: 'Project 1',
-          description: 'This is a short description of Project 1.',
-          owner: 'John Doe',
-          tasks: 5
-        },
-        {
-          id: 2,
-          image: 'https://www.pixelstalk.net/wp-content/uploads/2016/11/Download-Pictures-Eve-Online.jpg',
-          title: 'Project 2',
-          description: 'This is a short description of Project 2.',
-          owner: 'Jane Doe',
-          tasks: 3
-        },
-        // Add more projects here...
-      ]
+        projects: [],
       };
     },
     components: {
@@ -82,6 +70,9 @@
     },
     computed: {
       ...mapState(['isLoggedIn']),
+    },
+    mounted() {
+      this.projects = JSON.parse(localStorage.getItem(this.$route.params.index)) || [];
     },
     methods: {
       getOrgData() {
@@ -97,4 +88,4 @@
         },
     },
   };
-  </script>
+  </script>   
