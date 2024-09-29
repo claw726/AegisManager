@@ -3,7 +3,7 @@
       <NavBar />
     
       <div class="relative flex flex-col justify-center py-16">
-        <div class="text-4xl font-bold text-primary text-center text-primary py-4">Your Organizations</div>
+        <div class="text-4xl font-bold text-primary text-center py-4">Your Organizations</div>
         <div class="h-1 bg-accent drop-shadow-lg"></div>
         <div class="grid grid-cols-3">
             <div class="flex-col" />

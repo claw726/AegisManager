@@ -59,7 +59,9 @@
   import { mapState, mapActions } from 'vuex';
   import NavBar from '@/components/NavBar.vue';
   import PasswordInput from '@/components/PasswordCreator.vue';
-  import imageCompression from 'browser-image-compression'
+  import imageCompression from 'browser-image-compression';
+  import axios from '@/utils/axios.js'
+
   export default {
     components: {
       PasswordInput,
@@ -168,12 +170,7 @@
           alert('Please select a valid image format.');
         }
       },
-      createUserJson() {
-        const userJson = JSON.stringify(this.user, null, 2);
-        console.log('User JSON:', userJson);
-        return userJson;
-      },
-      submitForm() {
+      async submitForm() {
         // TODO: when server is setup, request all user accounts and check if email already exists
         if (!this.imageUploaded || !this.user.firstName || !this.user.lastName || !this.user.email) {
           alert('Please fill out all fields and upload an image.');
@@ -184,35 +181,49 @@
         if (!emailRegex.test(this.user.email)) {
           alert('Please enter a valid email address.');
           return;
-        } 
-
-        let accounts = [];
-        // Retrieve existing accounts from local storage
-        const existingAccounts = localStorage.getItem('userAccounts');
-        if (existingAccounts) {
-          accounts = JSON.parse(existingAccounts);
-
-          // Check if email already exists
-          const emailExists = accounts.some((account) => account.email === this.user.email);
-          if (emailExists) {
-            alert('This email is already registered. Please use a different email.');
-            return;
-          }
         }
-        // Add new account to existing accounts
-        accounts.push(this.user);
-        
-        // // Set the CurrentUser to the newly created account
-        // localStorage.setItem('CurrentUser', JSON.stringify(this.user));
 
-        // Store updated accounts in local storage
-        localStorage.setItem('userAccounts', JSON.stringify(accounts)); // Store user data in local storage
+        try{
+          // POST to the /request endpoint
+          const response = await axios.post('/api/auth/register', {
+            email: this.user.email,
+            name: `${this.user.firstName} ${this.user.lastName}`,
+            password: this.user.password,
+            profilePicture: this.user.profilePicture
+          });
 
-        // make isLoggedIn true
-        this.$store.dispatch('login', this.user.email);
-
-        setTimeout(this.goToDash, 1000); //needs to wait for user to be stored in JSON before continuing. Removing this breaks the app...
+          if (response.data === `User created successfully`) {
+            // User successfully created
+            await this.loginUser();
+            this.$store.dispatch('login', this.user.email);
+            this.goToDash();
+          } else {
+            alert('User already exists or there was an error');
+          }
+        } catch (error){
+          console.error('Error creating user:', error);
+          alert('An error occured while creating the user on the server side. Please try again later: ', error)
+        }
       },
+      async loginUser() {
+        try{
+          const response = await axios.post('/api/auth/login', {
+            email: this.user.email,
+            password: this.user.password,
+          });
+
+          if (response.data.message === 'Login successful') {
+            this.$store.dispatch('login', this.user.email);
+            localStorage.setItem('token', response.data.token);
+          } else {
+            alert('Login Failed');
+          }
+        } catch (error) {
+          console.error('Error Logging In server-side:', error);
+        }
+      },
+
+        
       goToDash(){
         // Redirect to the dashboard
         this.$router.push({ name: 'Dashboard' });
