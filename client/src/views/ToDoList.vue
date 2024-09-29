@@ -1,7 +1,8 @@
 <template>
-    <div class="relative w-full h-screen bg-white flex flex-col items-center justify-center">
+    <div class="bg-white flex flex-col items-center justify-center">
       <!-- NavBar Component -->
       <NavBar />
+      
       <!-- Task Board -->
       <div class="flex flex-col items-center space-y-8 mt-12">
         <!-- Title: Centered and Colored Dark Hunter Green -->
@@ -31,7 +32,7 @@
               />
               <div class="task-title ml-2">Task 1</div>
             </div>
-            <div class="task-details">Description: Complete project documentation</div>
+            <div class="task-details">Description: {{ String( getTaskfromStorage(1).description ) }} </div>
             <div class="task-details">Due Date: 2024-09-30</div>
           </div>
   
@@ -60,22 +61,33 @@
   
   <script>
   import NavBar from '@/components/NavBar.vue';
+  import {getTask} from './TaskDetail.vue';
+  import { mapState } from 'vuex';
   
   export default {
     components: {
       NavBar,
     },
+
+    computed: {
+      ...mapState(['allTasks'])
+    },
+
+    created() {
+      this.loadUserData();
+    },
+    
     
     data() {
       return {
         task1: {
           id: 1, 
-          completed: null,
-          title: null,
+          completed: false,
+          title: "yes Please",
           description: ' dooodooodooodooo',
-          dueDate: null,
-          priority: null,
-          assignees: null
+          dueDate: '2024-10-05',
+          priority: 'Low',
+          assignees: ['User X']
         },
         task2: {
           id: 2,
@@ -98,10 +110,6 @@
       };
     },
 
-    created() {
-      this.loadUserData();
-    },
-
     methods: {
       loadUserData() {
         const currentUser = localStorage.getItem('CurrentUser');
@@ -111,10 +119,19 @@
           this.$router.push({ name: 'Login' });
         }
       },
+
       viewTask(task) {
         // Navigate to TaskDetails component, passing the task as a route parameter
         this.$router.push({ name: 'TaskDetail', query: {taskId: task.id } });
       },
+
+      getTaskfromStorage(taskid) {
+        //console.log(String(allTasks.taskid))
+        t = allTasks.find(task => task.id === parseInt(taskid));
+        console.log(t)
+        return t;
+      },
+      
     },
   };
   </script>

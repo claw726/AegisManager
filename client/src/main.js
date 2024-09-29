@@ -14,6 +14,7 @@ app.use(store);
 
 app.config.globalProperties.$bus = $bus;
 
+  
 app.mount('#app')
 
 // Add the beforeunload event listener
