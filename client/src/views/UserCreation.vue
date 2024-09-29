@@ -188,8 +188,8 @@
           const response = await axios.post('/api/auth/register', {
             email: this.user.email,
             name: `${this.user.firstName} ${this.user.lastName}`,
-            password: this.user.password,
-            profilePicture: this.user.profilePicture
+            password: this.user.password
+            // profilePicture: this.user.profilePicture
           });
 
           if (response.data === `User created successfully`) {
