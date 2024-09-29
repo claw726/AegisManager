@@ -32,8 +32,8 @@
               />
               <div class="task-title ml-2">Task 1</div>
             </div>
-            <div class="task-details">Description: {{ String( getTaskfromStorage(1).description ) }} </div>
-            <div class="task-details">Due Date: 2024-09-30</div>
+            <div class="task-details">Description: {{  getTaskfromStorage(1).description }}</div>
+            <div class="task-details">Due Date: {{  getTaskfromStorage(1).dueDate }}</div>
           </div>
   
           <!-- Task 2 -->
@@ -50,8 +50,8 @@
               />
               <div class="task-title ml-2">Task 2</div>
             </div>
-            <div class="task-details">Description: Prepare for client presentation</div>
-            <div class="task-details">Due Date: 2024-10-05</div>
+            <div class="task-details">Description: {{  getTaskfromStorage(2).description }}</div>
+            <div class="task-details">Due Date: {{  getTaskfromStorage(2).dueDate }}</div>
           </div>
   
         </div>
@@ -85,7 +85,7 @@
           completed: false,
           title: "yes Please",
           description: ' dooodooodooodooo',
-          dueDate: '2024-10-05',
+          dueDate: '2024',
           priority: 'Low',
           assignees: ['User X']
         },
@@ -94,7 +94,7 @@
           completed: false,
           title: 'Task 2',
           description: 'Prepare for client presentation',
-          dueDate: '2024-10-05',
+          dueDate: '25',
           priority: 'Medium',
           assignees: ['User C']
         },
@@ -126,10 +126,11 @@
       },
 
       getTaskfromStorage(taskid) {
-        //console.log(String(allTasks.taskid))
-        t = allTasks.find(task => task.id === parseInt(taskid));
-        console.log(t)
-        return t;
+        //const aTasks = localStorage.getItem('allTasks');
+        const task = (JSON.parse(JSON.stringify(this.allTasks)))[String(taskid)]
+        //const allTasks = Object.keys(allTasksObj).map((key) => [key, allTasksObj[key]]);
+        //const t = allTasks[taskid.toString()];
+        return task;
       },
       
     },
