@@ -14,7 +14,6 @@
             <button class="bg-primary text-white rounded-lg p-4" @click="goToViewOrgs">Your Organizations 🏢</button>
           </div>
         </div>
-        
     </div>
   </div>
 

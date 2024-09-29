@@ -91,8 +91,7 @@
 
 /* Custom button styling */
 .dashboard-button {
-    @apply bg-primary border border-highlight text-white font-semibold py-6 px-12 rounded-lg transition duration-300 ease-in-out transform mx-2;
-    font-size: 1.5rem; /* 3 times larger */
+    @apply bg-primary border border-highlight text-gray-200 py-2 px-4 rounded-lg transition duration-300 ease-in-out transform mx-2;
 }
   
 .dashboard-button:hover {
@@ -104,4 +103,13 @@
 /* Light Blue Background */
 .bg-light-blue {
     background-color: #75c0da; /* Light blue on hover */
+}
+
+.card {
+  @apply bg-white border-highlight drop-shadow-md rounded-lg transition duration-300 ease-in-out;
+}
+
+.card:hover{
+  transform: scale(1.05);
+  @apply drop-shadow-xl;
 }
