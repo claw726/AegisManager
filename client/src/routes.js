@@ -46,14 +46,12 @@ const router = createRouter({
                   component: () => import('./views/OrgDashView.vue'),
                   meta: {requiresAuth: true},
                 },
-
                 {
-                    path: '/todolist',
-                    name: 'TDList',
-                    component: () => import('./views/ToDoListView.vue'),
-                    meta: {requiresAuth: true},
+                  path: '/todolist',
+                  name: 'toDoList',
+                  component: () => import('./views/ToDoListView.vue'),
+                  meta: {requiresAuth: true},
                 },
-
                 {
                     path: '/taskdetail',
                     name: 'TaskDetail',

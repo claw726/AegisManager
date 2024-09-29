@@ -1,6 +1,6 @@
 <template>
   
-  <div class="relative w-full h-screen bg-background">
+  <div class="relative w-full h-full min-h-screen bg-background">
     <NavBar />
 
     <div v-if="isLoggedIn">
@@ -20,28 +20,22 @@
 
   <div class=" flex justify-center items-start min-h-screen h-[calc(100vh-10vh)]">
 
+    <!-- Button Row -->
+
     <div class=" flex-col space-y-4 mt-8">
 
 
-        <button @click="goToTDList" class="button-container viewtask-button bg-primary border border-highlight text-white font-semibold rounded">
-          <router-link to="/todolist">View Tasks!</router-link>
-        </button>
+        <button @click="goToViewTasks" class="button-container dashboard-button">View Tasks</button>
 
-        <button class="button-container viewtask-button bg-primary border border-highlight text-white font-semibold rounded">
-          <router-link to="/todolist">View Projects!</router-link>
-        </button>
+        <button @click="goToProjects" class="button-container dashboard-button">View Projects </button>
 
-        <button class="button-container viewtask-button bg-primary border border-highlight text-white font-semibold rounded">
-          <router-link to="/todolist">View Organizations!</router-link>
-        </button>
+        <button @click="goToViewOrgs" class="button-container dashboard-button"> View Organizations 🏢 </button>
 
-        <button class="button-container viewtask-button bg-primary border border-highlight text-white font-semibold rounded">
-          <router-link to="/todolist">View Settings!</router-link>
-        </button>
+        <button @click="goToSettings" class="button-container dashboard-button">Settings ⚙️</button>
 
 
     </div>     
-
+  </div>
   </div> 
   
 </template>
@@ -68,6 +62,15 @@
       goToViewOrgs() {
         this.$router.push({ name: 'viewOrgs' });
       },
+      goToViewTasks() {
+        this.$router.push({ name: 'toDoList'});
+      },
+      goToProjects() {
+        alert("Not Implemented");
+      },
+      goToSettings() {
+        alert("Not Implemented");
+      }
     },
   };
   </script>
