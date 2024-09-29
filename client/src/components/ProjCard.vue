@@ -2,7 +2,7 @@
     <div class="flex flex-col justify-between p-4 card">
       <!-- Image -->
        <div class="aspect-video">
-        <img :src="project.ProjImgd" alt="Project Image" class=" object-contain rounded-lg drop-shadow-lg">
+        <img :src="project.ProjImg" alt="Project Image" class=" object-contain rounded-lg drop-shadow-lg">
        </div>
       
 
