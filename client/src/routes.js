@@ -41,7 +41,7 @@ const router = createRouter({
                   meta: {requiresAuth: true},
                 },
                 {
-                  path: '/organization/:index',
+                  path: '/organization/:orgIndex',
                   name: 'OrganizationDashboard',
                   component: () => import('./views/OrgDashView.vue'),
                   meta: {requiresAuth: true},
@@ -59,7 +59,7 @@ const router = createRouter({
                   props: true // Allow passing route params as props
                 },
                 {
-                  path: '/organization/:index/createProject',
+                  path: '/organization/:orgIndex/createProject',
                   name: 'createProject',
                   component: () => import('./views/ProjCreator.vue'),
                   meta: {requiresAuth: true},
@@ -68,6 +68,12 @@ const router = createRouter({
                   path: '/kanban',
                   name: 'KB',
                   component: () => import('./views/KanbanView.vue'),
+                  meta: {requiresAuth: true},
+                },
+                {
+                  path: '/organization/:orgIndex/project/:projIndex',
+                  name: 'ProjectDashboard',
+                  component: () => import('./views/ProjView.vue'),
                   meta: {requiresAuth: true},
                 },
             ],

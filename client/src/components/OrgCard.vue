@@ -36,7 +36,7 @@
             alert("Not fully implemented yet. Leftover org data will persist in storage.");
         },
         viewOrganization() {
-            this.$router.push({ name: 'OrganizationDashboard', params: { index: this.index }});
+            this.$router.push({ name: 'OrganizationDashboard', params: { orgIndex: this.index }});
         },
     },
   };

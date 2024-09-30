@@ -7,13 +7,13 @@
       </div>
 
       <div class="flex justify-center justify-items-center p-4">
-        <div v-if="org">
+        <div v-if="proj">
           <div class="relative flex h-screen/3 py-4">
-          <img :src="org.OrgLogo" alt="Profile Picture" class="w-48 h-48 rounded-full drop-shadow-xl col-span-1" />
+          <img :src="proj.ProjImg" alt="Profile Picture" class="h-48 con drop-shadow-xl col-span-1" />
           <div class="ml-8 flex flex-col justify-center">
-            <div class="text-4xl font-bold text-primary">{{ org.OrgName}}</div>
-            <div class="text-2xl font-semibold text-secondary">{{ org.OrgDescription }}</div>
-            <div class="text-medium text-accent">Created by: {{ org.OrgCreator }}</div>
+            <div class="text-4xl font-bold text-primary">{{ proj.ProjName}}</div>
+            <div class="text-2xl font-semibold text-secondary">{{ proj.ProjDescription }}</div>
+            <div class="text-medium text-accent">Created by: {{ proj.ProjCreator }}</div>
             </div>
           </div>
         </div>
@@ -31,12 +31,12 @@
 
       <!-- Create Project Button -->
       <div class="flex flex-col items-center">
-        <button @click="goToCreateProject" class="dashboard-button mt-8">Create New Project</button>
+        <button @click="goToCreateTask" class="dashboard-button mt-8">Create New Task</button>
       </div>
 
       <!-- List of Projects -->
       <div class="grid grid-cols-4 gap-4 m-8">
-        <ProjCard v-for="(project, index) in projects" :key="projIndex" :project="project" :projIndex="index"/>
+        <ProjCard v-for="project in projects" :key="project.id" :project="project" />
       </div>
 
       
@@ -46,45 +46,38 @@
   <script>
   import NavBar from '@/components/NavBar.vue';
   import { mapState } from 'vuex';
-  import ProjCard from '@/components/ProjCard.vue';
   
   export default {
-    props: {
-      projIndex: {
-        type: Number,
-        required: false,
-      },
-    },
     data() {
       return {
-        org: null,
+        proj: null,
         projects: [],
       };
     },
     components: {
       NavBar,
-      ProjCard,
     },
     created() {
-      this.getOrgData();
+      this.getProjData();
     },
     computed: {
       ...mapState(['isLoggedIn']),
     },
     mounted() {
-      this.projects = JSON.parse(localStorage.getItem(this.$route.params.orgIndex)) || [];
+      this.tasks = JSON.parse(localStorage.getItem(this.$route.params.orgIndex)) || [];
     },
     methods: {
-      getOrgData() {
-        const userOrganizations = JSON.parse(localStorage.getItem('UserOrganizations'));
-        this.org = userOrganizations[this.$route.params.orgIndex];
-        if (!this.org) {
+      getProjData() {
+        const userOrganizations = JSON.parse(localStorage.getItem(this.$route.params.orgIndex));
+        this.proj = userOrganizations[this.$route.params.projIndex];
+        if (!this.proj) {
           alert("There was an error fetching the organization data");
-          this.$router.push({name: 'viewOrgs'});
+          this.$router.push({name: 'OrganizationDashboard'});
         }
       },
-      goToCreateProject() {
-            this.$router.push({ name: 'createProject', params: { orgIndex: this.index }});
+      goToCreateTask() {
+            // this.$router.push({ name: 'createTask', params: { orgIndex: this.index }});
+            alert("Bilsha, can you implement this?");
         },
     },
   };

@@ -13,37 +13,30 @@
           <div class="py-4 flex-col">
 
             <button class="bg-primary text-white rounded-lg p-4" @click="goToViewOrgs">Your Organizations 🏢</button>
-            <button @click="goToKanban" class="button-container viewtask-button bg-primary border border-highlight text-white font-semibold rounded">
-              View Projects!
-            </button>
 
           </div>
-        </div>
+          
+      </div>
+      
     </div>
-  </div>
-  </div>
-
-  <div class=" flex justify-center items-start min-h-screen">
-
     <!-- Button Row -->
 
-    <div class=" flex-col space-y-4 mt-8">
+    <div class="flex justify-center">
 
 
-        <button @click="goToViewTasks" class="button-container dashboard-button">View Tasks</button>
+    <button @click="goToViewTasks" class="button-container dashboard-button">View Tasks</button>
 
-        <button @click="goToTDList" class="button-container dashboard-button">View Tasks</button>
+    <button @click="goToTDList" class="button-container dashboard-button">View Tasks</button>
 
-        <button @click="goToProjects" class="button-container dashboard-button">View Projects </button>
+    <button @click="goToKanban" class="button-container dashboard-button">View Projects </button>
 
-        <button @click="goToViewOrgs" class="button-container dashboard-button"> View Organizations 🏢 </button>
+    <button @click="goToViewOrgs" class="button-container dashboard-button"> View Organizations 🏢 </button>
 
-        <button @click="goToSettings" class="button-container dashboard-button">Settings ⚙️</button>
+    <button @click="goToSettings" class="button-container dashboard-button">Settings ⚙️</button>
 
-
-    </div>     
-  
-  </div> 
+    </div>
+  </div>
+</div>
   
 </template>
 

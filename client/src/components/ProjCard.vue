@@ -1,5 +1,5 @@
 <template>
-    <div class="flex flex-col justify-between p-4 card">
+    <div @click="goToProj()" class="flex flex-col justify-between p-4 card">
       <!-- Image -->
        <div class="aspect-video">
         <img :src="project.ProjImg" alt="Project Image" class=" object-contain rounded-lg drop-shadow-lg">
@@ -28,9 +28,23 @@
       project: {
         type: Object,
         required: true
+      },
+      projIndex: {
+        type: Number,
+        required: true
+      }
+    },
+    methods: {
+      goToProj() {
+        if (this.projIndex === undefined || this.projIndex === null) {
+          console.error('Project index is not defined:', this.projIndex);
+          return;
+        } else {
+        this.$router.push({ name: 'ProjectDashboard', params: { orgIndex: this.$route.params.orgIndex, projIndex: this.projIndex } });
       }
     }
   }
+}
   </script>
   
   <style scoped>
