@@ -1,38 +1,56 @@
 <template>
-  <div v-if="!isLoggedIn" class="relative w-full h-screen bg-white">
+  
+  <div class="relative w-full h-full min-h-screen bg-background">
     <NavBar />
 
-    <!-- Profile Section -->
-    <div class="absolute left-32 top-36 flex items-center">
-      <img :src="user.profilePicture" alt="Profile Picture" class="w-48 h-48 rounded-full drop-shadow-xl" />
-      <div class="ml-8">
-        <div class="text-4xl font-bold text-primary">{{ user.firstName }} {{ user.lastName }}</div>
-        <div class="text-2xl font-semibold text-secondary">Welcome to your dashboard!</div>
-      </div>
-    </div>
+    <div v-if="isLoggedIn">
+      <!-- Profile Section -->
+      <div class="relative flex justify-center h-screen/3 py-12">
+        <img :src="userPhoto" alt="Profile Picture" class="w-48 h-48 rounded-full drop-shadow-xl col-span-1" />
+        <div class="ml-8 flex flex-col justify-center">
+          <div class="text-4xl font-bold text-primary">{{ userFirstName }} {{ userLastName }}</div>
+          <div class="text-2xl font-semibold text-secondary">Welcome to your dashboard!</div>
+          <div class="py-4 flex-col">
 
-    <!-- Kanban Board -->
-    <div class="absolute left-28 top-96 flex space-x-8">
-      <div class="flex flex-col w-72">
-        <div class="flex items-center justify-between p-4 bg-white border border-gray-300 rounded-t-lg">
-          <div class="text-xl font-bold text-gray-800">Column Title</div>
-          <div class="w-6 h-6 border border-gray-300 rounded-full flex items-center justify-center">
-            <span class="text-sm font-bold text-gray-800">0</span>
+            <button class="bg-primary text-white rounded-lg p-4" @click="goToViewOrgs">Your Organizations 🏢</button>
+            <button @click="goToKanban" class="button-container viewtask-button bg-primary border border-highlight text-white font-semibold rounded">
+              View Projects!
+            </button>
+
           </div>
         </div>
-        <div class="flex flex-col space-y-4 p-4 bg-white border border-gray-300 rounded-b-lg">
-          <div class="p-4 bg-white border border-gray-300 rounded-lg">Task 1</div>
-          <div class="p-4 bg-white border border-gray-300 rounded-lg">Task 2</div>
-        </div>
-      </div>
-      <!-- Repeat for additional columns -->
     </div>
   </div>
+  </div>
+
+  <div class=" flex justify-center items-start min-h-screen">
+
+    <!-- Button Row -->
+
+    <div class=" flex-col space-y-4 mt-8">
+
+
+        <button @click="goToViewTasks" class="button-container dashboard-button">View Tasks</button>
+
+        <button @click="goToTDList" class="button-container dashboard-button">View Tasks</button>
+
+        <button @click="goToProjects" class="button-container dashboard-button">View Projects </button>
+
+        <button @click="goToViewOrgs" class="button-container dashboard-button"> View Organizations 🏢 </button>
+
+        <button @click="goToSettings" class="button-container dashboard-button">Settings ⚙️</button>
+
+
+    </div>     
+  
+  </div> 
+  
 </template>
 
   
   <script>
   import NavBar from '@/components/NavBar.vue';
+  import { mapState } from 'vuex';
   
   export default {
     components: {
@@ -43,21 +61,32 @@
         user: {},
       };
     },
-    created() {
-      this.loadUserData();
+    computed: {
+      ...mapState(['isLoggedIn', 'userEmail', 'userFirstName', 'userLastName', 'userPhoto']),
     },
     methods: {
-      loadUserData() {
-        // Retrieve the current user's data from local storage
-        const currentUser = localStorage.getItem('CurrentUser');
-        if (currentUser) {
-          this.user = JSON.parse(currentUser);
-        } else {
-          // Redirect to the login page
-          this.$router.push({ name: 'Login' });
-          // Optionally, redirect to the login page or handle the case where no user is logged in
-        }
+
+      goToViewOrgs() {
+        this.$router.push({ name: 'viewOrgs' });
       },
+
+      goToTDList() {
+        this.$router.push({ name: 'TDList' });
+      },
+
+      goToKanban() {
+        this.$router.push({ name: 'KB' });
+      },
+      
+      goToViewTasks() {
+        this.$router.push({ name: 'toDoList'});
+      },
+      goToProjects() {
+        alert("Not Implemented");
+      },
+      goToSettings() {
+        alert("Not Implemented");
+      }
     },
   };
   </script>

@@ -5,3 +5,17 @@ SCRUM Logs/Week 1.txt
 client/src/views/Logo.vue
 
 *.lock
+
+# Intellij
+.idea/
+*.iws
+*.iml
+*.ipr
+
+# Node.js
+node_modules/
+
+# Gradle
+server/.gradle/
+server/build/
+SCRUM Logs/Week 2.txt

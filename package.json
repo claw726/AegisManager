@@ -1,5 +1,8 @@
 {
   "dependencies": {
+    "build": "^0.1.4",
+    "package.json": "^2.0.1",
+    "serve": "^14.2.3",
     "vuex": "^4.0.2"
   }
 }

@@ -1,3 +1,115 @@
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
+
+.button-container {
+    text-align: center;
+    align-items: center; /* Centers the button horizontally */
+  }
+  
+  /* Custom Color for Hunter Green */
+  .text-hunter-green {
+    color: #355e3b; /* Dark Hunter Green */
+  }
+  
+  /* Task Card Styling */
+  .task-card {
+    background-color: #f9fafb;
+    border: 2px solid #e5e7eb;
+    border-radius: 1rem;
+    padding: 1.5rem;
+    box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+    transition: transform 0.2s ease-in-out, background-color 0.3s ease-in-out;
+    width: 100%;
+    position: relative;
+  }
+  
+  .task-card:hover {
+    transform: translateY(-3px); /* Slight lift on hover */
+    box-shadow: 0 12px 20px -3px rgba(0, 0, 0, 0.2);
+  }
+  
+  /* Styling for completed tasks */
+  .bg-gray-300 {
+    background-color: #d1d5db; /* Grey out the background when complete */
+  }
+  
+  .task-title {
+    font-size: 1.25rem;
+    font-weight: bold;
+    color: #111827; /* Darker Text */
+    margin-bottom: 0.5rem;
+  }
+  
+  .task-details {
+    font-size: 1rem;
+    color: #4b5563; /* Subtle Gray Text */
+    margin-bottom: 0.25rem;
+  }
+  
+  /* Checkbox styling */
+  .checkbox {
+    width: 1.25rem;
+    height: 1.25rem;
+    cursor: pointer;
+    appearance: none;
+    background-color: #f9fafb;
+    border: 2px solid #e5e7eb;
+    border-radius: 0.25rem;
+    transition: background-color 0.3s ease;
+  }
+  
+  .checkbox:checked {
+    background-color: #34d399; /* Green color for checked boxes */
+    border-color: #34d399;
+  }
+  
+  .checkbox:checked::after {
+    content: "✓";
+    font-size: 1rem;
+    color: white;
+    display: block;
+    text-align: center;
+  }
+  
+  /* Custom button styling */
+.custom-button {
+  @apply bg-primary border border-highlight text-white font-semibold py-6 px-12 rounded-lg transition duration-300 ease-in-out transform;
+  font-size: 1.5rem; /* 3 times larger */
+}
+
+.custom-button:hover {
+  @apply bg-light-blue text-black;
+  transform: scale(1.05); /* Slight enlargement on hover */
+  z-index: 1;
+}
+
+/* Light Blue Background */
+.bg-light-blue {
+  background-color: #add8e6; /* Light blue on hover */
+}
+
+/* Custom button styling */
+.dashboard-button {
+    @apply bg-primary border border-highlight text-gray-200 py-2 px-4 rounded-lg transition duration-300 ease-in-out transform mx-2;
+}
+  
+.dashboard-button:hover {
+    @apply bg-secondary text-gray-100;
+    transform: scale(1.05); /* Slight enlargement on hover */
+    z-index: 10;
+}
+  
+/* Light Blue Background */
+.bg-light-blue {
+    background-color: #75c0da; /* Light blue on hover */
+}
+
+.card {
+  @apply bg-white border-highlight drop-shadow-md rounded-lg transition duration-300 ease-in-out;
+}
+
+.card:hover{
+  transform: scale(1.05);
+  @apply drop-shadow-xl;
+}

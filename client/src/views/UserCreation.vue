@@ -56,7 +56,7 @@
 </template>
   
   <script>
-  import { mapState } from 'vuex';
+  import { mapState, mapActions } from 'vuex';
   import NavBar from '@/components/NavBar.vue';
   import PasswordInput from '@/components/PasswordCreator.vue';
   import imageCompression from 'browser-image-compression'
@@ -66,7 +66,7 @@
       NavBar,
     },
     computed: {
-      ...mapState(['isLoggedIn']),
+      ...mapState(['isLoggedIn', 'userEmail', 'userFirstName', 'userLastName', 'userPhoto']),
     },
     data() {
       return {
@@ -94,6 +94,7 @@
         this.$refs.fileInput.click();
       },
       async handleFileUpload(event) {
+        event.preventDefault();
         const file = event.target.files[0];
         if (file) {
           try {
@@ -200,16 +201,19 @@
         }
         // Add new account to existing accounts
         accounts.push(this.user);
-
-        // make isLoggedIn true
-        this.$store.dispatch('login');
-
-        // Set the CurrentUser to the newly created account
-        localStorage.setItem('CurrentUser', JSON.stringify(this.user));
+        
+        // // Set the CurrentUser to the newly created account
+        // localStorage.setItem('CurrentUser', JSON.stringify(this.user));
 
         // Store updated accounts in local storage
         localStorage.setItem('userAccounts', JSON.stringify(accounts)); // Store user data in local storage
 
+        // make isLoggedIn true
+        this.$store.dispatch('login', this.user.email);
+
+        setTimeout(this.goToDash, 1000); //needs to wait for user to be stored in JSON before continuing. Removing this breaks the app...
+      },
+      goToDash(){
         // Redirect to the dashboard
         this.$router.push({ name: 'Dashboard' });
       },
