@@ -3,14 +3,14 @@
       <NavBar />
     
       <div class="relative flex flex-col justify-center py-16">
-        <div class="text-4xl font-bold text-primary text-center text-primary py-4">Your Organizations</div>
+        <div class="text-4xl font-bold text-primary text-center py-4">Your Organizations</div>
         <div class="h-1 bg-accent drop-shadow-lg"></div>
         <div class="grid grid-cols-3">
             <div class="flex-col" />
             <div class="relative flex-col col-span-1 justify-center flex w-full">
             <div v-if="userOrganizations.length > 0">
                 <div v-for="(organization, index) in userOrganizations" :key="index" class="grid my-4">
-                    <div class="p-4 border border-gray-300 rounded-lg drop-shadow-lg bg-gray-100">
+                    <div class="p-4 card">
                         <OrgCard :organization="organization" :index="index" @organizationDeleted="loadUserOrganizations" />
                     </div>
                 </div>

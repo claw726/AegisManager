@@ -1,6 +1,6 @@
 <template>
   
-  <div class="relative w-full h-screen bg-background">
+  <div class="relative w-full h-full min-h-screen bg-background">
     <NavBar />
 
     <div v-if="isLoggedIn">
@@ -19,33 +19,30 @@
 
           </div>
         </div>
-        
     </div>
   </div>
   </div>
 
   <div class=" flex justify-center items-start min-h-screen">
 
+    <!-- Button Row -->
+
     <div class=" flex-col space-y-4 mt-8">
-            <button class="bg-primary text-white rounded-lg p-4" @click="goToTDList">Your Tasks 🏢</button>
 
-            <button @click="goToTDList" class="button-container viewtask-button bg-primary border border-highlight text-white font-semibold rounded">
-              View Tasks!
-            </button>
 
-            <button @click="goToKanban" class="button-container viewtask-button bg-primary border border-highlight text-white font-semibold rounded">
-              View Projects!
-            </button>
+        <button @click="goToViewTasks" class="button-container dashboard-button">View Tasks</button>
 
-            <button class="button-container viewtask-button bg-primary border border-highlight text-white font-semibold rounded">
-              View Organizations!
-            </button>
+        <button @click="goToTDList" class="button-container dashboard-button">View Tasks</button>
 
-            <button class="button-container viewtask-button bg-primary border border-highlight text-white font-semibold rounded">
-              View Settings!
-            </button>
+        <button @click="goToProjects" class="button-container dashboard-button">View Projects </button>
+
+        <button @click="goToViewOrgs" class="button-container dashboard-button"> View Organizations 🏢 </button>
+
+        <button @click="goToSettings" class="button-container dashboard-button">Settings ⚙️</button>
+
+
     </div>     
-
+  
   </div> 
   
 </template>
@@ -81,6 +78,15 @@
         this.$router.push({ name: 'KB' });
       },
       
+      goToViewTasks() {
+        this.$router.push({ name: 'toDoList'});
+      },
+      goToProjects() {
+        alert("Not Implemented");
+      },
+      goToSettings() {
+        alert("Not Implemented");
+      }
     },
   };
   </script>

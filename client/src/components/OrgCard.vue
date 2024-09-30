@@ -6,9 +6,6 @@
         <div class="text-lg font-bold text-gray-800 text-left">{{ organization.OrgName }}</div>
         <div class="text-sm text-gray-500 text-left">{{ organization.OrgCreator }}</div>
       </div>
-      <div v-if="organization.OrgCreator === userEmail" class="ml-4">
-        <button class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded drop-shadow" @click="deleteOrganization">Delete</button>
-      </div>
     </div>
   </template>
   

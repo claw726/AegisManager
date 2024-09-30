@@ -211,7 +211,7 @@
         // make isLoggedIn true
         this.$store.dispatch('login', this.user.email);
 
-        setTimeout(goToDash, 100);
+        setTimeout(this.goToDash, 1000); //needs to wait for user to be stored in JSON before continuing. Removing this breaks the app...
       },
       goToDash(){
         // Redirect to the dashboard

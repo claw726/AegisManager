@@ -29,7 +29,7 @@ const router = createRouter({
                 },
 
                 {
-                  path: '/organizations',
+                  path: '/organization',
                   name: 'viewOrgs',
                   component: () => import('./views/OrgView.vue'),
                   meta: {requiresAuth: true},
@@ -46,19 +46,23 @@ const router = createRouter({
                   component: () => import('./views/OrgDashView.vue'),
                   meta: {requiresAuth: true},
                 },
-
                 {
                     path: '/todolist',
                     name: 'TDList',
                     component: () => import('./views/ToDoList.vue'),
                     meta: {requiresAuth: true},
                 },
-
                 {
-                    path: '/taskdetail',
-                    name: 'TaskDetail',
-                    component: () => import('./views/TaskDetail.vue'),
-                    props: true // Allow passing route params as props
+                  path: '/taskdetail',
+                  name: 'TaskDetail',
+                  component: () => import('./views/TaskDetail.vue'),
+                  props: true // Allow passing route params as props
+                },
+                {
+                  path: '/organization/:index/createProject',
+                  name: 'createProject',
+                  component: () => import('./views/ProjCreator.vue'),
+                  meta: {requiresAuth: true},
                 },
                 {
                   path: '/kanban',

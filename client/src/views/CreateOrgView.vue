@@ -1,5 +1,5 @@
 <template>
-    <div class="relative w-full h-full bg-background">
+    <div v-if="isLoggedIn" class="relative w-full h-full bg-background">
       <NavBar />
       <div class="">
         <div class="flex flex-col justify-center h-screen/3 py-16">
@@ -153,7 +153,7 @@ export default {
       organizations.push(this.newOrg);
       localStorage.setItem('UserOrganizations', JSON.stringify(organizations));
       // Redirect to the viewOrgs page
-      this.$router.push({ name: 'viewOrgs' });
+      this.$router.push({ name: 'organizationDashboard' });
     },
   },
 };

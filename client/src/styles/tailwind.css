@@ -6,10 +6,6 @@
     text-align: center;
     align-items: center; /* Centers the button horizontally */
   }
-
-  @tailwind base;
-  @tailwind components;
-  @tailwind utilities;
   
   /* Custom Color for Hunter Green */
   .text-hunter-green {
@@ -85,6 +81,7 @@
 .custom-button:hover {
   @apply bg-light-blue text-black;
   transform: scale(1.05); /* Slight enlargement on hover */
+  z-index: 1;
 }
 
 /* Light Blue Background */
@@ -93,17 +90,26 @@
 }
 
 /* Custom button styling */
-.viewtask-button {
-    @apply bg-primary border border-highlight text-white font-semibold py-6 px-12 rounded-lg transition duration-300 ease-in-out transform;
-    font-size: 1.5rem; /* 3 times larger */
+.dashboard-button {
+    @apply bg-primary border border-highlight text-gray-200 py-2 px-4 rounded-lg transition duration-300 ease-in-out transform mx-2;
 }
   
-.viewtask-button:hover {
-    @apply bg-light-blue text-black;
-    transform: scale(1.15); /* Slight enlargement on hover */
+.dashboard-button:hover {
+    @apply bg-secondary text-gray-100;
+    transform: scale(1.05); /* Slight enlargement on hover */
+    z-index: 10;
 }
   
 /* Light Blue Background */
 .bg-light-blue {
     background-color: #75c0da; /* Light blue on hover */
+}
+
+.card {
+  @apply bg-white border-highlight drop-shadow-md rounded-lg transition duration-300 ease-in-out;
+}
+
+.card:hover{
+  transform: scale(1.05);
+  @apply drop-shadow-xl;
 }
