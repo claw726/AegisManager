@@ -9,35 +9,11 @@ export default new Vuex.Store({
     token: '',
   },
   mutations: {
-    login(state, userEmail) {
-      const userAccounts = JSON.parse(localStorage.getItem('userAccounts'));
-      const user = userAccounts.find(account => account.email === userEmail);
-      if (user) {
-        state.isLoggedIn = true;
-        state.userEmail = user.email;
-        state.userFirstName = user.firstName;
-        state.userLastName = user.lastName;
-        state.userPhoto = user.profilePicture;
-      } else {
-        state.isLoggedIn = false;
-        state.userEmail = '';
-        state.userFirstName = '';
-        state.userLastName = '';
-        state.userPhoto = '';
-      }
-    },
-    logout(state) {
-      state.isLoggedIn = false;
-      state.userEmail = '';
-      state.userFirstName = '';
-      state.userLastName = '';
-      state.userPhoto = '';
-    },
     setAuth(state, {token, email, name }) {
       state.isLoggedIn = true;
       state.token = token;
-      state.userEmail = userEmail;
-      state.userName = userName;
+      state.userEmail = email;
+      state.userName = name;
     },
     clearAuth(state) {
       state.isLoggedIn = false;
@@ -47,16 +23,9 @@ export default new Vuex.Store({
     }
   },
   actions: {
-    login({ commit }, userEmail) {
-      commit('login', userEmail);
-    },
-    logout({ commit }) {
-      localStorage.removeItem('CurrentUser')
-      commit('logout');
-    },
     async register({ dispatch }, { email, name, password }) {
       try {
-        await axios.post('/api/auth/register', {email, name, password });
+        await axios.post('/api/auth/register', { email, name, password });
         await dispatch('login', { email, password });
       } catch (error) {
         console.error('Registration Failed:', error);

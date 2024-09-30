@@ -201,7 +201,7 @@
             email: this.user.email,
             password: this.user.password,
           });
-          
+          alert("User created successfully");
           this.goToDash;
         } catch (error) {
           console.error('Error during registration or login:', error);
