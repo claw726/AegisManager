@@ -61,7 +61,7 @@
   
   <script>
   import NavBar from '@/components/NavBar.vue';
-  import {getTask} from './TaskDetail.vue';
+  
   import { mapState } from 'vuex';
   
   export default {

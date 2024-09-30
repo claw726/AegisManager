@@ -2,7 +2,7 @@
     
     <div class="flex flex-col items-center space-y-4 p-4">
       <div class="task-card cursor-pointerbg-white border border-gray-300 rounded-lg p-4 shadow-md cursor-pointer"
-      :class="{ 'bg-gray-300': this.task.completed }"
+
       >
 
         <div class="flex items-center mb-4"> 
@@ -13,15 +13,15 @@
             v-model="this.task.completed"
           />
 
-          <h3 class="font-bold text-lg">{{ this.task.title }}</h3>
+          <h3 class="font-bold text-lg">{{ task["title"] }}</h3>
         </div>
         
 
 
-        <p class="text-gray-600">Due: {{ this.task.dueDate }}</p>
-        <p class="text-gray-600">Description: {{ this.task.description }}</p>
-        <p class="text-gray-600">Priority: {{ this.task.priority }}</p>
-        <p class="text-gray-600">Completed: {{ this.task.completed }}</p>
+        <p class="text-gray-600">Due: {{ task["dueDate"] }}</p>
+        <p class="text-gray-600">Description: {{ task["description"] }}</p>
+        <p class="text-gray-600">Priority: {{ task["priority"] }}</p>
+        <p class="text-gray-600">Completed: {{ task["completed"] }}</p>
       </div>
     </div>
   </template>
@@ -30,15 +30,31 @@
 
 
   <script>
-
+  import { mapState } from 'vuex';
 
   export default {
-    
+
+    data() {
+      return {
+        taskId: "",
+        task: ""
+      }
+    },
 
     created() {
-      const taskId = this.$route.query.taskId;
-      return this.fetchTask(taskId);
+      this.taskId = this.$route.query.taskId;
+      //return this.task;
     },
+
+    mounted() {
+      this.taskId = this.$route.query.taskId;
+      this.task =  this.getTaskfromStorage(this.taskId);
+    },
+
+    computed: {
+      ...mapState(['allTasks'])
+    },
+    
 
 
     methods: {
@@ -51,7 +67,12 @@
         this.task.completed = true;
       },
 
-      fetchTask(taskId) {
+      getTaskfromStorage(taskid) {
+        const gettask = (JSON.parse(JSON.stringify(this.allTasks)))[String(this.taskId)]
+        return gettask;
+      },
+
+      /* fetchTask(taskId) {
         // Simulate fetching task from SQL
         const allTasks = [
           { 
@@ -72,7 +93,7 @@
         // Find the task by taskId
         this.task = allTasks.find(task => task.id === parseInt(taskId));
         return this.task;
-      }
+      } */
     },
 
   };
