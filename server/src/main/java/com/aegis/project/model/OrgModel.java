@@ -1,9 +1,15 @@
 package com.aegis.project.model;
 
-import jakarta.persistence.*;
-
 import java.util.HashSet;
 import java.util.Set;
+
+import jakarta.persistence.Column;
+import jakarta.persistence.Entity;
+import jakarta.persistence.GeneratedValue;
+import jakarta.persistence.GenerationType;
+import jakarta.persistence.Id;
+import jakarta.persistence.ManyToMany;
+import jakarta.persistence.Table;
 
 @Entity
 @Table(name = "orgs")
@@ -18,11 +24,51 @@ public class OrgModel {
     @Column(name = "description")
     private String OrgDescription;
 
-    @Column(name = "ownderID")
+    @Column(name = "owner_ID")
     private int OrgOwnerID;
 
     @ManyToMany(mappedBy = "Orgs")
     private Set<UserModel> Users = new HashSet<>();
+
+    public int getOrgID() {
+        return OrgID;
+    }
+
+    public void setOrgID(int orgID) {
+        OrgID = orgID;
+    }
+
+    public String getOrgName() {
+        return OrgName;
+    }
+
+    public void setOrgName(String orgName) {
+        OrgName = orgName;
+    }
+
+    public String getOrgDescription() {
+        return OrgDescription;
+    }
+
+    public void setOrgDescription(String orgDescription) {
+        OrgDescription = orgDescription;
+    }
+
+    public int getOrgOwnerID() {
+        return OrgOwnerID;
+    }
+
+    public void setOrgOwnerID(int orgOwnerID) {
+        OrgOwnerID = orgOwnerID;
+    }
+
+    public Set<UserModel> getUsers() {
+        return Users;
+    }
+
+    public void setUsers(Set<UserModel> users) {
+        Users = users;
+    }
 
 //    @OneToMany(mappedBy = "Org", cascade = CascadeType.ALL, orphanRemoval = true)
 //    private Set<ProjectModel> Projects = new HashSet<>();
