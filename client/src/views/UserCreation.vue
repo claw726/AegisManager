@@ -67,7 +67,7 @@
       NavBar,
     },
     computed: {
-      ...mapState(['isLoggedIn']),
+      ...mapState(['isLoggedIn', 'token']),
     },
     data() {
       return {
@@ -201,7 +201,12 @@
             email: this.user.email,
             password: this.user.password,
           });
+          if (this.token === undefined || !this.token) {
+            alert('An error occurred while logging in. Please try again.');
+            return;
+          }
           alert("User created successfully");
+          setTimeout(this.goToDash, 1000); //needs to wait for user to be stored in JSON before continuing. Removing this breaks the app...
           this.goToDash;
         } catch (error) {
           console.error('Error during registration or login:', error);

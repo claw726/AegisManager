@@ -25,18 +25,21 @@ export default new Vuex.Store({
   actions: {
     async register({ dispatch }, { email, name, password }) {
       try {
-        await axios.post('/api/auth/register', { email, name, password });
-        await dispatch('login', { email, password });
+        await axios.post('https://localhost:8443/api/auth/register', { email, name, password });
       } catch (error) {
         console.error('Registration Failed:', error);
       }
     },
     async login({ commit }, { email, password }) {
       try {
-        const response = await axios.post('/api/auth/login', null, {
+        const response = await axios.post('https://localhost:8443/api/auth/register', null, {
           params: {email, password}
         });
+        console.log("response", response);
         const { token } = response.data;
+        if ( token === undefined ) {
+          throw new Error('Token not found in response');
+        }
         commit('setAuth', { token, email, name: response.data.name});
         localStorage.setItem('authToken', token);
       } catch (error) {
