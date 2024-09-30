@@ -16,3 +16,8 @@ services:
             }
           }
         }
+    volumes:
+      - db_data:/app/data/
+
+volumes:
+  db_data:

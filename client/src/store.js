@@ -1,12 +1,12 @@
 import Vuex from 'vuex';
+import axios from '@/utils/axios.js';
 
 export default new Vuex.Store({
   state: {
     isLoggedIn: false,
     userEmail: '',
-    userFirstName: '',
-    userLastName: '',
-    userPhoto: '',
+    userName: '',
+    token: '',
   },
   mutations: {
     login(state, userEmail) {
@@ -32,8 +32,19 @@ export default new Vuex.Store({
       state.userFirstName = '';
       state.userLastName = '';
       state.userPhoto = '';
+    },
+    setAuth(state, {token, email, name }) {
+      state.isLoggedIn = true;
+      state.token = token;
+      state.userEmail = userEmail;
+      state.userName = userName;
+    },
+    clearAuth(state) {
+      state.isLoggedIn = false;
+      state.token = '';
+      state.userEmail = '';
+      state.userName = '';
     }
-
   },
   actions: {
     login({ commit }, userEmail) {
@@ -43,5 +54,29 @@ export default new Vuex.Store({
       localStorage.removeItem('CurrentUser')
       commit('logout');
     },
+    async register({ dispatch }, { email, name, password }) {
+      try {
+        await axios.post('/api/auth/register', {email, name, password });
+        await dispatch('login', { email, password });
+      } catch (error) {
+        console.error('Registration Failed:', error);
+      }
+    },
+    async login({ commit }, { email, password }) {
+      try {
+        const response = await axios.post('/api/auth/login', null, {
+          params: {email, password}
+        });
+        const { token } = response.data;
+        commit('setAuth', { token, email, name: response.data.name});
+        localStorage.setItem('authToken', token);
+      } catch (error) {
+        console.error('Login failed:', error);
+      }
+    },
+    logout({ commit }) {
+      localStorage.removeItem('authToken');
+      commit('clearAuth');
+    }
   },
 });
