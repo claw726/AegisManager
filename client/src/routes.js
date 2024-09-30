@@ -47,10 +47,10 @@ const router = createRouter({
                   meta: {requiresAuth: true},
                 },
                 {
-                  path: '/todolist',
-                  name: 'toDoList',
-                  component: () => import('./views/ToDoListView.vue'),
-                  meta: {requiresAuth: true},
+                    path: '/todolist',
+                    name: 'TDList',
+                    component: () => import('./views/ToDoList.vue'),
+                    meta: {requiresAuth: true},
                 },
                 {
                   path: '/taskdetail',
@@ -63,7 +63,13 @@ const router = createRouter({
                   name: 'createProject',
                   component: () => import('./views/ProjCreator.vue'),
                   meta: {requiresAuth: true},
-                }
+                },
+                {
+                  path: '/kanban',
+                  name: 'KB',
+                  component: () => import('./views/KanbanView.vue'),
+                  meta: {requiresAuth: true},
+                },
             ],
     });
 
@@ -77,7 +83,7 @@ router.beforeEach((to, from, next) => {
     next({ name: 'Login' });
   } else if (to.matched.some(record => record.meta.requiresGuest) && isLoggedIn) {
     // Redirect to dashboard if trying to access login or create account while logged in
-    next({ name: 'Dashboard' });
+    next({ name: 'TDList' });
   } else {
     next();
   }

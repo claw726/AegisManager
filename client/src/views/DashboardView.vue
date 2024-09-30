@@ -11,13 +11,19 @@
           <div class="text-4xl font-bold text-primary">{{ userFirstName }} {{ userLastName }}</div>
           <div class="text-2xl font-semibold text-secondary">Welcome to your dashboard!</div>
           <div class="py-4 flex-col">
+
             <button class="bg-primary text-white rounded-lg p-4" @click="goToViewOrgs">Your Organizations 🏢</button>
+            <button @click="goToKanban" class="button-container viewtask-button bg-primary border border-highlight text-white font-semibold rounded">
+              View Projects!
+            </button>
+
           </div>
         </div>
     </div>
   </div>
+  </div>
 
-  <div class=" flex justify-center items-start min-h-screen h-[calc(100vh-10vh)]">
+  <div class=" flex justify-center items-start min-h-screen">
 
     <!-- Button Row -->
 
@@ -25,6 +31,8 @@
 
 
         <button @click="goToViewTasks" class="button-container dashboard-button">View Tasks</button>
+
+        <button @click="goToTDList" class="button-container dashboard-button">View Tasks</button>
 
         <button @click="goToProjects" class="button-container dashboard-button">View Projects </button>
 
@@ -34,7 +42,7 @@
 
 
     </div>     
-  </div>
+  
   </div> 
   
 </template>
@@ -61,6 +69,15 @@
       goToViewOrgs() {
         this.$router.push({ name: 'viewOrgs' });
       },
+
+      goToTDList() {
+        this.$router.push({ name: 'TDList' });
+      },
+
+      goToKanban() {
+        this.$router.push({ name: 'KB' });
+      },
+      
       goToViewTasks() {
         this.$router.push({ name: 'toDoList'});
       },
