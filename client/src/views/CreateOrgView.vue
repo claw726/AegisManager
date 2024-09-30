@@ -153,7 +153,7 @@ export default {
       organizations.push(this.newOrg);
       localStorage.setItem('UserOrganizations', JSON.stringify(organizations));
       // Redirect to the viewOrgs page
-      this.$router.push({ name: 'OrganizationDashboard' });
+      this.$router.push({ name: 'viewOrgs'});
     },
   },
 };
