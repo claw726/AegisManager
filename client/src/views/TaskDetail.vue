@@ -22,6 +22,7 @@
         <p class="text-gray-600">Description: {{ task["description"] }}</p>
         <p class="text-gray-600">Priority: {{ task["priority"] }}</p>
         <p class="text-gray-600">Completed: {{ task["completed"] }}</p>
+        <p class="text-gray-600">Assignees: {{ task["assignees"] }}</p>
       </div>
     </div>
   </template>
