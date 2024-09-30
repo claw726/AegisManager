@@ -6,8 +6,8 @@
     <div class="flex space-x-4">
 
       <!-- If the user is logged in, show the logout button -->
+      <button v-if="isLoggedIn" @click="goToDashboard" class="bg-primary border-2 border-highlight text-white font-semibold py-2 px-4 rounded">Dashboard</button>
       <button v-if="isLoggedIn" @click="logout" class="bg-primary border-2 border-highlight text-white font-semibold py-2 px-4 rounded">Log Out</button>
-
       <!-- If the user is not logged in, show the login and sign up buttons -->
       <template v-else>
         <button @click="goToLogin" class="bg-primary border border-highlight text-white font-semibold py-2 px-4 rounded">Log In</button>
@@ -47,6 +47,11 @@ export default {
     logout() {
       this.$store.dispatch('logout');
       this.$router.push({ name: 'Home' });
+    },
+    //Access Dashboard from anywhere
+    goToDashboard() {
+      this.$store.dispatch('dashboard');
+      this.$router.push({ name: 'Dashboard' });
     },
   },
 };

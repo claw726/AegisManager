@@ -10,7 +10,7 @@
             <div class="relative flex-col col-span-1 justify-center flex w-full">
             <div v-if="userOrganizations.length > 0">
                 <div v-for="(organization, index) in userOrganizations" :key="index" class="grid my-4">
-                    <div class="p-4 border border-gray-300 rounded-lg drop-shadow-lg bg-gray-100">
+                    <div class="p-4 card">
                         <OrgCard :organization="organization" :index="index" @organizationDeleted="loadUserOrganizations" />
                     </div>
                 </div>
