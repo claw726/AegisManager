@@ -1,110 +1,125 @@
 <template>
-    
-    <div class="flex flex-col items-center space-y-4 p-4">
-      <div class="task-card cursor-pointerbg-white border border-gray-300 rounded-lg p-4 shadow-md cursor-pointer"
+  <div class="flex flex-col items-center space-y-4 p-4">
+    <div class="task-card cursor-pointerbg-white border border-gray-300 rounded-lg p-4 shadow-md cursor-pointer">
+      <div class="flex items-center mb-4">
+        <input
+          @click="completeTask"
+          type="checkbox"
+          class="checkbox"
+          v-model="this.task.completed"
+        />
+        <h3 class="font-bold text-lg">{{ task.title }}</h3>
+      </div>
 
-      >
+      <p class="text-gray-600">Due: {{ task.dueDate }}</p>
+      <p class="text-gray-600">Description: {{ task.description }}</p>
+      <p class="text-gray-600">Priority: {{ task.priority }}</p>
+      <p class="text-gray-600">Completed: {{ task.completed }}</p>
 
-        <div class="flex items-center mb-4"> 
-          <input
-            @click="completeTask"
-            type="checkbox"
-            class="checkbox"
-            v-model="this.task.completed"
-          />
+      <!-- Dropdown for Assignees -->
+      <div class="assignees-section">
+        <label for="assignees-dropdown">Assignees:</label>
+        <select id="assignees-dropdown" v-model="selectedAssignee">
+          <option v-for="(assignee, index) in task.assignees" :key="index" :value="assignee">
+            {{ assignee }}
+          </option>
+        </select>
 
-          <h3 class="font-bold text-lg">{{ task["title"] }}</h3>
-        </div>
-        
+        <!-- List of Assignees with Remove Button -->
+        <ul class="mt-2">
+          <li v-for="(assignee, index) in task.assignees" :key="index" class="flex items-center space-x-2">
+            <span>{{ assignee }}</span>
+            <button @click="removeAssignee(index)" class="remove-btn text-red-600">Remove</button>
+          </li>
+        </ul>
+      </div>
 
-
-        <p class="text-gray-600">Due: {{ task["dueDate"] }}</p>
-        <p class="text-gray-600">Description: {{ task["description"] }}</p>
-        <p class="text-gray-600">Priority: {{ task["priority"] }}</p>
-        <p class="text-gray-600">Completed: {{ task["completed"] }}</p>
+      <!-- Button to add new assignees -->
+      <div class="add-assignee mt-4 flex items-center space-x-2">
+        <input v-model="newAssignee" placeholder="Enter new assignee name" class="border rounded p-2" />
+        <button @click="addAssignee" class="bg-green-500 card:hover bg-light-blue text-white p-2 rounded">Add Assignee</button>
       </div>
     </div>
-  </template>
-  
+  </div>
+</template>
 
+<script>
+import { mapState } from 'vuex';
 
+export default {
+  data() {
+    return {
+      taskId: "",
+      task: "",
+      selectedAssignee: null, // For the dropdown
+      newAssignee: "",        // For adding a new assignee
+    };
+  },
 
-  <script>
-  import { mapState } from 'vuex';
+  created() {
+    this.taskId = this.$route.query.taskId;
+  },
 
-  export default {
+  mounted() {
+    this.taskId = this.$route.query.taskId;
+    this.task = this.getTaskfromStorage(this.taskId);
+  },
 
-    data() {
-      return {
-        taskId: "",
-        task: ""
+  computed: {
+    ...mapState(['allTasks']),
+  },
+
+  methods: {
+    completeTask() {
+      this.task.completed = true;
+    },
+
+    getTaskfromStorage(taskId) {
+      const task = JSON.parse(JSON.stringify(this.allTasks))[String(this.taskId)];
+      return task;
+    },
+
+    removeAssignee(index) {
+      // Remove the selected assignee from the task
+      this.task.assignees.splice(index, 1);
+    },
+
+    addAssignee() {
+      if (this.newAssignee.trim()) {
+        // Add new assignee if input is not empty
+        this.task.assignees.push(this.newAssignee.trim());
+        this.newAssignee = ""; // Clear input after adding
       }
     },
+  },
+};
+</script>
 
-    created() {
-      this.taskId = this.$route.query.taskId;
-      //return this.task;
-    },
+<style scoped>
+.task-card {
+  transition: transform 0.2s;
+}
+.task-card:hover {
+  transform: scale(1.02);
+}
 
-    mounted() {
-      this.taskId = this.$route.query.taskId;
-      this.task =  this.getTaskfromStorage(this.taskId);
-    },
+.remove-btn {
+  cursor: pointer;
+  background-color: darkblue;
+  color: white;
+  border: none;
+  padding: 5px 10px;
+}
 
-    computed: {
-      ...mapState(['allTasks'])
-    },
-    
+.add-assignee input {
+  padding: 5px;
+  margin-right: 10px;
+}
 
-
-    methods: {
-      viewTask(task) {
-        // Navigate to TaskDetail, passing the task as a route parameter
-        this.$router.push({ name: 'TaskDetail', params: { task } });
-      },
-
-      completeTask() {
-        this.task.completed = true;
-      },
-
-      getTaskfromStorage(taskid) {
-        const gettask = (JSON.parse(JSON.stringify(this.allTasks)))[String(this.taskId)]
-        return gettask;
-      },
-
-      /* fetchTask(taskId) {
-        // Simulate fetching task from SQL
-        const allTasks = [
-          { 
-            id: 1, title: 'Task 1', description: 'Complete project FROM THE DATABASE', dueDate: '2024-09-30', 
-            priority: 'High', completed: false, assignees: ['User A', 'User B']
-          },
-          { 
-            id: 2, title: 'Task 2', description: 'Prepare presentation', dueDate: '2024-10-05', 
-          priority: 'High', completed: false, assignees: ['User C'] 
-          },
-          { 
-            id: 3, title: 'Task 3', description: 'DO whatever I want to', dueDate: '2024-11-15', 
-          priority: 'High', completed: false, assignees: ['User D', 'User B'] 
-          }
-        ];
-
-
-        // Find the task by taskId
-        this.task = allTasks.find(task => task.id === parseInt(taskId));
-        return this.task;
-      } */
-    },
-
-  };
-  </script>
-  
-  <style scoped>
-  .task-card {
-    transition: transform 0.2s;
-  }
-  .task-card:hover {
-    transform: scale(1.02);
-  }
-  </style>
-  
+.add-assignee button {
+  padding: 5px 10px;
+  color: white;
+  border: none;
+  cursor: pointer;
+}
+</style>
