@@ -25,14 +25,14 @@ export default new Vuex.Store({
   actions: {
     async register({ dispatch }, { email, name, password }) {
       try {
-        await axios.post('https://localhost:8443/api/auth/register', { email, name, password });
+        await axios.post('/api/auth/register', { email, name, password });
       } catch (error) {
         console.error('Registration Failed:', error);
       }
     },
     async login({ commit }, { email, password }) {
       try {
-        const response = await axios.post('https://localhost:8443/api/auth/register', null, {
+        const response = await axios.post('/api/auth/login', null, {
           params: {email, password}
         });
         console.log("response", response);

@@ -1,21 +1,8 @@
-version: '3'
 services:
   spring-boot-app:
     build: .
     ports:
-      - "8443:8443"
-    environment:
-      SPRING_APPLICATION_JSON: |
-        {
-          "server": {
-            "ssl": {
-              "enabled": true,
-              "key-store": "classpath:keystore.p12",
-              "key-store-password": "AegisPassword",
-              "key-alias": "aegis"
-            }
-          }
-        }
+      - "8080:8080" # Expose the port 8081, HTTP (client runs on 8080, and they can't overlap)
     volumes:
       - db_data:/app/data/
     logging:
