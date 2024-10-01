@@ -69,15 +69,14 @@
       this.getOrgData();
     },
     computed: {
-      ...mapState(['isLoggedIn']),
+      ...mapState(['isLoggedIn', 'organizations']),
     },
     mounted() {
       this.projects = JSON.parse(localStorage.getItem(this.$route.params.orgIndex)) || [];
     },
     methods: {
       getOrgData() {
-        const userOrganizations = JSON.parse(localStorage.getItem('UserOrganizations'));
-        this.org = userOrganizations[this.$route.params.orgIndex];
+        this.org = this.organizations[this.$route.params.orgIndex];
         if (!this.org) {
           alert("There was an error fetching the organization data");
           this.$router.push({name: 'viewOrgs'});

@@ -8,7 +8,7 @@ WORKDIR /app
 COPY . .
 
 # Build the project
-RUN gradle build --no-daemon --stacktrace
+RUN gradle build --no-daemon
 
 # Create a new stage for the runtime environment
 FROM eclipse-temurin:21
@@ -17,8 +17,8 @@ FROM eclipse-temurin:21
 # ENV SPRING_OUTPUT_ANSI_ENABLED=ALWAYS \
 #     SPRING_APPLICATION_JSON='{"server":{"ssl":{"enabled":true,"key-store":"classpath:keystore.p12","key-store-password":"AegisPassword","key-alias":"aegis"}}}'
 
-# Copy the keystore
-COPY --from=build /app/src/main/resources/* /app/
+# # Copy the keystore
+# COPY --from=build /app/src/main/resources/* /app/
 
 # Copy the logging configuration
 COPY --from=build /app/src/main/resources/logback.xml /app/

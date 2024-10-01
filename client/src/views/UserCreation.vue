@@ -67,7 +67,7 @@
       NavBar,
     },
     computed: {
-      ...mapState(['isLoggedIn', 'token']),
+      ...mapState(['isLoggedIn']),
     },
     data() {
       return {
@@ -191,9 +191,11 @@
         try {
           //Register the user from vuex
           await this.register({
+            firstName: this.user.firstName,
+            lastName: this.user.lastName,
             email: this.user.email,
-            name: '${this.user.firstName} ${this.user.lastName}',
             password: this.user.password,
+            profilePicture: this.user.profilePicture,
           });
 
           // Log in the user
@@ -201,10 +203,10 @@
             email: this.user.email,
             password: this.user.password,
           });
-          if (this.token === undefined || !this.token) {
-            alert('An error occurred while logging in. Please try again.');
-            return;
-          }
+          // if (this.token === undefined || !this.token) {
+          //   alert('An error occurred while logging in. Please try again.');
+          //   return;
+          // }
           alert("User created successfully");
           setTimeout(this.goToDash, 1000); //needs to wait for user to be stored in JSON before continuing. Removing this breaks the app...
           this.goToDash;

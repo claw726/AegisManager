@@ -22,7 +22,7 @@ Aegis is a project management system designed to simplify task management for sm
 Open a terminal in the `./client` directory and run the following command to build the Docker image:
 
 ```
-docker-compose build
+./build-server.sh
 ```
 
 
