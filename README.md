@@ -35,7 +35,7 @@ docker-compose up
 
 
 ### Step 3: Verify the Application
-After running the container, you can verify that your frontend application is running by accessing [https://localhost:8080](https://localhost:8080) in your web browser. You should see your Vue.js application up and running.
+After running the container, you can verify that your frontend application is running by accessing [https://localhost:8081](https://localhost:8081) in your web browser. You should see your Vue.js application up and running.
 
 > Get an error stating that the certificate is invalid? Go to `advanced` and click `accept anyways`
 
