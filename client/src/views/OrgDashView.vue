@@ -36,7 +36,7 @@
 
       <!-- List of Projects -->
       <div class="grid grid-cols-4 gap-4 m-8">
-        <ProjCard v-for="project in projects" :key="project.id" :project="project" />
+        <ProjCard v-for="(project, index) in projects" :key="projIndex" :project="project" :projIndex="index"/>
       </div>
 
       
@@ -44,15 +44,15 @@
 </template>
   
   <script>
-  import NavBar from '../components/NavBar.vue';
+  import NavBar from '@/components/NavBar.vue';
   import { mapState } from 'vuex';
   import ProjCard from '@/components/ProjCard.vue';
   
   export default {
     props: {
-      index: {
+      projIndex: {
         type: Number,
-        required: true,
+        required: false,
       },
     },
     data() {
@@ -69,22 +69,21 @@
       this.getOrgData();
     },
     computed: {
-      ...mapState(['isLoggedIn']),
+      ...mapState(['isLoggedIn', 'organizations']),
     },
     mounted() {
-      this.projects = JSON.parse(localStorage.getItem(this.$route.params.index)) || [];
+      this.projects = JSON.parse(localStorage.getItem(this.$route.params.orgIndex)) || [];
     },
     methods: {
       getOrgData() {
-        const userOrganizations = JSON.parse(localStorage.getItem('UserOrganizations'));
-        this.org = userOrganizations[this.$route.params.index];
+        this.org = this.organizations[this.$route.params.orgIndex];
         if (!this.org) {
           alert("There was an error fetching the organization data");
           this.$router.push({name: 'viewOrgs'});
         }
       },
       goToCreateProject() {
-            this.$router.push({ name: 'createProject', params: { index: this.index }});
+            this.$router.push({ name: 'createProject', params: { orgIndex: this.index }});
         },
     },
   };

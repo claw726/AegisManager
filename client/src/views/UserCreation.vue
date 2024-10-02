@@ -60,13 +60,14 @@
   import NavBar from '@/components/NavBar.vue';
   import PasswordInput from '@/components/PasswordCreator.vue';
   import imageCompression from 'browser-image-compression'
+  import axios from 'axios';
   export default {
     components: {
       PasswordInput,
       NavBar,
     },
     computed: {
-      ...mapState(['isLoggedIn', 'userEmail', 'userFirstName', 'userLastName', 'userPhoto']),
+      ...mapState(['isLoggedIn']),
     },
     data() {
       return {
@@ -90,6 +91,7 @@
       },
     },
     methods: {
+      ...mapActions(['register', 'login']),
       triggerFileInput() {
         this.$refs.fileInput.click();
       },
@@ -173,7 +175,7 @@
         console.log('User JSON:', userJson);
         return userJson;
       },
-      submitForm() {
+      async submitForm() {
         // TODO: when server is setup, request all user accounts and check if email already exists
         if (!this.imageUploaded || !this.user.firstName || !this.user.lastName || !this.user.email) {
           alert('Please fill out all fields and upload an image.');
@@ -186,32 +188,34 @@
           return;
         } 
 
-        let accounts = [];
-        // Retrieve existing accounts from local storage
-        const existingAccounts = localStorage.getItem('userAccounts');
-        if (existingAccounts) {
-          accounts = JSON.parse(existingAccounts);
+        try {
+          //Register the user from vuex
+          await this.register({
+            firstName: this.user.firstName,
+            lastName: this.user.lastName,
+            email: this.user.email,
+            password: this.user.password,
+            profilePicture: this.user.profilePicture,
+          });
 
-          // Check if email already exists
-          const emailExists = accounts.some((account) => account.email === this.user.email);
-          if (emailExists) {
-            alert('This email is already registered. Please use a different email.');
-            return;
-          }
+          // Log in the user
+          await this.login({
+            email: this.user.email,
+            password: this.user.password,
+          });
+          // if (this.token === undefined || !this.token) {
+          //   alert('An error occurred while logging in. Please try again.');
+          //   return;
+          // }
+          alert("User created successfully");
+          setTimeout(this.goToDash, 1000); //needs to wait for user to be stored in JSON before continuing. Removing this breaks the app...
+          this.goToDash;
+        } catch (error) {
+          console.error('Error during registration or login:', error);
+          alert('An Error occured. Please try again.');
         }
-        // Add new account to existing accounts
-        accounts.push(this.user);
+
         
-        // // Set the CurrentUser to the newly created account
-        // localStorage.setItem('CurrentUser', JSON.stringify(this.user));
-
-        // Store updated accounts in local storage
-        localStorage.setItem('userAccounts', JSON.stringify(accounts)); // Store user data in local storage
-
-        // make isLoggedIn true
-        this.$store.dispatch('login', this.user.email);
-
-        setTimeout(this.goToDash, 1000); //needs to wait for user to be stored in JSON before continuing. Removing this breaks the app...
       },
       goToDash(){
         // Redirect to the dashboard

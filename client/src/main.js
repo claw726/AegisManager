@@ -3,7 +3,7 @@ import App from './App.vue'
 import router from './routes.js'
 import './styles/tailwind.css';
 import $bus from './utils/events.js'
-import store from './store.js'
+import store from './store/index.js'
 import { addBeforeUnloadListener, removeBeforeUnloadListener } from './utils/autoLogout.js';
 
 const app = createApp(App)

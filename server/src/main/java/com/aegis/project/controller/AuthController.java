@@ -10,12 +10,17 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.*;
 import com.aegis.project.service.UserService;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.HashMap;
 import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
+
+    private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
 
     @Autowired
     private AuthenticationManager authManager;
@@ -28,10 +33,15 @@ public class AuthController {
 
     // Registration endpoint
     @PostMapping("/register")
-    public ResponseEntity<String> createUser(String email, String name, String password) {
-        if (userService.createUser(email, name, password)) {
-            return ResponseEntity.ok("User created successfully");
-        } else {
+    public ResponseEntity<String> createUser(@RequestParam String email, @RequestParam String name, @RequestParam String password) {
+        try {
+            if (userService.createUser(email, name, password)) {
+                return ResponseEntity.ok("User created successfully");
+            } else {
+                return ResponseEntity.badRequest().body("User already exists or there was an error");
+            }
+        } catch (Exception e) {
+            logger.error("Error creating user: " + e.getMessage());
             return ResponseEntity.badRequest().body("User already exists or there was an error");
         }
     }

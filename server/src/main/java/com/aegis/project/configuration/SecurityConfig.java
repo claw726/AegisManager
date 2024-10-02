@@ -42,19 +42,20 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/login", "/register").permitAll()
-                        .anyRequest().authenticated()
+                        // .requestMatchers("/login", "/register").permitAll()
+                        // .anyRequest().authenticated()
+                        .anyRequest().permitAll() // Allow all requests temporarily
                 )
                 .formLogin(form -> form
                         .loginPage("/login")
-                        .defaultSuccessUrl("/home", true)
-                        .failureHandler(failureHandler)
+                        // .defaultSuccessUrl("/home", true)
+                        // .failureHandler(failureHandler)
                         .permitAll()
                 )
                 .logout(logout -> logout.permitAll())
-                .requiresChannel(channel -> channel
-                        .anyRequest().requiresSecure()
-                );
+                // .requiresChannel(channel -> channel
+                //         .anyRequest().requiresSecure()
+                ;
 
         return http.build();
     }

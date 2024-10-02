@@ -1,0 +1,1 @@
+Sunday Sep 29   5 hrs   Attemped (unsucessfully) to link server to client. Ran into issues with needing HTTPS certs. Also added project views and creation

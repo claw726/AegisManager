@@ -28,15 +28,8 @@
         ...mapState(['userEmail']),
     },
     methods: {
-        deleteOrganization() {
-            const userOrganizations = JSON.parse(localStorage.getItem('UserOrganizations'));
-            userOrganizations.splice(this.index, 1);
-            localStorage.setItem('UserOrganizations', JSON.stringify(userOrganizations));
-            this.$emit('organizationDeleted');
-            alert("Not fully implemented yet. Leftover org data will persist in storage.");
-        },
         viewOrganization() {
-            this.$router.push({ name: 'OrganizationDashboard', params: { index: this.index }});
+            this.$router.push({ name: 'OrganizationDashboard', params: { orgIndex: this.index }});
         },
     },
   };

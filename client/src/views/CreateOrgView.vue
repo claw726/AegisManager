@@ -25,7 +25,7 @@
                   </button>
                 </div>
                 <div class="flex justify-center">
-                  <button @click="submitForm" class="w-full mt-4 bg-primary text-white font-semibold py-3 rounded-lg">Submit</button>
+                  <button @click="createOrg()" class="w-full mt-4 bg-primary text-white font-semibold py-3 rounded-lg">Submit</button>
                 </div>
             </div>
             </div>
@@ -39,13 +39,15 @@
 import NavBar from '@/components/NavBar.vue';
 import { mapState } from 'vuex';
 import imageCompression from 'browser-image-compression'
+import LocalStorageService from '@/utils/LocalStorageService.js';
+import { mapActions } from 'vuex/dist/vuex.cjs.js';
 
 export default {
   components: {
     NavBar,
   },
   computed: {
-    ...mapState(['isLoggedIn', 'userEmail']),
+    ...mapState(['isLoggedIn', 'currentUser']),
   },
   data() {
     return {
@@ -59,6 +61,7 @@ export default {
     };
   },
   methods: {
+    ...mapActions(['createOrganization']),
     triggerFileInput() {
       this.$refs.fileInput.click();
     },
@@ -137,23 +140,27 @@ export default {
         alert('Please select a valid image format.');
       }
     },
-    submitForm() {
+    createOrg() {
       // Add the new org to localstorage
       if (!this.newOrg.OrgName || !this.newOrg.OrgDescription) {
         alert("Please Tell us more about your organization.");
         return;
       }
-      this.newOrg.OrgCreator = this.userEmail;
+      this.newOrg.OrgCreator = this.currentUser.email;
       if (!this.newOrg.OrgCreator) {
         alert("Error determining your identity! Please log out and back in to continue.");
         return
       }
-      const userOrganizations = localStorage.getItem('UserOrganizations');
-      let organizations = userOrganizations ? JSON.parse(userOrganizations) : [];
-      organizations.push(this.newOrg);
-      localStorage.setItem('UserOrganizations', JSON.stringify(organizations));
-      // Redirect to the viewOrgs page
-      this.$router.push({ name: 'organizationDashboard' });
+      try {
+        this.$store.dispatch('createOrganization', this.newOrg);
+
+        // Redirect to the viewOrgs page
+        this.$router.push({ name: 'viewOrgs'});
+      } catch (error) {
+        console.error('Error creating organization:', error);
+        alert('An error occurred while creating the organization. Please try again.');
+      }
+      
     },
   },
 };
