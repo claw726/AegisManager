@@ -36,7 +36,7 @@
 
       <!-- List of Projects -->
       <div class="grid grid-cols-4 gap-4 m-8">
-        <ProjCard v-for="(project, index) in projects" :key="projIndex" :project="project" :projIndex="index"/>
+        <ProjCard v-for="(project, index) in org.projects" :key="projIndex" :project="project" :projIndex="index"/>
       </div>
 
       
@@ -70,9 +70,6 @@
     },
     computed: {
       ...mapState(['isLoggedIn', 'organizations']),
-    },
-    mounted() {
-      this.projects = JSON.parse(localStorage.getItem(this.$route.params.orgIndex)) || [];
     },
     methods: {
       getOrgData() {

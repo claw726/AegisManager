@@ -53,8 +53,14 @@ export default new Vuex.Store({
     },
     removeOrganization(state, index) {
       state.organizations.splice(index, 1);
-    }
-
+    },
+    addProject(state, { organizationId, project }) {
+      const organization = state.organizations.find(org => org.id === organizationId);
+      if (organization) {
+        organization.projects = organization.projects || [];
+        organization.projects.push(project);
+      }
+    },
   },
   actions: {
     async register({ dispatch, commit }, { firstName, lastName, email, password, profilePicture }) {
@@ -79,5 +85,8 @@ export default new Vuex.Store({
     async createOrganization({ commit }, organization) {
       commit('addOrganization', organization);
     },
+    async createProject({ commit }, { organizationId, project }) {
+      commit('addProject', { organizationId, project });
+    }
   },
 });

@@ -23,7 +23,7 @@
       
       <!-- Search Bar -->
       <div class="flex p-4 justify-center">
-        <p class="text-xl font-semibold text-primary mx-8">Search Projects</p>
+        <p class="text-xl font-semibold text-primary mx-8">Search Tasks</p>
         <input type="text" class="w-1/3 mx-2 border border-highlight rounded-lg p-2 " placeholder="Placeholder for Search All Projects" />
         <button class="dashboard-button">Search</button>
       </div>
@@ -116,15 +116,14 @@
       this.getProjData();
     },
     computed: {
-      ...mapState(['isLoggedIn']),
+      ...mapState(['isLoggedIn', 'organizations']),
     },
-    mounted() {
-      this.tasks = JSON.parse(localStorage.getItem(this.$route.params.orgIndex)) || [];
-    },
+    // mounted() {
+    //   this.tasks = this.proj.tasks || [];
+    // },
     methods: {
       getProjData() {
-        const userOrganizations = JSON.parse(localStorage.getItem(this.$route.params.orgIndex));
-        this.proj = userOrganizations[this.$route.params.projIndex];
+        this.proj = this.organizations[this.$route.params.orgIndex].projects[this.$route.params.projIndex];
         if (!this.proj) {
           alert("There was an error fetching the organization data");
           this.$router.push({name: 'OrganizationDashboard'});
