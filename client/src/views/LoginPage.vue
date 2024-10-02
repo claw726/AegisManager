@@ -32,7 +32,7 @@
       NavBar,
     },
     computed: {
-      ...mapState('user' ['isLoggedIn', 'currentUser']),
+      ...mapState(['isLoggedIn', 'currentUser']),
     },
     data() {
       return {
