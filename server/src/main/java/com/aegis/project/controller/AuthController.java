@@ -47,11 +47,11 @@ public class AuthController {
             String token = tokenService.generateToken(auth);
 
             response.put("message:", "Login successful");
-            response.put("token", token);
+            response.put("token:", token);
 
             return ResponseEntity.ok(response);
         } catch (AuthenticationException e) {
-            response.put("message", "Login failed");
+            response.put("message:", "Login failed");
 
             return ResponseEntity.badRequest().body(response);
         }

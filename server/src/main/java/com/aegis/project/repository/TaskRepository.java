@@ -1,5 +1,6 @@
 package com.aegis.project.repository;
 
+import com.aegis.project.model.ProjectModel;
 import com.aegis.project.model.TaskModel;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Modifying;
@@ -10,5 +11,5 @@ import java.util.Optional;
 
 @Repository
 public interface TaskRepository extends JpaRepository<TaskModel, Integer> {
-
+    void deleteByParentProjectID(int projectID);
 }

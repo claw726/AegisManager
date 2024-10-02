@@ -3,15 +3,7 @@ package com.aegis.project.model;
 import java.util.HashSet;
 import java.util.Set;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 @Entity
 @Table(name = "projects")
@@ -41,12 +33,7 @@ public class ProjectModel {
     @Column(name = "project_owner_ID")
     private int ProjectOwnerID;
 
-    @ManyToMany
-    @JoinTable(
-            name = "project_assigned_users",
-            joinColumns = @JoinColumn(name = "project_id"),
-            inverseJoinColumns = @JoinColumn(name = "parent_project_id")
-    )
+    @OneToMany(mappedBy = "ParentProject", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<TaskModel> ProjectTasks = new HashSet<>();
 
     //TODO: implement project chat table
