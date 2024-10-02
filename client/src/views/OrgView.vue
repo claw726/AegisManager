@@ -11,7 +11,7 @@
             <div v-if="userOrganizations && userOrganizations.length > 0">
                 <div v-for="(organization, index) in userOrganizations" :key="index" class="grid my-4">
                     <div class="p-4 card">
-                        <OrgCard :organization="organization" :index="index" @organizationDeleted="loadUserOrganizations" />
+                        <OrgCard :organization="organization" :index="index" />
                     </div>
                 </div>
             </div>

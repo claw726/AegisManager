@@ -4,15 +4,7 @@ import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
-import jakarta.persistence.Column;
-import jakarta.persistence.Entity;
-import jakarta.persistence.GeneratedValue;
-import jakarta.persistence.GenerationType;
-import jakarta.persistence.Id;
-import jakarta.persistence.JoinColumn;
-import jakarta.persistence.JoinTable;
-import jakarta.persistence.ManyToMany;
-import jakarta.persistence.Table;
+import jakarta.persistence.*;
 
 @Entity
 @Table(name = "tasks")
@@ -23,7 +15,11 @@ public class TaskModel {
     private int TaskID;
 
     @Column(name = "parent_project_ID")
-    private int ParentProjectID;
+    private int parentProjectID;
+
+    @ManyToOne
+    @JoinColumn(name = "parent_project")
+    private ProjectModel ParentProject;
 
     @Column(name = "parent_org_ID")
     private int ParentOrgID;
@@ -68,12 +64,20 @@ public class TaskModel {
         TaskID = taskID;
     }
 
+    public ProjectModel getParentProject() {
+        return ParentProject;
+    }
+
+    public void setParentProject(ProjectModel parentProject) {
+        ParentProject = parentProject;
+    }
+
     public int getParentProjectID() {
-        return ParentProjectID;
+        return parentProjectID;
     }
 
     public void setParentProjectID(int parentProjectID) {
-        ParentProjectID = parentProjectID;
+        this.parentProjectID = parentProjectID;
     }
 
     public int getParentOrgID() {

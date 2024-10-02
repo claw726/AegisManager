@@ -72,7 +72,7 @@
         NavBar,
     },
     computed: {
-      ...mapState(['isLoggedIn', 'userEmail']),
+      ...mapState(['isLoggedIn', 'currentUser', 'organizations']),
     },
     methods: {
       handleImageChange(event) {
@@ -160,24 +160,28 @@
             alert('Please select a valid image format.');
         }
         },
-    submitForm() {
+    async submitForm() {
         // Add the new org to localstorage
         if (!this.newProj.ProjName || !this.newProj.ProjDescription) {
             alert("Please Tell us more about your project.");
             return;
         }
-        this.newProj.ProjCreator = this.userEmail;
+        this.newProj.ProjCreator = this.currentUser.email;
         if (!this.newProj.ProjCreator) {
             alert("Error determining your identity! Please log out and back in to continue.");
             return
         }
         const organizationID = this.$route.params.index;;
-        let projects = JSON.parse(localStorage.getItem(organizationID)) || [];
-        projects.push(this.newProj);
-        localStorage.setItem(organizationID, JSON.stringify(projects));
-        // Redirect to the viewOrgs page
-        this.$router.push({ name: 'OrganizationDashboard', params: { index: organizationID }});
-        },
+        try {
+          await this.$store.dispatch('createProject', { organizationID, project: this.newProj });
+
+          // Redirect to the Org Dashboard
+          this.$router.push({ name: 'OrganizationDashboard', params: { index: organizationID }});
+        } catch {
+          console.error('Error creating project:', error);
+          alert('An error occurred while creating the project. Please try again.');
+        }
+      },
     }
   }
   </script>
