@@ -12,7 +12,7 @@ const router = createRouter({
                 {
                     path: '/createAccount',
                     name: 'CreateAcct',
-                    component: () => import('./views/UserCreation.vue'),
+                    component: () => import('./views/CreateUserView.vue'),
                     meta: {requiresGuest: true},
                 },
                 {
@@ -24,14 +24,14 @@ const router = createRouter({
                 {
                     path: '/dashboard',
                     name: 'Dashboard',
-                    component: () => import('./views/DashboardView.vue'),
+                    component: () => import('./views/DashboardAccountView.vue/index.js'),
                     meta: {requiresAuth: true},
                 },
 
                 {
                   path: '/organization',
                   name: 'viewOrgs',
-                  component: () => import('./views/OrgView.vue'),
+                  component: () => import('./views/ListOrgView.vue'),
                   meta: {requiresAuth: true},
                 },
                 {
@@ -43,7 +43,7 @@ const router = createRouter({
                 {
                   path: '/organization/:orgIndex',
                   name: 'OrganizationDashboard',
-                  component: () => import('./views/OrgDashView.vue'),
+                  component: () => import('./views/DashboardOrgView.vue'),
                   meta: {requiresAuth: true},
                 },
                 {
@@ -61,7 +61,7 @@ const router = createRouter({
                 {
                   path: '/organization/:orgIndex/createProject',
                   name: 'createProject',
-                  component: () => import('./views/ProjCreator.vue'),
+                  component: () => import('./views/CreateProjView.vue'),
                   meta: {requiresAuth: true},
                 },
                 {
@@ -73,7 +73,7 @@ const router = createRouter({
                 {
                   path: '/organization/:orgIndex/project/:projIndex',
                   name: 'ProjectDashboard',
-                  component: () => import('./views/ProjView.vue'),
+                  component: () => import('./views/DashboardProjectView.vue'),
                   meta: {requiresAuth: true},
                 },
             ],
