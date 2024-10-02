@@ -34,14 +34,18 @@ public class AuthController {
     // Registration endpoint
     @PostMapping("/register")
     public ResponseEntity<String> createUser(@RequestParam String email, @RequestParam String name, @RequestParam String password) {
+        // Log the input parameters
+        logger.info("Received registration request with email: {}, name: {}, password: {}", email, name, password);
         try {
             if (userService.createUser(email, name, password)) {
+                logger.info("User created successfully for email: {}", email);
                 return ResponseEntity.ok("User created successfully");
             } else {
+                logger.warn("User already exists or there was an error for email: {}", email);
                 return ResponseEntity.badRequest().body("User already exists or there was an error");
             }
         } catch (Exception e) {
-            logger.error("Error creating user: " + e.getMessage());
+            logger.error("Error creating user for email: {}: {}", email, e.getMessage());
             return ResponseEntity.badRequest().body("User already exists or there was an error");
         }
     }
