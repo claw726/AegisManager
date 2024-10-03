@@ -24,6 +24,8 @@ public class ProjectController {
         } catch (RuntimeException e) {
             if (e.getMessage().equals("Project not found with ID: " + projectID)) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            } else if (e.getMessage().contains("User")) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
             } else {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
             }
