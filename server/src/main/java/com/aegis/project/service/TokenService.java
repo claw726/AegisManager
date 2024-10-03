@@ -1,7 +1,7 @@
 package com.aegis.project.service;
 
-import io.jsonwebtoken.Jwts;
-import io.jsonwebtoken.SignatureAlgorithm;
+import io.jsonwebtoken.*;
+import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
 
@@ -28,4 +28,33 @@ public class TokenService {
 
         return token;
     }
+
+    public String resolveToken(HttpServletRequest request) {
+        String bearerToken = request.getHeader("Authorization");
+        if (bearerToken != null && bearerToken.startsWith("Bearer ")) {
+            return bearerToken.substring(7); // Remove "Bearer " prefix
+        }
+        return null;
+    }
+
+
+    public boolean validateToken(String token) {
+        try {
+            JwtParser parser = Jwts.parser().setSigningKey(key).build();
+            parser.parseClaimsJws(token);
+            return true;
+        } catch (ExpiredJwtException e) {
+            logger.warn("Token is expired: {}", e.getMessage());
+        } catch (Exception e) {
+            logger.warn("Invalid token: {}", e.getMessage());
+        }
+        return false;
+    }
+
+    public String getUsername(String token) {
+        JwtParser parser = Jwts.parser().setSigningKey(key).build();
+        Claims claims = parser.parseClaimsJws(token).getBody();
+        return claims.getSubject();
+    }
+
 }
