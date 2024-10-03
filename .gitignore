@@ -12,11 +12,11 @@ client/src/views/Logo.vue
 *.iml
 *.ipr
 
+SCRUM Logs/**
+
 # Node.js
 node_modules/
 
 # Gradle
 server/.gradle/
 server/build/
-SCRUM Logs/Week 2.txt
-SCRUM Logs/Week 2.txt
