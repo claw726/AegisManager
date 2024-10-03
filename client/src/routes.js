@@ -24,7 +24,7 @@ const router = createRouter({
                 {
                     path: '/dashboard',
                     name: 'Dashboard',
-                    component: () => import('./views/DashboardAccountView.vue/index.js'),
+                    component: () => import('./views/DashboardAccountView.vue'),
                     meta: {requiresAuth: true},
                 },
 

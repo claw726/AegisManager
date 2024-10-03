@@ -99,6 +99,17 @@
     transform: scale(1.05); /* Slight enlargement on hover */
     z-index: 10;
 }
+
+/* Custom button styling */
+.critical-button {
+  @apply bg-red-500 border border-highlight text-gray-200 py-2 px-4 text-xl rounded-lg transition duration-300 ease-in-out transform;
+}
+
+.critial-button:hover {
+  @apply bg-red-400 text-gray-100;
+  transform: scale(1.05); /* Slight enlargement on hover */
+  z-index: 10;
+}
   
 /* Light Blue Background */
 .bg-light-blue {

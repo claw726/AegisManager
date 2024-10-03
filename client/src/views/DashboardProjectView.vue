@@ -2,8 +2,11 @@
     <div v-if="isLoggedIn" class="flex flex-col h-full w-full min-h-screen bg-background">
       <NavBar />
       
-      <div class="flex justify-end">
-          <button class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded m-4 justify-center h-12">⚙️</button>
+      <div class="absolute justify-end top-0 right-0">
+        <Dropdown title="⚙️"
+                  :items="dropdownOpts"
+                  @command="handleCommand"
+        />
       </div>
 
       <div class="flex justify-center justify-items-center p-4">
@@ -47,12 +50,23 @@
   import NavBar from '@/components/NavBar.vue';
   import { mapState } from 'vuex';
   import TaskCard from '../components/TaskCard.vue';
+  import Dropdown from '@/components/Dropdown.vue';
   
   export default {
     data() {
       return {
         proj: null,
         projects: [],
+        dropdownOpts: [
+          {
+            title: 'Edit Project Details',
+            command: this.editProject,
+          },
+          {
+            title: 'Delete This Project',
+            command: this.deleteProject,
+          },
+        ],
         tasks: [
         {
           TaskName: "Gather Materials for Tempest Hull",
@@ -105,12 +119,13 @@
           IsComplete: false
         },
         // Add more tasks as needed
-      ]
+        ],
       };
     },
     components: {
       NavBar,
       TaskCard,
+      Dropdown,
     },
     created() {
       this.getProjData();
@@ -130,9 +145,22 @@
         }
       },
       goToCreateTask() {
-            // this.$router.push({ name: 'createTask', params: { orgIndex: this.index }});
-            alert("Bilsha, can you implement this?");
-        },
+        // this.$router.push({ name: 'createTask', params: { orgIndex: this.index }});
+        alert("Bilsha, can you implement this?");
+      },
+      handleCommand(command) {
+        if (command === 'edit') {
+          this.editProject();
+        } else if (command === 'delete') {
+          this.deleteProject();
+        }
+      },
+      editProject() {
+        alert("Edit Project");
+      },
+      deleteProject() {
+        alert("Delete Project");
+      },
     },
   };
   </script>   
