@@ -11,11 +11,22 @@
         <h3 class="font-bold text-lg">{{ task.title }}</h3>
       </div>
 
+      <p class="text-gray-600">Completed: {{ task.completed }}</p> 
       <p class="text-gray-600">Due: {{ task.dueDate }}</p>
       <p class="text-gray-600">Description: {{ task.description }}</p>
       <p class="text-gray-600">Priority: {{ task.priority }}</p>
-      <p class="text-gray-600">Completed: {{ task.completed }}</p>
+      
+      
 
+      <label for="assigner-dropdown"></label>
+      <p class="text-gray-600">Task Assigner: {{ task.task_assigner }}</p>
+        <select id="assigner-dropdown" v-model="selectedAssigner" @change="assignerClick">
+          <option v-for="(assigneer, index) in task.assignees" :key="index" :value="assignee">
+            {{ assigneer }}
+          </option>
+        </select>
+
+      
       <!-- Dropdown for Assignees -->
       <div class="assignees-section">
         <label for="assignees-dropdown">Assignees:</label>
@@ -53,6 +64,8 @@ export default {
       task: "",
       selectedAssignee: null, // For the dropdown
       newAssignee: "",        // For adding a new assignee
+      selectedAssigner: null, 
+      newAssigner: "",
     };
   },
 
@@ -72,6 +85,7 @@ export default {
   methods: {
     completeTask() {
       this.task.completed = true;
+      localStorage.setItem()
     },
 
     getTaskfromStorage(taskId) {
@@ -90,6 +104,14 @@ export default {
         this.task.assignees.push(this.newAssignee.trim());
         this.newAssignee = ""; // Clear input after adding
       }
+    },
+
+    assignerClick() {
+      this.updateTaskAssigner(this.selectedAssigner);
+    }, 
+
+    updateTaskAssigner(newAssigner) {
+      this.$store.commit('setNewTaskAssignee', newAssigner);
     },
   },
 };

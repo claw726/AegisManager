@@ -10,16 +10,16 @@ export default new Vuex.Store({
 
     allTasks: {
     "1": { 
-        id: 1, title: 'Task 1', description: 'Complete project FROM THE DATABASE', dueDate: '2024-09-30', 
-        priority: 'High', completed: false, assignees: ['User A', 'User B']
+        id: 1, project_id: 3, title: 'Task 1', description: 'Complete project FROM THE DATABASE', dueDate: '2024-09-30', 
+        priority: 'High', completed: false, assignees: ['User A', 'User B'], task_assigner: 'User C'
     },
     "2" : { 
-        id: 2, title: 'Task 2', description: 'Prepare presentation', dueDate: '2024-10-05', 
-      priority: 'High', completed: false, assignees: ['User C'] 
+        id: 2, project_id: 5, title: 'Task 2', description: 'Prepare presentation', dueDate: '2024-10-05', 
+      priority: 'High', completed: false, assignees: ['User C'], task_assigner: 'User A'
     },
     "3" : { 
-        id: 3, title: 'Task 3', description: 'DO whatever I want to', dueDate: '2024-11-15', 
-      priority: 'High', completed: false, assignees: ['User D', 'User B'] 
+        id: 3, project_id: 2, title: 'Task 3', description: 'DO whatever I want to', dueDate: '2024-11-15', 
+      priority: 'High', completed: false, assignees: ['User D', 'User B'], task_assigner: 'User A' 
     }
   }
   
@@ -49,6 +49,16 @@ export default new Vuex.Store({
       state.userFirstName = '';
       state.userLastName = '';
       state.userPhoto = '';
+    }, 
+
+    setNewTaskAssignee(state, taskId, newAssigner) {
+      const t = String(taskId);
+      if (newAssigner) {
+        state.allTasks.t.task_assigner = newAssigner;
+      } else {
+        state.allTasks.t.task_assigner = "ayiyooo";
+      }
+      
     }
 
   },
@@ -64,7 +74,7 @@ export default new Vuex.Store({
 
   plugins: [
     store => {
-      store.subscribe((mutation, state) => {
+      store.subscribe((_mutations, state) => {
         localStorage.setItem('vuex', JSON.stringify(state));
       });
     }
