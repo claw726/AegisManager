@@ -48,7 +48,7 @@ public class TaskModel {
     private Date DueDate;
 
     @Column(name = "is_complete")
-    private boolean IsComplete;
+    private boolean isComplete;
 
     //TODO: implement task chat table and task files table
 
@@ -136,12 +136,12 @@ public class TaskModel {
         DueDate = dueDate;
     }
 
-    public boolean isIsComplete() {
-        return IsComplete;
+    public boolean isComplete() {
+        return isComplete;
     }
 
-    public void setIsComplete(boolean isComplete) {
-        IsComplete = isComplete;
+    public void setComplete(boolean isComplete) {
+        this.isComplete = isComplete;
     }
    
 }
