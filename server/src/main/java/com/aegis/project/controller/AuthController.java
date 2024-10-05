@@ -38,11 +38,11 @@ public class AuthController {
             if (userService.createUser(email, name, password)) {
                 return ResponseEntity.ok("User created successfully");
             } else {
-                return ResponseEntity.badRequest().body("User already exists or there was an error");
+                return ResponseEntity.badRequest().body("User already exists");
             }
         } catch (Exception e) {
             logger.error("Error creating user: " + e.getMessage());
-            return ResponseEntity.badRequest().body("User already exists or there was an error");
+            return ResponseEntity.internalServerError().body("There was an error creating the user");
         }
     }
 

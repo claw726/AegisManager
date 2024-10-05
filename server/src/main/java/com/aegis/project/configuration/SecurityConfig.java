@@ -1,6 +1,7 @@
 package com.aegis.project.configuration;
 
 import com.aegis.project.service.CustomAuthFailureHandler;
+import com.aegis.project.service.CustomAuthSuccessHandler;
 import com.aegis.project.service.CustomUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -23,6 +24,9 @@ public class SecurityConfig {
 
     @Autowired
     private CustomAuthFailureHandler failureHandler;
+
+    @Autowired
+    private CustomAuthSuccessHandler successHandler;
 
     @Autowired
     private JWTAuthenticationFilter jwtAuthenticationFilter;
@@ -52,8 +56,9 @@ public class SecurityConfig {
                 )
                 .formLogin(form -> form
                         .loginPage("/login")
-                         .defaultSuccessUrl("/home", true)
-                         .failureHandler(failureHandler)
+                        .defaultSuccessUrl("/home", true)
+                        .successHandler(successHandler)
+                        .failureHandler(failureHandler)
                         .permitAll()
                 )
                 .logout(logout -> logout.permitAll())
