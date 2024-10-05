@@ -1,6 +1,7 @@
 package com.aegis.project.service;
 
 import io.jsonwebtoken.*;
+import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
@@ -10,9 +11,11 @@ import java.util.Date;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import javax.crypto.SecretKey;
+
 @Service
 public class TokenService {
-    private final String key = "superSecretAegisKey";
+    private final SecretKey key = Keys.secretKeyFor(SignatureAlgorithm.HS512);
     private final long expirationTime = 1000 * 60 * 15; // 15 minutes
     private static final Logger logger = LoggerFactory.getLogger(TokenService.class);
 
@@ -21,7 +24,7 @@ public class TokenService {
                 .setSubject(auth.getName())
                 .setIssuedAt(new Date())
                 .setExpiration(new Date(System.currentTimeMillis() + expirationTime))
-                .signWith(SignatureAlgorithm.HS512, key)
+                .signWith(key)
                 .compact();
 
         logger.info("Generated token: {}", token); // Log the token

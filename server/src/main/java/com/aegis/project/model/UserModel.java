@@ -44,6 +44,20 @@ public class UserModel {
     @Column(name = "is_locked")
     private boolean isLocked;
 
+    public UserModel(String userName, String email, String PWHash) {
+        this.userName = userName;
+        this.email = email;
+        this.PWHash = PWHash;
+        TwoFactorAuthInfo = "none";
+        PasswordResetToken = "none";
+        IsLoggedIn = false;
+        this.failedLoginAttempts = 0;
+        this.isLocked = false;
+    }
+
+    public UserModel() {
+    }
+
     public int getUserID() {
         return UserID;
     }

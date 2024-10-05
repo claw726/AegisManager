@@ -41,12 +41,12 @@ public class AuthController {
                 logger.info("User created successfully for email: {}", email);
                 return ResponseEntity.ok("User created successfully");
             } else {
-                logger.warn("User already exists or there was an error for email: {}", email);
-                return ResponseEntity.badRequest().body("User already exists or there was an error");
+                logger.warn("User already exists with email: {}", email);
+                return ResponseEntity.badRequest().body("User already exists");
             }
         } catch (Exception e) {
-            logger.error("Error creating user for email: {}: {}", email, e.getMessage());
-            return ResponseEntity.badRequest().body("User already exists or there was an error");
+            logger.error("Error creating user: " + e.getMessage());
+            return ResponseEntity.internalServerError().body("There was an error creating the user");
         }
     }
 
