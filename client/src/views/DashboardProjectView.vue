@@ -156,10 +156,20 @@
         }
       },
       editProject() {
-        alert("Edit Project");
+        this.$router.push({ name: 'EditProject', params: { orgIndex: this.$route.params.orgIndex, projIndex: this.$route.params.projIndex }});
       },
       deleteProject() {
-        alert("Delete Project");
+        const projIndex = this.$route.params.projIndex;
+        const orgIndex = this.$route.params.orgIndex;
+        if (confirm('Are you sure you want to delete this project?')) {
+          this.$store.dispatch('deleteProject', { orgIndex, projIndex }).then(() => {
+            alert('Project deleted successfully!')
+            this.$router.push({ name: 'OrganizationDashboard' });
+          }).catch((err) => {
+            alert('Failed to delete project');
+            console.error(err);
+          });
+        }
       },
     },
   };

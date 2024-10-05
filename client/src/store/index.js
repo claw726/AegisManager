@@ -61,6 +61,23 @@ export default new Vuex.Store({
         organization.projects.push(project);
       }
     },
+    deleteProject(state, { orgIndex, projIndex }) {
+      state.organizations[orgIndex].projects.splice(projIndex, 1);
+    },
+    modifyProject(state, { orgIndex, projIndex, project }) {
+      if (orgIndex && orgIndex >= 0 && orgIndex < state.organizations.length) {
+        const organization = state.organizations[orgIndex];
+        if (organization && organization.projects && projIndex >= 0 && projIndex < organization.projects.length) {
+          state.organizations[orgIndex].projects[projIndex] = project;
+        } else {
+          console.error('Invalid project index:', projIndex);
+          throw new Error('Invalid project index');
+        }
+      } else {
+        console.error('Invalid organization index:', orgIndex);
+        throw new Error('Invalid organization index');
+      }
+    }
   },
   actions: {
     async register({ dispatch, commit }, { firstName, lastName, email, password, profilePicture }) {
@@ -87,6 +104,12 @@ export default new Vuex.Store({
     },
     async createProject({ commit }, { organizationId, project }) {
       commit('addProject', { organizationId, project });
+    },
+    async deleteProject({ commit }, { orgIndex, projIndex }) {
+      commit('deleteProject', { orgIndex, projIndex });
+    },
+    async modifyProject({ commit }, { orgIndex, projIndex, project }) {
+      commit('modifyProject', { orgIndex, projIndex, project });
     }
   },
 });

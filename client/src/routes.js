@@ -76,6 +76,12 @@ const router = createRouter({
                   component: () => import('./views/DashboardProjectView.vue'),
                   meta: {requiresAuth: true},
                 },
+                {
+                  path: '/organization/:orgIndex/project/:projIndex/edit',
+                  name: 'EditProject',
+                  component: () => import('./views/EditProjectView.vue'),
+                  meta: {requiresAuth: true},
+                }
             ],
     });
 
