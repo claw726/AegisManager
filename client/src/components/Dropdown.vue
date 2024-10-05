@@ -46,6 +46,7 @@
     transform: translateX(-50%);
     width: max-content;
     border-radius: 0px 0px 16px 16px;
+    z-index: 100;
 }
 
 .fade-enter-active{

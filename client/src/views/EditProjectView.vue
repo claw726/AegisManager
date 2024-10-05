@@ -174,6 +174,12 @@
             return;
         }
 
+        // Check if the current user is the creator of the project. If not, they may not edit it.
+        if (this.modifiedProject.ProjCreator !== this.currentUser.email) {
+            alert("You are not authorized to edit this project.");
+            return;
+        }
+
         // Get the index of the organization
         const organizationID = this.$route.params.orgIndex;
         const projectID = this.$route.params.projIndex;
