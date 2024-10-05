@@ -2,7 +2,7 @@
     <div v-if="isLoggedIn" class="flex flex-col h-full w-full min-h-screen bg-background">
       <NavBar />
       
-      <div class="absolute justify-end top-0 right-0">
+      <div class="absolute justify-end top-1 right-1">
         <Dropdown title="⚙️"
                   :items="dropdownOpts"
                   @command="handleCommand"
@@ -12,7 +12,7 @@
       <div class="flex justify-center justify-items-center p-4">
         <div v-if="proj">
           <div class="relative flex h-screen/3 py-4">
-          <img :src="proj.ProjImg" alt="Profile Picture" class="h-48 con drop-shadow-xl col-span-1" />
+          <img :src="proj.ProjImg" alt="Profile Picture" class="h-48 con drop-shadow-xl col-span-1 rounded-lg" />
           <div class="ml-8 flex flex-col justify-center">
             <div class="text-4xl font-bold text-primary">{{ proj.ProjName}}</div>
             <div class="text-2xl font-semibold text-secondary">{{ proj.ProjDescription }}</div>
@@ -131,7 +131,7 @@
       this.getProjData();
     },
     computed: {
-      ...mapState(['isLoggedIn', 'organizations']),
+      ...mapState(['isLoggedIn', 'organizations', 'currentUser']),
     },
     // mounted() {
     //   this.tasks = this.proj.tasks || [];
@@ -156,9 +156,20 @@
         }
       },
       editProject() {
+        // Confirm the current user is the project creator
+        if (this.proj.ProjCreator !== this.currentUser.email) {
+          alert("You are not authorized to modify this project.");
+          return;
+        }
         this.$router.push({ name: 'EditProject', params: { orgIndex: this.$route.params.orgIndex, projIndex: this.$route.params.projIndex }});
       },
       deleteProject() {
+        // Confirm the current user is the project creator
+        if (this.proj.ProjCreator !== this.currentUser.email) {
+          alert("You are not authorized to delete this project.");
+          return;
+        }
+
         const projIndex = this.$route.params.projIndex;
         const orgIndex = this.$route.params.orgIndex;
         if (confirm('Are you sure you want to delete this project?')) {
