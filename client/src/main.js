@@ -19,3 +19,7 @@ app.mount('#app')
 
 // Add the beforeunload event listener
 addBeforeUnloadListener();
+
+WebSocket.onClose = () => {
+    console.log('WebSocket connection closed');
+}

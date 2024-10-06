@@ -1,9 +1,12 @@
 <template>
     <div v-if="isLoggedIn" class="flex flex-col h-full w-full min-h-screen bg-background">
       <NavBar />
-      
-      <div class="flex justify-end">
-          <button class="bg-red-500 hover:bg-red-700 text-white font-bold py-2 px-4 rounded m-4 justify-center h-12">⚙️</button>
+
+      <div class="absolute justify-end top-1 right-1">
+        <Dropdown title="⚙️"
+                  :items="dropdownOpts"
+                  @command="handleCommand"
+        />
       </div>
 
       <div class="flex justify-center justify-items-center p-4">
@@ -47,7 +50,8 @@
   import NavBar from '@/components/NavBar.vue';
   import { mapState } from 'vuex';
   import ProjCard from '@/components/ProjCard.vue';
-  
+  import Dropdown from '@/components/Dropdown.vue';
+
   export default {
     props: {
       projIndex: {
@@ -59,11 +63,22 @@
       return {
         org: null,
         projects: [],
+        dropdownOpts: [
+          {
+            title: 'Edit Organization Details',
+            command: this.editOrg,
+          },
+          {
+            title: 'Delete This Organizaiton',
+            command: this.deleteOrg,
+          },
+        ],
       };
     },
     components: {
       NavBar,
       ProjCard,
+      Dropdown,
     },
     created() {
       this.getOrgData();
@@ -81,7 +96,20 @@
       },
       goToCreateProject() {
             this.$router.push({ name: 'createProject', params: { orgIndex: this.index }});
-        },
+      },
+      editOrg() {
+        this.$router.push({ name: 'EditOrg', params: { orgIndex: this.$route.params.orgIndex }});
+      },
+      deleteOrg() {
+        if (confirm('Are you sure you want to delete this organization?')) {
+          this.$store.dispatch('deleteOrganization', this.$route.params.orgIndex).then(() => {
+            alert('Organization deleted successfully!')
+            this.$router.push({ name: 'viewOrgs', params: { orgIndex: undefined }});
+          }).catch((err) => {
+            alert('There was an error deleting the organization');
+          });
+        }
+      },
     },
   };
   </script>   

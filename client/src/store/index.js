@@ -35,9 +35,6 @@ export default new Vuex.Store({
     setCurrentUser(state, user) {
       state.currentUser = user;
     },
-    addUserAccount(state, user) {
-      state.userAccounts.push(user);
-    },
     setAuthToken(state, token) {
       state.authToken = token;
     },
@@ -52,7 +49,20 @@ export default new Vuex.Store({
       state.organizations.push(organization);
     },
     removeOrganization(state, index) {
-      state.organizations.splice(index, 1);
+      if (index >= 0 && index < state.organizations.length) {
+        state.organizations.splice(index, 1);
+      } else {
+        console.error('Invalid organization index:', index);
+        throw new Error('Invalid organization index');
+      }
+    },
+    modifyOrganization(state, { index, organization }) {
+      if (index >= 0 && index < state.organizations.length) {
+        state.organizations[index] = organization;
+      } else {
+        console.error('Invalid organization index:', index);
+        throw new Error('Invalid organization index');
+      }
     },
     addProject(state, { organizationId, project }) {
       const organization = state.organizations.find(org => org.id === organizationId);
@@ -80,19 +90,47 @@ export default new Vuex.Store({
     }
   },
   actions: {
-    async register({ dispatch, commit }, { firstName, lastName, email, password, profilePicture }) {
-      const user = {firstName, lastName, email, password, profilePicture};
-      commit('addUserAccount', user);
-      dispatch('login', { email, password });
+    async register({ dispatch }, { email, name, password }) {
+      try {
+        const params = new URLSearchParams();
+        params.append('email', email);
+        params.append('name', name);
+        params.append('password', password);
+
+        const response = await axios.post('/api/auth/register', params, {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          }
+        });
+
+        alert(response.data);
+        await dispatch('login', { email, password });
+      } catch (error) {
+        console.error('Failed to register:', error.response.data);
+        alert('Registration failed: ' + error.response.data);
+      }
     },
     async login({ commit, state }, { email, password }) {
-      const user = state.userAccounts.find(user => user.email === email);
-      if (user && user.password === password) {
-        commit('setCurrentUser', user);
-        commit('setAuthToken', 'logged_in');
+      try {
+        const params = new URLSearchParams();
+        params.append('email', email);
+        params.append('password', password);
+
+        const response = await axios.post('/api/auth/login', params, {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          }
+        });
+
+        const token = response.data.token;
+        commit('setAuthToken', token);
+        commit('setCurrentUser', { email });
         commit('setLogin', true);
-      } else {
-        alert('Login failed: Invalid email or password');
+        alert('Login successful');
+      } catch (error) {
+        console.error('Failed to login:', error.response.data);
+        alert('Login failed: ' + error.response.data);
+        throw error;
       }
     },
     async logout({ commit }) {
@@ -101,6 +139,12 @@ export default new Vuex.Store({
     },
     async createOrganization({ commit }, organization) {
       commit('addOrganization', organization);
+    },
+    async modifyOrganization({ commit }, { index, organization }) {
+      commit('modifyOrganization', { index, organization });
+    },
+    async deleteOrganization({ commit }, index) {
+      commit('removeOrganization', index);
     },
     async createProject({ commit }, { organizationId, project }) {
       commit('addProject', { organizationId, project });

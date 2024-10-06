@@ -65,6 +65,12 @@ const router = createRouter({
                   meta: {requiresAuth: true},
                 },
                 {
+                  path: '/organization/:orgIndex/edit',
+                  name: 'EditOrg',
+                  component: () => import('./views/EditOrgView.vue'),
+                  meta: {requiresAuth: true},
+                },
+                {
                   path: '/kanban',
                   name: 'KB',
                   component: () => import('./views/KanbanView.vue'),
