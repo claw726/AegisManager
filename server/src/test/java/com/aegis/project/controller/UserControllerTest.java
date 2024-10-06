@@ -40,16 +40,16 @@ public class UserControllerTest {
         assertEquals(ResponseEntity.ok("User created successfully"), response);
     }
 
-    // @Test
-    // public void testCreateUser_Failure() {
-    //     String email = "test@example.com";
-    //     String name = "Test User";
-    //     String password = "password";
+    @Test
+    public void testCreateUser_Failure() {
+        String email = "test@example.com";
+        String name = "Test User";
+        String password = "password";
 
-    //     when(userService.createUser(email, name, password)).thenReturn(false);
+        when(userService.createUser(email, name, password)).thenReturn(false);
 
-    //     ResponseEntity<String> response = authController.createUser(email, name, password);
+        ResponseEntity<String> response = authController.createUser(email, name, password);
 
-    //     assertEquals(ResponseEntity.badRequest().body("User already exists or there was an error"), response);
-    // }
+        assertEquals(ResponseEntity.badRequest().body("User already exists"), response);
+    }
 }
