@@ -85,7 +85,10 @@ export default {
   methods: {
     completeTask() {
       this.task.completed = true;
-      localStorage.setItem()
+      const all = this.allTasks;
+      const id = this.taskId;
+      //this.allTasks.id.completed = true; 
+      //localStorage.setItem("allTasks", JSON.stringify(all));
     },
 
     getTaskfromStorage(taskId) {
@@ -111,7 +114,7 @@ export default {
     }, 
 
     updateTaskAssigner(newAssigner) {
-      this.$store.commit('setNewTaskAssignee', newAssigner);
+      this.$store.commit('setNewTaskAssignee', this.taskId, newAssigner);
     },
   },
 };

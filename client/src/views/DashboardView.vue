@@ -12,10 +12,16 @@
           <div class="text-2xl font-semibold text-secondary">Welcome to your dashboard!</div>
           <div class="py-4 flex-col">
 
-            <button class="bg-primary text-white rounded-lg p-4" @click="goToViewOrgs">Your Organizations 🏢</button>
-            <button @click="goToKanban" class="button-container viewtask-button bg-primary border border-highlight text-white font-semibold rounded">
-              View Projects!
-            </button>
+            <button @click="goToViewTasks" class="button-container dashboard-button">View Tasks</button>
+
+          <button @click="goToTDList" class="button-container dashboard-button">View Tasks</button>
+
+          <button @click="goToProjects" class="button-container dashboard-button">View Projects </button>
+
+          <button @click="goToViewOrgs" class="button-container dashboard-button"> View Organizations 🏢 </button>
+
+          <button @click="goToSettings" class="button-container dashboard-button">Settings ⚙️</button>
+
 
           </div>
         </div>
@@ -30,16 +36,7 @@
     <div class=" flex-col space-y-4 mt-8">
 
 
-        <button @click="goToViewTasks" class="button-container dashboard-button">View Tasks</button>
-
-        <button @click="goToTDList" class="button-container dashboard-button">View Tasks</button>
-
-        <button @click="goToProjects" class="button-container dashboard-button">View Projects </button>
-
-        <button @click="goToViewOrgs" class="button-container dashboard-button"> View Organizations 🏢 </button>
-
-        <button @click="goToSettings" class="button-container dashboard-button">Settings ⚙️</button>
-
+        
 
     </div>     
   
