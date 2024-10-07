@@ -64,6 +64,41 @@ export default new Vuex.Store({
         throw new Error('Invalid organization index');
       }
     },
+    addUserToOrganization(state, { orgIndex, userEmails }) {
+      // Check that index matches, then that userEmail is an existing email in the useraccounts state, and that each userEmail in userEmails is not already in the org
+      if (orgIndex >= 0 && orgIndex < state.organizations.length) {
+        const organization = state.organizations[orgIndex];
+        organization.members = organization.members || [];
+        userEmails.forEach(userEmail => {
+          if (state.userAccounts.includes(userEmail) && !organization.members.includes(userEmail)) {
+            organization.members.push(userEmail);
+          } else {
+            console.error('User not found or already in organization:', userEmail);
+            throw new Error('User not found or already in organization');
+          }
+        });
+        state.organizations[orgIndex] = organization;
+      }
+    },
+    removeUserFromOrganization(state, { orgIndex, userEmail }) {
+      // Check if org index is valid and that the userEmail exists in the userAccounts state
+      if (orgIndex >= 0 && orgIndex < state.organizations.length) {
+        const organization = state.organizations[orgIndex];
+        organization.members = organization.members || [];
+        const userIndex = organization.members.indexOf(userEmail);
+        if (userIndex >= 0) {
+          organization.members.splice(userIndex, 1);
+          state.organizations[orgIndex] = organization;
+        } else {
+          console.error('User not found in organization:', userEmail);
+          throw new Error('User not found in organization');
+        }
+      } else {
+        console.error('Invalid organization index:', orgIndex);
+        throw new Error('Invalid organization index:' + orgIndex);
+      }
+    },
+
     addProject(state, { organizationId, project }) {
       const organization = state.organizations.find(org => org.id === organizationId);
       if (organization) {
@@ -145,6 +180,12 @@ export default new Vuex.Store({
     },
     async deleteOrganization({ commit }, index) {
       commit('removeOrganization', index);
+    },
+    async addUserToOrganization({ commit }, { orgIndex, userEmails }) {
+      commit('addUserToOrganization', { orgIndex, userEmails });
+    },
+    async removeUserFromOrganization({ commit }, { orgIndex, userEmail }) {
+      commit('removeUserFromOrganization', { orgIndex, userEmail });
     },
     async createProject({ commit }, { organizationId, project }) {
       commit('addProject', { organizationId, project });

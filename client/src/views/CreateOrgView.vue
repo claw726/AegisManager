@@ -56,6 +56,7 @@ export default {
         OrgDescription: '',
         OrgLogo: '',
         OrgCreator: '',
+        members: [],
       },
       imageUploaded: false,
     };
@@ -151,6 +152,8 @@ export default {
         alert("Error determining your identity! Please log out and back in to continue.");
         return
       }
+      // Add the current user to the members list
+      this.newOrg.members.push(this.currentUser.email);
       try {
         this.$store.dispatch('createOrganization', this.newOrg);
 

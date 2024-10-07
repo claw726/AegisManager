@@ -8,6 +8,7 @@ import { addBeforeUnloadListener, removeBeforeUnloadListener } from './utils/aut
 
 const app = createApp(App)
 
+
 app.use(router);
 
 app.use(store);

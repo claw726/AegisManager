@@ -65,6 +65,7 @@
                 OrgLogo: '',
                 OrgUsers: [],
                 OrgCreator: '',
+                members: [],
             },
             imageUploaded: false,
         };
@@ -187,6 +188,7 @@
           alert("Error getting the organization details!");
           return;
         }
+
         // Modify the project in the organization
         await this.$store.dispatch('modifyOrganization', { orgIndex: organizationID, organization: this.modifiedOrganization }).then(() => {
           alert('Organization updated successfully!');

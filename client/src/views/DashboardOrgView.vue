@@ -72,6 +72,10 @@
             title: 'Delete This Organizaiton',
             command: this.deleteOrg,
           },
+          {
+            title: 'Edit Organization Users',
+            command: this.editOrgUsers,
+          }
         ],
       };
     },
@@ -110,6 +114,9 @@
           });
         }
       },
+      editOrgUsers() {
+        this.$router.push({ name: 'EditOrgUsers', params: { orgIndex: this.$route.params.orgIndex }});
+      }
     },
   };
   </script>   
