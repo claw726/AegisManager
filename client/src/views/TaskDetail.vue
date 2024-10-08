@@ -1,46 +1,76 @@
 <template>
   <div class="flex flex-col items-center space-y-4 p-4">
     <div class="task-card cursor-pointerbg-white border border-gray-300 rounded-lg p-4 shadow-md cursor-pointer">
-      <div class="flex items-center mb-4">
+      
+      
+      <div class="flex items-center">
         <input
           @click="completeTask"
           type="checkbox"
           class="checkbox"
           v-model="this.task.completed"
         />
-        <h3 class="font-bold text-lg">{{ task.title }}</h3>
+        <h3 class="font-bold  text-3xl text-hunter-green mb-6">{{  task.title }}</h3>
       </div>
 
-      <p class="text-gray-600">Completed: {{ task.completed }}</p> 
-      <p class="text-gray-600">Due: {{ task.dueDate }}</p>
-      <p class="text-gray-600">Description: {{ task.description }}</p>
-      <p class="text-gray-600">Priority: {{ task.priority }}</p>
-      
-      
+      <div style="margin-inline-start: 20px;">
 
-      <label for="assigner-dropdown"></label>
-      <p class="text-gray-600">Task Assigner: {{ task.task_assigner }}</p>
-        <select id="assigner-dropdown" v-model="selectedAssigner" @change="assignerClick">
-          <option v-for="(assigneer, index) in task.assignees" :key="index" :value="assignee">
-            {{ assigneer }}
+      <div class="flex items-center mb-4 infobar">
+
+        <p class="text-lg">Assigner:  
+        <select v-model="selectedValue">
+          <option value="">  {{ task.task_assigner }}</option>
+          <option v-for="option in options" :key="option.value" :value="option.value">
+            {{ option.text }}
           </option>
         </select>
+        </p>
+        <!-- <p>Selected: {{ selectedValue }}</p> -->
 
+
+
+        <p class="text-lg">Completed:  
+        <select v-model="selectedValue">
+          <option value="">  {{ task.task_assigner }}</option>
+          <option v-for="option in options" :key="option.value" :value="option.value">
+            {{ task.completed }}
+          </option>
+        </select>
+        </p>
+
+        <p class="text-lg">Due Date:  
+        <select v-model="selectedValue">
+          <option value="">  {{ task.task_assigner }}</option>
+          <option v-for="option in options" :key="option.value" :value="option.value">
+            {{ task.dueDate }}
+          </option>
+        </select>
+        </p>
+
+        <p class="text-lg">Priority:  
+        <select v-model="selectedValue">
+          <option value="">  {{ task.task_assigner }}</option>
+          <option v-for="option in options" :key="option.value" :value="option.value">
+            {{ task.priority }}
+          </option>
+        </select>
+        </p>
+
+        <h2 class=" text-lg">Description: {{ task.description }}</h2>
+      </div>
+          
       
+      
+    
       <!-- Dropdown for Assignees -->
-      <div class="assignees-section">
-        <label for="assignees-dropdown">Assignees:</label>
-        <select id="assignees-dropdown" v-model="selectedAssignee">
-          <option v-for="(assignee, index) in task.assignees" :key="index" :value="assignee">
-            {{ assignee }}
-          </option>
-        </select>
-
+      <div class="text-lg ">
+        <label for="assignees-dropdown" class="text-hunter-green text-xl">Assignees:</label>
+        
         <!-- List of Assignees with Remove Button -->
         <ul class="mt-2">
           <li v-for="(assignee, index) in task.assignees" :key="index" class="flex items-center space-x-2">
             <span>{{ assignee }}</span>
-            <button @click="removeAssignee(index)" class="remove-btn text-red-600">Remove</button>
+            <button @click="removeAssignee(index)" class="remove-btn rounded text-red-600">Remove</button>
           </li>
         </ul>
       </div>
@@ -50,12 +80,18 @@
         <input v-model="newAssignee" placeholder="Enter new assignee name" class="border rounded p-2" />
         <button @click="addAssignee" class="bg-green-500 card:hover bg-light-blue text-white p-2 rounded">Add Assignee</button>
       </div>
+      </div>
+
+
     </div>
   </div>
 </template>
 
 <script>
 import { mapState } from 'vuex';
+
+
+
 
 export default {
   data() {
@@ -66,6 +102,14 @@ export default {
       newAssignee: "",        // For adding a new assignee
       selectedAssigner: null, 
       newAssigner: "",
+
+
+      selectedValue: "",
+      options: [
+        { value: 'option1', text: 'Option 1' },
+        { value: 'option2', text: 'Option 2' },
+        { value: 'option3', text: 'Option 3' },
+      ],
     };
   },
 
@@ -121,6 +165,22 @@ export default {
 </script>
 
 <style scoped>
+
+select {
+  padding: 10px;
+  border: 1px solid #ccc;
+  border-radius: 5px;
+  appearance: none; /* Customize the appearance */
+  /*background: url("path/to/dropdown-arrow.svg") no-repeat right 10px center; /* Add a custom dropdown arrow */
+}
+
+.infobar {
+  margin-right: 600px;
+  gap: 20px;
+  font-size: "text-lg";
+  margin-bottom: 20px;
+  
+}
 .task-card {
   transition: transform 0.2s;
 }
