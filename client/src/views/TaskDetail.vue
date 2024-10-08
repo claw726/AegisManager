@@ -3,7 +3,7 @@
     <div class="task-card cursor-pointerbg-white border border-gray-300 rounded-lg p-4 shadow-md cursor-pointer">
       
       
-      <div class="flex items-center">
+      <div class="flex">
         <input
           @click="completeTask"
           type="checkbox"
@@ -11,13 +11,26 @@
           v-model="this.task.completed"
         />
         <h3 class="font-bold  text-3xl text-hunter-green mb-6">{{  task.title }}</h3>
+        <button class="edit-btn rounded top-right-button">Edit   Task</button>
+        <button @click="showPopup = true" class="delete-btn rounded top-right-button">Delete Task</button>
+        
       </div>
 
+      <div v-if="showPopup" class="popup">
+        <div class="popup-content">
+          <p>Are you sure you want to delete this task?</p>
+          <button @click="handleYes" class="remove-btn">Yes</button>
+          <button @click="handleNo" class="remove-btn">No</button>
+        </div>
+      </div>
+      
+
+      <div class="h-1 bg-accent drop-shadow-lg my-4 rounded" />
       <div style="margin-inline-start: 20px;">
 
-      <div class="flex items-center mb-4 infobar">
+      <div class="flex items-center mb-4 infobar text-hunter-green text-xl">
 
-        <p class="text-lg">Assigner:  
+        <p>Assigner:  
         <select v-model="selectedValue">
           <option value="">  {{ task.task_assigner }}</option>
           <option v-for="option in options" :key="option.value" :value="option.value">
@@ -29,37 +42,37 @@
 
 
 
-        <p class="text-lg">Completed:  
+        <p>Completed:  
         <select v-model="selectedValue">
-          <option value="">  {{ task.task_assigner }}</option>
+          <option value="">  {{ task.completed }}</option>
           <option v-for="option in options" :key="option.value" :value="option.value">
             {{ task.completed }}
           </option>
         </select>
         </p>
 
-        <p class="text-lg">Due Date:  
+        <p>Due Date:  
         <select v-model="selectedValue">
-          <option value="">  {{ task.task_assigner }}</option>
+          <option value="">  {{ task.dueDate }}</option>
           <option v-for="option in options" :key="option.value" :value="option.value">
             {{ task.dueDate }}
           </option>
         </select>
         </p>
 
-        <p class="text-lg">Priority:  
+        <p>Priority:  
         <select v-model="selectedValue">
-          <option value="">  {{ task.task_assigner }}</option>
-          <option v-for="option in options" :key="option.value" :value="option.value">
-            {{ task.priority }}
+          <option value="">  {{ task.priority }}</option>
+          <option v-for="option in priorityOptions" :key="option.value" :value="option.value">
+            {{ option.text }}
           </option>
         </select>
         </p>
 
-        <h2 class=" text-lg">Description: {{ task.description }}</h2>
+        
       </div>
           
-      
+      <h4 class="text-hunter-green text-xl infobar">Description: {{ task.description }}</h4>
       
     
       <!-- Dropdown for Assignees -->
@@ -67,7 +80,7 @@
         <label for="assignees-dropdown" class="text-hunter-green text-xl">Assignees:</label>
         
         <!-- List of Assignees with Remove Button -->
-        <ul class="mt-2">
+        <ul class="text-hunter-green text-xl">
           <li v-for="(assignee, index) in task.assignees" :key="index" class="flex items-center space-x-2">
             <span>{{ assignee }}</span>
             <button @click="removeAssignee(index)" class="remove-btn rounded text-red-600">Remove</button>
@@ -96,6 +109,7 @@ import { mapState } from 'vuex';
 export default {
   data() {
     return {
+      showPopup: false,
       taskId: "",
       task: "",
       selectedAssignee: null, // For the dropdown
@@ -109,6 +123,12 @@ export default {
         { value: 'option1', text: 'Option 1' },
         { value: 'option2', text: 'Option 2' },
         { value: 'option3', text: 'Option 3' },
+      ],
+
+      priorityOptions: [
+        { value: 'option1', text: 'High' },
+        { value: 'option2', text: 'Medium' },
+        { value: 'option3', text: 'Low' },
       ],
     };
   },
@@ -127,6 +147,15 @@ export default {
   },
 
   methods: {
+    handleYes() {
+      console.log("User wants to delete task");
+      this.showPopup = false;
+    },
+    handleNo() {
+      console.log("Nevermind");
+      this.showPopup = false;
+    },
+
     completeTask() {
       this.task.completed = true;
       const all = this.allTasks;
@@ -174,6 +203,27 @@ select {
   /*background: url("path/to/dropdown-arrow.svg") no-repeat right 10px center; /* Add a custom dropdown arrow */
 }
 
+.popup {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+}
+
+.popup-content {
+  background-color: white;
+  padding: 20px;
+  border-radius: 5px;
+}
+.top-right-button {
+
+}
+
 .infobar {
   margin-right: 600px;
   gap: 20px;
@@ -190,10 +240,33 @@ select {
 
 .remove-btn {
   cursor: pointer;
-  background-color: darkblue;
+  background-color: rgb(2, 2, 58);
   color: white;
   border: none;
   padding: 5px 10px;
+  margin-left: 63px
+}
+
+.edit-btn {
+  cursor: pointer;
+  background-color: rgb(2, 2, 58);
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  position: absolute;
+  top: 25px;
+  right: 25px;
+}
+
+.delete-btn {
+  cursor: pointer;
+  background-color: rgb(77, 12, 23);
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  position: absolute;
+  top: 60px;
+  right: 25px;
 }
 
 .add-assignee input {
