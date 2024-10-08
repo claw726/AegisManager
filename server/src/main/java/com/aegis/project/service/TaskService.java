@@ -3,7 +3,6 @@ package com.aegis.project.service;
 import java.util.Date;
 import java.util.Set;
 
-import com.aegis.project.dto.TaskDTO;
 import com.aegis.project.model.TaskModel;
 import com.aegis.project.model.UserModel;
 import com.aegis.project.repository.TaskRepository;
@@ -67,6 +66,17 @@ public class TaskService {
 
         for (UserModel user : assignedUsers) {
             simpMessageTemplate.convertAndSendToUser(user.getEmail(), "/queue/task-updates", getTask(taskID));
+        }
+    }
+
+    public void notifyTaskDeletion(int taskID) {
+        TaskModel task = taskRepository.findById(taskID)
+                .orElseThrow(() -> new RuntimeException("Task not found with ID: " + taskID));
+
+        Set<UserModel> assignedUsers = task.getAssignedUsers();
+
+        for (UserModel user : assignedUsers) {
+            simpMessageTemplate.convertAndSendToUser(user.getEmail(), "/queue/task-updates", "Task deleted with ID: " + taskID);
         }
     }
 
