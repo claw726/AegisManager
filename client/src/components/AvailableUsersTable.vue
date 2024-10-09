@@ -1,31 +1,21 @@
 <template>
     <div class="flex flex-col">
-      <table class="justify-center">
-        <thead>
-          <tr class="flex text-xl justify-around">
-            <th class="p-6 border">Email</th>
-            <th class="p-6 border">Add</th>
-          </tr>
-        </thead>
-        <tbody>
-          <tr v-for="(user, index) in users" :key="index">
-            <td>{{ user }}</td>
-            <td>
-              <button @click="addUser(user)">Add</button>
-            </td>
-          </tr>
-        </tbody>
-      </table>
+      <OrgUserCard v-for="(user, index) in users" :key="index" :user="user" :index="index" :isCurrent="false" @addUser="addUser" />
     </div>
   </template>
   
   <script>
+  import OrgUserCard from '@/components/OrgUserCard.vue';
+
   export default {
     props: {
       users: {
         type: Array,
         required: true,
       },
+    },
+    components: {
+      OrgUserCard,
     },
     methods: {
       addUser(email) {

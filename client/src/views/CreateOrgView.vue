@@ -1,5 +1,5 @@
 <template>
-    <div v-if="isLoggedIn" class="relative w-full h-full bg-background">
+    <div v-if="isLoggedIn" class="relative w-full h-full min-h-screen bg-background">
       <NavBar />
       <div class="">
         <div class="flex flex-col justify-center h-screen/3 py-16">

@@ -78,6 +78,8 @@
       modifiedOrganization() {
         return this.organizations[this.$route.params.orgIndex];
         },
+    }, created() {
+      this.modifiedOrganization = this.organizations[this.$route.params.orgIndex];
     },
     methods: {
       handleImageChange(event) {
@@ -166,11 +168,6 @@
                 }
         },
       async submitForm() {
-        // Add the new org to localstorage
-        if (!this.modifiedOrganization.OrgName || !this.modifiedOrganization.OrgDescription) {
-            alert("Please Tell us more about your organization.");
-            return;
-        }
 
         // Check if the current user is the creator of the project. If not, they may not edit it.
         if (this.modifiedOrganization.OrgCreator !== this.currentUser.email) {
@@ -190,7 +187,7 @@
         }
 
         // Modify the project in the organization
-        await this.$store.dispatch('modifyOrganization', { orgIndex: organizationID, organization: this.modifiedOrganization }).then(() => {
+        await this.$store.dispatch('modifyOrganization', { index: organizationID, organization: this.modifiedOrganization }).then(() => {
           alert('Organization updated successfully!');
           this.$router.push({ name: 'viewOrgs' });
         }).catch((err) => {
