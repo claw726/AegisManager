@@ -8,13 +8,16 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import com.aegis.project.dto.TaskDTO;
-import com.aegis.project.service.TaskService;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.PutMapping;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
-import com.aegis.project.model.TaskModel;
-import com.aegis.project.service.TaskService;
 import com.aegis.project.dto.TaskDTO;
+import com.aegis.project.service.TaskService;
 
 @RestController
 @RequestMapping("api/tasks")
@@ -72,7 +75,18 @@ public class TaskController {
         } catch (RuntimeException e) {
             if (e.getMessage().equals("Task not found with ID: " + taskID)) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-            } else if (e.getMessage().contains("User")) {
+            }
+            else if (e.getMessage().contains("User does not have permission")) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
+            }
+            else if (e.getMessage().contains("User not found with email")) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            }
+            else {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+            }
+        }
+    }
 
     @GetMapping("/{taskID}")
     public ResponseEntity<String> getTask(@PathVariable int taskID) {
