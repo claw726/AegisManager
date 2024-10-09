@@ -4,12 +4,6 @@ import java.util.Date;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import org.springframework.scheduling.config.TaskManagementConfigUtils;
-import com.aegis.project.dto.TaskDTO;
-import com.aegis.project.model.TaskModel;
-import com.aegis.project.model.UserModel;
-import com.aegis.project.repository.TaskRepository;
-import com.aegis.project.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.Authentication;
@@ -37,9 +31,6 @@ public class TaskService {
 
     @Autowired
     private SimpMessagingTemplate simpMessageTemplate;
-
-    @Autowired
-    private UserRepository userRepository;
 
     public String switchTaskAssigner(int taskID, String newAssignerEmail) {
         TaskModel task = taskRepository.findById(taskID)
@@ -113,7 +104,7 @@ public class TaskService {
         if (currentUser.getUserID() == userID) {
             Set<TaskModel> tasks = taskRepository.getAllUserTasks(userID, orgID, projectID);
             return tasks.stream()
-                .map(task -> new TaskDTO(task.getTaskID(), task.getParentProjectID(), task.getParentProject(), task.getParentOrgID(), task.getTaskName(), task.getTaskDescription(), task.getAssignerID(), task.getAssignedUsers(), task.getTaskPriority(), task.getDueDate(), task.isIsComplete()))
+                .map(task -> new TaskDTO(task.getTaskID(), task.getParentProjectID(), task.getParentProject(), task.getParentOrgID(), task.getTaskName(), task.getTaskDescription(), task.getAssignerID(), task.getAssignedUsers(), task.getTaskPriority(), task.getDueDate(), task.isComplete()))
                 .collect(Collectors.toSet());
         }
         else {
@@ -152,6 +143,7 @@ public class TaskService {
             throw new RuntimeException("User does not have permission to update completion status of task");
         }
         taskRepository.updateTaskCompletedStatus(taskID, completed);
+    }
 
       public String createTaskJson(TaskModel task) {
         return "{"
