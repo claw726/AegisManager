@@ -57,6 +57,7 @@ export default {
         OrgLogo: '',
         OrgCreator: '',
         members: [],
+        projects: [],
       },
       imageUploaded: false,
     };
