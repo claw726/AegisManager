@@ -21,13 +21,8 @@ Aegis is a project management system designed to simplify task management for sm
 ### Step 1: Build the Docker Image
 Open a terminal in the `./client` directory and run the following command to build the Docker image:
 
-##### MacOS:
 ```
-./build-server.sh
-```
-##### Windows:
-```
-./setup.ps1
+docker-compose build
 ```
 
 
@@ -46,14 +41,19 @@ After running the container, you can verify that your frontend application is ru
 
 ## Compilation steps for server
 
-### Step 1: Build the docker image
+### Step 1: Build and Run the docker image
 Open a terminal in the `./server` directory and run the following command to build the Docker image:
 
+##### UNIX:
 ```
-docker-compose -build
+./build-server.sh
+```
+##### Windows:
+```
+./setup.ps1
 ```
 
-###  Step 2: Run the docker image
+###  Step 2: Only Run the docker image
 
 ```
 docker-compose up

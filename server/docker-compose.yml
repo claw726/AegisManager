@@ -4,7 +4,7 @@ services:
     ports:
       - "8080:8080" # Expose the port 8081, HTTP (client runs on 8080, and they can't overlap)
     volumes:
-      - server_db_data:/app/data/
+      - db_data:/app/data/
     logging:
       driver: "json-file"
       options:
@@ -12,4 +12,4 @@ services:
         max-file: "3"
 
 volumes:
-  server_db_data:
+  db_data:
