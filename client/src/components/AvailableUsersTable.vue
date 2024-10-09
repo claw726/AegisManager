@@ -1,10 +1,10 @@
 <template>
-    <div >
-      <table class="flex justify-center">
+    <div class="flex flex-col">
+      <table class="justify-center">
         <thead>
-          <tr class="text-xl">
-            <th class="p-6">Email</th>
-            <th class="p-6">Add</th>
+          <tr class="flex text-xl justify-around">
+            <th class="p-6 border">Email</th>
+            <th class="p-6 border">Add</th>
           </tr>
         </thead>
         <tbody>

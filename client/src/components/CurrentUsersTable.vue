@@ -2,9 +2,9 @@
     <div class="flex flex-col">
       <table class="justify-center">
         <thead>
-          <tr>
-            <th class="text-xl p-6">Email</th>
-            <th class="text-xl p-6">Remove</th>
+          <tr class="flex text-xl justify-around">
+            <th class="p-6">Email</th>
+            <th class="p-6">Remove</th>
           </tr>
         </thead>
         <tbody>
