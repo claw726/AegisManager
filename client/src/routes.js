@@ -65,6 +65,18 @@ const router = createRouter({
                   meta: {requiresAuth: true},
                 },
                 {
+                  path: '/organization/:orgIndex/edit',
+                  name: 'EditOrg',
+                  component: () => import('./views/EditOrgView.vue'),
+                  meta: {requiresAuth: true},
+                },
+                {
+                  path: '/organization/:orgIndex/editUsers',
+                  name: 'EditOrgUsers',
+                  component: () => import('./views/EditOrgUsersView.vue'),
+                  meta: {requiresAuth: true},
+                },
+                {
                   path: '/kanban',
                   name: 'KB',
                   component: () => import('./views/KanbanView.vue'),
@@ -76,6 +88,12 @@ const router = createRouter({
                   component: () => import('./views/DashboardProjectView.vue'),
                   meta: {requiresAuth: true},
                 },
+                {
+                  path: '/organization/:orgIndex/project/:projIndex/edit',
+                  name: 'EditProject',
+                  component: () => import('./views/EditProjectView.vue'),
+                  meta: {requiresAuth: true},
+                }
             ],
     });
 

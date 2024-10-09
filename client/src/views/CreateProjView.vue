@@ -111,7 +111,7 @@
 
                 // Calculate the dimensions for the 16:10 aspect ratio crop
                 const targetAspectRatio = 16 / 10
-                if (aspectRatio < targetAspectRatio) {
+                if (aspectRatio > targetAspectRatio) {
                     newWidth = imageHeight * targetAspectRatio;
                     newHeight = imageHeight;
                 } else {

@@ -8,6 +8,7 @@ import { addBeforeUnloadListener, removeBeforeUnloadListener } from './utils/aut
 
 const app = createApp(App)
 
+
 app.use(router);
 
 app.use(store);
@@ -19,3 +20,7 @@ app.mount('#app')
 
 // Add the beforeunload event listener
 addBeforeUnloadListener();
+
+WebSocket.onClose = () => {
+    console.log('WebSocket connection closed');
+}

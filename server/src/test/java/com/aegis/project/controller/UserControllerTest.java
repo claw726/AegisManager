@@ -50,6 +50,6 @@ public class UserControllerTest {
 
         ResponseEntity<String> response = authController.createUser(email, name, password);
 
-        assertEquals(ResponseEntity.badRequest().body("User already exists or there was an error"), response);
+        assertEquals(ResponseEntity.badRequest().body("User already exists"), response);
     }
 }

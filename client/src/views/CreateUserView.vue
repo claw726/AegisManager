@@ -177,7 +177,7 @@
       },
       async submitForm() {
         // TODO: when server is setup, request all user accounts and check if email already exists
-        if (!this.imageUploaded || !this.user.firstName || !this.user.lastName || !this.user.email) {
+        if (!this.user.firstName || !this.user.lastName || !this.user.email || !this.user.password) {
           alert('Please fill out all fields and upload an image.');
           return;
         }
@@ -191,11 +191,9 @@
         try {
           //Register the user from vuex
           await this.register({
-            firstName: this.user.firstName,
-            lastName: this.user.lastName,
             email: this.user.email,
+            name: this.user.firstName + ' ' + this.user.lastName,
             password: this.user.password,
-            profilePicture: this.user.profilePicture,
           });
 
           // Log in the user

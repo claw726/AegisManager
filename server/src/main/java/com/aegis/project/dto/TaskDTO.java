@@ -34,6 +34,29 @@ public class TaskDTO {
         this.TaskPriority = TaskPriority;
         this.DueDate = DueDate;
         this.IsComplete = IsComplete;
+  /*
+import java.util.Date;
+
+public class TaskDTO {
+    private int taskID;
+    private int parentProjectID;
+    private int parentOrgID;
+    private String taskName;
+    private String taskDescription;
+    private int assignerID;
+    private String taskPriority;
+    private Date dueDate;
+
+    public TaskDTO(int taskID, int parentProjectID, int parentOrgID, String taskName, String taskDescription, int assignerID, String taskPriority, Date dueDate) {
+        this.taskID = taskID;
+        this.parentProjectID = parentProjectID;
+        this.parentOrgID = parentOrgID;
+        this.taskName = taskName;
+        this.taskDescription = taskDescription;
+        this.assignerID = assignerID;
+        this.taskPriority = taskPriority;
+        this.dueDate = dueDate;
+        */
     }
 
     public int getTaskID() {
@@ -123,5 +146,4 @@ public class TaskDTO {
     public void setIsComplete(boolean isComplete) {
         IsComplete = isComplete;
     }
-
 }

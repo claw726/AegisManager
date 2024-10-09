@@ -35,9 +35,6 @@ export default new Vuex.Store({
     setCurrentUser(state, user) {
       state.currentUser = user;
     },
-    addUserAccount(state, user) {
-      state.userAccounts.push(user);
-    },
     setAuthToken(state, token) {
       state.authToken = token;
     },
@@ -52,8 +49,56 @@ export default new Vuex.Store({
       state.organizations.push(organization);
     },
     removeOrganization(state, index) {
-      state.organizations.splice(index, 1);
+      if (index >= 0 && index < state.organizations.length) {
+        state.organizations.splice(index, 1);
+      } else {
+        console.error('Invalid organization index:', index);
+        throw new Error('Invalid organization index');
+      }
     },
+    modifyOrganization(state, { index, organization }) {
+      if (index >= 0 && index < state.organizations.length) {
+        state.organizations[index] = organization;
+      } else {
+        console.error('Invalid organization index:', index);
+        throw new Error('Invalid organization index');
+      }
+    },
+    addUserToOrganization(state, { orgIndex, userEmails }) {
+      // Check that index matches, then that userEmail is an existing email in the useraccounts state, and that each userEmail in userEmails is not already in the org
+      if (orgIndex >= 0 && orgIndex < state.organizations.length) {
+        const organization = state.organizations[orgIndex];
+        organization.members = organization.members || [];
+        userEmails.forEach(userEmail => {
+          if (state.userAccounts.includes(userEmail) && !organization.members.includes(userEmail)) {
+            organization.members.push(userEmail);
+          } else {
+            console.error('User not found or already in organization:', userEmail);
+            throw new Error('User not found or already in organization');
+          }
+        });
+        state.organizations[orgIndex] = organization;
+      }
+    },
+    removeUserFromOrganization(state, { orgIndex, userEmail }) {
+      // Check if org index is valid and that the userEmail exists in the userAccounts state
+      if (orgIndex >= 0 && orgIndex < state.organizations.length) {
+        const organization = state.organizations[orgIndex];
+        organization.members = organization.members || [];
+        const userIndex = organization.members.indexOf(userEmail);
+        if (userIndex >= 0) {
+          organization.members.splice(userIndex, 1);
+          state.organizations[orgIndex] = organization;
+        } else {
+          console.error('User not found in organization:', userEmail);
+          throw new Error('User not found in organization');
+        }
+      } else {
+        console.error('Invalid organization index:', orgIndex);
+        throw new Error('Invalid organization index:' + orgIndex);
+      }
+    },
+
     addProject(state, { organizationId, project }) {
       const organization = state.organizations.find(org => org.id === organizationId);
       if (organization) {
@@ -61,21 +106,66 @@ export default new Vuex.Store({
         organization.projects.push(project);
       }
     },
+    deleteProject(state, { orgIndex, projIndex }) {
+      state.organizations[orgIndex].projects.splice(projIndex, 1);
+    },
+    modifyProject(state, { orgIndex, projIndex, project }) {
+      if (orgIndex && orgIndex >= 0 && orgIndex < state.organizations.length) {
+        const organization = state.organizations[orgIndex];
+        if (organization && organization.projects && projIndex >= 0 && projIndex < organization.projects.length) {
+          state.organizations[orgIndex].projects[projIndex] = project;
+        } else {
+          console.error('Invalid project index:', projIndex);
+          throw new Error('Invalid project index');
+        }
+      } else {
+        console.error('Invalid organization index:', orgIndex);
+        throw new Error('Invalid organization index');
+      }
+    }
   },
   actions: {
-    async register({ dispatch, commit }, { firstName, lastName, email, password, profilePicture }) {
-      const user = {firstName, lastName, email, password, profilePicture};
-      commit('addUserAccount', user);
-      dispatch('login', { email, password });
+    async register({ dispatch }, { email, name, password }) {
+      try {
+        const params = new URLSearchParams();
+        params.append('email', email);
+        params.append('name', name);
+        params.append('password', password);
+
+        const response = await axios.post('/api/auth/register', params, {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          }
+        });
+
+        alert(response.data);
+        await dispatch('login', { email, password });
+      } catch (error) {
+        console.error('Failed to register:', error.response.data);
+        alert('Registration failed: ' + error.response.data);
+      }
     },
     async login({ commit, state }, { email, password }) {
-      const user = state.userAccounts.find(user => user.email === email);
-      if (user && user.password === password) {
-        commit('setCurrentUser', user);
-        commit('setAuthToken', 'logged_in');
+      try {
+        const params = new URLSearchParams();
+        params.append('email', email);
+        params.append('password', password);
+
+        const response = await axios.post('/api/auth/login', params, {
+          headers: {
+            'Content-Type': 'application/x-www-form-urlencoded'
+          }
+        });
+
+        const token = response.data.token;
+        commit('setAuthToken', token);
+        commit('setCurrentUser', { email });
         commit('setLogin', true);
-      } else {
-        alert('Login failed: Invalid email or password');
+        alert('Login successful');
+      } catch (error) {
+        console.error('Failed to login:', error.response.data);
+        alert('Login failed: ' + error.response.data);
+        throw error;
       }
     },
     async logout({ commit }) {
@@ -85,8 +175,26 @@ export default new Vuex.Store({
     async createOrganization({ commit }, organization) {
       commit('addOrganization', organization);
     },
+    async modifyOrganization({ commit }, { index, organization }) {
+      commit('modifyOrganization', { index, organization });
+    },
+    async deleteOrganization({ commit }, index) {
+      commit('removeOrganization', index);
+    },
+    async addUserToOrganization({ commit }, { orgIndex, userEmails }) {
+      commit('addUserToOrganization', { orgIndex, userEmails });
+    },
+    async removeUserFromOrganization({ commit }, { orgIndex, userEmail }) {
+      commit('removeUserFromOrganization', { orgIndex, userEmail });
+    },
     async createProject({ commit }, { organizationId, project }) {
       commit('addProject', { organizationId, project });
+    },
+    async deleteProject({ commit }, { orgIndex, projIndex }) {
+      commit('deleteProject', { orgIndex, projIndex });
+    },
+    async modifyProject({ commit }, { orgIndex, projIndex, project }) {
+      commit('modifyProject', { orgIndex, projIndex, project });
     }
   },
 });
