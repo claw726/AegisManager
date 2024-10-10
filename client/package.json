@@ -10,7 +10,6 @@
     "@stomp/stompjs": "^7.0.0",
     "axios": "^1.7.7",
     "browser-image-compression": "^2.0.2",
-    "eslint": "^8.57.1",
     "prettier": "^3.3.3",
     "prettier-eslint": "^16.3.0",
     "sockjs-client": "^1.6.1",
@@ -21,9 +20,13 @@
     "vuex-persistedstate": "^4.1.0"
   },
   "devDependencies": {
+    "@eslint/js": "^9.12.0",
     "@vue/cli-plugin-router": "~5.0.0",
     "@vue/cli-service": "~5.0.0",
     "autoprefixer": "^10.4.20",
+    "eslint": "^8.57.1",
+    "eslint-plugin-vue": "^9.28.0",
+    "globals": "^15.11.0",
     "postcss": "^8.4.47",
     "tailwindcss": "^3.4.13"
   }
