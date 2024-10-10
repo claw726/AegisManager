@@ -255,6 +255,7 @@ export default {
           email: this.user.email,
           name: this.user.firstName + " " + this.user.lastName,
           password: this.user.password,
+          profilePicture: this.user.profilePicture,
         });
 
         // Log in the user
