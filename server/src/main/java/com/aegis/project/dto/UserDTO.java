@@ -4,11 +4,13 @@ public class UserDTO {
     private int userID;
     private String userName;
     private String email;
+    private String profilePicture;
 
-    public UserDTO(int userID, String userName, String email) {
+    public UserDTO(int userID, String userName, String email, String profilePicture) {
         this.userID = userID;
         this.userName = userName;
         this.email = email;
+        this.profilePicture = profilePicture;
     }
 
     public int getUserID() {

@@ -1,6 +1,7 @@
 package com.aegis.project.service;
 
 import com.aegis.project.model.TaskModel;
+import com.aegis.project.dto.UserDTO;
 import com.aegis.project.model.UserModel;
 import com.aegis.project.repository.UserRepository;
 import jakarta.transaction.Transactional;
@@ -27,13 +28,13 @@ public class UserService {
     private BCryptPasswordEncoder passwordEncoder;
 
     @Transactional
-    public boolean createUser(String email, String name, String password) {
+    public boolean createUser(String email, String name, String password, String profilePicture) {
         logger.info("Attempting to create user with email: {}, name: {}", email, name);
         if (userRepository.existsByEmail(email)) {
             logger.warn("User with email: {} already exists", email);
             return false;
         }
-        UserModel user = new UserModel(name, email, passwordEncoder.encode(password));
+        UserModel user = new UserModel(name, email, passwordEncoder.encode(password), profilePicture);
 
         userRepository.save(user);
         logger.info("User with email: {} created successfully", email);
@@ -49,6 +50,15 @@ public class UserService {
             logger.warn("No user found with email: {}", email);
         }
         return user;
+    }
+
+    public UserDTO getUserDTO(int userID) {
+        logger.info("Getting user DTO for user ID: {}", userID);
+        UserModel user = userRepository.findById(userID)
+                .orElseThrow(() -> new RuntimeException("User not found with ID: " + userID));
+        UserDTO userDTO = new UserDTO(user.getUserID(), user.getUserName(), user.getEmail(), user.getProfilePicture());
+        logger.info("Got user DTO for user ID: {}", userID);
+        return userDTO;
     }
 
     public void updateFailedLoginAttempts(int failedLoginAttempts, boolean isLocked, int userID) {

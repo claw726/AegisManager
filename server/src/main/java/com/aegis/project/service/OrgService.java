@@ -109,7 +109,7 @@ public class OrgService {
 
         Set<UserModel> members = org.getUsers();
         return members.stream()
-                .map(user -> new UserDTO(user.getUserID(), user.getUserName(), user.getEmail()))
+                .map(user -> new UserDTO(user.getUserID(), user.getUserName(), user.getEmail(), user.getProfilePicture()))
                 .collect(Collectors.toSet());
     }
 

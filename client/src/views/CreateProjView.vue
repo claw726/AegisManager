@@ -191,11 +191,11 @@
 
         // Add the store to the localStore
         try {
-          await this.$store.dispatch('createProject', { organizationID, project: this.newProj });
+          await this.$store.dispatch('createProject', { orgIndex: organizationID, project: this.newProj });
 
           // Redirect to the Org Dashboard
           this.$router.push({ name: 'OrganizationDashboard', params: { index: organizationID }});
-        } catch {
+        } catch (error) {
           console.error('Error creating project:', error);
           alert('An error occurred while creating the project. Please try again.');
         }

@@ -99,11 +99,13 @@ export default new Vuex.Store({
       }
     },
 
-    addProject(state, { organizationId, project }) {
-      const organization = state.organizations.find(org => org.id === organizationId);
-      if (organization) {
-        organization.projects = organization.projects || [];
-        organization.projects.push(project);
+    addProject(state, { orgIndex, project }) {
+      if (orgIndex >= 0 && orgIndex < state.organizations.length) {
+        state.organizations[orgIndex].projects = state.organizations[orgIndex].projects || [];
+        state.organizations[orgIndex].projects.push(project);
+      } else {
+        console.error('Invalid organization index:', orgIndex);
+        throw new Error('Invalid organization index');
       }
     },
     deleteProject(state, { orgIndex, projIndex }) {
@@ -187,8 +189,8 @@ export default new Vuex.Store({
     async removeUserFromOrganization({ commit }, { orgIndex, userEmail }) {
       commit('removeUserFromOrganization', { orgIndex, userEmail });
     },
-    async createProject({ commit }, { organizationId, project }) {
-      commit('addProject', { organizationId, project });
+    async createProject({ commit }, { orgIndex, project }) {
+      commit('addProject', { orgIndex, project });
     },
     async deleteProject({ commit }, { orgIndex, projIndex }) {
       commit('deleteProject', { orgIndex, projIndex });
