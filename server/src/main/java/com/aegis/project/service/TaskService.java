@@ -2,12 +2,7 @@ package com.aegis.project.service;
 
 import java.util.Date;
 import java.util.Set;
-import java.util.stream.Collectors;
 
-import com.aegis.project.model.TaskModel;
-import com.aegis.project.model.UserModel;
-import com.aegis.project.repository.TaskRepository;
-import com.aegis.project.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.Authentication;
@@ -15,9 +10,6 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
-import com.aegis.project.dto.TaskDTO;
-import com.aegis.project.dto.UserDTO;
-import com.aegis.project.model.OrgModel;
 import com.aegis.project.model.ProjectModel;
 import com.aegis.project.model.TaskModel;
 import com.aegis.project.model.UserModel;
@@ -120,16 +112,26 @@ public class TaskService {
         return task.getAssignedUsers();
     }
 
-    public Set<TaskDTO> getAllUserTasks(int userID, int orgID, int projectID) {
+    public String getAllUserTasks(int userID, int orgID, int projectID) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String currentUsername = ((UserDetails) authentication.getPrincipal()).getUsername();
         UserModel currentUser = userRepository.findByEmail(currentUsername)
             .orElseThrow(() -> new RuntimeException("User not found with email: " + currentUsername));
         if (currentUser.getUserID() == userID) {
             Set<TaskModel> tasks = taskRepository.getAllUserTasks(userID, orgID, projectID);
-            return tasks.stream()
+            String ret = "{";
+            for (TaskModel task : tasks) {
+                if (ret.length() > 1){
+                    ret += ",";
+                }
+                ret += createTaskJson(task);
+            }
+            ret += "}";
+            return ret;
+            
+            /*return tasks.stream()
                 .map(task -> new TaskDTO(task.getTaskID(), task.getParentProjectID(), task.getParentOrgID(), task.getTaskName(), task.getTaskDescription(), task.getAssignerID(), task.getTaskPriority(), task.getDueDate(), task.isComplete()))
-                .collect(Collectors.toSet());
+                .collect(Collectors.toSet());*/
         }
         else {
             throw new RuntimeException("User does not have permission to access task list");

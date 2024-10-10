@@ -34,7 +34,13 @@ public class ProjectController {
         }
         catch (RuntimeException e) {
             logger.error("Error creating project: " + e.getMessage());
-            return ResponseEntity.internalServerError().body("There was an error creating the project");
+            if (e.getMessage().contains("Project with given name already exists in org")) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(null);
+            }
+            else {
+                return ResponseEntity.internalServerError().body("There was an error creating the project");
+            }
+            
         }
     }
 

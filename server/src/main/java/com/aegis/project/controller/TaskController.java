@@ -1,7 +1,6 @@
 package com.aegis.project.controller;
 
 import java.util.Date;
-import java.util.Set;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -17,7 +16,6 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.aegis.project.dto.TaskDTO;
 import com.aegis.project.service.TaskService;
 
 @RestController
@@ -47,7 +45,7 @@ public class TaskController {
     }
 
     @GetMapping("/getAllUserTasks")
-    public ResponseEntity<Set<TaskDTO>> getAllUserTasks(@RequestParam int userID, @RequestParam(required = false, defaultValue = "-1") int orgID, @RequestParam(required = false, defaultValue = "-1") int projectID) {
+    public ResponseEntity<String> getAllUserTasks(@RequestParam int userID, @RequestParam(required = false, defaultValue = "-1") int orgID, @RequestParam(required = false, defaultValue = "-1") int projectID) {
         logger.info("Received task retrieval request for user ID: {}, org ID: {}, projectID: {} ", userID, orgID, projectID);
         try {
             return ResponseEntity.ok(taskService.getAllUserTasks(userID, orgID, projectID));
