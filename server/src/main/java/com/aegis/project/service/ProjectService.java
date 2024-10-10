@@ -147,7 +147,7 @@ public class ProjectService {
 
         Set<UserModel> members = project.getAssignedUsers();
         return members.stream()
-                .map(user -> new UserDTO(user.getUserID(), user.getUserName(), user.getEmail()))
+                .map(user -> new UserDTO(user.getUserID(), user.getUserName(), user.getEmail(), user.getProfilePicture()))
                 .collect(Collectors.toSet());
     }
 
