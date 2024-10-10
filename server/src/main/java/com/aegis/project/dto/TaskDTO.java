@@ -4,38 +4,13 @@ import java.util.Set;
 import java.util.HashSet;
 import java.util.Date;
 
+import com.aegis.project.dto.UserDTO;
+
 import com.aegis.project.model.ProjectModel;
 import com.aegis.project.model.UserModel;
 
-public class TaskDTO {
-    private int taskID;
-    private int parentProjectID;
-    private ProjectModel ParentProject;
-    private int ParentOrgID;
-    private String TaskName;
-    private String TaskDescription;
-    private int AssignerID;
-    private Set<UserModel> AssignedUsers;
-    private String TaskPriority;
-    private Date DueDate;
-    private boolean IsComplete;
-
-    public TaskDTO(int taskID, int parentProjectID, ProjectModel ParentProject, int ParentOrgID, String TaskName,
-                    String TaskDescription, int AssignerID, Set<UserModel> AssignedUsers, String TaskPriority,
-                    Date DueDate, boolean IsComplete) {
-        this.taskID = taskID;
-        this.parentProjectID = parentProjectID;
-        this.ParentProject = ParentProject;
-        this.ParentOrgID = ParentOrgID;
-        this.TaskName = TaskName;
-        this.TaskDescription = TaskDescription;
-        this.AssignerID = AssignerID;
-        this.AssignedUsers = AssignedUsers;
-        this.TaskPriority = TaskPriority;
-        this.DueDate = DueDate;
-        this.IsComplete = IsComplete;
-  /*
-import java.util.Date;
+import com.aegis.project.service.TaskService;
+import com.aegis.project.dto.UserDTO;
 
 public class TaskDTO {
     private int taskID;
@@ -44,19 +19,27 @@ public class TaskDTO {
     private String taskName;
     private String taskDescription;
     private int assignerID;
+    private Set<UserModel> assignedUsers;
     private String taskPriority;
     private Date dueDate;
+    private boolean isComplete;
 
-    public TaskDTO(int taskID, int parentProjectID, int parentOrgID, String taskName, String taskDescription, int assignerID, String taskPriority, Date dueDate) {
+    private TaskService taskService;
+
+    public TaskDTO(int taskID, int parentProjectID, int ParentOrgID, String TaskName,
+                    String TaskDescription, int AssignerID, String TaskPriority,
+                    Date DueDate, boolean IsComplete) {
         this.taskID = taskID;
         this.parentProjectID = parentProjectID;
-        this.parentOrgID = parentOrgID;
-        this.taskName = taskName;
-        this.taskDescription = taskDescription;
-        this.assignerID = assignerID;
-        this.taskPriority = taskPriority;
-        this.dueDate = dueDate;
-        */
+        this.parentOrgID = ParentOrgID;
+        this.taskName = TaskName;
+        this.taskDescription = TaskDescription;
+        this.assignerID = AssignerID;
+        this.taskPriority = TaskPriority;
+        this.dueDate = DueDate;
+        this.isComplete = IsComplete;
+
+        this.assignedUsers = taskService.getAssignedUsers(taskID);
     }
 
     public int getTaskID() {
@@ -75,75 +58,67 @@ public class TaskDTO {
         this.parentProjectID = parentProjectID;
     }
 
-    public ProjectModel getParentProject() {
-        return ParentProject;
-    }
-
-    public void setParentProject(ProjectModel parentProject) {
-        ParentProject = parentProject;
-    }
-
     public int getParentOrgID() {
-        return ParentOrgID;
+        return parentOrgID;
     }
 
     public void setParentOrgID(int parentOrgID) {
-        ParentOrgID = parentOrgID;
+        this.parentOrgID = parentOrgID;
     }
 
     public String getTaskName() {
-        return TaskName;
+        return taskName;
     }
 
     public void setTaskName(String taskName) {
-        TaskName = taskName;
+        this.taskName = taskName;
     }
 
     public String getTaskDescription() {
-        return TaskDescription;
+        return taskDescription;
     }
 
     public void setTaskDescription(String taskDescription) {
-        TaskDescription = taskDescription;
+        this.taskDescription = taskDescription;
     }
 
     public int getAssignerID() {
-        return AssignerID;
+        return assignerID;
     }
 
     public void setAssignerID(int assignerID) {
-        AssignerID = assignerID;
+        this.assignerID = assignerID;
     }
 
     public Set<UserModel> getAssignedUsers() {
-        return AssignedUsers;
+        return assignedUsers;
     }
 
     public void setAssignedUsers(Set<UserModel> assignedUsers) {
-        AssignedUsers = assignedUsers;
+        this.assignedUsers = assignedUsers;
     }
 
     public String getTaskPriority() {
-        return TaskPriority;
+        return taskPriority;
     }
 
     public void setTaskPriority(String taskPriority) {
-        TaskPriority = taskPriority;
+        this.taskPriority = taskPriority;
     }
 
     public Date getDueDate() {
-        return DueDate;
+        return dueDate;
     }
 
     public void setDueDate(Date dueDate) {
-        DueDate = dueDate;
+        this.dueDate = dueDate;
     }
 
-    public boolean isIsComplete() {
-        return IsComplete;
+    public boolean isComplete() {
+        return isComplete;
     }
 
-    public void setIsComplete(boolean isComplete) {
-        IsComplete = isComplete;
+    public void setComplete(boolean isComplete) {
+        this.isComplete = isComplete;
     }
 }
