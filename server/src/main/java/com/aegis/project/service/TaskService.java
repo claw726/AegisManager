@@ -16,6 +16,8 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import com.aegis.project.dto.TaskDTO;
+import com.aegis.project.dto.UserDTO;
+import com.aegis.project.model.OrgModel;
 import com.aegis.project.model.ProjectModel;
 import com.aegis.project.model.TaskModel;
 import com.aegis.project.model.UserModel;
@@ -107,8 +109,15 @@ public class TaskService {
         Set<TaskModel> projectTasks = parentProject.getProjectTasks();
         projectTasks.add(task);
         parentProject.setProjectTasks(projectTasks);
+        projectRepository.save(parentProject);
 
         return true;
+    }
+
+    public Set<UserModel> getAssignedUsers(int taskID) {
+        TaskModel task = taskRepository.findById(taskID)
+            .orElseThrow(() -> new RuntimeException("Task not found with ID: " + taskID));
+        return task.getAssignedUsers();
     }
 
     public Set<TaskDTO> getAllUserTasks(int userID, int orgID, int projectID) {
@@ -119,12 +128,58 @@ public class TaskService {
         if (currentUser.getUserID() == userID) {
             Set<TaskModel> tasks = taskRepository.getAllUserTasks(userID, orgID, projectID);
             return tasks.stream()
-                .map(task -> new TaskDTO(task.getTaskID(), task.getParentProjectID(), task.getParentProject(), task.getParentOrgID(), task.getTaskName(), task.getTaskDescription(), task.getAssignerID(), task.getAssignedUsers(), task.getTaskPriority(), task.getDueDate(), task.isComplete()))
+                .map(task -> new TaskDTO(task.getTaskID(), task.getParentProjectID(), task.getParentOrgID(), task.getTaskName(), task.getTaskDescription(), task.getAssignerID(), task.getTaskPriority(), task.getDueDate(), task.isComplete()))
                 .collect(Collectors.toSet());
         }
         else {
             throw new RuntimeException("User does not have permission to access task list");
         }
+    }
+
+    public void updateTask(int taskID, String taskName, String taskDescription, int assignerID, String taskPriority, Date dueDate, boolean isComplete) {
+        TaskModel task = taskRepository.findById(taskID)
+                .orElseThrow(() -> new RuntimeException("Task not found with id: " + taskID));
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUsername = ((UserDetails) authentication.getPrincipal()).getUsername();
+
+        UserModel currentUser = userRepository.findByEmail(currentUsername)
+                .orElseThrow(() -> new RuntimeException("User not found with email: " + currentUsername));
+
+        if (task.getAssignerID() != currentUser.getUserID()) {
+            throw new RuntimeException("User does not have permission to update task");
+        }
+
+        task.setTaskName(taskName);
+        task.setTaskDescription(taskDescription);
+        task.setAssignerID(assignerID);
+        task.setTaskPriority(taskPriority);
+        task.setDueDate(dueDate);
+        task.setComplete(isComplete);
+
+        taskRepository.save(task);        
+    }
+
+    public void deleteTask(int taskID) {
+        TaskModel task = taskRepository.findById(taskID)
+                .orElseThrow(() -> new RuntimeException("Task not found with id: " + taskID));
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUsername = ((UserDetails) authentication.getPrincipal()).getUsername();
+
+        UserModel currentUser = userRepository.findByEmail(currentUsername)
+                .orElseThrow(() -> new RuntimeException("User not found with email: " + currentUsername));
+
+        if (task.getAssignerID() != currentUser.getUserID()) {
+            throw new RuntimeException("User does not have permission to delete task");
+        }
+
+        taskRepository.deleteById(taskID);
+        
+        ProjectModel parentProject = projectRepository.findById(task.getParentOrgID())
+            .orElseThrow(() -> new RuntimeException("Parent project not found with id: " + task.getParentOrgID()));
+        Set<TaskModel> projectTasks = parentProject.getProjectTasks();
+        projectTasks.remove(task);
+        projectRepository.save(parentProject);
     }
 
     public boolean validateAssigner(int taskID, int userID) {
@@ -160,7 +215,47 @@ public class TaskService {
         taskRepository.updateTaskCompletedStatus(taskID, completed);
     }
 
-      public String createTaskJson(TaskModel task) {
+    public void addUser(int taskID, String email) {
+        UserModel userToAdd = userRepository.findByEmail(email)
+            .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
+        
+        TaskModel task = taskRepository.findById(taskID)
+            .orElseThrow(() -> new RuntimeException("Task not found with id: " + taskID));
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUsername = ((UserDetails) authentication.getPrincipal()).getUsername();
+
+        UserModel currentUser = userRepository.findByEmail(currentUsername)
+            .orElseThrow(() -> new RuntimeException("User not found with email: " + currentUsername));
+
+        if (task.getAssignerID() != currentUser.getUserID()) {
+            throw new RuntimeException("User does not have permission to add user to task");
+        }
+        task.getAssignedUsers().add(userToAdd);
+        taskRepository.save(task);
+    }
+
+    public void removeUser(int taskID, String email){
+        UserModel userToRemove = userRepository.findByEmail(email)
+            .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
+        
+        TaskModel task = taskRepository.findById(taskID)
+            .orElseThrow(() -> new RuntimeException("Task not found with id: " + taskID));
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUsername = ((UserDetails) authentication.getPrincipal()).getUsername();
+
+        UserModel currentUser = userRepository.findByEmail(currentUsername)
+            .orElseThrow(() -> new RuntimeException("User not found with email: " + currentUsername));
+
+        if (task.getAssignerID() != currentUser.getUserID()) {
+            throw new RuntimeException("User does not have permission to remove user from  task");
+        }
+        task.getAssignedUsers().remove(userToRemove);
+        taskRepository.save(task);
+    }
+
+    public String createTaskJson(TaskModel task) {
         return "{"
                 + "\"taskID\": " + task.getTaskID() + ","
                 + "\"parentProjectID\": " + task.getParentProjectID() + ","

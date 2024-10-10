@@ -6,6 +6,8 @@ import java.util.Set;
 
 import jakarta.persistence.*;
 
+import com.aegis.project.dto.UserDTO;
+
 @Entity
 @Table(name = "tasks")
 public class TaskModel {

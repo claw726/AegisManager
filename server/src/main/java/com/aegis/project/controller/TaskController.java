@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.web.bind.annotation.DeleteMapping;
 import org.springframework.web.bind.annotation.GetMapping;
 import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
@@ -101,6 +102,83 @@ public class TaskController {
         }
     }
 
+    @PostMapping("/{taskID}/update")
+    public ResponseEntity<String> updateTask(@PathVariable int taskID, @RequestParam String taskName, @RequestParam String taskDescription, @RequestParam int assignerID, @RequestParam String taskPriority, @RequestParam Date dueDate, @RequestParam boolean isComplete) {
+        try {
+            taskService.updateTask(taskID, taskName, taskDescription, assignerID, taskPriority, dueDate, isComplete);
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Task updated successfully");
+        }
+        catch (RuntimeException e) {
+            if (e.getMessage().equals("Task not found with ID: " + taskID)) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            } else if (e.getMessage().contains("User")) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+            } else {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+            }
+        }
+    }
+
+    @DeleteMapping("/{taskID}/deleteTask")
+    public ResponseEntity<String> deleteTask(int taskID) {
+        try {
+            taskService.deleteTask(taskID);
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Taskdeleted successfully");
+        } catch (RuntimeException e) {
+            if (e.getMessage().equals("Task not found with ID: " + taskID)) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            } else if (e.getMessage().contains("User")) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+            } else {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+            }
+        }
+    }
+
+    @PostMapping("/{taskID}/addUser")
+    public ResponseEntity<String> addUser(@PathVariable int taskID, @RequestParam String email) {
+        try {
+            taskService.addUser(taskID, email);
+            return ResponseEntity.ok("User added successfully");
+        }
+        catch (RuntimeException e){
+            if (e.getMessage().contains("User not found with email: ")) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            } 
+            else if (e.getMessage().equals("Task not found with id: " + taskID)) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            }
+            else if (e.getMessage().equals("User does not have permission to add user to task")) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+            }
+            else {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+            }
+        }
+    }
+
+    @PostMapping("/{taskID}/removeUser")
+    public ResponseEntity<String> removeUser(@PathVariable int taskID, @RequestParam String email) {
+        try {
+            taskService.removeUser(taskID, email);
+            return ResponseEntity.ok("User removed successfully");
+        }
+        catch (RuntimeException e){
+            if (e.getMessage().contains("User not found with email: ")) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            } 
+            else if (e.getMessage().equals("Task not found with id: " + taskID)) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            }
+            else if (e.getMessage().equals("User does not have permission to remove user from task")) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+            }
+            else {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+            }
+        }
+    }
+
     @PutMapping("/{taskID}/{newAssignerEmail}/assigner")
     public ResponseEntity<String> switchTaskAssigner(@PathVariable int taskID, @PathVariable String newAssignerEmail) {
         try {
@@ -117,4 +195,6 @@ public class TaskController {
             }
         }
     }
+
+    
 }

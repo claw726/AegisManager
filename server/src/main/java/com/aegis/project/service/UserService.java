@@ -1,5 +1,6 @@
 package com.aegis.project.service;
 
+import com.aegis.project.model.TaskModel;
 import com.aegis.project.dto.UserDTO;
 import com.aegis.project.model.UserModel;
 import com.aegis.project.repository.UserRepository;
@@ -12,6 +13,8 @@ import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
 import java.util.Optional;
+import java.util.List;
+
 
 @Service
 public class UserService {
@@ -62,5 +65,26 @@ public class UserService {
         logger.info("Updating failed login attempts for user ID: {}. Attempts: {}, Locked: {}", userID, failedLoginAttempts, isLocked);
         userRepository.updateFailedLoginAttempts(failedLoginAttempts, isLocked, userID);
         logger.info("Updated failed login attempts for user ID: {}", userID);
+    }
+
+    public String getAllUsers(){
+        List<UserModel> allUsers = userRepository.findAll();
+        String ret = "{";
+        for (UserModel user : allUsers) {
+            if (ret.length() > 1){
+                ret += ",";
+            }
+            ret += createUserJson(user);
+        }
+        ret += "}";
+        return ret;
+    }
+
+    public String createUserJson(UserModel user) {
+        return "{"
+                + "\"userID\": " + user.getUserID() + ","
+                + "\"userName\": " + user.getUserName() + ","
+                + "\"email\": " + user.getEmail() + "\""
+                + "}";
     }
 }

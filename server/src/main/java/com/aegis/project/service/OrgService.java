@@ -1,22 +1,107 @@
 package com.aegis.project.service;
 
-import java.util.Date;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
+import org.springframework.stereotype.Service;
+
 import com.aegis.project.dto.UserDTO;
+import com.aegis.project.dto.OrgDTO;
+
 import com.aegis.project.model.OrgModel;
+import com.aegis.project.model.TaskModel;
 import com.aegis.project.model.UserModel;
 import com.aegis.project.repository.OrgRepository;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.autoconfigure.security.SecurityProperties;
-import org.springframework.stereotype.Service;
+import com.aegis.project.repository.ProjectRepository;
+import com.aegis.project.repository.UserRepository;
 
 @Service
 public class OrgService {
 
     @Autowired
     private OrgRepository orgRepository;
+    @Autowired
+    private ProjectRepository projectRepository;
+    @Autowired
+    private ProjectRepository taskRepository;
+    @Autowired
+    private UserRepository userRepository;
+
+    public boolean createOrg(String name, String description, int ownerID) {
+        OrgModel org = new OrgModel();
+        org.setOrgName(name);
+        org.setOrgDescription(description);
+        org.setOrgOwnerID(ownerID);
+        orgRepository.save(org);
+        return true;
+    }
+
+    public String getOrg(int orgID) {
+        OrgModel org = orgRepository.findById(orgID)
+                .orElseThrow(() -> new RuntimeException("Org not found with id: " + orgID));
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUsername = ((UserDetails) authentication.getPrincipal()).getUsername();
+
+        UserModel currentUser = userRepository.findByEmail(currentUsername)
+                .orElseThrow(() -> new RuntimeException("User not found with email: " + currentUsername));
+        boolean hasPermission = false;
+        for (UserModel user : org.getUsers()) {
+            if (user.getUserID() == currentUser.getUserID()) {
+                hasPermission = true;
+                break;
+            }
+        }
+        if (org.getOrgOwnerID() != currentUser.getUserID()) {
+            hasPermission = true;
+        }
+        if (!hasPermission) {
+            throw new RuntimeException("User does not have permission to get org");
+        }
+        return createOrgJson(org);
+    }
+
+    public void updateOrg(int orgID, String orgName, String orgDescription, int orgOwnerID) {
+        OrgModel org = orgRepository.findById(orgID)
+                .orElseThrow(() -> new RuntimeException("Org not found with id: " + orgID));
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUsername = ((UserDetails) authentication.getPrincipal()).getUsername();
+
+        UserModel currentUser = userRepository.findByEmail(currentUsername)
+                .orElseThrow(() -> new RuntimeException("User not found with email: " + currentUsername));
+
+        if (org.getOrgOwnerID() != currentUser.getUserID()) {
+            throw new RuntimeException("User does not have permission to update org");
+        }
+
+        org.setOrgName(orgName);
+        org.setOrgDescription(orgDescription);
+        org.setOrgOwnerID(orgOwnerID);
+        orgRepository.save(org);        
+    }
+
+    public void deleteOrg(int orgID) {
+        OrgModel org = orgRepository.findById(orgID)
+                .orElseThrow(() -> new RuntimeException("Org not found with id: " + orgID));
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUsername = ((UserDetails) authentication.getPrincipal()).getUsername();
+
+        UserModel currentUser = userRepository.findByEmail(currentUsername)
+                .orElseThrow(() -> new RuntimeException("User not found with email: " + currentUsername));
+
+        if (org.getOrgOwnerID() != currentUser.getUserID()) {
+            throw new RuntimeException("User does not have permission to delete org");
+        }
+
+        projectRepository.deletebyParentOrgID(orgID);
+        taskRepository.deletebyParentOrgID(orgID);
+
+        orgRepository.deleteById(orgID);
+    }
 
     public Set<UserDTO> getOrgMembers(int orgID) {
         OrgModel org = orgRepository.findById(orgID)
@@ -28,12 +113,53 @@ public class OrgService {
                 .collect(Collectors.toSet());
     }
 
-    public boolean createOrg(String name, String description, int ownerID) {
-        OrgModel org = new OrgModel();
-        org.setOrgName(name);
-        org.setOrgDescription(description);
-        org.setOrgOwnerID(ownerID);
+    public void addUser(int orgID, String email) {
+        UserModel userToAdd = userRepository.findByEmail(email)
+            .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
+        
+        OrgModel org = orgRepository.findById(orgID)
+            .orElseThrow(() -> new RuntimeException("Org not found with id: " + orgID));
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUsername = ((UserDetails) authentication.getPrincipal()).getUsername();
+
+        UserModel currentUser = userRepository.findByEmail(currentUsername)
+            .orElseThrow(() -> new RuntimeException("User not found with email: " + currentUsername));
+
+        if (org.getOrgOwnerID() != currentUser.getUserID()) {
+            throw new RuntimeException("User does not have permission to add user to org");
+        }
+        org.getUsers().add(userToAdd);
         orgRepository.save(org);
-        return true;
+    }
+
+    public void removeUser(int orgID, String email){
+        UserModel userToRemove = userRepository.findByEmail(email)
+            .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
+        
+        OrgModel org = orgRepository.findById(orgID)
+            .orElseThrow(() -> new RuntimeException("Org not found with id: " + orgID));
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUsername = ((UserDetails) authentication.getPrincipal()).getUsername();
+
+        UserModel currentUser = userRepository.findByEmail(currentUsername)
+            .orElseThrow(() -> new RuntimeException("User not found with email: " + currentUsername));
+
+        if (org.getOrgOwnerID() != currentUser.getUserID()) {
+            throw new RuntimeException("User does not have permission to remove user from org");
+        }
+
+        org.getUsers().remove(userToRemove);
+        orgRepository.save(org);
+    }
+
+    public String createOrgJson(OrgModel org) {
+        return "{"
+                + "\"orgID\": " + org.getOrgID() + ","
+                + "\"orgName\": " + org.getOrgName() + ","
+                + "\"orgDescription\": " + org.getOrgDescription() + ","
+                + "\"orgOwnerID\": " + org.getOrgOwnerID() + "\""
+                + "}";
     }
 }
