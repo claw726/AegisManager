@@ -190,7 +190,7 @@ public class TaskService {
         return(task.getAssignerID() == userID);
     }
 
-    public void updateTaskCompletionStatus(int taskID, boolean completed) {
+    public void updateTaskCompletionStatus(int taskID, boolean isCompleted) {
         TaskModel task = taskRepository.findById(taskID)
                 .orElseThrow(() -> new RuntimeException("Task not found with id: " + taskID));
 
@@ -214,7 +214,7 @@ public class TaskService {
         if (!hasPermission) {
             throw new RuntimeException("User does not have permission to update completion status of task");
         }
-        taskRepository.updateTaskCompletedStatus(taskID, completed);
+        taskRepository.updateTaskCompletedStatus(taskID, isCompleted);
     }
 
     public void addUser(int taskID, String email) {

@@ -32,7 +32,7 @@ public class OrgModel {
     @ManyToMany(mappedBy = "Orgs")
     private Set<UserModel> Users = new HashSet<>();
 
-    @OneToMany(mappedBy = "Orgs", cascade = CascadeType.ALL, orphanRemoval = true)
+    @OneToMany(mappedBy = "parentOrg", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<ProjectModel> OrgProjects = new HashSet<>();
 
     public int getOrgID() {

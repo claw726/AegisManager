@@ -10,10 +10,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import com.aegis.project.dto.UserDTO;
-import com.aegis.project.dto.OrgDTO;
-
 import com.aegis.project.model.OrgModel;
-import com.aegis.project.model.TaskModel;
 import com.aegis.project.model.UserModel;
 import com.aegis.project.repository.OrgRepository;
 import com.aegis.project.repository.ProjectRepository;
@@ -97,8 +94,8 @@ public class OrgService {
             throw new RuntimeException("User does not have permission to delete org");
         }
 
-        projectRepository.deletebyParentOrgID(orgID);
-        taskRepository.deletebyParentOrgID(orgID);
+        projectRepository.deleteByParentOrgID(orgID);
+        taskRepository.deleteByParentOrgID(orgID);
 
         orgRepository.deleteById(orgID);
     }
