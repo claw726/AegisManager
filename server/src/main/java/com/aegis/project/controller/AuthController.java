@@ -33,11 +33,11 @@ public class AuthController {
 
     // Registration endpoint
     @PostMapping("/register")
-    public ResponseEntity<String> createUser(@RequestParam String email, @RequestParam String name, @RequestParam String password) {
+    public ResponseEntity<String> createUser(@RequestParam String email, @RequestParam String name, @RequestParam String password, @RequestParam String profilePicture) {
         // Log the input parameters
-        logger.info("Received registration request with email: {}, name: {}, password: {}", email, name, password);
+        logger.info("Received registration request with email: {}, name: {}, password: {}, profilePicture: {}", email, name, password, profilePicture);
         try {
-            if (userService.createUser(email, name, password)) {
+            if (userService.createUser(email, name, password, profilePicture)) {
                 logger.info("User created successfully for email: {}", email);
                 return ResponseEntity.ok("User created successfully");
             } else {
