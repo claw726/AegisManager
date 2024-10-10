@@ -75,8 +75,8 @@ export default {
   },
   created() {
     this.user = this.$store.dispatch(
-      "fetchUserAccount",
-      this.currentUser.email,
+      "fetchUserAccountByEmail",
+      this.currentUser,
     );
   },
   methods: {

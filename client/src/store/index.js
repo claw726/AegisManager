@@ -141,18 +141,28 @@ export default new Vuex.Store({
       commit("clearAuth");
       commit("setLogin", false);
     },
-    async fetchUserAccount(email) {
-      const response = await axios.get(`/api/users/${email}`);
-      if (response.data && response.data.email) {
-        const user = {
-          email: response.data.email,
-          name: response.data.name,
-          profilePicture: response.data.profilePicture,
-        };
-        return user;
-      } else {
-        console.error("User not found:", email);
-        throw new Error("User not found");
+    async fetchUserAccountByID(userID) {
+      try {
+        const response = await axios
+          .get(`/api/users/${userID}`)
+          .then((response) => response.json());
+        return response.data;
+      } catch (error) {
+        console.error("Failed to fetch user account:", error.response.data);
+        throw new Error("Failed to fetch user account");
+      }
+    },
+    async fetchUserAccountByEmail(email) {
+      try {
+        const params = new URLSearchParams();
+        params.append(email);
+        const response = await axios
+          .get("/api/users/getUserByEmail", { params })
+          .then((response) => response.json());
+        return response.data;
+      } catch (error) {
+        console.error("Failed to fetch user account:", error.response.data);
+        throw new Error("Failed to fetch user account");
       }
     },
     async fetchOrganizations() {
