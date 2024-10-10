@@ -1,20 +1,19 @@
 package com.aegis.project.service;
 
-import com.aegis.project.model.TaskModel;
-import com.aegis.project.dto.UserDTO;
-import com.aegis.project.model.UserModel;
-import com.aegis.project.repository.UserRepository;
-import jakarta.transaction.Transactional;
+import java.util.List;
+import java.util.Optional;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
-import org.slf4j.Logger;
-import org.slf4j.LoggerFactory;
+import com.aegis.project.dto.UserDTO;
+import com.aegis.project.model.UserModel;
+import com.aegis.project.repository.UserRepository;
 
-import java.util.Optional;
-import java.util.List;
-
+import jakarta.transaction.Transactional;
 
 @Service
 public class UserService {
@@ -61,17 +60,26 @@ public class UserService {
         return userDTO;
     }
 
+    public UserDTO getUserDTOByEmail(String email) {
+        logger.info("Getting user DTO for user with email: {}", email);
+        UserModel user = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
+        UserDTO userDTO = new UserDTO(user.getUserID(), user.getUserName(), user.getEmail(), user.getProfilePicture());
+        logger.info("Got user DTO for user with: {}", email);
+        return userDTO;
+    }
+
     public void updateFailedLoginAttempts(int failedLoginAttempts, boolean isLocked, int userID) {
         logger.info("Updating failed login attempts for user ID: {}. Attempts: {}, Locked: {}", userID, failedLoginAttempts, isLocked);
         userRepository.updateFailedLoginAttempts(failedLoginAttempts, isLocked, userID);
         logger.info("Updated failed login attempts for user ID: {}", userID);
     }
 
-    public String getAllUsers(){
+    public String getAllUsers() {
         List<UserModel> allUsers = userRepository.findAll();
         String ret = "{";
         for (UserModel user : allUsers) {
-            if (ret.length() > 1){
+            if (ret.length() > 1) {
                 ret += ",";
             }
             ret += createUserJson(user);
