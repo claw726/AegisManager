@@ -89,7 +89,7 @@ public class TaskController {
         }
     }
 
-    @GetMapping("/{taskID}")
+    @GetMapping("/{taskID}/getTask")
     public ResponseEntity<String> getTask(@PathVariable int taskID) {
         try {
             return ResponseEntity.ok(taskService.getTask(taskID));
