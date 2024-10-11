@@ -93,6 +93,12 @@ const router = createRouter({
                   name: 'EditProject',
                   component: () => import('./views/EditProjectView.vue'),
                   meta: {requiresAuth: true},
+                },
+                {
+                  path: '/organization/:orgIndex/viewUsers',
+                  name: 'viewUsers',
+                  component: () => import('./views/ListOrgUsersView.vue'),
+                  meta: {requiresAuth: true},
                 }
             ],
     });

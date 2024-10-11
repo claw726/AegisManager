@@ -22,6 +22,9 @@
             <div class="text-2xl font-semibold text-secondary">
               {{ org.OrgDescription }}
             </div>
+            <button @click="viewUsers" class="text-2xl font-semibold text-secondary">
+              View {{ org.OrgName }} Users
+            </button>
             <div class="text-medium text-accent">
               Created by: {{ org.OrgCreator }}
             </div>
@@ -146,6 +149,10 @@ export default {
         name: "EditOrgUsers",
         params: { orgIndex: this.$route.params.orgIndex },
       });
+    },
+
+    viewUsers() {
+      this.$router.push({ name: 'viewUsers', query: {org: org, orgIndex: this.$route.params.orgIndex } });
     },
   },
 };

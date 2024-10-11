@@ -9,7 +9,7 @@
       <div class="w-full max-w-6xl space-y-12">
           <!-- Organization Information -->
           <div class="mb-6 bg-white shadow-lg rounded-lg p-8">
-            <h2 class="text-4xl font-bold text-primary">{{ org.orgName }}</h2>
+            <h2 class="text-4xl font-bold text-primary">Organization Name: {{ org.orgName }}</h2>
             <p class="text-lg text-gray-700">Organization ID: {{ org.orgID }}</p>
           </div>
 
@@ -19,8 +19,8 @@
             <ul class="space-y-4">
               <li v-for="user in org.users" :key="user.username" class="flex justify-between items-center bg-gray-100 p-4 rounded-lg">
                 <div>
-                  <p class="text-lg font-medium text-gray-900">{{ user.name }}</p>
-                  <p class="text-sm text-gray-600">{{ user.email }}</p>
+                  <p class="text-lg font-medium text-gray-900">Name: {{ user.name }}</p>
+                  <p class="text-sm text-gray-600">Email: {{ user.email }}</p>
                 </div>
               </li>
             </ul>
