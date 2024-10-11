@@ -244,19 +244,20 @@ export default new Vuex.Store({
         throw new Error("Failed to create organization");
       }
     },
-    async modifyOrganization({ orgID, organization }) {
+    async modifyOrganization({ state }, { orgID, organization }) {
       try {
         const params = new URLSearchParams();
-        params.append("orgName", organization.name);
-        params.append("orgDescription", organization.description);
+        params.append("orgName", organization.orgName);
+        params.append("orgDescription", organization.orgDescription);
         params.append("orgOwnerID", organization.orgOwnerID);
+        params.append("encodedImage", organization.OrgLogo);
         const response = await axios
           .post(`/api/orgs/${orgID}/update`, params, {
             headers: {
               "Content-Type": "application/x-www-form-urlencoded",
+              'Authorization': `Bearer ${state.authToken}`,
             },
           })
-          .then((response) => response.json());
         return response.data;
       } catch (error) {
         console.error("Failed to modify organization:", error.response.data);
