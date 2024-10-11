@@ -263,12 +263,16 @@ export default new Vuex.Store({
         throw new Error("Failed to modify organization");
       }
     },
-    async deleteOrganization(orgID) {
+    async deleteOrganization({ state}, orgID) {
       try {
-        await axios.delete(`/api/orgs/${orgID}/deleteOrg`);
+        await axios.delete(`/api/orgs/${orgID}/deleteOrg`, {
+          headers: {
+            'Authorization': `Bearer ${state.authToken}`,
+          }
+        });
         return true;
       } catch (error) {
-        console.error("Failed to delete organization:", error.response.data);
+        console.error(`Failed to delete organization ${orgID}:`, error.response ? error.response.data : error.message);
         throw new Error("Failed to delete organization");
       }
     },
