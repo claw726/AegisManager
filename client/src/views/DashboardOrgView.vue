@@ -22,7 +22,7 @@
             <div class="text-2xl font-semibold text-secondary">
               {{ org.OrgDescription }}
             </div>
-            <button @click="viewUsers" class="text-2xl font-semibold text-secondary">
+            <button @click="viewUsersInOrg" class="text-2xl font-semibold text-secondary">
               View {{ org.OrgName }} Users
             </button>
             <div class="text-medium text-accent">
@@ -151,8 +151,8 @@ export default {
       });
     },
 
-    viewUsers() {
-      this.$router.push({ name: 'viewUsers', query: {org: org, orgIndex: this.$route.params.orgIndex } });
+    viewUsersInOrg() {
+      this.$router.push({ name: 'viewUsersInOrg', query: {org: org, orgIndex: this.$route.params.orgIndex } });
     },
   },
 };

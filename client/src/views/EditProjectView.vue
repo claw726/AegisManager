@@ -26,6 +26,7 @@
                 <div class="flex flex-col justify-center p-4 bg-white">
                   <label for="projDescription" class="text-lg font-bold text-gray-800">Project Description:</label>
                   <Button class="dashboard-button" @click="selectUsers">Select Users</Button>
+                  <Button class="dashboard-button" @click="assignUsersInProj">Assign Users</Button>
                 </div>
 
                 <!-- Proj Img -->
@@ -90,6 +91,9 @@
       },
       triggerFileInput() {
       this.$refs.fileInput.click();
+      },
+      assignUsersInProj() {
+        this.$router.push({ name: 'assignUsersinProj', query: {org: org, orgIndex: this.$route.params.orgIndex } });
       },
       async handleImageUpload(event) {
         event.preventDefault(); // Prevent the default form submission behavior

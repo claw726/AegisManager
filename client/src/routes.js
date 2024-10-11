@@ -96,10 +96,18 @@ const router = createRouter({
                 },
                 {
                   path: '/organization/:orgIndex/viewUsers',
-                  name: 'viewUsers',
+                  name: 'viewUsersInOrg',
                   component: () => import('./views/ListOrgUsersView.vue'),
                   meta: {requiresAuth: true},
+                },
+                {
+                  path: '/organization/:orgIndex/project/:projIndex/edit/assignUsers',
+                  name: 'assignUsersinProj',
+                  component: () => import('./views/ListProjUsersView.vue'),
+                  meta: {requiresAuth: true},
                 }
+
+                
             ],
     });
 
