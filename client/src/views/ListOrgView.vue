@@ -46,8 +46,14 @@ export default {
             userOrganizations: this.organizations,
         };
     },
-    created() {
-        this.userOrganizations = this.organizations;
+    async created() {
+        try {
+            this.userOrganizations = await this.$store.dispatch('fetchOrganizations');
+            console.log('Fetched Organizations:', this.userOrganizations)
+        } catch (error) {
+            console.error('Error Loading Organizaitons:', error.message);
+            alert('Failed to load organizations!');
+        }
     },
     methods: {
         goToCreateOrg() {

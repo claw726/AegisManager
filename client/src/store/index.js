@@ -189,14 +189,19 @@ export default new Vuex.Store({
           }
       }
     },
-    async fetchOrganizations() {
+    async fetchOrganizations({ state }) {
       try {
-        const response = await axios
-          .get("/api/orgs")
-          .then((response) => response.json());
-        return response.data;
+        const response = await axios.get("/api/orgs/getAllOrgs", {
+          headers: {
+            'Authorization': `Bearer ${state.authToken}`,
+          }
+        });
+
+        console.log('Organization Data:', response.data)
+          
+        return response.data.organizations;
       } catch (error) {
-        console.error("Failed to fetch organizations:", error.response.data);
+        console.error("Failed to fetch organizations:", error.response ? error.response.data : error.message);
         throw new Error("Failed to fetch organizations");
       }
     },
