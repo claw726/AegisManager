@@ -16,12 +16,9 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
-import com.aegis.project.dto.UserDTO;
-import com.aegis.project.model.UserModel;
-
 import com.aegis.project.dto.OrgDTO;
+import com.aegis.project.dto.UserDTO;
 import com.aegis.project.model.OrgModel;
-
 import com.aegis.project.service.OrgService;
 
 @RestController
@@ -48,8 +45,7 @@ public class OrgController {
         }
     }
 
-    
-@GetMapping("/{orgID}/getOrg")
+    @GetMapping("/{orgID}/getOrg")
     public ResponseEntity<OrgDTO> getOrg(@PathVariable int orgID) {
         try {
             OrgModel org = orgService.getOrg(orgID); // Fetch the organization model
@@ -62,11 +58,11 @@ public class OrgController {
                     org.getOrgName(),
                     org.getOrgDescription(),
                     org.getOrgOwnerID(),
-                    org.getEncodedImage()
-            /*org.getEncodedImage(), // Ensure this is set correctly
-                org.getUsers().stream()
-                    .map(user -> new UserDTO(user.getUserID(), user.getUserName(), user.getEmail(), user.getProfilePicture())) // Convert UserModel to UserDTO
-                    .collect(Collectors.toSet())*/
+                    //org.getEncodedImage()
+                    org.getEncodedImage(), // Ensure this is set correctly
+                    org.getUsers().stream()
+                            .map(user -> new UserDTO(user.getUserID(), user.getUserName(), user.getEmail(), user.getProfilePicture())) // Convert UserModel to UserDTO
+                            .collect(Collectors.toSet())
             );
 
             return ResponseEntity.ok(orgDTO); // Return the DTO

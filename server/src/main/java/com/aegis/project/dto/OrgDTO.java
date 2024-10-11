@@ -16,13 +16,14 @@ public class OrgDTO {
 
     private OrgService orgService;
 
-    public OrgDTO(int orgID, String orgName, String orgDescription, int orgOwnerID, String encodedImage) {
+    public OrgDTO(int orgID, String orgName, String orgDescription, int orgOwnerID, String encodedImage, Set<UserDTO> users) {
         this.orgID = orgID;
         this.orgName = orgName;
         this.orgDescription = orgDescription;
         this.orgOwnerID = orgOwnerID;
         this.encodedImage = encodedImage;
-        this.users = orgService.getOrgMembers(orgID);
+        this.users = users;
+        //this.users = orgService.getOrgMembers(orgID);
     }
 
     public int getOrgID() {
