@@ -220,9 +220,7 @@ select {
   padding: 20px;
   border-radius: 5px;
 }
-.top-right-button {
 
-}
 
 .infobar {
   margin-right: 600px;

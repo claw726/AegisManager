@@ -12,6 +12,7 @@ export default new Vuex.Store({
     authToken: null,
     userAccounts: [],
     organizations: [],
+    tasks: [],
 
     allTasks: {
       1: {
@@ -50,6 +51,9 @@ export default new Vuex.Store({
     },
     setAuthToken(state, token) {
       state.authToken = token;
+    },
+    setTasks(state, t) {
+      state.tasks = t;
     },
     clearAuth(state) {
       state.currentUser = null;
@@ -130,6 +134,8 @@ export default new Vuex.Store({
         commit("setAuthToken", token);
         commit("setCurrentUser", { email });
         commit("setLogin", true);
+        //t = await dispatch("fetchTasks"); 
+        //commit("setTasks", t);
         alert("Login successful");
       } catch (error) {
         console.error("Failed to login:", error.response.data);
@@ -176,6 +182,20 @@ export default new Vuex.Store({
         throw new Error("Failed to fetch organizations");
       }
     },
+
+    async fetchTasks() {
+      try {
+        const response = await axios
+          .get("/api/tasks/getAllUserTasks")
+          .then((response) => response.json());
+          // this.tasks = response;
+        return response.data;
+      } catch (error) {
+        console.error("Failed to fetch tasks:", error.response.data);
+        throw new Error("Failed to fetch tasks");
+      }
+    },
+
     async createOrganization(organization) {
       try {
         const params = new URLSearchParams();

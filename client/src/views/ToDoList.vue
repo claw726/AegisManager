@@ -19,6 +19,12 @@
         <div class="flex flex-col w-96 space-y-6 p-4 items-center">
   
           <!-- Task 1 -->
+          <TaskCard
+            v-for="(task, index) in this.listOfTasks"
+            :key="index"
+            :task="task"
+          />
+
           <div
             class="task-card cursor-pointer"
             :class="{ 'bg-gray-300': task1.completed }"
@@ -61,7 +67,7 @@
   
   <script>
   import NavBar from '@/components/NavBar.vue';
-  
+  import TaskCard from "@/components/TaskCard.vue";
   import { mapState } from 'vuex';
   
   export default {
@@ -70,16 +76,30 @@
     },
 
     computed: {
-      ...mapState(['allTasks'])
+      ...mapState(['tasks'])
     },
 
     created() {
       this.loadUserData();
+      this.populateTaskList();
+      this.listOfTasks = this.tasks;
+    },
+
+    async created() {
+      try {
+            this.listOfTasks = await this.$store.dispatch('fetchTasks');
+            console.log('Fetched Organizations:', this.listOfTasks)
+        } catch (error) {
+            console.error('Error Loading Organizaitons:', error.message);
+            alert('Failed to load organizations!');
+            
+        }
     },
     
     
     data() {
       return {
+        listOfTasks: this.tasks,
         task1: {
           id: 1, 
           completed: false,
@@ -111,6 +131,10 @@
     },
 
     methods: {
+      populateTaskList() {
+        this.listOfTasks = this.tasks;
+      },
+
       loadUserData() {
         const currentUser = localStorage.getItem('CurrentUser');
         if (currentUser) {
