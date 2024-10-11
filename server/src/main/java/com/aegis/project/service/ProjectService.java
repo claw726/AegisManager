@@ -73,7 +73,7 @@ public class ProjectService {
         projectRepository.deleteById(projectID);
     }
 
-    public boolean createProject(String projectName, String projectDescription, int projectOwnerID, int parentOrgID) {
+    public boolean createProject(String projectName, String projectDescription, int projectOwnerID, int parentOrgID, String encodedImage) {
         if (projectRepository.existsProjectByOrgAndName(parentOrgID, projectName)) {
             throw new RuntimeException("Project with given name already exists in org");
         }
@@ -82,6 +82,7 @@ public class ProjectService {
         project.setProjectName(projectName);
         project.setProjectDescription(projectDescription);
         project.setProjectOwnerID(projectOwnerID);
+        project.setEncodedImage(encodedImage);
         projectRepository.save(project);
 
         OrgModel parentOrg = orgRepository.findById(parentOrgID)
@@ -161,6 +162,7 @@ public class ProjectService {
                 + "\"projectName\": " + project.getProjectName() + ","
                 + "\"projectDescription\": " + project.getProjectDescription() + ","
                 + "\"projectOwnerID\": " + project.getProjectOwnerID() + "\""
+                + "\"encodedImage\": " + project.getEncodedImage() + "\""
                 + "}";
     }
 
