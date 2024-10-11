@@ -6,13 +6,13 @@
       <!-- Profile Section -->
       <div v-if="user" class="relative flex justify-center h-screen/3 py-12">
         <img
-          :src="user.profilePicture || 'https://toppng.com/public/uploads/preview/instagram-default-profile-picture-11562973083brycehrmyv.png'" 
+          :src="currentUser.profilePicture || 'https://toppng.com/public/uploads/preview/instagram-default-profile-picture-11562973083brycehrmyv.png'" 
           alt="Profile Picture"
           class="w-48 h-48 rounded-full drop-shadow-xl col-span-1"
         />
         <div class="ml-8 flex flex-col justify-center">
           <div class="text-4xl font-bold text-primary">
-            {{ user.userName }}
+            {{ currentUser.userName }}
           </div>
           <div class="text-2xl font-semibold text-secondary">
             Welcome to your dashboard!
@@ -73,19 +73,8 @@ export default {
       user: this.currentUser,
     };
   },
-  async created() {
-    try {
-      if (this.currentUser && this.currentUser.email) {
-        this.user = await this.$store.dispatch(
-          "fetchUserAccountByEmail",
-          this.currentUser.email
-        );
-      } else {
-        console.error("Current user email is not available.");
-      }
-    } catch (error) {
-      console.error("Error Fetching User:", error);
-    }
+  created() {
+    this.user = this.currentUser
   },
   methods: {
     goToViewOrgs() {

@@ -33,7 +33,7 @@ public class OrgController {
     private OrgService orgService;
 
     @PostMapping("/createOrg")
-    public ResponseEntity<String> createOrg(String orgName, String orgDescription, int orgOwnerID) {
+    public ResponseEntity<String> createOrg(@RequestParam(required = true) String orgName, @RequestParam(required = true) String orgDescription, @RequestParam(required=true) int orgOwnerID) {
         try {
             logger.info("Received org creation request with name: {}, description: {}, owner ID: {}", orgName, orgDescription, orgOwnerID);
             orgService.createOrg(orgName, orgDescription, orgOwnerID);

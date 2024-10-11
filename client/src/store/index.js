@@ -114,7 +114,7 @@ export default new Vuex.Store({
         alert("Registration failed: " + error.response.data);
       }
     },
-    async login({ commit }, { email, password }) {
+    async login({ commit, dispatch }, { email, password }) {
       try {
         const params = new URLSearchParams();
         params.append("email", email);
@@ -131,9 +131,12 @@ export default new Vuex.Store({
 
         if (data && data.token) {
           commit("setAuthToken", data.token);
-          commit("setCurrentUser", { email });
           commit("setLogin", true);
           console.log('Login successful:', data);
+
+          // Fetch user details after login
+          const user = await dispatch("fetchUserAccountByEmail", email);
+          commit("setCurrentUser", user)
         } else {
           console.error('Login Failed:', data ? data.message : "No data received!");
           throw new Error("Login Failed!");
@@ -197,22 +200,23 @@ export default new Vuex.Store({
         throw new Error("Failed to fetch organizations");
       }
     },
-    async createOrganization(organization) {
+    async createOrganization({ state }, organization) {
       try {
         const params = new URLSearchParams();
-        params.append("orgName", organization.name);
-        params.append("orgDescription", organization.description);
+        params.append("orgName", organization.orgName);
+        params.append("orgDescription", organization.orgDescription);
         params.append("orgOwnerID", organization.orgOwnerID);
+
         const response = await axios
           .post("/api/orgs/createOrg", params, {
             headers: {
+              'Authorization': `Bearer ${state.authToken}`,
               "Content-Type": "application/x-www-form-urlencoded",
             },
-          })
-          .then((response) => response.json());
+          });
         return response.data;
       } catch (error) {
-        console.error("Failed to create organization:", error.response.data);
+        console.error("Failed to create organization:", error.response ? error.response.data : error.message);
         throw new Error("Failed to create organization");
       }
     },
