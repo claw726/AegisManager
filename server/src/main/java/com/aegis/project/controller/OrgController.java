@@ -35,7 +35,6 @@ public class OrgController {
     @PostMapping("/createOrg")
     public ResponseEntity<String> createOrg(@RequestParam String orgName, @RequestParam String orgDescription,
                                             @RequestParam int orgOwnerID, @RequestParam String encodedImage) {
-    public ResponseEntity<String> createOrg(@RequestParam(required = true) String orgName, @RequestParam(required = true) String orgDescription, @RequestParam(required=true) int orgOwnerID) {
         try {
             logger.info("Received org creation request with name: {}, description: {}, owner ID: {}, encodedImage: {}",
                     orgName, orgDescription, orgOwnerID, encodedImage);
