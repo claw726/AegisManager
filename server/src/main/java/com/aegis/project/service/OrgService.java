@@ -13,8 +13,8 @@ import org.springframework.stereotype.Service;
 import com.aegis.project.dto.OrgDTO;
 import com.aegis.project.dto.UserDTO;
 import com.aegis.project.model.OrgModel;
-import com.aegis.project.model.UserModel;
 import com.aegis.project.model.ProjectModel;
+import com.aegis.project.model.UserModel;
 import com.aegis.project.repository.OrgRepository;
 import com.aegis.project.repository.ProjectRepository;
 import com.aegis.project.repository.UserRepository;
@@ -49,33 +49,33 @@ public class OrgService {
         List<OrgModel> orgs = orgRepository.findAll();
 
         return orgs.stream()
-                //.map(org -> new OrgDTO(org.getOrgID(), org.getOrgName(), org.getOrgDescription(), org.getOrgOwnerID(), org.getEncodedImage(), getOrgMembers(org.getOrgID())))
-                .map(org -> new OrgDTO(org.getOrgID(), org.getOrgName(), org.getOrgDescription(), org.getOrgOwnerID(), org.getEncodedImage()))
+                .map(org -> new OrgDTO(org.getOrgID(), org.getOrgName(), org.getOrgDescription(), org.getOrgOwnerID(), org.getEncodedImage(), getOrgMembers(org.getOrgID())))
+                //.map(org -> new OrgDTO(org.getOrgID(), org.getOrgName(), org.getOrgDescription(), org.getOrgOwnerID(), org.getEncodedImage()))
                 .collect(Collectors.toSet());
     }
 
     public OrgModel getOrg(int orgID) {
         OrgModel org = orgRepository.findById(orgID)
                 .orElseThrow(() -> new RuntimeException("Org not found with id: " + orgID));
-        
+
         // Get the current user's email for permission checking
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String currentUsername = ((UserDetails) authentication.getPrincipal()).getUsername();
 
         UserModel currentUser = userRepository.findByEmail(currentUsername)
                 .orElseThrow(() -> new RuntimeException("User not found with email: " + currentUsername));
-        
+
         // Check if the user has permission to access the organization
         boolean hasPermission = org.getUsers().stream()
-                .anyMatch(user -> user.getUserID() == currentUser.getUserID()) || 
-                org.getOrgOwnerID() == currentUser.getUserID();
+                .anyMatch(user -> user.getUserID() == currentUser.getUserID())
+                || org.getOrgOwnerID() == currentUser.getUserID();
 
         if (!hasPermission) {
             throw new RuntimeException("User does not have permission to get org");
         }
 
-    return org; // Return the OrgModel directly
-}
+        return org; // Return the OrgModel directly
+    }
 
     public String getAllProjectsFromOrg(int orgID) {
         OrgModel org = orgRepository.findById(orgID)
