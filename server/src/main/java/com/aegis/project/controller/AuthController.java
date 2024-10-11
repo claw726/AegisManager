@@ -65,6 +65,8 @@ public class AuthController {
             response.put("message", "Login successful");
             response.put("token", token);
 
+            logger.info("Sending response to user: " + response);
+
             return ResponseEntity.ok(response);
         } catch (AuthenticationException e) {
             response.put("message", "Login failed");

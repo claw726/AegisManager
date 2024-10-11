@@ -124,29 +124,31 @@ export default new Vuex.Store({
         params.append("email", email);
         params.append("password", password);
 
-        const response = await axios.post("/api/auth/login",
-          params, {
-            headers: {
-              'Content-Type': 'application/x-www-form-urlencoded',
-            },
-          });
+        const response = await axios.post("/api/auth/login", params, {
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+        });
 
         const data = response.data;
 
-        if (data && data.token) {
-          commit("setAuthToken", data.token);
+        if (response.data && response.data.token) {
+          commit("setAuthToken", response.data.token);
           commit("setLogin", true);
-          console.log('Login successful:', data);
+          console.log("Login successful:", response.data);
 
           // Fetch user details after login
           const user = await dispatch("fetchUserAccountByEmail", email);
-          commit("setCurrentUser", user)
+          commit("setCurrentUser", user);
         } else {
-          console.error('Login Failed:', data ? data.message : "No data received!");
+          console.error("Login Failed:", data ? data : "No data received!");
           throw new Error("Login Failed!");
         }
       } catch (error) {
-        console.error("Failed to login:", error.response ? error.response.data : error.message);
+        console.error(
+          "Failed to login:",
+          error.response ? error.response.data : error.message,
+        );
         alert("Login failed");
         throw error;
       }
@@ -168,25 +170,49 @@ export default new Vuex.Store({
     },
     async fetchUserAccountByEmail({ state }, email) {
       try {
-        const params = new URLSearchParams();
-        params.append(email);
-        const response = await axios
-          .get("/api/users/getUserByEmail", { params })
-          .then((response) => response.json());
+        if (typeof email !== "string") {
+          throw new Error("Email must be a String!");
+        }
+
+        const response = await axios.get("/api/users/getUserByEmail", {
+          params: { email },
+          headers: {
+            Authorization: `Bearer ${state.authToken}`,
+          },
+        });
+
+        console.log("User Data:", response.data);
+
         return response.data;
       } catch (error) {
-        console.error("Failed to fetch user account:", error.response.data);
-        throw new Error("Failed to fetch user account");
+        if (error.response && error.response.status === 404) {
+          console.error("User not found: ", error.response.data);
+          throw new Error("User not found:");
+        } else {
+          console.error(
+            "Failed to Fetch User:",
+            error.response ? error.response.data : error.message,
+          );
+          throw new Error("Failed to Fetch User");
+        }
       }
     },
     async fetchOrganizations() {
       try {
-        const response = await axios
-          .get("/api/orgs")
-          .then((response) => response.json());
+        const response = await axios.get("/api/orgs/getAllOrgs", {
+          headers: {
+            Authorization: `Bearer ${state.authToken}`,
+          },
+        });
+
+        console.log("Organization Data:", response.data);
+
         return response.data;
       } catch (error) {
-        console.error("Failed to fetch organizations:", error.response.data);
+        console.error(
+          "Failed to fetch organizations:",
+          error.response ? error.response.data : error.message,
+        );
         throw new Error("Failed to fetch organizations");
       }
     },
@@ -217,16 +243,19 @@ export default new Vuex.Store({
       try {
         const response = await axios.get(`/api/orgs/${orgID}/getOrg`, {
           headers: {
-            'Authorization': `Bearer ${state.authToken}`,
-          }
+            Authorization: `Bearer ${state.authToken}`,
+          },
         });
 
         console.log(`Organization Data for Org ${orgID}`, response.data);
 
         return response.data;
       } catch (error) {
-        console.error(`Failed to fetch organization ${orgID}`, error.response ? error.response.data : error.message);
-        throw new Error ("Failed to fetch organization");
+        console.error(
+          `Failed to fetch organization ${orgID}`,
+          error.response ? error.response.data : error.message,
+        );
+        throw new Error("Failed to fetch organization");
       }
     },
 
@@ -238,16 +267,18 @@ export default new Vuex.Store({
         params.append("orgOwnerID", organization.orgOwnerID);
         params.append("encodedImage", organization.OrgLogo);
 
-        const response = await axios
-          .post("/api/orgs/createOrg", params, {
-            headers: {
-              'Authorization': `Bearer ${state.authToken}`,
-              "Content-Type": "application/x-www-form-urlencoded",
-            },
-          });
+        const response = await axios.post("/api/orgs/createOrg", params, {
+          headers: {
+            Authorization: `Bearer ${state.authToken}`,
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+        });
         return response.data;
       } catch (error) {
-        console.error("Failed to create organization:", error.response ? error.response.data : error.message);
+        console.error(
+          "Failed to create organization:",
+          error.response ? error.response.data : error.message,
+        );
         throw new Error("Failed to create organization");
       }
     },
@@ -258,29 +289,31 @@ export default new Vuex.Store({
         params.append("orgDescription", organization.orgDescription);
         params.append("orgOwnerID", organization.orgOwnerID);
         params.append("encodedImage", organization.OrgLogo);
-        const response = await axios
-          .post(`/api/orgs/${orgID}/update`, params, {
-            headers: {
-              "Content-Type": "application/x-www-form-urlencoded",
-              'Authorization': `Bearer ${state.authToken}`,
-            },
-          })
+        const response = await axios.post(`/api/orgs/${orgID}/update`, params, {
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            Authorization: `Bearer ${state.authToken}`,
+          },
+        });
         return response.data;
       } catch (error) {
         console.error("Failed to modify organization:", error.response.data);
         throw new Error("Failed to modify organization");
       }
     },
-    async deleteOrganization({ state}, orgID) {
+    async deleteOrganization({ state }, orgID) {
       try {
         await axios.delete(`/api/orgs/${orgID}/deleteOrg`, {
           headers: {
-            'Authorization': `Bearer ${state.authToken}`,
-          }
+            Authorization: `Bearer ${state.authToken}`,
+          },
         });
         return true;
       } catch (error) {
-        console.error(`Failed to delete organization ${orgID}:`, error.response ? error.response.data : error.message);
+        console.error(
+          `Failed to delete organization ${orgID}:`,
+          error.response ? error.response.data : error.message,
+        );
         throw new Error("Failed to delete organization");
       }
     },
@@ -331,12 +364,19 @@ export default new Vuex.Store({
 
         console.log("Project Creation Params:", Object.fromEntries(params));
 
-        const response = await axios.post("/api/projects/createProject", params, {
-          'Authorization': `Bearer ${state.authToken}`,
-        })
-        console.log('Project created successfully:', response.data);
+        const response = await axios.post(
+          "/api/projects/createProject",
+          params,
+          {
+            Authorization: `Bearer ${state.authToken}`,
+          },
+        );
+        console.log("Project created successfully:", response.data);
       } catch (error) {
-        console.error('Error creating project:', error.response ? error.response.data : error.message);
+        console.error(
+          "Error creating project:",
+          error.response ? error.response.data : error.message,
+        );
         throw new Error("Failed to Create Project");
       }
     },
