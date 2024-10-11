@@ -11,11 +11,13 @@ import com.aegis.project.repository.OrgRepository;
 import com.aegis.project.repository.TaskRepository;
 import com.aegis.project.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -32,7 +34,8 @@ public class ProjectService {
     private UserRepository userRepository;
     @Autowired
     private OrgRepository orgRepository;
-
+    @Autowired
+    private SimpMessagingTemplate simpMessageTemplate;
 
 
 
@@ -161,12 +164,36 @@ public class ProjectService {
                 + "}";
     }
 
+    public void addUsers(int projectID, List<Integer> userIDs) {
+        ProjectModel project = projectRepository.findById(projectID)
+            .orElseThrow(() -> new RuntimeException("Project not found with id: " + projectID));
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUsername = ((UserDetails) authentication.getPrincipal()).getUsername();
+
+        UserModel currentUser = userRepository.findByEmail(currentUsername)
+            .orElseThrow(() -> new RuntimeException("User not found with email: " + currentUsername));
+
+        if (project.getProjectOwnerID() != currentUser.getUserID()) {
+            throw new RuntimeException("User does not have permission to add users to project");
+        }
+
+        for (int userID : userIDs) {
+            UserModel userToAdd = userRepository.findById(userID)
+                .orElseThrow(() -> new RuntimeException("User not found with ID: " + userID));
+            project.getAssignedUsers().add(userToAdd);
+            simpMessageTemplate.convertAndSendToUser(userToAdd.getEmail(), "/queue/project-updates",
+                    "User added to project with ID: " + projectID);
+        }
+        projectRepository.save(project);
+    }
+
     public void addUser(int projectID, String email) {
         UserModel userToAdd = userRepository.findByEmail(email)
             .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
         
         ProjectModel project = projectRepository.findById(projectID)
-            .orElseThrow(() -> new RuntimeException("Projectnot found with id: " + projectID));
+            .orElseThrow(() -> new RuntimeException("Project not found with id: " + projectID));
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String currentUsername = ((UserDetails) authentication.getPrincipal()).getUsername();
@@ -178,6 +205,8 @@ public class ProjectService {
             throw new RuntimeException("User does not have permission to add user to project");
         }
         project.getAssignedUsers().add(userToAdd);
+        simpMessageTemplate.convertAndSendToUser(userToAdd.getEmail(), "/queue/project-updates",
+                "User added to project with ID: " + projectID);
         projectRepository.save(project);
     }
 
