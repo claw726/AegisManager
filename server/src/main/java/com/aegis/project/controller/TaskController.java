@@ -31,7 +31,6 @@ public class TaskController {
     private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
 
     @PostMapping("/createTask")
-    public ResponseEntity<String> createTask(@RequestParam int parentProjectID, @RequestParam int parentOrgID, @RequestParam String taskName, @RequestParam String taskDescription, @RequestParam int assignerID, @RequestParam String taskPriority, @RequestParam Date dueDate) {
         // Log the input parameters
         logger.info("Received task creation request with parent project ID: {}, parent org ID: {}, name: {}, description: {}, assigner ID: {}, priority: {}, due date: {}", parentProjectID, parentOrgID, taskName, taskDescription, assignerID, taskPriority, dueDate);
         try {
@@ -92,8 +91,6 @@ public class TaskController {
     }
 
     @GetMapping("/{taskID}/getTask")
-    public ResponseEntity<String> getTask(@PathVariable int taskID) {
-        try {
             return ResponseEntity.ok(taskService.getTask(taskID));
         } catch (RuntimeException e) {
             if (e.getMessage().equals("Task not found with ID: " + taskID)) {
