@@ -191,12 +191,20 @@ export default new Vuex.Store({
       }
     },
 
-    async fetchTasks() {
+    async fetchTasks({state}, userID) {
       try {
         const response = await axios
-          .get("/api/tasks/getAllUserTasks")
+          .get(`/api/tasks/getAllUserTasks`, {
+            params: {
+              userID: userID,
+            },
+
+            headers: {
+            'Authorization': `Bearer ${state.authToken}`,
+            }
+          })
           .then((response) => response.json());
-          // this.tasks = response;
+          //this.tasks = response.data;
         return response.data;
       } catch (error) {
         console.error("Failed to fetch tasks:", error.response.data);

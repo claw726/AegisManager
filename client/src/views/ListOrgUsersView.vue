@@ -51,7 +51,6 @@ export default {
   },
   created() {
     this.getOrgData();
-    this.userOrganizations = this.organizations;
   },
   methods: {
     getOrgData() {

@@ -9,21 +9,16 @@
         <h1 class="text-4xl font-bold text-hunter-green mb-6">To Do List</h1>
         
         
-        <div v-for="task in tasks" :key="task.id" class="task-card bg-white border border-gray-300 rounded-lg p-4 shadow-md cursor-pointer" @click="viewTask(task)">
-            <h3 class="font-bold text-lg">{{ task.title }}</h3>
+        <!-- <div v-for="task in this.listOfTasks" :key="task.id" class="task-card bg-white border border-gray-300 rounded-lg p-4 shadow-md cursor-pointer" @click="viewTask(task)">
+            <h3 class="font-bold text-lg">Title: {{ task.title }}</h3>
             <p class="text-gray-600">Due: {{ task.dueDate }}</p>
             <p class="text-gray-600">Priority: {{ task.priority }}</p>
-        </div>
+        </div> -->
 
         <!-- Tasks Container -->
         <div class="flex flex-col w-96 space-y-6 p-4 items-center">
   
           <!-- Task 1 -->
-          <TaskCard
-            v-for="(task, index) in this.listOfTasks"
-            :key="index"
-            :task="task"
-          />
 
           <div
             class="task-card cursor-pointer"
@@ -73,33 +68,34 @@
   export default {
     components: {
       NavBar,
+      TaskCard,
     },
 
     computed: {
-      ...mapState(['tasks'])
+      ...mapState(["isLoggedIn", "currentUser"])
     },
 
     created() {
       this.loadUserData();
-      this.populateTaskList();
-      this.listOfTasks = this.tasks;
     },
 
-    async created() {
-      try {
-            this.listOfTasks = await this.$store.dispatch('fetchTasks');
-            console.log('Fetched Organizations:', this.listOfTasks)
-        } catch (error) {
-            console.error('Error Loading Organizaitons:', error.message);
-            alert('Failed to load organizations!');
+    // async created() {
+    //   try {
+    //         this.listOfTasks = await this.$store.dispatch('fetchTasks', {userID: this.user.userID});
+    //         console.log('Fetched tasks:', this.listOfTasks)
+    //     } catch (error) {
+    //         console.error('Error Loading Tasks:', error.message);
+    //         alert('Failed to load tasks!');
             
-        }
-    },
+    //     }
+    //   this.user = this.currentUser;
+    // },
     
     
     data() {
       return {
-        listOfTasks: this.tasks,
+        listOfTasks: [],
+        user: this.currentUser,
         task1: {
           id: 1, 
           completed: false,
@@ -131,9 +127,7 @@
     },
 
     methods: {
-      populateTaskList() {
-        this.listOfTasks = this.tasks;
-      },
+
 
       loadUserData() {
         const currentUser = localStorage.getItem('CurrentUser');
