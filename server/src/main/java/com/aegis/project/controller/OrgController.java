@@ -153,5 +153,13 @@ public class OrgController {
         }
     }
 
-
+    @GetMapping("/getAllOrgs")
+    public ResponseEntity<Set<OrgDTO>> getAllOrgs() {
+        try {
+            return ResponseEntity.ok(orgService.getAllOrgs());
+        }
+        catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
 }

@@ -1,8 +1,10 @@
 package com.aegis.project.service;
 
+import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.aegis.project.dto.OrgDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -36,6 +38,14 @@ public class OrgService {
         org.setEncodedImage(encodedImage);
         orgRepository.save(org);
         return true;
+    }
+
+    public Set<OrgDTO> getAllOrgs() {
+        List<OrgModel> orgs = orgRepository.findAll();
+
+        return orgs.stream()
+                .map(org -> new OrgDTO(org.getOrgID(), org.getOrgName(), org.getOrgDescription(), org.getOrgOwnerID(), org.getEncodedImage(), getOrgMembers(org.getOrgID())))
+                .collect(Collectors.toSet());
     }
 
     public String getOrg(int orgID) {
