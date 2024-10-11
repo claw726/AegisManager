@@ -3,12 +3,14 @@ package com.aegis.project.model;
 import java.util.HashSet;
 import java.util.Set;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity
@@ -29,6 +31,9 @@ public class OrgModel {
 
     @ManyToMany(mappedBy = "Orgs")
     private Set<UserModel> Users = new HashSet<>();
+
+    @OneToMany(mappedBy = "parentOrg", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<ProjectModel> OrgProjects = new HashSet<>();
 
     public int getOrgID() {
         return OrgID;
@@ -70,8 +75,16 @@ public class OrgModel {
         Users = users;
     }
 
-//    @OneToMany(mappedBy = "Org", cascade = CascadeType.ALL, orphanRemoval = true)
-//    private Set<ProjectModel> Projects = new HashSet<>();
+    public Set<ProjectModel> getOrgProjects() {
+        return OrgProjects;
+    }
+
+    public void setOrgProjects(Set<ProjectModel> orgProjects) {
+        this.OrgProjects = orgProjects;
+    }
+    
+
+
 
 //    @OneToMany(mappedBy = "Org", cascade = CascadeType.ALL, orphanRemoval = true)
 //    private String OrgChatsTableName;

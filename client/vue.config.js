@@ -1,11 +1,11 @@
 module.exports = {
     devServer: {
       proxy: {
-        '/api': {
-          target: 'https://localhost:8443',
+        '/api/*': {
+          target: 'http://localhost:8080',
+          ws: true, // Enable WebSocket support
           changeOrigin: true,
-          pathRewrite: { '^/api': '' }
-        }
-      }
-    }
-  }
+        },
+      },
+    },
+  };

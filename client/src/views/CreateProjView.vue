@@ -72,7 +72,7 @@
         NavBar,
     },
     computed: {
-      ...mapState(['isLoggedIn', 'userEmail']),
+      ...mapState(['isLoggedIn', 'currentUser', 'organizations']),
     },
     methods: {
       handleImageChange(event) {
@@ -111,7 +111,7 @@
 
                 // Calculate the dimensions for the 16:10 aspect ratio crop
                 const targetAspectRatio = 16 / 10
-                if (aspectRatio < targetAspectRatio) {
+                if (aspectRatio > targetAspectRatio) {
                     newWidth = imageHeight * targetAspectRatio;
                     newHeight = imageHeight;
                 } else {
@@ -160,24 +160,46 @@
             alert('Please select a valid image format.');
         }
         },
-    submitForm() {
+    async submitForm() {
         // Add the new org to localstorage
         if (!this.newProj.ProjName || !this.newProj.ProjDescription) {
             alert("Please Tell us more about your project.");
             return;
         }
-        this.newProj.ProjCreator = this.userEmail;
+
+        // Get the user's email and assign them as the project creator
+        this.newProj.ProjCreator = this.currentUser.email;
         if (!this.newProj.ProjCreator) {
             alert("Error determining your identity! Please log out and back in to continue.");
             return
         }
-        const organizationID = this.$route.params.index;;
-        let projects = JSON.parse(localStorage.getItem(organizationID)) || [];
-        projects.push(this.newProj);
-        localStorage.setItem(organizationID, JSON.stringify(projects));
-        // Redirect to the viewOrgs page
-        this.$router.push({ name: 'OrganizationDashboard', params: { index: organizationID }});
-        },
+
+        // Get the index of the organization
+        const organizationID = this.$route.params.orgIndex;
+
+        //Ensure that there are no projects with the same name in the same org
+        const organization = this.organizations[organizationID];
+        if (!organization) {
+          alert("Error getting the organization details!");
+          return;
+        }
+        const existingProjectNames = organization.projects.map(project => project.ProjName);
+        if (existingProjectNames.includes(this.newProj.ProjName)) {
+          alert("A project with this name already exists!");
+          return;
+        }
+
+        // Add the store to the localStore
+        try {
+          await this.$store.dispatch('createProject', { orgIndex: organizationID, project: this.newProj });
+
+          // Redirect to the Org Dashboard
+          this.$router.push({ name: 'OrganizationDashboard', params: { index: organizationID }});
+        } catch (error) {
+          console.error('Error creating project:', error);
+          alert('An error occurred while creating the project. Please try again.');
+        }
+      },
     }
   }
   </script>

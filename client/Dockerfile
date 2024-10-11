@@ -35,7 +35,7 @@ RUN openssl req -x509 -newkey rsa:2048 -nodes -keyout localhost.key -out localho
 RUN npm install -g serve
 
 # Expose the port on which the app will run
-EXPOSE 8080
+EXPOSE 8081
 
 # Define the command to start the app
-CMD ["serve", "-s", "/app", "-l", "8080", "--ssl-cert", "localhost.crt", "--ssl-key", "localhost.key"]
+CMD ["serve", "-s", "/app", "-l", "8081", "--ssl-cert", "localhost.crt", "--ssl-key", "localhost.key"]

@@ -44,6 +44,24 @@ public class UserModel {
     @Column(name = "is_locked")
     private boolean isLocked;
 
+    @Column(name = "profile_picture")
+    private String profilePicture;
+
+    public UserModel(String userName, String email, String PWHash, String profilePicture) {
+        this.userName = userName;
+        this.email = email;
+        this.PWHash = PWHash;
+        this.profilePicture = profilePicture;
+        TwoFactorAuthInfo = "none";
+        PasswordResetToken = "none";
+        IsLoggedIn = false;
+        this.failedLoginAttempts = 0;
+        this.isLocked = false;
+    }
+
+    public UserModel() {
+    }
+
     public int getUserID() {
         return UserID;
     }
@@ -122,6 +140,14 @@ public class UserModel {
 
     public void setLocked(boolean locked) {
         isLocked = locked;
+    }
+
+    public String getProfilePicture() {
+        return profilePicture;
+    }
+
+    public void setProfilePicture(String profilePicture) {
+        this.profilePicture = profilePicture;
     }
 }
 

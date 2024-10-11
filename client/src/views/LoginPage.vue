@@ -32,7 +32,7 @@
       NavBar,
     },
     computed: {
-      ...mapState(['isLoggedIn', 'userEmail', 'userFirstName', 'userLastName', 'userPhoto']),
+      ...mapState(['isLoggedIn', 'currentUser']),
     },
     data() {
       return {
@@ -50,28 +50,17 @@
       },
     },
     methods: {
-      login() {
+      async login() {
         if (!this.email || !this.password) {
           alert('Please enter both email and password.');
           return;
         }
-  
-        const existingAccounts = localStorage.getItem('userAccounts');
-        if (existingAccounts) {
-          const accounts = JSON.parse(existingAccounts);
-          const user = accounts.find(account => account.email === this.email && account.password === this.password);
-  
-          if (user) {
-            // Redirect to a different page or perform other actions upon successful login
-            this.$store.dispatch('login', this.email);
-            // localStorage.setItem('CurrentUser', JSON.stringify(user));
-            
-            this.$router.push({ name: 'Dashboard' });
-          } else {
-            alert('Invalid email or password.');
-          }
-        } else {
-          alert('No accounts found. Please create an account first.');
+        try {
+          await this.$store.dispatch('login', { email: this.email, password: this.password });
+          this.$router.push({ name: 'Dashboard' });
+        } catch (error) {
+          console.error('Error during login:', error);
+          alert('An Error occurred. Please try again.');
         }
       },
     },

@@ -32,10 +32,11 @@ public class UserControllerTest {
         String email = "test@example.com";
         String name = "Test User";
         String password = "password";
+        String profilePicture = "encodedImage";
 
-        when(userService.createUser(email, name, password)).thenReturn(true);
+        when(userService.createUser(email, name, password, profilePicture)).thenReturn(true);
 
-        ResponseEntity<String> response = authController.createUser(email, name, password);
+        ResponseEntity<String> response = authController.createUser(email, name, password, profilePicture);
 
         assertEquals(ResponseEntity.ok("User created successfully"), response);
     }
@@ -45,11 +46,12 @@ public class UserControllerTest {
         String email = "test@example.com";
         String name = "Test User";
         String password = "password";
+        String profilePicture = "encodedImage";
 
-        when(userService.createUser(email, name, password)).thenReturn(false);
+        when(userService.createUser(email, name, password, profilePicture)).thenReturn(false);
 
-        ResponseEntity<String> response = authController.createUser(email, name, password);
+        ResponseEntity<String> response = authController.createUser(email, name, password, profilePicture);
 
-        assertEquals(ResponseEntity.badRequest().body("User already exists or there was an error"), response);
+        assertEquals(ResponseEntity.badRequest().body("User already exists"), response);
     }
 }

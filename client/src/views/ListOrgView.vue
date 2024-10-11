@@ -8,10 +8,10 @@
         <div class="grid grid-cols-3">
             <div class="flex-col" />
             <div class="relative flex-col col-span-1 justify-center flex w-full">
-            <div v-if="userOrganizations.length > 0">
+            <div v-if="userOrganizations && userOrganizations.length > 0">
                 <div v-for="(organization, index) in userOrganizations" :key="index" class="grid my-4">
                     <div class="p-4 card">
-                        <OrgCard :organization="organization" :index="index" @organizationDeleted="loadUserOrganizations" />
+                        <OrgCard :organization="organization" :index="index" />
                     </div>
                 </div>
             </div>
@@ -39,26 +39,17 @@ export default {
         OrgCard,
     },
     computed: {
-      ...mapState(['isLoggedIn']),
+      ...mapState(['isLoggedIn', 'organizations']),
     },
     data() {
         return {
-            userOrganizations: [],
+            userOrganizations: this.organizations,
         };
     },
     created() {
-        this.loadUserOrganizations();
+        this.userOrganizations = this.organizations;
     },
     methods: {
-        loadUserOrganizations() {
-            //Retreive a list of user's orgs from local storage
-            const userOrganizations = localStorage.getItem('UserOrganizations');
-            if (userOrganizations) {
-                this.userOrganizations = JSON.parse(userOrganizations);
-            } else {
-                this.userOrganizations = [];
-            }
-        },
         goToCreateOrg() {
             this.$router.push({ name: 'createOrg' });
         }

@@ -1,0 +1,7 @@
+# Ignore all .db files
+*.db
+
+# Ignore other unnecessary files and directories
+db/
+build/
+.gradle/

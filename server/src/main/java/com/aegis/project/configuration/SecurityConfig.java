@@ -1,6 +1,7 @@
 package com.aegis.project.configuration;
 
 import com.aegis.project.service.CustomAuthFailureHandler;
+import com.aegis.project.service.CustomAuthSuccessHandler;
 import com.aegis.project.service.CustomUserDetailsService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.context.annotation.Bean;
@@ -12,6 +13,7 @@ import org.springframework.security.config.annotation.web.configuration.EnableWe
 import org.springframework.security.config.annotation.web.configurers.AbstractHttpConfigurer;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.security.web.SecurityFilterChain;
+import org.springframework.security.web.authentication.UsernamePasswordAuthenticationFilter;
 
 @Configuration
 @EnableWebSecurity
@@ -22,6 +24,12 @@ public class SecurityConfig {
 
     @Autowired
     private CustomAuthFailureHandler failureHandler;
+
+    @Autowired
+    private CustomAuthSuccessHandler successHandler;
+
+    @Autowired
+    private JWTAuthenticationFilter jwtAuthenticationFilter;
 
     @Bean
     public BCryptPasswordEncoder passwordEncoder() {
@@ -42,19 +50,22 @@ public class SecurityConfig {
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
         http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorize -> authorize
-                        .requestMatchers("/login", "/register").permitAll()
-                        .anyRequest().authenticated()
+                         //.requestMatchers("/login", "/register").permitAll()
+                         //.anyRequest().authenticated()
+                         .anyRequest().permitAll() // Allow all requests temporarily
                 )
                 .formLogin(form -> form
                         .loginPage("/login")
                         .defaultSuccessUrl("/home", true)
+                        .successHandler(successHandler)
                         .failureHandler(failureHandler)
                         .permitAll()
                 )
                 .logout(logout -> logout.permitAll())
-                .requiresChannel(channel -> channel
-                        .anyRequest().requiresSecure()
-                );
+                // .requiresChannel(channel -> channel
+                //         .anyRequest().requiresSecure()
+                //.addFilterBefore(jwtAuthenticationFilter, UsernamePasswordAuthenticationFilter.class)
+                ;
 
         return http.build();
     }

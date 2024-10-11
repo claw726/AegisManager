@@ -1,64 +1,108 @@
 <template>
-    <div v-if="isLoggedIn" class="relative w-full h-full bg-background">
-      <NavBar />
-      <div class="">
-        <div class="flex flex-col justify-center h-screen/3 py-16">
-          <div class="text-4xl font-bold text-primary text-center py-8">Create New Organization</div>
-          <div class="h-1 bg-accent rounded-lg"></div>
-          <div class="py-16">
-            <div class="relative flex flex-col justify-items-center p-16 mx-96 rounded-lg bg-white drop-shadow-lg">
-              <div>
-                <div class="flex flex-col justify-center p-4 bg-white">
-                  <label for="orgName" class="text-lg font-bold text-gray-800">Organization Name:</label>
-                  <input type="text" id="orgName" v-model="newOrg.OrgName" class="w-full border border-gray-300 rounded-lg p-2" />
-                </div>
-                <div class="flex flex-col justify-center p-4 bg-white">
-                  <label for="orgDescription" class="text-lg font-bold text-gray-800">Organization Description:</label>
-                  <textarea id="orgDescription" v-model="newOrg.OrgDescription" class="w-full border border-gray-300 rounded-lg p-2"></textarea>
-                </div>
-                <div class="w-full md:w-1/2 px-4 mb-4 justify-center">
-                  <label class="block text-sm font-semibold text-gray-800 mb-2">Profile Picture</label>
-                  <input type="file" accept="image/jpeg" @change="handleImageUpload" class="hidden" ref="fileInput" />
-                  <button @click="triggerFileInput" class="flex-col flex px-8 bg-primary text-white font-semibold py-3 rounded-lg">
+  <div
+    v-if="isLoggedIn"
+    class="relative w-full h-full min-h-screen bg-background"
+  >
+    <NavBar />
+    <div class="">
+      <div class="flex flex-col justify-center h-screen/3 py-16">
+        <div class="text-4xl font-bold text-primary text-center py-8">
+          Create New Organization
+        </div>
+        <div class="h-1 bg-accent rounded-lg"></div>
+        <div class="py-16">
+          <div
+            class="relative flex flex-col justify-items-center p-16 mx-96 rounded-lg bg-white drop-shadow-lg"
+          >
+            <div>
+              <div class="flex flex-col justify-center p-4 bg-white">
+                <label for="orgName" class="text-lg font-bold text-gray-800"
+                  >Organization Name:</label
+                >
+                <input
+                  type="text"
+                  id="orgName"
+                  v-model="newOrg.OrgName"
+                  class="w-full border border-gray-300 rounded-lg p-2"
+                />
+              </div>
+              <div class="flex flex-col justify-center p-4 bg-white">
+                <label
+                  for="orgDescription"
+                  class="text-lg font-bold text-gray-800"
+                  >Organization Description:</label
+                >
+                <textarea
+                  id="orgDescription"
+                  v-model="newOrg.OrgDescription"
+                  class="w-full border border-gray-300 rounded-lg p-2"
+                ></textarea>
+              </div>
+              <div class="w-full md:w-1/2 px-4 mb-4 justify-center">
+                <label class="block text-sm font-semibold text-gray-800 mb-2"
+                  >Profile Picture</label
+                >
+                <input
+                  type="file"
+                  accept="image/jpeg"
+                  @change="handleImageUpload"
+                  class="hidden"
+                  ref="fileInput"
+                />
+                <button
+                  @click="triggerFileInput"
+                  class="flex-col flex px-8 bg-primary text-white font-semibold py-3 rounded-lg"
+                >
                   Upload Image
-                    <span v-if="imageUploaded" class="text-gray-500 ml-2">(Image Uploaded)</span>
-                  </button>
-                </div>
-                <div class="flex justify-center">
-                  <button @click="submitForm" class="w-full mt-4 bg-primary text-white font-semibold py-3 rounded-lg">Submit</button>
-                </div>
-            </div>
+                  <span v-if="imageUploaded" class="text-gray-500 ml-2"
+                    >(Image Uploaded)</span
+                  >
+                </button>
+              </div>
+              <div class="flex justify-center">
+                <button
+                  @click="createOrg()"
+                  class="w-full mt-4 bg-primary text-white font-semibold py-3 rounded-lg"
+                >
+                  Submit
+                </button>
+              </div>
             </div>
           </div>
         </div>
       </div>
     </div>
-  </template>
+  </div>
+</template>
 
 <script>
-import NavBar from '@/components/NavBar.vue';
-import { mapState } from 'vuex';
-import imageCompression from 'browser-image-compression'
+import NavBar from "@/components/NavBar.vue";
+import { mapState } from "vuex";
+import imageCompression from "browser-image-compression";
+import { mapActions } from "vuex/dist/vuex.cjs.js";
 
 export default {
   components: {
     NavBar,
   },
   computed: {
-    ...mapState(['isLoggedIn', 'userEmail']),
+    ...mapState(["isLoggedIn", "currentUser"]),
   },
   data() {
     return {
       newOrg: {
-        OrgName: '',
-        OrgDescription: '',
-        OrgLogo: '',
-        OrgCreator: '',
+        OrgName: "",
+        OrgDescription: "",
+        OrgLogo: "",
+        OrgCreator: "",
+        members: [],
+        projects: [],
       },
       imageUploaded: false,
     };
   },
   methods: {
+    ...mapActions(["createOrganization"]),
     triggerFileInput() {
       this.$refs.fileInput.click();
     },
@@ -81,8 +125,8 @@ export default {
             const image = new Image();
             image.onload = async () => {
               // Create a canvas to crop the image
-              const canvas = document.createElement('canvas');
-              const ctx = canvas.getContext('2d');
+              const canvas = document.createElement("canvas");
+              const ctx = canvas.getContext("2d");
               const { width: imageWidth, height: imageHeight } = image;
               const aspectRatio = imageWidth / imageHeight;
               let newWidth, newHeight;
@@ -103,19 +147,36 @@ export default {
               // Set the canvas dimensions and draw the new image
               canvas.width = newWidth;
               canvas.height = newHeight;
-              ctx.drawImage(image, x, y, newWidth, newHeight, 0, 0, newWidth, newHeight);
+              ctx.drawImage(
+                image,
+                x,
+                y,
+                newWidth,
+                newHeight,
+                0,
+                0,
+                newWidth,
+                newHeight,
+              );
 
               // Convert the Canvas to a URL
-              const croppedDataURL = canvas.toDataURL('image/jpeg', 0.92);
+              const croppedDataURL = canvas.toDataURL("image/jpeg", 0.92);
 
               // Convert the data URL to a BLOB
-              const blob = await fetch(croppedDataURL).then(res => res.blob());
+              const blob = await fetch(croppedDataURL).then((res) =>
+                res.blob(),
+              );
 
               // Create a new file from the BLOB
-              const newFile = new File([blob], file.name, { type: 'image/jpeg' });
+              const newFile = new File([blob], file.name, {
+                type: "image/jpeg",
+              });
 
               // Compress the cropped image
-              const compressedCroppedFile = await imageCompression(newFile, options);
+              const compressedCroppedFile = await imageCompression(
+                newFile,
+                options,
+              );
 
               // Read the compressed file as a data URL
               const reader = new FileReader();
@@ -130,30 +191,41 @@ export default {
           };
           reader.readAsDataURL(file);
         } catch (error) {
-          console.error('Error compressing image:', error);
-          alert('An error occurred while compressing the image. Please try again with a new file.');
+          console.error("Error compressing image:", error);
+          alert(
+            "An error occurred while compressing the image. Please try again with a new file.",
+          );
         }
       } else {
-        alert('Please select a valid image format.');
+        alert("Please select a valid image format.");
       }
     },
-    submitForm() {
+    createOrg() {
       // Add the new org to localstorage
       if (!this.newOrg.OrgName || !this.newOrg.OrgDescription) {
         alert("Please Tell us more about your organization.");
         return;
       }
-      this.newOrg.OrgCreator = this.userEmail;
+      this.newOrg.OrgCreator = this.currentUser.email;
       if (!this.newOrg.OrgCreator) {
-        alert("Error determining your identity! Please log out and back in to continue.");
-        return
+        alert(
+          "Error determining your identity! Please log out and back in to continue.",
+        );
+        return;
       }
-      const userOrganizations = localStorage.getItem('UserOrganizations');
-      let organizations = userOrganizations ? JSON.parse(userOrganizations) : [];
-      organizations.push(this.newOrg);
-      localStorage.setItem('UserOrganizations', JSON.stringify(organizations));
-      // Redirect to the viewOrgs page
-      this.$router.push({ name: 'organizationDashboard' });
+      // Add the current user to the members list
+      this.newOrg.members.push(this.currentUser.email);
+      try {
+        this.$store.dispatch("createOrganization", this.newOrg);
+
+        // Redirect to the viewOrgs page
+        this.$router.push({ name: "viewOrgs" });
+      } catch (error) {
+        console.error("Error creating organization:", error);
+        alert(
+          "An error occurred while creating the organization. Please try again.",
+        );
+      }
     },
   },
 };

@@ -1,5 +1,5 @@
 import { createRouter, createWebHistory } from 'vue-router';
-import store from './store.js';
+import store from './store/index.js';
 
 const router = createRouter({
     history: createWebHistory(),
@@ -12,7 +12,7 @@ const router = createRouter({
                 {
                     path: '/createAccount',
                     name: 'CreateAcct',
-                    component: () => import('./views/UserCreation.vue'),
+                    component: () => import('./views/CreateUserView.vue'),
                     meta: {requiresGuest: true},
                 },
                 {
@@ -24,14 +24,14 @@ const router = createRouter({
                 {
                     path: '/dashboard',
                     name: 'Dashboard',
-                    component: () => import('./views/DashboardView.vue'),
+                    component: () => import('./views/DashboardAccountView.vue'),
                     meta: {requiresAuth: true},
                 },
 
                 {
                   path: '/organization',
                   name: 'viewOrgs',
-                  component: () => import('./views/OrgView.vue'),
+                  component: () => import('./views/ListOrgView.vue'),
                   meta: {requiresAuth: true},
                 },
                 {
@@ -41,9 +41,9 @@ const router = createRouter({
                   meta: {requiresAuth: true},
                 },
                 {
-                  path: '/organization/:index',
+                  path: '/organization/:orgIndex',
                   name: 'OrganizationDashboard',
-                  component: () => import('./views/OrgDashView.vue'),
+                  component: () => import('./views/DashboardOrgView.vue'),
                   meta: {requiresAuth: true},
                 },
                 {
@@ -59,9 +59,21 @@ const router = createRouter({
                   props: true // Allow passing route params as props
                 },
                 {
-                  path: '/organization/:index/createProject',
+                  path: '/organization/:orgIndex/createProject',
                   name: 'createProject',
-                  component: () => import('./views/ProjCreator.vue'),
+                  component: () => import('./views/CreateProjView.vue'),
+                  meta: {requiresAuth: true},
+                },
+                {
+                  path: '/organization/:orgIndex/edit',
+                  name: 'EditOrg',
+                  component: () => import('./views/EditOrgView.vue'),
+                  meta: {requiresAuth: true},
+                },
+                {
+                  path: '/organization/:orgIndex/editUsers',
+                  name: 'EditOrgUsers',
+                  component: () => import('./views/EditOrgUsersView.vue'),
                   meta: {requiresAuth: true},
                 },
                 {
@@ -70,6 +82,18 @@ const router = createRouter({
                   component: () => import('./views/KanbanView.vue'),
                   meta: {requiresAuth: true},
                 },
+                {
+                  path: '/organization/:orgIndex/project/:projIndex',
+                  name: 'ProjectDashboard',
+                  component: () => import('./views/DashboardProjectView.vue'),
+                  meta: {requiresAuth: true},
+                },
+                {
+                  path: '/organization/:orgIndex/project/:projIndex/edit',
+                  name: 'EditProject',
+                  component: () => import('./views/EditProjectView.vue'),
+                  meta: {requiresAuth: true},
+                }
             ],
     });
 

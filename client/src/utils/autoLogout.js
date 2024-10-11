@@ -1,4 +1,4 @@
-import store from '@/store.js';
+import store from '@/store/index.js';
 
 /**
  * Auto-magically logs out users when the close the tab or the browser

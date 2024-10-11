@@ -10,12 +10,17 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.annotation.*;
 import com.aegis.project.service.UserService;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 import java.util.HashMap;
 import java.util.Map;
 
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
+
+    private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
 
     @Autowired
     private AuthenticationManager authManager;
@@ -28,11 +33,20 @@ public class AuthController {
 
     // Registration endpoint
     @PostMapping("/register")
-    public ResponseEntity<String> createUser(String email, String name, String password) {
-        if (userService.createUser(email, name, password)) {
-            return ResponseEntity.ok("User created successfully");
-        } else {
-            return ResponseEntity.badRequest().body("User already exists or there was an error");
+    public ResponseEntity<String> createUser(@RequestParam String email, @RequestParam String name, @RequestParam String password, @RequestParam String profilePicture) {
+        // Log the input parameters
+        logger.info("Received registration request with email: {}, name: {}, password: {}, profilePicture: {}", email, name, password, profilePicture);
+        try {
+            if (userService.createUser(email, name, password, profilePicture)) {
+                logger.info("User created successfully for email: {}", email);
+                return ResponseEntity.ok("User created successfully");
+            } else {
+                logger.warn("User already exists with email: {}", email);
+                return ResponseEntity.badRequest().body("User already exists");
+            }
+        } catch (Exception e) {
+            logger.error("Error creating user: " + e.getMessage());
+            return ResponseEntity.internalServerError().body("There was an error creating the user");
         }
     }
 
@@ -47,11 +61,11 @@ public class AuthController {
             String token = tokenService.generateToken(auth);
 
             response.put("message:", "Login successful");
-            response.put("token", token);
+            response.put("token:", token);
 
             return ResponseEntity.ok(response);
         } catch (AuthenticationException e) {
-            response.put("message", "Login failed");
+            response.put("message:", "Login failed");
 
             return ResponseEntity.badRequest().body(response);
         }

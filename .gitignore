@@ -12,9 +12,12 @@ client/src/views/Logo.vue
 *.iml
 *.ipr
 
+SCRUM Logs/
+
 # Node.js
 node_modules/
 
 # Gradle
 server/.gradle/
 server/build/
+*.class

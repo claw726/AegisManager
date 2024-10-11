@@ -3,14 +3,18 @@ package com.aegis.project.model;
 import java.util.HashSet;
 import java.util.Set;
 
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
 
 @Entity
@@ -19,16 +23,16 @@ public class ProjectModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int ProjectID;
+    private int projectID;
 
-    @Column(name = "parent_org_ID")
-    private int ParentOrgID;
+    @Column(name = "parent_org_ID", insertable = false, updatable = false)
+    private int parentOrgID;
 
     @Column(name = "project_name")
-    private String ProjectName;
+    private String projectName;
 
     @Column(name = "project_description")
-    private String ProjectDescription;
+    private String projectDescription;
 
     @ManyToMany
     @JoinTable(
@@ -36,76 +40,75 @@ public class ProjectModel {
             joinColumns = @JoinColumn(name = "project_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
-    private Set<UserModel> AssignedUsers = new HashSet<>();
+    private Set<UserModel> assignedUsers = new HashSet<>();
 
     @Column(name = "project_owner_ID")
-    private int ProjectOwnerID;
+    private int projectOwnerID;
 
-    @ManyToMany
-    @JoinTable(
-            name = "project_assigned_users",
-            joinColumns = @JoinColumn(name = "project_id"),
-            inverseJoinColumns = @JoinColumn(name = "parent_project_id")
-    )
-    private Set<TaskModel> ProjectTasks = new HashSet<>();
+    @OneToMany(mappedBy = "parentProject", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<TaskModel> projectTasks = new HashSet<>();
 
     //TODO: implement project chat table
     //private int ProjectChatID;
 
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_org_ID")  // Foreign key column in ProjectModel table
+    private OrgModel parentOrg;
+
     public int getProjectID() {
-        return ProjectID;
+        return projectID;
     }
 
     public void setProjectID(int projectID) {
-        ProjectID = projectID;
+        this.projectID = projectID;
     }
 
     public int getParentOrgID() {
-        return ParentOrgID;
+        return parentOrgID;
     }
 
     public void setParentOrgID(int parentOrgID) {
-        ParentOrgID = parentOrgID;
+        this.parentOrgID = parentOrgID;
     }
 
     public String getProjectName() {
-        return ProjectName;
+        return projectName;
     }
 
     public void setProjectName(String projectName) {
-        ProjectName = projectName;
+        this.projectName = projectName;
     }
 
     public String getProjectDescription() {
-        return ProjectDescription;
+        return projectDescription;
     }
 
     public void setProjectDescription(String projectDescription) {
-        ProjectDescription = projectDescription;
+        this.projectDescription = projectDescription;
     }
 
     public Set<UserModel> getAssignedUsers() {
-        return AssignedUsers;
+        return assignedUsers;
     }
 
     public void setAssignedUsers(Set<UserModel> assignedUsers) {
-        AssignedUsers = assignedUsers;
+        this.assignedUsers = assignedUsers;
     }
 
     public int getProjectOwnerID() {
-        return ProjectOwnerID;
+        return projectOwnerID;
     }
 
     public void setProjectOwnerID(int projectOwnerID) {
-        ProjectOwnerID = projectOwnerID;
+        this.projectOwnerID = projectOwnerID;
     }
 
     public Set<TaskModel> getProjectTasks() {
-        return ProjectTasks;
+        return projectTasks;
     }
 
     public void setProjectTasks(Set<TaskModel> projectTasks) {
-        ProjectTasks = projectTasks;
+        this.projectTasks = projectTasks;
     }
 
 }

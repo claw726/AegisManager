@@ -35,20 +35,25 @@ docker-compose up
 
 
 ### Step 3: Verify the Application
-After running the container, you can verify that your frontend application is running by accessing [https://localhost:8080](https://localhost:8080) in your web browser. You should see your Vue.js application up and running.
+After running the container, you can verify that your frontend application is running by accessing [https://localhost:8081](https://localhost:8081) in your web browser. You should see your Vue.js application up and running.
 
 > Get an error stating that the certificate is invalid? Go to `advanced` and click `accept anyways`
 
 ## Compilation steps for server
 
-### Step 1: Build the docker image
+### Step 1: Build and Run the docker image
 Open a terminal in the `./server` directory and run the following command to build the Docker image:
 
+##### UNIX:
 ```
-docker-compose -build
+./build-server.sh
+```
+##### Windows:
+```
+./setup.ps1
 ```
 
-###  Step 2: Run the docker image
+###  Step 2: Only Run the docker image
 
 ```
 docker-compose up

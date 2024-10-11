@@ -1,17 +1,22 @@
 package com.aegis.project.model;
 
+import com.aegis.project.model.ProjectModel;
+
+
 import java.util.Date;
 import java.util.HashSet;
 import java.util.Set;
 
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
+import jakarta.persistence.FetchType;
 import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
+import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
 
 @Entity
@@ -20,22 +25,31 @@ public class TaskModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int TaskID;
+    private int taskID;
 
-    @Column(name = "parent_project_ID")
-    private int ParentProjectID;
+    @Column(name = "parent_project_ID", insertable = false, updatable = false)
+    private int parentProjectID;
 
-    @Column(name = "parent_org_ID")
-    private int ParentOrgID;
+    /*
+    @ManyToOne
+    @JoinColumn(name = "parent_project")
+    private ProjectModel parentProject;
+    */
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_project_ID")  // Foreign key column in ProjectModel table
+    private ProjectModel parentProject;
+
+    @Column(name = "parent_org_ID", insertable = false, updatable = false)
+    private int parentOrgID;
 
     @Column(name = "task_name")
-    private String TaskName;
+    private String taskName;
 
     @Column(name = "task_description")
-    private String TaskDescription;
+    private String taskDescription;
 
     @Column(name = "assigner_ID")
-    private int AssignerID;
+    private int assignerID;
 
     @ManyToMany
     @JoinTable(
@@ -43,16 +57,16 @@ public class TaskModel {
             joinColumns = @JoinColumn(name = "task_id"),
             inverseJoinColumns = @JoinColumn(name = "user_id")
     )
-    private Set<UserModel> AssignedUsers = new HashSet<>();
+    private Set<UserModel> assignedUsers = new HashSet<>();
 
     @Column(name = "task_priority")
-    private String TaskPriority;
+    private String taskPriority;
 
     @Column(name = "due_date")
-    private Date DueDate;
+    private Date dueDate;
 
     @Column(name = "is_complete")
-    private boolean IsComplete;
+    private boolean isComplete;
 
     //TODO: implement task chat table and task files table
 
@@ -61,83 +75,91 @@ public class TaskModel {
 
 
     public int getTaskID() {
-        return TaskID;
+        return taskID;
     }
 
     public void setTaskID(int taskID) {
-        TaskID = taskID;
+        this.taskID = taskID;
+    }
+
+    public ProjectModel getParentProject() {
+        return parentProject;
+    }
+
+    public void setParentProject(ProjectModel parentProject) {
+        this.parentProject = parentProject;
     }
 
     public int getParentProjectID() {
-        return ParentProjectID;
+        return parentProjectID;
     }
 
     public void setParentProjectID(int parentProjectID) {
-        ParentProjectID = parentProjectID;
+        this.parentProjectID = parentProjectID;
     }
 
     public int getParentOrgID() {
-        return ParentOrgID;
+        return parentOrgID;
     }
 
     public void setParentOrgID(int parentOrgID) {
-        ParentOrgID = parentOrgID;
+        this.parentOrgID = parentOrgID;
     }
 
     public String getTaskName() {
-        return TaskName;
+        return taskName;
     }
 
     public void setTaskName(String taskName) {
-        TaskName = taskName;
+        this.taskName = taskName;
     }
 
     public String getTaskDescription() {
-        return TaskDescription;
+        return taskDescription;
     }
 
     public void setTaskDescription(String taskDescription) {
-        TaskDescription = taskDescription;
+        this.taskDescription = taskDescription;
     }
 
     public int getAssignerID() {
-        return AssignerID;
+        return assignerID;
     }
 
     public void setAssignerID(int assignerID) {
-        AssignerID = assignerID;
+        this.assignerID = assignerID;
     }
 
     public Set<UserModel> getAssignedUsers() {
-        return AssignedUsers;
+        return assignedUsers;
     }
 
     public void setAssignedUsers(Set<UserModel> assignedUsers) {
-        AssignedUsers = assignedUsers;
+        this.assignedUsers = assignedUsers;
     }
 
     public String getTaskPriority() {
-        return TaskPriority;
+        return taskPriority;
     }
 
     public void setTaskPriority(String taskPriority) {
-        TaskPriority = taskPriority;
+        this.taskPriority = taskPriority;
     }
 
     public Date getDueDate() {
-        return DueDate;
+        return dueDate;
     }
 
     public void setDueDate(Date dueDate) {
-        DueDate = dueDate;
+        this.dueDate = dueDate;
     }
 
-    public boolean isIsComplete() {
-        return IsComplete;
+    public boolean isComplete() {
+        return isComplete;
     }
 
-    public void setIsComplete(boolean isComplete) {
-        IsComplete = isComplete;
+    public void setComplete(boolean isComplete) {
+        this.isComplete = isComplete;
     }
    
 }
