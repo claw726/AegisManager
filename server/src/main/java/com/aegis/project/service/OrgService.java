@@ -14,6 +14,7 @@ import com.aegis.project.dto.OrgDTO;
 import com.aegis.project.dto.UserDTO;
 import com.aegis.project.model.OrgModel;
 import com.aegis.project.model.UserModel;
+import com.aegis.project.model.ProjectModel;
 import com.aegis.project.repository.OrgRepository;
 import com.aegis.project.repository.ProjectRepository;
 import com.aegis.project.repository.UserRepository;
@@ -31,6 +32,8 @@ public class OrgService {
     private UserRepository userRepository;
     @Autowired
     private UserService userService;
+    @Autowired
+    private ProjectService projectService;
 
     public boolean createOrg(String name, String description, int ownerID, String encodedImage) {
         OrgModel org = new OrgModel();
@@ -73,6 +76,40 @@ public class OrgService {
 
     return org; // Return the OrgModel directly
 }
+
+    public String getAllProjectsFromOrg(int orgID) {
+        OrgModel org = orgRepository.findById(orgID)
+                .orElseThrow(() -> new RuntimeException("Org not found with id: " + orgID));
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUsername = ((UserDetails) authentication.getPrincipal()).getUsername();
+
+        UserModel currentUser = userRepository.findByEmail(currentUsername)
+                .orElseThrow(() -> new RuntimeException("User not found with email: " + currentUsername));
+        boolean hasPermission = false;
+        for (UserModel user : org.getUsers()) {
+            if (user.getUserID() == currentUser.getUserID()) {
+                hasPermission = true;
+                break;
+            }
+        }
+        if (org.getOrgOwnerID() != currentUser.getUserID()) {
+            hasPermission = true;
+        }
+        if (!hasPermission) {
+            throw new RuntimeException("User does not have permission to get projects from org");
+        }
+
+        List<ProjectModel> allProjects = projectRepository.findByParentOrgID(orgID);
+        String ret = "{";
+        for (ProjectModel project : allProjects) {
+            if (ret.length() > 1) {
+                ret += ",";
+            }
+            ret += projectService.createProjectJson(project);
+        }
+        ret += "}";
+        return ret;
+    }
 
     public void updateOrg(int orgID, String orgName, String orgDescription, int orgOwnerID) {
         OrgModel org = orgRepository.findById(orgID)
