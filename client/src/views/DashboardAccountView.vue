@@ -4,15 +4,15 @@
 
     <div v-if="isLoggedIn">
       <!-- Profile Section -->
-      <div class="relative flex justify-center h-screen/3 py-12">
+      <div v-if="user" class="relative flex justify-center h-screen/3 py-12">
         <img
-          :src="user.profilePicture"
+          :src="user.profilePicture || 'https://toppng.com/public/uploads/preview/instagram-default-profile-picture-11562973083brycehrmyv.png'" 
           alt="Profile Picture"
           class="w-48 h-48 rounded-full drop-shadow-xl col-span-1"
         />
         <div class="ml-8 flex flex-col justify-center">
           <div class="text-4xl font-bold text-primary">
-            {{ user.firstName }} {{ user.lastName }}
+            {{ user.userName }}
           </div>
           <div class="text-2xl font-semibold text-secondary">
             Welcome to your dashboard!
@@ -73,11 +73,19 @@ export default {
       user: this.currentUser,
     };
   },
-  created() {
-    this.user = this.$store.dispatch(
-      "fetchUserAccountByEmail",
-      this.currentUser,
-    );
+  async created() {
+    try {
+      if (this.currentUser && this.currentUser.email) {
+        this.user = await this.$store.dispatch(
+          "fetchUserAccountByEmail",
+          this.currentUser.email
+        );
+      } else {
+        console.error("Current user email is not available.");
+      }
+    } catch (error) {
+      console.error("Error Fetching User:", error);
+    }
   },
   methods: {
     goToViewOrgs() {

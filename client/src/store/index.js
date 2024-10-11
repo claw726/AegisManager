@@ -120,20 +120,27 @@ export default new Vuex.Store({
         params.append("email", email);
         params.append("password", password);
 
-        const response = await axios.post("/api/auth/login", params, {
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
-          },
-        });
+        const response = await axios.post("/api/auth/login",
+          params, {
+            headers: {
+              'Content-Type': 'application/x-www-form-urlencoded',
+            },
+          });
 
-        const token = response.data.token;
-        commit("setAuthToken", token);
-        commit("setCurrentUser", { email });
-        commit("setLogin", true);
-        alert("Login successful");
+        const data = response.data;
+
+        if (data && data.token) {
+          commit("setAuthToken", data.token);
+          commit("setCurrentUser", { email });
+          commit("setLogin", true);
+          console.log('Login successful:', data);
+        } else {
+          console.error('Login Failed:', data ? data.message : "No data received!");
+          throw new Error("Login Failed!");
+        }
       } catch (error) {
-        console.error("Failed to login:", error.response.data);
-        alert("Login failed: " + error.response.data);
+        console.error("Failed to login:", error.response ? error.response.data : error.message);
+        alert("Login failed");
         throw error;
       }
     },
@@ -152,17 +159,31 @@ export default new Vuex.Store({
         throw new Error("Failed to fetch user account");
       }
     },
-    async fetchUserAccountByEmail(email) {
+    async fetchUserAccountByEmail({ state }, email) {
       try {
-        const params = new URLSearchParams();
-        params.append(email);
-        const response = await axios
-          .get("/api/users/getUserByEmail", { params })
-          .then((response) => response.json());
+        
+        if (typeof email !== 'string') {
+          throw new Error("Email must be a String!");
+        }
+        
+        const response = await axios.get('/api/users/getUserByEmail', {
+          params: { email },
+          headers: {
+            'Authorization': `Bearer ${state.authToken}`,
+          },
+        });
+
+        console.log('User Data:', response.data);
+
         return response.data;
       } catch (error) {
-        console.error("Failed to fetch user account:", error.response.data);
-        throw new Error("Failed to fetch user account");
+          if (error.response && error.response.status === 404) {
+            console.error('User not found: ', error.response.data);
+            throw new Error('User not found:');
+          } else {
+            console.error("Failed to Fetch User:", error.response ? error.response.data : error.message);
+            throw new Error("Failed to Fetch User");
+          }
       }
     },
     async fetchOrganizations() {

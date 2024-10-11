@@ -11,9 +11,16 @@ import org.springframework.web.bind.annotation.*;
 
 import jdk.jfr.Registered;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+
 @RestController
 @RequestMapping("api/users")
 public class UserController {
+
+    private static final Logger logger = LoggerFactory.getLogger(UserController.class);
+
 
     @Autowired
     private UserService userService;
@@ -33,6 +40,7 @@ public class UserController {
 
     @GetMapping("/getUserByEmail")
     public ResponseEntity<UserDTO> getUserByEmail(@RequestParam String email) {
+        logger.info("Recieved Request for user: " + email);
         try {
             return ResponseEntity.ok(userService.getUserDTOByEmail(email));
         } catch (RuntimeException e) {
