@@ -197,9 +197,9 @@ export default new Vuex.Store({
           }
         });
 
-        console.log('Organization Data:', response.data.organizations)
+        console.log('Organization Data:', response.data)
           
-        return response.data.organizations;
+        return response.data;
       } catch (error) {
         console.error("Failed to fetch organizations:", error.response ? error.response.data : error.message);
         throw new Error("Failed to fetch organizations");
@@ -229,6 +229,7 @@ export default new Vuex.Store({
         params.append("orgName", organization.orgName);
         params.append("orgDescription", organization.orgDescription);
         params.append("orgOwnerID", organization.orgOwnerID);
+        params.append("encodedImage", organization.OrgLogo);
 
         const response = await axios
           .post("/api/orgs/createOrg", params, {
@@ -243,31 +244,36 @@ export default new Vuex.Store({
         throw new Error("Failed to create organization");
       }
     },
-    async modifyOrganization({ orgID, organization }) {
+    async modifyOrganization({ state }, { orgID, organization }) {
       try {
         const params = new URLSearchParams();
-        params.append("orgName", organization.name);
-        params.append("orgDescription", organization.description);
+        params.append("orgName", organization.orgName);
+        params.append("orgDescription", organization.orgDescription);
         params.append("orgOwnerID", organization.orgOwnerID);
+        params.append("encodedImage", organization.OrgLogo);
         const response = await axios
           .post(`/api/orgs/${orgID}/update`, params, {
             headers: {
               "Content-Type": "application/x-www-form-urlencoded",
+              'Authorization': `Bearer ${state.authToken}`,
             },
           })
-          .then((response) => response.json());
         return response.data;
       } catch (error) {
         console.error("Failed to modify organization:", error.response.data);
         throw new Error("Failed to modify organization");
       }
     },
-    async deleteOrganization(orgID) {
+    async deleteOrganization({ state}, orgID) {
       try {
-        await axios.delete(`/api/orgs/${orgID}/deleteOrg`);
+        await axios.delete(`/api/orgs/${orgID}/deleteOrg`, {
+          headers: {
+            'Authorization': `Bearer ${state.authToken}`,
+          }
+        });
         return true;
       } catch (error) {
-        console.error("Failed to delete organization:", error.response.data);
+        console.error(`Failed to delete organization ${orgID}:`, error.response ? error.response.data : error.message);
         throw new Error("Failed to delete organization");
       }
     },
@@ -307,8 +313,25 @@ export default new Vuex.Store({
         throw new Error("Failed to remove user from organization");
       }
     },
-    async createProject({ commit }, { orgIndex, project }) {
-      commit("addProject", { orgIndex, project });
+    async createProject({ state }, project) {
+      try {
+        const params = new URLSearchParams();
+        params.append("projectName", project.projName);
+        params.append("projectDescription", project.projDescription);
+        params.append("projectOwnerID", project.projCreator);
+        params.append("parentOrgID", project.parentOrgID);
+        params.append("encodedImage", project.projImg);
+
+        console.log("Project Creation Params:", Object.fromEntries(params));
+
+        const response = await axios.post("/api/projects/createProject", params, {
+          'Authorization': `Bearer ${state.authToken}`,
+        })
+        console.log('Project created successfully:', response.data);
+      } catch (error) {
+        console.error('Error creating project:', error.response ? error.response.data : error.message);
+        throw new Error("Failed to Create Project");
+      }
     },
     async deleteProject({ commit }, { orgIndex, projIndex }) {
       commit("deleteProject", { orgIndex, projIndex });

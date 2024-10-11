@@ -1,6 +1,7 @@
 package com.aegis.project.controller;
 
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -47,10 +48,28 @@ public class OrgController {
         }
     }
 
-    @GetMapping("/{orgID}/getOrg")
-    public ResponseEntity<String> getOrg(@PathVariable int orgID) {
+    
+@GetMapping("/{orgID}/getOrg")
+    public ResponseEntity<OrgDTO> getOrg(@PathVariable int orgID) {
         try {
-            return ResponseEntity.ok(orgService.getOrg(orgID));
+            OrgModel org = orgService.getOrg(orgID); // Fetch the organization model
+
+            // Create the OrgDTO using the constructor
+            // OrgDTO constructor was updated to set the getUsers() parameter automatically using the getOrgMembers() function
+            // so I removed the parameter here. Old code is still present and commented out
+            OrgDTO orgDTO = new OrgDTO(
+                    org.getOrgID(),
+                    org.getOrgName(),
+                    org.getOrgDescription(),
+                    org.getOrgOwnerID(),
+                    org.getEncodedImage()
+            /*org.getEncodedImage(), // Ensure this is set correctly
+                org.getUsers().stream()
+                    .map(user -> new UserDTO(user.getUserID(), user.getUserName(), user.getEmail(), user.getProfilePicture())) // Convert UserModel to UserDTO
+                    .collect(Collectors.toSet())*/
+            );
+
+            return ResponseEntity.ok(orgDTO); // Return the DTO
         } catch (RuntimeException e) {
             if (e.getMessage().equals("Org not found with ID: " + orgID)) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);

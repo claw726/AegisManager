@@ -54,29 +54,28 @@ public class OrgService {
                 .collect(Collectors.toSet());
     }
 
-    public String getOrg(int orgID) {
+    public OrgModel getOrg(int orgID) {
         OrgModel org = orgRepository.findById(orgID)
                 .orElseThrow(() -> new RuntimeException("Org not found with id: " + orgID));
+        
+        // Get the current user's email for permission checking
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String currentUsername = ((UserDetails) authentication.getPrincipal()).getUsername();
 
         UserModel currentUser = userRepository.findByEmail(currentUsername)
                 .orElseThrow(() -> new RuntimeException("User not found with email: " + currentUsername));
-        boolean hasPermission = false;
-        for (UserModel user : org.getUsers()) {
-            if (user.getUserID() == currentUser.getUserID()) {
-                hasPermission = true;
-                break;
-            }
-        }
-        if (org.getOrgOwnerID() != currentUser.getUserID()) {
-            hasPermission = true;
-        }
+        
+        // Check if the user has permission to access the organization
+        boolean hasPermission = org.getUsers().stream()
+                .anyMatch(user -> user.getUserID() == currentUser.getUserID()) || 
+                org.getOrgOwnerID() == currentUser.getUserID();
+
         if (!hasPermission) {
             throw new RuntimeException("User does not have permission to get org");
         }
-        return createOrgJson(org);
-    }
+
+    return org; // Return the OrgModel directly
+}
 
     public String getAllProjectsFromOrg(int orgID) {
         OrgModel org = orgRepository.findById(orgID)

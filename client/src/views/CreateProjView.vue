@@ -13,13 +13,13 @@
                 <!-- Proj Title -->
                 <div class="flex flex-col justify-center p-4 bg-white">
                   <label for="projName" class="text-lg font-bold text-gray-800">Project Name:</label>
-                  <input type="text" id="projName" v-model="newProj.ProjName" class="w-full border border-gray-300 rounded-lg p-2" />
+                  <input type="text" id="projName" v-model="newProj.projName" class="w-full border border-gray-300 rounded-lg p-2" />
                 </div>
 
                 <!-- Proj Desc -->
                 <div class="flex flex-col justify-center p-4 bg-white">
                   <label for="projDescription" class="text-lg font-bold text-gray-800">Project Description:</label>
-                  <textarea id="projDescription" v-model="newProj.ProjDescription" class="w-full border border-gray-300 rounded-lg p-2"></textarea>
+                  <textarea id="projDescription" v-model="newProj.projDescription" class="w-full border border-gray-300 rounded-lg p-2"></textarea>
                 </div>
 
                 <!-- Proj Users -->
@@ -60,10 +60,11 @@
     return {
       newProj: {
         projCreator: '',
-        ProjName: '',
-        ProjDescription: '',
-        ProjImg: '',
-        ProjUsers: '',
+        projName: '',
+        projDescription: '',
+        projImg: '',
+        projUsers: '',
+        parentOrgID: '',
       },
       imageUploaded: false,
     };
@@ -72,7 +73,7 @@
         NavBar,
     },
     computed: {
-      ...mapState(['isLoggedIn', 'currentUser', 'organizations']),
+      ...mapState(['isLoggedIn', 'currentUser']),
     },
     methods: {
       handleImageChange(event) {
@@ -144,7 +145,7 @@
                 const reader = new FileReader();
                 reader.onload = (e) => {
                     // Set the user profile photo to the compressed cropped photo
-                    this.newProj.ProjImg = e.target.result;
+                    this.newProj.projImg = e.target.result;
                     this.imageUploaded = true;
                 };
                 reader.readAsDataURL(compressedCroppedFile);
@@ -162,39 +163,25 @@
         },
     async submitForm() {
         // Add the new org to localstorage
-        if (!this.newProj.ProjName || !this.newProj.ProjDescription) {
+        if (!this.newProj.projName || !this.newProj.projDescription) {
             alert("Please Tell us more about your project.");
             return;
         }
 
-        // Get the user's email and assign them as the project creator
-        this.newProj.ProjCreator = this.currentUser.email;
-        if (!this.newProj.ProjCreator) {
-            alert("Error determining your identity! Please log out and back in to continue.");
-            return
-        }
-
-        // Get the index of the organization
-        const organizationID = this.$route.params.orgIndex;
-
-        //Ensure that there are no projects with the same name in the same org
-        const organization = this.organizations[organizationID];
-        if (!organization) {
-          alert("Error getting the organization details!");
-          return;
-        }
-        const existingProjectNames = organization.projects.map(project => project.ProjName);
-        if (existingProjectNames.includes(this.newProj.ProjName)) {
-          alert("A project with this name already exists!");
-          return;
-        }
+        const project = {
+          projName: this.newProj.projName,
+          projDescription: this.newProj.projDescription,
+          projCreator: this.currentUser.userID,
+          parentOrgID: this.$route.params.orgIndex,
+          projImg: this.newProj.projImg,
+        };
 
         // Add the store to the localStore
         try {
-          await this.$store.dispatch('createProject', { orgIndex: organizationID, project: this.newProj });
+          await this.$store.dispatch('createProject', project);
 
           // Redirect to the Org Dashboard
-          this.$router.push({ name: 'OrganizationDashboard', params: { index: organizationID }});
+          this.$router.push({ name: 'OrganizationDashboard', params: { index: this.$route.params.orgIndex }});
         } catch (error) {
           console.error('Error creating project:', error);
           alert('An error occurred while creating the project. Please try again.');

@@ -39,11 +39,11 @@ export default {
         OrgCard,
     },
     computed: {
-      ...mapState(['isLoggedIn', 'organizations']),
+      ...mapState(['isLoggedIn']),
     },
     data() {
         return {
-            userOrganizations: this.organizations,
+            userOrganizations: null,
         };
     },
     async created() {

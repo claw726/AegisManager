@@ -13,24 +13,26 @@
       <div v-if="org">
         <div class="relative flex h-screen/3 py-4">
           <img
-            :src="org.OrgLogo"
-            alt="Profile Picture"
+            :src="org.encodedImage || 'https://d31kswug2i6wp2.cloudfront.net/fallback/company/medium_logo_default.png'"
+            alt="Organization Logo"
             class="w-48 h-48 rounded-full drop-shadow-xl col-span-1"
           />
           <div class="ml-8 flex flex-col justify-center">
-            <div class="text-4xl font-bold text-primary">{{ org.OrgName }}</div>
+            <div class="text-4xl font-bold text-primary">{{ org.orgName }}</div>
             <div class="text-2xl font-semibold text-secondary">
-              {{ org.OrgDescription }}
+              {{ org.orgDescription }}
             </div>
             <div class="text-medium text-accent">
-              Created by: {{ org.OrgCreator }}
+              Created by: {{ org.orgOwnerID }}
             </div>
           </div>
         </div>
       </div>
+      <div v-else>
+        <p>Loading organization data...</p>
+      </div>
     </div>
 
-    <!-- Search Bar -->
     <div class="flex p-4 justify-center">
       <p class="text-xl font-semibold text-primary mx-8">Search Projects</p>
       <input
@@ -42,15 +44,13 @@
     </div>
     <div class="h-1 bg-accent drop-shadow-lg rounded mx-16" />
 
-    <!-- Create Project Button -->
     <div class="flex flex-col items-center">
       <button @click="goToCreateProject" class="dashboard-button mt-8">
         Create New Project
       </button>
     </div>
 
-    <!-- List of Projects -->
-    <div class="grid grid-cols-4 gap-4 m-8">
+    <div v-if="org && org.projects" class="grid grid-cols-4 gap-4 m-8">
       <ProjCard
         v-for="(project, index) in org.projects"
         :key="index"
@@ -68,23 +68,24 @@ import ProjCard from "@/components/ProjCard.vue";
 import DropdownMenu from "@/components/DropdownMenu.vue";
 
 export default {
-  props: {
-    projIndex: {
-      type: Number,
-      required: false,
-    },
+  components: {
+    NavBar,
+    ProjCard,
+    DropdownMenu,
+  },
+  computed: {
+    ...mapState(["isLoggedIn"]),
   },
   data() {
     return {
-      org: null,
-      projects: [],
+      org: null, // Initialize org as null
       dropdownOpts: [
         {
           title: "Edit Organization Details",
           command: this.editOrg,
         },
         {
-          title: "Delete This Organizaiton",
+          title: "Delete This Organization",
           command: this.deleteOrg,
         },
         {
@@ -94,20 +95,20 @@ export default {
       ],
     };
   },
-  components: {
-    NavBar,
-    ProjCard,
-    DropdownMenu,
-  },
-  created() {
-    this.getOrgData();
-  },
-  computed: {
-    ...mapState(["isLoggedIn", "organizations"]),
+  async created() {
+    await this.getOrgData(); // Ensure this is awaited
   },
   methods: {
     async getOrgData() {
-      this.org = await this.$store.dispatch("")
+      try {
+        const orgID = this.$route.params.orgIndex; // Ensure you are getting the correct orgID
+        this.org = await this.$store.dispatch("fetchOrganization", orgID);
+        console.log('Fetched Organization:', this.org); // Log the fetched organization
+      } catch (error) {
+        console.error('Error fetching organization data:', error);
+        alert('Failed to load organization data: ' + error.message);
+        this.$router.push({ name: "viewOrgs", params: { orgIndex: undefined } });
+      }
     },
     goToCreateProject() {
       this.$router.push({
@@ -127,10 +128,7 @@ export default {
           .dispatch("deleteOrganization", this.$route.params.orgIndex)
           .then(() => {
             alert("Organization deleted successfully!");
-            this.$router.push({
-              name: "viewOrgs",
-              params: { orgIndex: undefined },
-            });
+            this.$router.push({ name: "viewOrgs", params: { orgIndex: undefined } });
           })
           .catch((err) => {
             alert("There was an error deleting the organization: ", err);
