@@ -26,6 +26,8 @@ public class TaskService {
     private UserRepository userRepository;
     @Autowired
     private ProjectRepository projectRepository;
+    @Autowired
+    private UserService userService;
 
     @Autowired
     private SimpMessagingTemplate simpMessageTemplate;
@@ -97,7 +99,7 @@ public class TaskService {
         taskRepository.save(task);
 
         ProjectModel parentProject = projectRepository.findById(parentProjectID)
-            .orElseThrow(() -> new RuntimeException("Project not found with id: " + parentProjectID));
+                .orElseThrow(() -> new RuntimeException("Project not found with id: " + parentProjectID));
         Set<TaskModel> projectTasks = parentProject.getProjectTasks();
         projectTasks.add(task);
         parentProject.setProjectTasks(projectTasks);
@@ -108,7 +110,7 @@ public class TaskService {
 
     public Set<UserModel> getAssignedUsers(int taskID) {
         TaskModel task = taskRepository.findById(taskID)
-            .orElseThrow(() -> new RuntimeException("Task not found with ID: " + taskID));
+                .orElseThrow(() -> new RuntimeException("Task not found with ID: " + taskID));
         return task.getAssignedUsers();
     }
 
@@ -116,24 +118,23 @@ public class TaskService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String currentUsername = ((UserDetails) authentication.getPrincipal()).getUsername();
         UserModel currentUser = userRepository.findByEmail(currentUsername)
-            .orElseThrow(() -> new RuntimeException("User not found with email: " + currentUsername));
+                .orElseThrow(() -> new RuntimeException("User not found with email: " + currentUsername));
         if (currentUser.getUserID() == userID) {
             Set<TaskModel> tasks = taskRepository.getAllUserTasks(userID, orgID, projectID);
             String ret = "{";
             for (TaskModel task : tasks) {
-                if (ret.length() > 1){
+                if (ret.length() > 1) {
                     ret += ",";
                 }
                 ret += createTaskJson(task);
             }
             ret += "}";
             return ret;
-            
+
             /*return tasks.stream()
                 .map(task -> new TaskDTO(task.getTaskID(), task.getParentProjectID(), task.getParentOrgID(), task.getTaskName(), task.getTaskDescription(), task.getAssignerID(), task.getTaskPriority(), task.getDueDate(), task.isComplete()))
                 .collect(Collectors.toSet());*/
-        }
-        else {
+        } else {
             throw new RuntimeException("User does not have permission to access task list");
         }
     }
@@ -158,7 +159,7 @@ public class TaskService {
         task.setDueDate(dueDate);
         task.setComplete(isComplete);
 
-        taskRepository.save(task);        
+        taskRepository.save(task);
     }
 
     public void deleteTask(int taskID) {
@@ -176,9 +177,9 @@ public class TaskService {
         }
 
         taskRepository.deleteById(taskID);
-        
+
         ProjectModel parentProject = projectRepository.findById(task.getParentOrgID())
-            .orElseThrow(() -> new RuntimeException("Parent project not found with id: " + task.getParentOrgID()));
+                .orElseThrow(() -> new RuntimeException("Parent project not found with id: " + task.getParentOrgID()));
         Set<TaskModel> projectTasks = parentProject.getProjectTasks();
         projectTasks.remove(task);
         projectRepository.save(parentProject);
@@ -187,7 +188,7 @@ public class TaskService {
     public boolean validateAssigner(int taskID, int userID) {
         TaskModel task = taskRepository.findById(taskID)
                 .orElseThrow(() -> new RuntimeException("Task not found with id: " + taskID));
-        return(task.getAssignerID() == userID);
+        return (task.getAssignerID() == userID);
     }
 
     public void updateTaskCompletionStatus(int taskID, boolean isCompleted) {
@@ -203,8 +204,7 @@ public class TaskService {
         boolean hasPermission = false;
         if (task.getAssignerID() == currentUser.getUserID()) {
             hasPermission = true;
-        }
-        else {
+        } else {
             for (UserModel user : users) {
                 if (user.getUserID() == currentUser.getUserID()) {
                     hasPermission = true;
@@ -219,16 +219,16 @@ public class TaskService {
 
     public void addUser(int taskID, String email) {
         UserModel userToAdd = userRepository.findByEmail(email)
-            .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
-        
+                .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
+
         TaskModel task = taskRepository.findById(taskID)
-            .orElseThrow(() -> new RuntimeException("Task not found with id: " + taskID));
+                .orElseThrow(() -> new RuntimeException("Task not found with id: " + taskID));
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String currentUsername = ((UserDetails) authentication.getPrincipal()).getUsername();
 
         UserModel currentUser = userRepository.findByEmail(currentUsername)
-            .orElseThrow(() -> new RuntimeException("User not found with email: " + currentUsername));
+                .orElseThrow(() -> new RuntimeException("User not found with email: " + currentUsername));
 
         if (task.getAssignerID() != currentUser.getUserID()) {
             throw new RuntimeException("User does not have permission to add user to task");
@@ -237,18 +237,18 @@ public class TaskService {
         taskRepository.save(task);
     }
 
-    public void removeUser(int taskID, String email){
+    public void removeUser(int taskID, String email) {
         UserModel userToRemove = userRepository.findByEmail(email)
-            .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
-        
+                .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
+
         TaskModel task = taskRepository.findById(taskID)
-            .orElseThrow(() -> new RuntimeException("Task not found with id: " + taskID));
+                .orElseThrow(() -> new RuntimeException("Task not found with id: " + taskID));
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String currentUsername = ((UserDetails) authentication.getPrincipal()).getUsername();
 
         UserModel currentUser = userRepository.findByEmail(currentUsername)
-            .orElseThrow(() -> new RuntimeException("User not found with email: " + currentUsername));
+                .orElseThrow(() -> new RuntimeException("User not found with email: " + currentUsername));
 
         if (task.getAssignerID() != currentUser.getUserID()) {
             throw new RuntimeException("User does not have permission to remove user from  task");
@@ -258,7 +258,7 @@ public class TaskService {
     }
 
     public String createTaskJson(TaskModel task) {
-        return "{"
+        String ret = "{"
                 + "\"taskID\": " + task.getTaskID() + ","
                 + "\"parentProjectID\": " + task.getParentProjectID() + ","
                 + "\"parentOrgID\": " + task.getParentOrgID() + ","
@@ -266,8 +266,19 @@ public class TaskService {
                 + "\"taskDescription\": \"" + task.getTaskDescription() + "\","
                 + "\"assignerID\": " + task.getAssignerID() + ","
                 + "\"taskPriority\": \"" + task.getTaskPriority() + "\","
-                + "\"dueDate\": \"" + task.getDueDate() + "\""
-                + "\"isComplete\": " + task.isComplete() + "\""
-                + "}";
+                + "\"dueDate\": \"" + task.getDueDate() + "\","
+                + "\"isComplete\": " + task.isComplete() + ","
+                + "\"assignedUsers\": [";
+        boolean first = true;
+        for (UserModel user : task.getAssignedUsers()) {
+            if (first) {
+                first = false;
+            } else {
+                ret += ",";
+            }
+            ret += userService.createUserJson(user);
+        }
+        ret += "]}";
+        return ret;
     }
 }

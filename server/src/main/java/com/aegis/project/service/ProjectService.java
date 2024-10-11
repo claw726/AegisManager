@@ -1,25 +1,26 @@
 package com.aegis.project.service;
 
-import com.aegis.project.model.ProjectModel;
-import com.aegis.project.model.UserModel;
-import com.aegis.project.dto.TaskDTO;
-import com.aegis.project.dto.UserDTO;
-import com.aegis.project.model.OrgModel;
-import com.aegis.project.model.TaskModel;
-import com.aegis.project.repository.ProjectRepository;
-import com.aegis.project.repository.OrgRepository;
-import com.aegis.project.repository.TaskRepository;
-import com.aegis.project.repository.UserRepository;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
-import java.util.Optional;
-import java.util.Set;
-import java.util.stream.Collectors;
-import java.util.HashSet;
+import com.aegis.project.dto.TaskDTO;
+import com.aegis.project.dto.UserDTO;
+import com.aegis.project.model.OrgModel;
+import com.aegis.project.model.ProjectModel;
+import com.aegis.project.model.TaskModel;
+import com.aegis.project.model.UserModel;
+import com.aegis.project.repository.OrgRepository;
+import com.aegis.project.repository.ProjectRepository;
+import com.aegis.project.repository.TaskRepository;
+import com.aegis.project.repository.UserRepository;
 
 @Service
 public class ProjectService {
@@ -32,9 +33,10 @@ public class ProjectService {
     private UserRepository userRepository;
     @Autowired
     private OrgRepository orgRepository;
-
-
-
+    @Autowired
+    private UserService userService;
+    @Autowired
+    private SimpMessagingTemplate simpMessageTemplate;
 
     public void editProject(int projectID) {
         ProjectModel project = projectRepository.findById(projectID)
@@ -70,7 +72,7 @@ public class ProjectService {
         projectRepository.deleteById(projectID);
     }
 
-    public boolean createProject(String projectName, String projectDescription, int projectOwnerID, int parentOrgID) {
+    public boolean createProject(String projectName, String projectDescription, int projectOwnerID, int parentOrgID, String encodedImage) {
         if (projectRepository.existsProjectByOrgAndName(parentOrgID, projectName)) {
             throw new RuntimeException("Project with given name already exists in org");
         }
@@ -79,10 +81,11 @@ public class ProjectService {
         project.setProjectName(projectName);
         project.setProjectDescription(projectDescription);
         project.setProjectOwnerID(projectOwnerID);
+        project.setEncodedImage(encodedImage);
         projectRepository.save(project);
 
         OrgModel parentOrg = orgRepository.findById(parentOrgID)
-            .orElseThrow(() -> new RuntimeException("Org not found with id: " + parentOrgID));
+                .orElseThrow(() -> new RuntimeException("Org not found with id: " + parentOrgID));
         Set<ProjectModel> orgProjects = parentOrg.getOrgProjects();
         orgProjects.add(project);
         orgRepository.save(parentOrg);
@@ -128,7 +131,7 @@ public class ProjectService {
         project.setProjectName(projectName);
         project.setProjectDescription(projectDescription);
         project.setProjectOwnerID(projectOwnerID);
-        projectRepository.save(project);        
+        projectRepository.save(project);
     }
 
     public Set<TaskDTO> getProjectTasks(int projectID) {
@@ -152,47 +155,85 @@ public class ProjectService {
     }
 
     public String createProjectJson(ProjectModel project) {
-        return "{"
+        String ret = "{"
                 + "\"projectID\": " + project.getProjectID() + ","
                 + "\"parentOrgID\": " + project.getParentOrgID() + ","
-                + "\"projectName\": " + project.getProjectName() + ","
-                + "\"projectDescription\": " + project.getProjectDescription() + ","
-                + "\"projectOwnerID\": " + project.getProjectOwnerID() + "\""
-                + "}";
+                + "\"projectName\": \"" + project.getProjectName() + "\","
+                + "\"projectDescription\": \"" + project.getProjectDescription() + "\","
+                + "\"projectOwnerID\": " + project.getProjectOwnerID() + ","
+                + "\"encodedImage\": \"" + project.getEncodedImage() + "\","
+                + "\"assignedUsers\": [";
+        boolean first = true;
+        for (UserModel user : project.getAssignedUsers()) {
+            if (first) {
+                first = false;
+            } else {
+                ret += ",";
+            }
+            ret += userService.createUserJson(user);
+        }
+        ret += "]}";
+        return ret;
     }
 
-    public void addUser(int projectID, String email) {
-        UserModel userToAdd = userRepository.findByEmail(email)
-            .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
-        
+    public void addUsers(int projectID, List<Integer> userIDs) {
         ProjectModel project = projectRepository.findById(projectID)
-            .orElseThrow(() -> new RuntimeException("Projectnot found with id: " + projectID));
+                .orElseThrow(() -> new RuntimeException("Project not found with id: " + projectID));
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String currentUsername = ((UserDetails) authentication.getPrincipal()).getUsername();
 
         UserModel currentUser = userRepository.findByEmail(currentUsername)
-            .orElseThrow(() -> new RuntimeException("User not found with email: " + currentUsername));
+                .orElseThrow(() -> new RuntimeException("User not found with email: " + currentUsername));
+
+        if (project.getProjectOwnerID() != currentUser.getUserID()) {
+            throw new RuntimeException("User does not have permission to add users to project");
+        }
+
+        for (int userID : userIDs) {
+            UserModel userToAdd = userRepository.findById(userID)
+                    .orElseThrow(() -> new RuntimeException("User not found with ID: " + userID));
+            project.getAssignedUsers().add(userToAdd);
+            simpMessageTemplate.convertAndSendToUser(userToAdd.getEmail(), "/queue/project-updates",
+                    "User added to project with ID: " + projectID);
+        }
+        projectRepository.save(project);
+    }
+
+    public void addUser(int projectID, String email) {
+        UserModel userToAdd = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
+
+        ProjectModel project = projectRepository.findById(projectID)
+                .orElseThrow(() -> new RuntimeException("Project not found with id: " + projectID));
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUsername = ((UserDetails) authentication.getPrincipal()).getUsername();
+
+        UserModel currentUser = userRepository.findByEmail(currentUsername)
+                .orElseThrow(() -> new RuntimeException("User not found with email: " + currentUsername));
 
         if (project.getProjectOwnerID() != currentUser.getUserID()) {
             throw new RuntimeException("User does not have permission to add user to project");
         }
         project.getAssignedUsers().add(userToAdd);
+        simpMessageTemplate.convertAndSendToUser(userToAdd.getEmail(), "/queue/project-updates",
+                "User added to project with ID: " + projectID);
         projectRepository.save(project);
     }
 
-    public void removeUser(int projectID, String email){
+    public void removeUser(int projectID, String email) {
         UserModel userToRemove = userRepository.findByEmail(email)
-            .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
-        
+                .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
+
         ProjectModel project = projectRepository.findById(projectID)
-            .orElseThrow(() -> new RuntimeException("Project not found with id: " + projectID));
+                .orElseThrow(() -> new RuntimeException("Project not found with id: " + projectID));
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String currentUsername = ((UserDetails) authentication.getPrincipal()).getUsername();
 
         UserModel currentUser = userRepository.findByEmail(currentUsername)
-            .orElseThrow(() -> new RuntimeException("User not found with email: " + currentUsername));
+                .orElseThrow(() -> new RuntimeException("User not found with email: " + currentUsername));
 
         if (project.getProjectOwnerID() != currentUser.getUserID()) {
             throw new RuntimeException("User does not have permission to remove user from project");
@@ -202,7 +243,7 @@ public class ProjectService {
         projectRepository.save(project);
 
         OrgModel parentOrg = orgRepository.findById(project.getParentOrgID())
-            .orElseThrow(() -> new RuntimeException("Parent org not found with id: " + projectID));
+                .orElseThrow(() -> new RuntimeException("Parent org not found with id: " + projectID));
         parentOrg.getOrgProjects().remove(project);
         orgRepository.save(parentOrg);
         taskRepository.deleteByParentProjectID(projectID);

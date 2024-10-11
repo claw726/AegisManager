@@ -5,22 +5,23 @@ import java.util.Set;
 
 import com.aegis.project.service.OrgService;
 
-
 public class OrgDTO {
+
     private int orgID;
     private String orgName;
     private String orgDescription;
     private int orgOwnerID;
     private Set<UserDTO> users = new HashSet<>();
+    private String encodedImage;
 
     private OrgService orgService;
 
-    public OrgDTO(int orgID, String orgName, String orgDescription, int orgOwnerID /*,Set<UserModel> Users*/) {
+    public OrgDTO(int orgID, String orgName, String orgDescription, int orgOwnerID, String encodedImage) {
         this.orgID = orgID;
         this.orgName = orgName;
         this.orgDescription = orgDescription;
         this.orgOwnerID = orgOwnerID;
-
+        this.encodedImage = encodedImage;
         this.users = orgService.getOrgMembers(orgID);
     }
 
@@ -62,5 +63,13 @@ public class OrgDTO {
 
     public void setUsers(Set<UserDTO> users) {
         this.users = users;
+    }
+
+    public String getEncodedImage() {
+        return encodedImage;
+    }
+
+    public void setEncodedImage(String encodedImage) {
+        this.encodedImage = encodedImage;
     }
 }

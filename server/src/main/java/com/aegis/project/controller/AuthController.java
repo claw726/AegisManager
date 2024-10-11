@@ -55,17 +55,20 @@ public class AuthController {
     public ResponseEntity<Map<String, String>> loginUser(@RequestParam String email, @RequestParam String password) {
         Map<String, String> response = new HashMap<>();
 
+        logger.info("Recieved Login Request from: " + email);
+
         try {
             Authentication auth = authManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
 
             String token = tokenService.generateToken(auth);
 
-            response.put("message:", "Login successful");
-            response.put("token:", token);
+            response.put("message", "Login successful");
+            response.put("token", token);
 
             return ResponseEntity.ok(response);
         } catch (AuthenticationException e) {
-            response.put("message:", "Login failed");
+            response.put("message", "Login failed");
+            logger.error("Error authenticating user: " + email + " Error message: " + e.getMessage());
 
             return ResponseEntity.badRequest().body(response);
         }
