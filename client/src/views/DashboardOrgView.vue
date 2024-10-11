@@ -106,12 +106,8 @@ export default {
     ...mapState(["isLoggedIn", "organizations"]),
   },
   methods: {
-    getOrgData() {
-      this.org = this.organizations[this.$route.params.orgIndex];
-      if (!this.org) {
-        alert("There was an error fetching the organization data");
-        this.$router.push({ name: "viewOrgs" });
-      }
+    async getOrgData() {
+      this.org = await this.$store.dispatch("")
     },
     goToCreateProject() {
       this.$router.push({
