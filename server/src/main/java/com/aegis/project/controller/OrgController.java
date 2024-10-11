@@ -34,15 +34,14 @@ public class OrgController {
 
     @PostMapping("/createOrg")
     public ResponseEntity<String> createOrg(@RequestParam String orgName, @RequestParam String orgDescription,
-                                            @RequestParam int orgOwnerID, @RequestParam String encodedImage) {
+            @RequestParam int orgOwnerID, @RequestParam String encodedImage) {
         try {
             logger.info("Received org creation request with name: {}, description: {}, owner ID: {}, encodedImage: {}",
                     orgName, orgDescription, orgOwnerID, encodedImage);
             orgService.createOrg(orgName, orgDescription, orgOwnerID, encodedImage);
             logger.info("Org created successfully with name: {}", orgName);
             return ResponseEntity.ok("Org created successfully");
-        }
-        catch (RuntimeException e) {
+        } catch (RuntimeException e) {
             logger.error("Error creating org: " + e.getMessage());
             return ResponseEntity.internalServerError().body("There was an error creating the org");
         }
@@ -52,8 +51,20 @@ public class OrgController {
     public ResponseEntity<String> getOrg(@PathVariable int orgID) {
         try {
             return ResponseEntity.ok(orgService.getOrg(orgID));
+        } catch (RuntimeException e) {
+            if (e.getMessage().equals("Org not found with ID: " + orgID)) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            } else {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+            }
         }
-        catch (RuntimeException e) {
+    }
+
+    @GetMapping("/{orgID}/getAllProjectsFromOrg")
+    public ResponseEntity<String> getAllProjectsFromOrg(@PathVariable int orgID) {
+        try {
+            return ResponseEntity.ok(orgService.getAllProjectsFromOrg(orgID));
+        } catch (RuntimeException e) {
             if (e.getMessage().equals("Org not found with ID: " + orgID)) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
             } else {
@@ -63,12 +74,11 @@ public class OrgController {
     }
 
     @PostMapping("/{orgID}/update")
-    public ResponseEntity<String> updateOrg(@PathVariable int orgID, @RequestParam String orgName, @RequestParam String orgDescription, @RequestParam int orgOwnerID){
+    public ResponseEntity<String> updateOrg(@PathVariable int orgID, @RequestParam String orgName, @RequestParam String orgDescription, @RequestParam int orgOwnerID) {
         try {
             orgService.updateOrg(orgID, orgName, orgDescription, orgOwnerID);
             return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Org updated successfully");
-        }
-        catch (RuntimeException e) {
+        } catch (RuntimeException e) {
             if (e.getMessage().equals("Org not found with ID: " + orgID)) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
             } else if (e.getMessage().contains("User")) {
@@ -84,8 +94,7 @@ public class OrgController {
         try {
             orgService.deleteOrg(orgID);
             return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Org deleted successfully");
-        }
-        catch (RuntimeException e){
+        } catch (RuntimeException e) {
             if (e.getMessage().equals("Org not found with ID: " + orgID)) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
             } else if (e.getMessage().contains("User")) {
@@ -114,18 +123,14 @@ public class OrgController {
         try {
             orgService.addUser(orgID, email);
             return ResponseEntity.ok("User added successfully");
-        }
-        catch (RuntimeException e){
+        } catch (RuntimeException e) {
             if (e.getMessage().contains("User not found with email: ")) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-            } 
-            else if (e.getMessage().equals("Org not found with id: " + orgID)) {
+            } else if (e.getMessage().equals("Org not found with id: " + orgID)) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-            }
-            else if (e.getMessage().equals("User does not have permission to add user to org")) {
+            } else if (e.getMessage().equals("User does not have permission to add user to org")) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
-            }
-            else {
+            } else {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
             }
         }
@@ -136,18 +141,14 @@ public class OrgController {
         try {
             orgService.removeUser(orgID, email);
             return ResponseEntity.ok("User removed successfully");
-        }
-        catch (RuntimeException e){
+        } catch (RuntimeException e) {
             if (e.getMessage().contains("User not found with email: ")) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-            } 
-            else if (e.getMessage().equals("Org not found with id: " + orgID)) {
+            } else if (e.getMessage().equals("Org not found with id: " + orgID)) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-            }
-            else if (e.getMessage().equals("User does not have permission to remove user from org")) {
+            } else if (e.getMessage().equals("User does not have permission to remove user from org")) {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
-            }
-            else {
+            } else {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
             }
         }
@@ -157,8 +158,7 @@ public class OrgController {
     public ResponseEntity<Set<OrgDTO>> getAllOrgs() {
         try {
             return ResponseEntity.ok(orgService.getAllOrgs());
-        }
-        catch (RuntimeException e) {
+        } catch (RuntimeException e) {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
