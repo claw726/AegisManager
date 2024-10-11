@@ -28,11 +28,12 @@ public class OrgService {
     @Autowired
     private UserRepository userRepository;
 
-    public boolean createOrg(String name, String description, int ownerID) {
+    public boolean createOrg(String name, String description, int ownerID, String encodedImage) {
         OrgModel org = new OrgModel();
         org.setOrgName(name);
         org.setOrgDescription(description);
         org.setOrgOwnerID(ownerID);
+        org.setEncodedImage(encodedImage);
         orgRepository.save(org);
         return true;
     }
@@ -157,6 +158,7 @@ public class OrgService {
                 + "\"orgName\": " + org.getOrgName() + ","
                 + "\"orgDescription\": " + org.getOrgDescription() + ","
                 + "\"orgOwnerID\": " + org.getOrgOwnerID() + "\""
+                + "\"encodedImage\": " + org.getEncodedImage()
                 + "}";
     }
 }

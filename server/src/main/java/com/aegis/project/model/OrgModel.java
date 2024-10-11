@@ -35,6 +35,9 @@ public class OrgModel {
     @OneToMany(mappedBy = "parentOrg", cascade = CascadeType.ALL, orphanRemoval = true)
     private Set<ProjectModel> OrgProjects = new HashSet<>();
 
+    @Column(name = "encoded_image")
+    private String encodedImage;
+
     public int getOrgID() {
         return OrgID;
     }
@@ -82,9 +85,14 @@ public class OrgModel {
     public void setOrgProjects(Set<ProjectModel> orgProjects) {
         this.OrgProjects = orgProjects;
     }
-    
 
+    public String getEncodedImage() {
+        return encodedImage;
+    }
 
+    public void setEncodedImage(String encodedImage) {
+        this.encodedImage = encodedImage;
+    }
 
 //    @OneToMany(mappedBy = "Org", cascade = CascadeType.ALL, orphanRemoval = true)
 //    private String OrgChatsTableName;
