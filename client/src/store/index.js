@@ -197,9 +197,9 @@ export default new Vuex.Store({
           }
         });
 
-        console.log('Organization Data:', response.data.organizations)
+        console.log('Organization Data:', response.data)
           
-        return response.data.organizations;
+        return response.data;
       } catch (error) {
         console.error("Failed to fetch organizations:", error.response ? error.response.data : error.message);
         throw new Error("Failed to fetch organizations");
@@ -229,6 +229,7 @@ export default new Vuex.Store({
         params.append("orgName", organization.orgName);
         params.append("orgDescription", organization.orgDescription);
         params.append("orgOwnerID", organization.orgOwnerID);
+        params.append("encodedImage", organization.OrgLogo);
 
         const response = await axios
           .post("/api/orgs/createOrg", params, {
