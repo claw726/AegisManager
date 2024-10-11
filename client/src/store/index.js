@@ -233,6 +233,29 @@ export default new Vuex.Store({
       }
     },
 
+    async fetchOrgProjects({ state }, orgID) {
+      try {
+        const response = await axios.get(
+          `/api/orgs/${orgID}/getAllProjectsFromOrg`,
+          {
+            headers: {
+              Authorization: `Bearer ${state.authToken}`,
+            },
+          },
+        );
+
+        console.log(`Projects for Org ${orgID}:`, response.data);
+
+        return response.data;
+      } catch (error) {
+        console.error(
+          `Failed to fetch projects for org ${orgID}:`,
+          error.response ? error.response.data : error.message,
+        );
+        throw new Error("Failed to fetch projects");
+      }
+    },
+
     async createOrganization({ state }, organization) {
       try {
         const params = new URLSearchParams();

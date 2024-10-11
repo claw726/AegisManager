@@ -13,7 +13,10 @@
       <div v-if="org">
         <div class="relative flex h-screen/3 py-4">
           <img
-            :src="org.encodedImage || 'https://d31kswug2i6wp2.cloudfront.net/fallback/company/medium_logo_default.png'"
+            :src="
+              org.encodedImage ||
+              'https://d31kswug2i6wp2.cloudfront.net/fallback/company/medium_logo_default.png'
+            "
             alt="Organization Logo"
             class="w-48 h-48 rounded-full drop-shadow-xl col-span-1"
           />
@@ -50,9 +53,9 @@
       </button>
     </div>
 
-    <div v-if="org && org.projects" class="grid grid-cols-4 gap-4 m-8">
+    <div v-if="org && projects" class="grid grid-cols-4 gap-4 m-8">
       <ProjCard
-        v-for="(project, index) in org.projects"
+        v-for="(project, index) in projects"
         :key="index"
         :project="project"
         :projIndex="index"
@@ -79,6 +82,7 @@ export default {
   data() {
     return {
       org: null, // Initialize org as null
+      projects: null, // Initialize projects as null
       dropdownOpts: [
         {
           title: "Edit Organization Details",
@@ -97,17 +101,31 @@ export default {
   },
   async created() {
     await this.getOrgData(); // Ensure this is awaited
+    await this.getAllOrgProjects(); // Ensure this is awaited
   },
   methods: {
     async getOrgData() {
       try {
         const orgID = this.$route.params.orgIndex; // Ensure you are getting the correct orgID
         this.org = await this.$store.dispatch("fetchOrganization", orgID);
-        console.log('Fetched Organization:', this.org); // Log the fetched organization
+        console.log("Fetched Organization:", this.org); // Log the fetched organization
       } catch (error) {
-        console.error('Error fetching organization data:', error);
-        alert('Failed to load organization data: ' + error.message);
-        this.$router.push({ name: "viewOrgs", params: { orgIndex: undefined } });
+        console.error("Error fetching organization data:", error);
+        alert("Failed to load organization data: " + error.message);
+        this.$router.push({
+          name: "viewOrgs",
+          params: { orgIndex: undefined },
+        });
+      }
+    },
+    async getAllOrgProjects() {
+      try {
+        const orgID = this.$route.params.orgIndex; // Ensure you are getting the correct orgID
+        this.projects = await this.$store.dispatch("fetchOrgProjects", orgID);
+        console.log("Fetched Projects:", this.projects); // Log the fetched projects
+      } catch (error) {
+        console.error("Error fetching projects:", error);
+        alert("Failed to load projects: " + error.message);
       }
     },
     goToCreateProject() {
@@ -128,7 +146,10 @@ export default {
           .dispatch("deleteOrganization", this.$route.params.orgIndex)
           .then(() => {
             alert("Organization deleted successfully!");
-            this.$router.push({ name: "viewOrgs", params: { orgIndex: undefined } });
+            this.$router.push({
+              name: "viewOrgs",
+              params: { orgIndex: undefined },
+            });
           })
           .catch((err) => {
             alert("There was an error deleting the organization: ", err);
