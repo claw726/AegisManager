@@ -313,8 +313,25 @@ export default new Vuex.Store({
         throw new Error("Failed to remove user from organization");
       }
     },
-    async createProject({ commit }, { orgIndex, project }) {
-      commit("addProject", { orgIndex, project });
+    async createProject({ state }, project) {
+      try {
+        const params = new URLSearchParams();
+        params.append("projectName", project.projName);
+        params.append("projectDescription", project.projDescription);
+        params.append("projectOwnerID", project.projCreator);
+        params.append("parentOrgID", project.parentOrgID);
+        params.append("encodedImage", project.projImg);
+
+        console.log("Project Creation Params:", Object.fromEntries(params));
+
+        const response = await axios.post("/api/projects/createProject", params, {
+          'Authorization': `Bearer ${state.authToken}`,
+        })
+        console.log('Project created successfully:', response.data);
+      } catch (error) {
+        console.error('Error creating project:', error.response ? error.response.data : error.message);
+        throw new Error("Failed to Create Project");
+      }
     },
     async deleteProject({ commit }, { orgIndex, projIndex }) {
       commit("deleteProject", { orgIndex, projIndex });
