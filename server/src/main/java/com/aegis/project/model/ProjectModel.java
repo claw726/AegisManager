@@ -55,6 +55,9 @@ public class ProjectModel {
     @JoinColumn(name = "parent_org_ID")  // Foreign key column in ProjectModel table
     private OrgModel parentOrg;
 
+    @Column(name = "encoded_image")
+    private String encodedImage;
+
     public int getProjectID() {
         return projectID;
     }
@@ -111,4 +114,11 @@ public class ProjectModel {
         this.projectTasks = projectTasks;
     }
 
+    public String getEncodedImage() {
+        return encodedImage;
+    }
+
+    public void setEncodedImage(String encodedImage) {
+        this.encodedImage = encodedImage;
+    }
 }

@@ -33,10 +33,12 @@ public class OrgController {
     private OrgService orgService;
 
     @PostMapping("/createOrg")
-    public ResponseEntity<String> createOrg(@RequestParam(required = true) String orgName, @RequestParam(required = true) String orgDescription, @RequestParam(required=true) int orgOwnerID) {
+    public ResponseEntity<String> createOrg(@RequestParam String orgName, @RequestParam String orgDescription,
+                                            @RequestParam int orgOwnerID, @RequestParam String encodedImage) {
         try {
-            logger.info("Received org creation request with name: {}, description: {}, owner ID: {}", orgName, orgDescription, orgOwnerID);
-            orgService.createOrg(orgName, orgDescription, orgOwnerID);
+            logger.info("Received org creation request with name: {}, description: {}, owner ID: {}, encodedImage: {}",
+                    orgName, orgDescription, orgOwnerID, encodedImage);
+            orgService.createOrg(orgName, orgDescription, orgOwnerID, encodedImage);
             logger.info("Org created successfully with name: {}", orgName);
             return ResponseEntity.ok("Org created successfully");
         }
@@ -151,5 +153,13 @@ public class OrgController {
         }
     }
 
-
+    @GetMapping("/getAllOrgs")
+    public ResponseEntity<Set<OrgDTO>> getAllOrgs() {
+        try {
+            return ResponseEntity.ok(orgService.getAllOrgs());
+        }
+        catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
 }

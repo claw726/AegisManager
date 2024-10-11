@@ -16,12 +16,13 @@ public class ProjectDTO {
     private Set<UserDTO> assignedUsers = new HashSet<>();
     private int projectOwnerID;
     private Set<TaskDTO> projectTasks = new HashSet<>();
+    private String encodedImage;
 
     private ProjectService projectService;
 
 
     public ProjectDTO(int projectID, int parentOrgID, String projectName, String projectDescription,
-                        int projectOwnerID) {
+                        int projectOwnerID, String encodedImage) {
         this.projectID = projectID;
         this.parentOrgID = parentOrgID;
         this.projectName = projectName;
@@ -29,6 +30,7 @@ public class ProjectDTO {
         this.assignedUsers = projectService.getAssignedUsers(projectID);
         this.projectTasks = projectService.getProjectTasks(projectID);
         this.projectOwnerID = projectOwnerID;
+        this.encodedImage = encodedImage;
     }
 
     public int getProjectID() {
@@ -86,5 +88,12 @@ public class ProjectDTO {
     public void setProjectTasks(Set<TaskDTO> projectTasks) {
         this.projectTasks = projectTasks;
     }
-    
+
+    public String getEncodedImage() {
+        return encodedImage;
+    }
+
+    public void setEncodedImage(String encodedImage) {
+        this.encodedImage = encodedImage;
+    }
 }
