@@ -7,7 +7,7 @@
     <div class="">
       <div class="flex flex-col justify-center h-screen/3 py-16">
         <div class="text-4xl font-bold text-primary text-center py-8">
-          Edit Organization
+          Edit Organization: {{ modifiedOrganization.orgName }}
         </div>
         <div class="h-1 bg-accent rounded-lg"></div>
         <div class="py-16">
@@ -23,7 +23,7 @@
                 <input
                   type="text"
                   id="projName"
-                  v-model="modifiedOrganization.OrgName"
+                  v-model="modifiedOrganization.orgName"
                   class="w-full border border-gray-300 rounded-lg p-2"
                 />
               </div>
@@ -37,7 +37,7 @@
                 >
                 <textarea
                   id="projDescription"
-                  v-model="modifiedOrganization.OrgDescription"
+                  v-model="modifiedOrganization.orgDescription"
                   class="w-full border border-gray-300 rounded-lg p-2"
                 ></textarea>
               </div>
@@ -102,13 +102,12 @@ import imageCompression from "browser-image-compression";
 export default {
   data() {
     return {
-      currentOrganization: null,
       modifiedOrganization: {
-        OrgName: "",
-        OrgDescription: "",
-        OrgLogo: "",
-        OrgUsers: [],
-        OrgCreator: "",
+        orgName: "",
+        orgDescription: "",
+        orgLogo: "",
+        orgUsers: [],
+        orgOwnerID: "",
         members: [],
       },
       imageUploaded: false,
@@ -118,10 +117,18 @@ export default {
     NavBar,
   },
   computed: {
-    ...mapState(["isLoggedIn", "currentUser", "organizations"]),
+    ...mapState(["isLoggedIn", "currentUser"]),
   },
-  created() {
-    this.modifiedOrganization = this.organizations[this.$route.params.orgIndex];
+  async created() {
+    try {
+        const orgID = this.$route.params.orgIndex; // Ensure you are getting the correct orgID
+        this.modifiedOrganization = await this.$store.dispatch("fetchOrganization", orgID);
+        console.log('Fetched Organization:', this.modifiedOrganization); // Log the fetched organization
+      } catch (error) {
+        console.error('Error fetching organization data:', error);
+        alert('Failed to load organization data: ' + error.message);
+        this.$router.push({ name: "viewOrgs", params: { orgIndex: undefined } });
+      }
   },
   methods: {
     handleImageChange(event) {
@@ -230,29 +237,22 @@ export default {
     },
     async submitForm() {
       // Check if the current user is the creator of the project. If not, they may not edit it.
-      if (this.modifiedOrganization.OrgCreator !== this.currentUser.email) {
+      if (this.modifiedOrganization.orgOwnerID !== this.currentUser.userID) {
         console.log(
-          this.modifiedOrganization.OrgCreator,
-          this.currentUser.email,
+          this.modifiedOrganization.orgOwnerID,
+          this.currentUser.userID,
         );
         alert("You are not authorized to edit this project.");
         return;
       }
 
       // Get the index of the organization
-      const organizationID = this.$route.params.orgIndex;
-
-      //Ensure this is a valid organization
-      const organization = this.organizations[organizationID];
-      if (!organization) {
-        alert("Error getting the organization details!");
-        return;
-      }
+      const organizationID = this.modifiedOrganization.orgID;
 
       // Modify the project in the organization
       await this.$store
         .dispatch("modifyOrganization", {
-          index: organizationID,
+          orgID: organizationID,
           organization: this.modifiedOrganization,
         })
         .then(() => {

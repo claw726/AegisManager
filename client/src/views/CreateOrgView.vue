@@ -22,7 +22,7 @@
                 <input
                   type="text"
                   id="orgName"
-                  v-model="newOrg.OrgName"
+                  v-model="newOrg.orgName"
                   class="w-full border border-gray-300 rounded-lg p-2"
                 />
               </div>
@@ -34,7 +34,7 @@
                 >
                 <textarea
                   id="orgDescription"
-                  v-model="newOrg.OrgDescription"
+                  v-model="newOrg.orgDescription"
                   class="w-full border border-gray-300 rounded-lg p-2"
                 ></textarea>
               </div>
@@ -91,10 +91,10 @@ export default {
   data() {
     return {
       newOrg: {
-        OrgName: "",
+        orgName: "",
         OrgDescription: "",
         OrgLogo: "",
-        OrgCreator: "",
+        orgOwnerID: "",
         members: [],
         projects: [],
       },
@@ -202,19 +202,19 @@ export default {
     },
     createOrg() {
       // Add the new org to localstorage
-      if (!this.newOrg.OrgName || !this.newOrg.OrgDescription) {
+      if (!this.newOrg.orgName || !this.newOrg.orgDescription) {
         alert("Please Tell us more about your organization.");
         return;
       }
-      this.newOrg.OrgCreator = this.currentUser.email;
-      if (!this.newOrg.OrgCreator) {
+      this.newOrg.orgOwnerID = parseInt(this.currentUser.userID, /*base*/10);
+      if (!this.newOrg.orgOwnerID) {
         alert(
           "Error determining your identity! Please log out and back in to continue.",
         );
         return;
       }
       // Add the current user to the members list
-      this.newOrg.members.push(this.currentUser.email);
+      this.newOrg.members.push(this.currentUser.userID);
       try {
         this.$store.dispatch("createOrganization", this.newOrg);
 

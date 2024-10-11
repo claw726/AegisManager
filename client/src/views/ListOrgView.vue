@@ -11,7 +11,7 @@
             <div v-if="userOrganizations && userOrganizations.length > 0">
                 <div v-for="(organization, index) in userOrganizations" :key="index" class="grid my-4">
                     <div class="p-4 card">
-                        <OrgCard :organization="organization" :index="index" />
+                        <OrgCard :organization="organization" :index="organization.orgID" />
                     </div>
                 </div>
             </div>
@@ -39,15 +39,21 @@ export default {
         OrgCard,
     },
     computed: {
-      ...mapState(['isLoggedIn', 'organizations']),
+      ...mapState(['isLoggedIn']),
     },
     data() {
         return {
-            userOrganizations: this.organizations,
+            userOrganizations: null,
         };
     },
-    created() {
-        this.userOrganizations = this.organizations;
+    async created() {
+        try {
+            this.userOrganizations = await this.$store.dispatch('fetchOrganizations');
+            console.log('Fetched Organizations:', this.userOrganizations)
+        } catch (error) {
+            console.error('Error Loading Organizaitons:', error.message);
+            alert('Failed to load organizations!');
+        }
     },
     methods: {
         goToCreateOrg() {
