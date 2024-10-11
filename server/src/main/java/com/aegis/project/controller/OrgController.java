@@ -82,6 +82,8 @@ public class OrgController {
         } catch (RuntimeException e) {
             if (e.getMessage().equals("Org not found with ID: " + orgID)) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            } else if (e.getMessage().equals("User does not have permission to get projects from org")) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
             } else {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
             }
