@@ -2,7 +2,9 @@ package com.aegis.project.controller;
 
 import java.util.Set;
 import java.util.stream.Collectors;
+import java.util.List;
 
+import org.hibernate.mapping.Collection;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,6 +22,10 @@ import com.aegis.project.dto.OrgDTO;
 import com.aegis.project.dto.UserDTO;
 import com.aegis.project.model.OrgModel;
 import com.aegis.project.service.OrgService;
+
+import io.jsonwebtoken.lang.Collections;
+
+import com.aegis.project.dto.ProjectDTO;
 
 @RestController
 @RequestMapping("api/orgs")
@@ -76,14 +82,18 @@ public class OrgController {
     }
 
     @GetMapping("/{orgID}/getAllProjectsFromOrg")
-    public ResponseEntity<String> getAllProjectsFromOrg(@PathVariable int orgID) {
+    public ResponseEntity<List<ProjectDTO>> getAllProjectsFromOrg(@PathVariable int orgID) {
         try {
-            return ResponseEntity.ok(orgService.getAllProjectsFromOrg(orgID));
+            logger.info("Received request to get all projects from org with ID: {}", orgID);
+            List<ProjectDTO> projects = orgService.getAllProjectsFromOrg(orgID);
+            logger.info("Returning {} projects from org with ID: {}", projects.size(), orgID);
+            return ResponseEntity.ok(projects);
         } catch (RuntimeException e) {
+            logger.error("Error getting all projects from org: " + e.getMessage());
             if (e.getMessage().equals("Org not found with ID: " + orgID)) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.emptyList());
             } else {
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Collections.emptyList());
             }
         }
     }

@@ -24,8 +24,8 @@ public class ProjectController {
     public ResponseEntity<String> createProject(@RequestParam String projectName, @RequestParam String projectDescription,
                                                 @RequestParam int projectOwnerID, @RequestParam int parentOrgID, @RequestParam String encodedImage) {
         try {
-            logger.info("Received project creation request with name: {}, description: {}, owner ID: {}, parent org ID: {}, encodedImage: {}",
-                    projectName, projectDescription, projectOwnerID, parentOrgID, encodedImage);
+            logger.info("Received project creation request with name: {}, description: {}, owner ID: {}, parent org ID: {}",
+                    projectName, projectDescription, projectOwnerID, parentOrgID);
             projectService.createProject(projectName, projectDescription, projectOwnerID, parentOrgID, encodedImage);
             logger.info("Project created successfully with name: {}", projectName);
             return ResponseEntity.ok("Project created successfully");

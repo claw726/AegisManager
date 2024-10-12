@@ -4,7 +4,10 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import java.util.ArrayList;
+
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.method.P;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -18,6 +21,8 @@ import com.aegis.project.model.UserModel;
 import com.aegis.project.repository.OrgRepository;
 import com.aegis.project.repository.ProjectRepository;
 import com.aegis.project.repository.UserRepository;
+
+import com.aegis.project.dto.ProjectDTO;
 
 @Service
 public class OrgService {
@@ -77,7 +82,7 @@ public class OrgService {
         return org; // Return the OrgModel directly
     }
 
-    public String getAllProjectsFromOrg(int orgID) {
+    public List<ProjectDTO> getAllProjectsFromOrg(int orgID) {
         OrgModel org = orgRepository.findById(orgID)
                 .orElseThrow(() -> new RuntimeException("Org not found with id: " + orgID));
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -92,7 +97,7 @@ public class OrgService {
                 break;
             }
         }
-        if (org.getOrgOwnerID() != currentUser.getUserID()) {
+        if (org.getOrgOwnerID() == currentUser.getUserID()) {
             hasPermission = true;
         }
         if (!hasPermission) {
@@ -100,15 +105,13 @@ public class OrgService {
         }
 
         List<ProjectModel> allProjects = projectRepository.findByParentOrgID(orgID);
-        String ret = "{";
-        for (ProjectModel project : allProjects) {
-            if (ret.length() > 1) {
-                ret += ",";
-            }
-            ret += projectService.createProjectJson(project);
+        List<ProjectDTO> projectDTOs = new ArrayList<>();
+
+        for (ProjectModel project: allProjects) {
+            ProjectDTO projectDTO = new ProjectDTO(project.getProjectID(), project.getParentOrgID(), project.getProjectName(), project.getProjectDescription(), project.getProjectOwnerID(), project.getEncodedImage());
         }
-        ret += "}";
-        return ret;
+
+        return projectDTOs;
     }
 
     public void updateOrg(int orgID, String orgName, String orgDescription, int orgOwnerID) {
