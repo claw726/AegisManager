@@ -3,17 +3,22 @@
   "version": "0.1.0",
   "private": true,
   "scripts": {
-    "serve": "vue-cli-service serve",
-    "build": "vue-cli-service build"
+    "dev": "vite",
+    "build": "vite build",
+    "preview": "vite preview",
+    "test": "jest",
+    "test:unit": "jest --config jest.config.mjs"
   },
   "dependencies": {
     "@stomp/stompjs": "^7.0.0",
+    "@vitejs/plugin-vue": "^5.1.4",
     "axios": "^1.7.7",
     "browser-image-compression": "^2.0.2",
     "prettier": "^3.3.3",
     "prettier-eslint": "^16.3.0",
     "sockjs-client": "^1.6.1",
-    "vue": "^3.2.13",
+    "vite": "^5.4.9",
+    "vue": "^3.5.10",
     "vue-eslint-parser": "^9.4.3",
     "vue-router": "^4.4.5",
     "vuex": "^4.0.2",
