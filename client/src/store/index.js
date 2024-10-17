@@ -235,6 +235,10 @@ export default new Vuex.Store({
 
     async fetchOrgProjects({ state }, orgID) {
       try {
+        console.log(
+          `Fetching Projects for org ${orgID} with token:`,
+          state.authToken,
+        );
         const response = await axios.get(
           `/api/orgs/${orgID}/getAllProjectsFromOrg`,
           {
@@ -244,7 +248,10 @@ export default new Vuex.Store({
           },
         );
 
-        console.log(`Projects for Org ${orgID}:`, response.data ? response.data : response);
+        console.log(
+          `Projects for Org ${orgID}:`,
+          response.data ? response.data : response,
+        );
 
         return response.data;
       } catch (error) {
