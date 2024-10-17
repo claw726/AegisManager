@@ -3,6 +3,7 @@ package com.aegis.project.controller;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.aegis.project.dto.ProjectDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -76,12 +77,14 @@ public class OrgController {
     }
 
     @GetMapping("/{orgID}/getAllProjectsFromOrg")
-    public ResponseEntity<String> getAllProjectsFromOrg(@PathVariable int orgID) {
+    public ResponseEntity<Set<ProjectDTO>> getAllProjectsFromOrg(@PathVariable int orgID) {
         try {
             return ResponseEntity.ok(orgService.getAllProjectsFromOrg(orgID));
         } catch (RuntimeException e) {
             if (e.getMessage().equals("Org not found with ID: " + orgID)) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            } else if (e.getMessage().equals("User does not have permission to get org")) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
             } else {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
             }

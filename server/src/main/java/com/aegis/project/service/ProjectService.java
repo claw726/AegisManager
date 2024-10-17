@@ -82,10 +82,14 @@ public class ProjectService {
         project.setProjectDescription(projectDescription);
         project.setProjectOwnerID(projectOwnerID);
         project.setEncodedImage(encodedImage);
+        project.setParentOrgID(parentOrgID);
         projectRepository.save(project);
 
         OrgModel parentOrg = orgRepository.findById(parentOrgID)
                 .orElseThrow(() -> new RuntimeException("Org not found with id: " + parentOrgID));
+
+        project.setParentOrg(parentOrg);
+
         Set<ProjectModel> orgProjects = parentOrg.getOrgProjects();
         orgProjects.add(project);
         orgRepository.save(parentOrg);

@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.aegis.project.dto.ProjectDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -42,6 +43,7 @@ public class OrgService {
         org.setOrgOwnerID(ownerID);
         org.setEncodedImage(encodedImage);
         orgRepository.save(org);
+        addUser(org.getOrgID(), userRepository.findById(ownerID).get().getEmail());
         return true;
     }
 
@@ -50,7 +52,6 @@ public class OrgService {
 
         return orgs.stream()
                 .map(org -> new OrgDTO(org.getOrgID(), org.getOrgName(), org.getOrgDescription(), org.getOrgOwnerID(), org.getEncodedImage(), getOrgMembers(org.getOrgID())))
-                //.map(org -> new OrgDTO(org.getOrgID(), org.getOrgName(), org.getOrgDescription(), org.getOrgOwnerID(), org.getEncodedImage()))
                 .collect(Collectors.toSet());
     }
 
@@ -77,7 +78,7 @@ public class OrgService {
         return org; // Return the OrgModel directly
     }
 
-    public String getAllProjectsFromOrg(int orgID) {
+    public Set<ProjectDTO> getAllProjectsFromOrg(int orgID) {
         OrgModel org = orgRepository.findById(orgID)
                 .orElseThrow(() -> new RuntimeException("Org not found with id: " + orgID));
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -92,23 +93,16 @@ public class OrgService {
                 break;
             }
         }
-        if (org.getOrgOwnerID() != currentUser.getUserID()) {
-            hasPermission = true;
-        }
         if (!hasPermission) {
             throw new RuntimeException("User does not have permission to get projects from org");
         }
 
         List<ProjectModel> allProjects = projectRepository.findByParentOrgID(orgID);
-        String ret = "{";
-        for (ProjectModel project : allProjects) {
-            if (ret.length() > 1) {
-                ret += ",";
-            }
-            ret += projectService.createProjectJson(project);
-        }
-        ret += "}";
-        return ret;
+        return allProjects.stream()
+                .map(project -> new ProjectDTO(project.getProjectID(), project.getParentOrgID(), project.getProjectName(),
+                        project.getProjectDescription(), project.getProjectOwnerID(), project.getEncodedImage(),
+                        projectService.getAssignedUsers(project.getProjectID()), projectService.getProjectTasks(project.getProjectID())))
+                .collect(Collectors.toSet());
     }
 
     public void updateOrg(int orgID, String orgName, String orgDescription, int orgOwnerID) {
@@ -178,6 +172,9 @@ public class OrgService {
         }
         org.getUsers().add(userToAdd);
         orgRepository.save(org);
+
+        userToAdd.getOrgs().add(org);
+        userRepository.save(userToAdd);
     }
 
     public void removeUser(int orgID, String email) {
