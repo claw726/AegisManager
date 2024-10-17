@@ -93,6 +93,9 @@ public class OrgService {
                 break;
             }
         }
+        if (org.getOrgOwnerID() == currentUser.getUserID()) {
+            hasPermission = true;
+        }
         if (!hasPermission) {
             throw new RuntimeException("User does not have permission to get projects from org");
         }
