@@ -25,7 +25,7 @@ public class ProjectModel {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private int projectID;
 
-    @Column(name = "parent_org_ID", insertable = false, updatable = false)
+    @Column(name = "parent_org_ID")
     private int parentOrgID;
 
     @Column(name = "project_name")
@@ -52,7 +52,7 @@ public class ProjectModel {
     //private int ProjectChatID;
 
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "parent_org_ID")  // Foreign key column in ProjectModel table
+    @JoinColumn(name = "parent_org")  // Foreign key column in ProjectModel table
     private OrgModel parentOrg;
 
     @Column(name = "encoded_image")
@@ -120,5 +120,13 @@ public class ProjectModel {
 
     public void setEncodedImage(String encodedImage) {
         this.encodedImage = encodedImage;
+    }
+
+    public OrgModel getParentOrg() {
+        return parentOrg;
+    }
+
+    public void setParentOrg(OrgModel parentOrg) {
+        this.parentOrg = parentOrg;
     }
 }

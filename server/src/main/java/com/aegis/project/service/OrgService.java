@@ -4,8 +4,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import java.util.ArrayList;
-
+import com.aegis.project.dto.ProjectDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.method.P;
 import org.springframework.security.core.Authentication;
@@ -47,6 +46,7 @@ public class OrgService {
         org.setOrgOwnerID(ownerID);
         org.setEncodedImage(encodedImage);
         orgRepository.save(org);
+        addUser(org.getOrgID(), userRepository.findById(ownerID).get().getEmail());
         return true;
     }
 
@@ -55,7 +55,6 @@ public class OrgService {
 
         return orgs.stream()
                 .map(org -> new OrgDTO(org.getOrgID(), org.getOrgName(), org.getOrgDescription(), org.getOrgOwnerID(), org.getEncodedImage(), getOrgMembers(org.getOrgID())))
-                //.map(org -> new OrgDTO(org.getOrgID(), org.getOrgName(), org.getOrgDescription(), org.getOrgOwnerID(), org.getEncodedImage()))
                 .collect(Collectors.toSet());
     }
 
@@ -82,7 +81,7 @@ public class OrgService {
         return org; // Return the OrgModel directly
     }
 
-    public List<ProjectDTO> getAllProjectsFromOrg(int orgID) {
+    public Set<ProjectDTO> getAllProjectsFromOrg(int orgID) {
         OrgModel org = orgRepository.findById(orgID)
                 .orElseThrow(() -> new RuntimeException("Org not found with id: " + orgID));
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -105,13 +104,11 @@ public class OrgService {
         }
 
         List<ProjectModel> allProjects = projectRepository.findByParentOrgID(orgID);
-        List<ProjectDTO> projectDTOs = new ArrayList<>();
-
-        for (ProjectModel project: allProjects) {
-            ProjectDTO projectDTO = new ProjectDTO(project.getProjectID(), project.getParentOrgID(), project.getProjectName(), project.getProjectDescription(), project.getProjectOwnerID(), project.getEncodedImage());
-        }
-
-        return projectDTOs;
+        return allProjects.stream()
+                .map(project -> new ProjectDTO(project.getProjectID(), project.getParentOrgID(), project.getProjectName(),
+                        project.getProjectDescription(), project.getProjectOwnerID(), project.getEncodedImage(),
+                        projectService.getAssignedUsers(project.getProjectID()), projectService.getProjectTasks(project.getProjectID())))
+                .collect(Collectors.toSet());
     }
 
     public void updateOrg(int orgID, String orgName, String orgDescription, int orgOwnerID) {
@@ -181,6 +178,9 @@ public class OrgService {
         }
         org.getUsers().add(userToAdd);
         orgRepository.save(org);
+
+        userToAdd.getOrgs().add(org);
+        userRepository.save(userToAdd);
     }
 
     public void removeUser(int orgID, String email) {

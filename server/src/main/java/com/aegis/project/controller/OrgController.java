@@ -4,7 +4,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.List;
 
-import org.hibernate.mapping.Collection;
+import com.aegis.project.dto.ProjectDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -82,18 +82,20 @@ public class OrgController {
     }
 
     @GetMapping("/{orgID}/getAllProjectsFromOrg")
-    public ResponseEntity<List<ProjectDTO>> getAllProjectsFromOrg(@PathVariable int orgID) {
+    public ResponseEntity<Set<ProjectDTO>> getAllProjectsFromOrg(@PathVariable int orgID) {
         try {
             logger.info("Received request to get all projects from org with ID: {}", orgID);
-            List<ProjectDTO> projects = orgService.getAllProjectsFromOrg(orgID);
+            Set<ProjectDTO> projects = orgService.getAllProjectsFromOrg(orgID);
             logger.info("Returning {} projects from org with ID: {}", projects.size(), orgID);
             return ResponseEntity.ok(projects);
         } catch (RuntimeException e) {
             logger.error("Error getting all projects from org: " + e.getMessage());
             if (e.getMessage().equals("Org not found with ID: " + orgID)) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(Collections.emptyList());
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            } else if (e.getMessage().equals("User does not have permission to get org")) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
             } else {
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Collections.emptyList());
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Collections.emptySet());
             }
         }
     }
