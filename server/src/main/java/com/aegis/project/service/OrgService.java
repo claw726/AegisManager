@@ -89,16 +89,11 @@ public class OrgService {
 
         UserModel currentUser = userRepository.findByEmail(currentUsername)
                 .orElseThrow(() -> new RuntimeException("User not found with email: " + currentUsername));
-        boolean hasPermission = false;
-        for (UserModel user : org.getUsers()) {
-            if (user.getUserID() == currentUser.getUserID()) {
-                hasPermission = true;
-                break;
-            }
-        }
-        if (org.getOrgOwnerID() == currentUser.getUserID()) {
-            hasPermission = true;
-        }
+
+        boolean hasPermission = org.getUsers().stream()
+                .anyMatch(user -> user.getUserID() == currentUser.getUserID())
+                || org.getOrgOwnerID() == currentUser.getUserID();
+
         if (!hasPermission) {
             throw new RuntimeException("User does not have permission to get projects from org");
         }
