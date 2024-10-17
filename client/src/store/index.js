@@ -244,7 +244,7 @@ export default new Vuex.Store({
           },
         );
 
-        console.log(`Projects for Org ${orgID}:`, response.data);
+        console.log(`Projects for Org ${orgID}:`, response.data ? response.data : response);
 
         return response.data;
       } catch (error) {
