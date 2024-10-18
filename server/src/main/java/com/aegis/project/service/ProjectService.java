@@ -129,7 +129,7 @@ public class ProjectService {
         return projectDTO;
     }
 
-    public void updateProject(int projectID, String projectName, String projectDescription, int projectOwnerID) {
+    public void updateProject(int projectID, String projectName, String projectDescription, int projectOwnerID, String encodedImage) {
         ProjectModel project = projectRepository.findById(projectID)
                 .orElseThrow(() -> new RuntimeException("Project not found with id: " + projectID));
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -144,6 +144,7 @@ public class ProjectService {
         project.setProjectName(projectName);
         project.setProjectDescription(projectDescription);
         project.setProjectOwnerID(projectOwnerID);
+        project.setEncodedImage(encodedImage);
         projectRepository.save(project);
     }
 

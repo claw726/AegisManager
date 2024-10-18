@@ -61,9 +61,11 @@ public class ProjectController {
     }
 
     @PostMapping("/{projectID}/update")
-    public ResponseEntity<String> updateProject(@PathVariable int projectID, @RequestParam String projectName, @RequestParam String projectDescription, @RequestParam int projectOwnerID){
+    public ResponseEntity<String> updateProject(@PathVariable int projectID, @RequestParam String projectName,
+                                                @RequestParam String projectDescription, @RequestParam int projectOwnerID,
+                                                @RequestParam String encodedImage) {
         try {
-            projectService.updateProject(projectID, projectName, projectDescription, projectOwnerID);
+            projectService.updateProject(projectID, projectName, projectDescription, projectOwnerID, encodedImage);
             return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Project updated successfully");
         }
         catch (RuntimeException e) {
