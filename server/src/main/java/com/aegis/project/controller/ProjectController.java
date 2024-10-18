@@ -8,9 +8,16 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
-import com.aegis.project.dto.ProjectDTO;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
+import com.aegis.project.dto.ProjectDTO;
 import com.aegis.project.dto.TaskDTO;
 import com.aegis.project.service.ProjectService;
 
@@ -53,24 +60,24 @@ public class ProjectController {
         } catch (RuntimeException e) {
             if (e.getMessage().contains("Project not found with id:")) {
                 logger.info("Project not found with ID: {}", projectID);
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
             } else if (e.getMessage().contains("User not found with email:")) {
                 logger.info("User not found with email: {}", e.getMessage());
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
             } else if (e.getMessage().contains("User does not have permission to get project")) {
                 logger.info("User does not have permission to get project: {}", e.getMessage());
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
             } else {
                 logger.error("Error getting project: " + e.getMessage());
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
             }
         }
     }
 
     @PostMapping("/{projectID}/update")
     public ResponseEntity<String> updateProject(@PathVariable int projectID, @RequestParam String projectName,
-                                                @RequestParam String projectDescription, @RequestParam int projectOwnerID,
-                                                @RequestParam String encodedImage) {
+            @RequestParam String projectDescription, @RequestParam int projectOwnerID,
+            @RequestParam String encodedImage) {
         try {
             projectService.updateProject(projectID, projectName, projectDescription, projectOwnerID, encodedImage);
             return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Project updated successfully");
