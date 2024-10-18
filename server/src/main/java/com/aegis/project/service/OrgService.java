@@ -101,7 +101,9 @@ public class OrgService {
         return allProjects.stream()
                 .map(project -> new ProjectDTO(project.getProjectID(), project.getParentOrgID(), project.getProjectName(),
                         project.getProjectDescription(), project.getProjectOwnerID(), project.getEncodedImage(),
-                        projectService.getAssignedUsers(project.getProjectID()), projectService.getProjectTasks(project.getProjectID())))
+                        project.getAssignedUsers().stream().map(user -> new UserDTO(user.getUserID(), user.getUserName(),
+                                user.getEmail(), user.getProfilePicture())).collect(Collectors.toSet()),
+                        projectService.getProjectTasks(project.getProjectID())))
                 .collect(Collectors.toSet());
     }
 

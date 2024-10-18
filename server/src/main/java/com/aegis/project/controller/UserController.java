@@ -60,4 +60,22 @@ public class UserController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
+
+    @PutMapping("/{userID}/update")
+    public ResponseEntity<String> updateUser(@PathVariable int userID, @RequestParam String name, @RequestParam String email, @RequestParam String profilePicture) {
+        try {
+            userService.updateUser(userID, name, email, profilePicture);
+            return ResponseEntity.ok("User updated successfully");
+        } catch (RuntimeException e) {
+            if (e.getMessage().equals("User not found with ID: " + userID)) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            } else if (e.getMessage().equals("User with email: " + email + " already exists")) {
+                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+            } else if (e.getMessage().equals("User with email: " + email + " does not have permission to update user with ID: " + userID)) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+            } else {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+            }
+        }
+    }
 }
