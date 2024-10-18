@@ -13,19 +13,19 @@
       <div v-if="proj">
         <div class="relative flex h-screen/3 py-4">
           <img
-            :src="proj.ProjImg"
+            :src="proj.encodedImage"
             alt="Profile Picture"
             class="h-48 con drop-shadow-xl col-span-1 rounded-lg"
           />
           <div class="ml-8 flex flex-col justify-center">
             <div class="text-4xl font-bold text-primary">
-              {{ proj.ProjName }}
+              {{ proj.projectName }}
             </div>
             <div class="text-2xl font-semibold text-secondary">
-              {{ proj.ProjDescription }}
+              {{ proj.projectDescription }}
             </div>
             <div class="text-medium text-accent">
-              Created by: {{ proj.ProjCreator }}
+              Created by user no.: {{ proj.projectOwnerID }}
             </div>
           </div>
         </div>
