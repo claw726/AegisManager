@@ -66,7 +66,7 @@
 <script>
 import NavBar from "@/components/NavBar.vue";
 import { mapState } from "vuex";
-import TaskCard from "../components/TaskCard.vue";
+import TaskCard from "@/components/TaskCard.vue";
 import DropdownMenu from "@/components/DropdownMenu.vue";
 
 export default {
