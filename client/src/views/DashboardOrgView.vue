@@ -6,7 +6,7 @@
     <NavBar />
 
     <div class="absolute justify-end top-1 right-1">
-      <DropdownMenu title="⚙️" :items="dropdownOpts" @command="handleCommand" />
+      <DropdownMenu title="⚙️" :items="dropdownOpts" />
     </div>
 
     <div class="flex justify-center justify-items-center p-4">

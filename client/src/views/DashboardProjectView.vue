@@ -205,16 +205,16 @@ export default {
     },
     deleteProject() {
       // Confirm the current user is the project creator
-      if (this.proj.ProjCreator !== this.currentUser.email) {
+      if (this.proj.projectOwnerID !== this.currentUser.userID) {
         alert("You are not authorized to delete this project.");
         return;
       }
 
-      const projIndex = this.$route.params.projIndex;
-      const orgIndex = this.$route.params.orgIndex;
       if (confirm("Are you sure you want to delete this project?")) {
         this.$store
-          .dispatch("deleteProject", { orgIndex, projIndex })
+          .dispatch("deleteProject", {
+            projectID: this.$route.params.projIndex,
+          })
           .then(() => {
             alert("Project deleted successfully!");
             this.$router.push({ name: "OrganizationDashboard" });
