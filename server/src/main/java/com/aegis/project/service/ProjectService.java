@@ -150,7 +150,7 @@ public class ProjectService {
 
     public Set<TaskDTO> getProjectTasks(int projectID) {
         ProjectModel project = projectRepository.findById(projectID)
-                .orElseThrow(() -> new RuntimeException("Project not found with ID: " + projectID));
+                .orElseThrow(() -> new RuntimeException("Project not found with id: " + projectID));
 
         Set<TaskModel> tasks = project.getProjectTasks();
         return tasks.stream()
@@ -160,7 +160,7 @@ public class ProjectService {
 
     public Set<UserDTO> getAssignedUsers(int projectID) {
         ProjectModel project = projectRepository.findById(projectID)
-                .orElseThrow(() -> new RuntimeException("Project not found with ID: " + projectID));
+                .orElseThrow(() -> new RuntimeException("Project not found with id: " + projectID));
 
         Set<UserModel> members = project.getAssignedUsers();
         return members.stream()
@@ -206,7 +206,7 @@ public class ProjectService {
 
         for (int userID : userIDs) {
             UserModel userToAdd = userRepository.findById(userID)
-                    .orElseThrow(() -> new RuntimeException("User not found with ID: " + userID));
+                    .orElseThrow(() -> new RuntimeException("User not found with id: " + userID));
             project.getAssignedUsers().add(userToAdd);
             simpMessageTemplate.convertAndSendToUser(userToAdd.getEmail(), "/queue/project-updates",
                     "User added to project with ID: " + projectID);
@@ -261,5 +261,34 @@ public class ProjectService {
         parentOrg.getOrgProjects().remove(project);
         orgRepository.save(parentOrg);
         taskRepository.deleteByParentProjectID(projectID);
+    }
+
+    public Set<TaskDTO> getAllTasksFromProject(int projectID) {
+        ProjectModel project = projectRepository.findById(projectID)
+                .orElseThrow(() -> new RuntimeException("Project not found with id: " + projectID));
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUsername = ((UserDetails) authentication.getPrincipal()).getUsername();
+
+        UserModel currentUser = userRepository.findByEmail(currentUsername)
+                .orElseThrow(() -> new RuntimeException("User not found with email: " + currentUsername));
+        boolean hasPermission = false;
+        for (UserModel user : project.getAssignedUsers()) {
+            if (user.getUserID() == currentUser.getUserID()) {
+                hasPermission = true;
+                break;
+            }
+        }
+        if (project.getProjectOwnerID() == currentUser.getUserID()) {
+            hasPermission = true;
+        }
+        if (!hasPermission) {
+            throw new RuntimeException("User does not have permission to get tasks from project");
+        }
+        List<TaskModel> allTasks = taskRepository.findByParentProjectID(projectID);
+        return allTasks.stream()
+                .map(task -> new TaskDTO(task.getTaskID(), task.getParentProjectID(), task.getParentOrgID(),
+                task.getTaskName(), task.getTaskDescription(), task.getAssignerID(),
+                task.getTaskPriority(), task.getDueDate(), task.isComplete()))
+                .collect(Collectors.toSet());
     }
 }

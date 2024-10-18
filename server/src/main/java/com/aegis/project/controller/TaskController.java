@@ -51,7 +51,13 @@ public class TaskController {
             return ResponseEntity.ok(taskService.getAllUserTasks(userID, orgID, projectID));
         } catch (Exception e) {
             logger.error("Error retrieving tasks for user ID {}, org ID {}, projectID {}: {}", userID, orgID, projectID, e.getMessage());
-            return null;
+            if (e.getMessage().contains("User not found with email:")) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            } else if (e.getMessage().contains("User does not have permission to access task list")) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+            } else {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+            }
         }
     }
 
@@ -62,7 +68,11 @@ public class TaskController {
             return ResponseEntity.ok(taskService.validateAssigner(userID, taskID));
         } catch (Exception e) {
             logger.error("Error validating assigner for user ID {}, task ID {}: {}", userID, taskID, e.getMessage());
-            return null;
+            if (e.getMessage().contains("Task not found with id:")) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(false);
+            } else {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(false);
+            }
         }
     }
 
@@ -72,16 +82,13 @@ public class TaskController {
             taskService.updateTaskCompletionStatus(taskID, completed);
             return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Task completion status updated successfully");
         } catch (RuntimeException e) {
-            if (e.getMessage().equals("Task not found with ID: " + taskID)) {
+            if (e.getMessage().contains("Task not found with id:")) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-            }
-            else if (e.getMessage().contains("User does not have permission")) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(e.getMessage());
-            }
-            else if (e.getMessage().contains("User not found with email")) {
-                return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
-            }
-            else {
+            } else if (e.getMessage().contains("User not found with email")) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            } else if (e.getMessage().contains("User does not have permission")) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+            } else {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
             }
         }
@@ -92,7 +99,7 @@ public class TaskController {
         try {
             return ResponseEntity.ok(taskService.getTask(taskID));
         } catch (RuntimeException e) {
-            if (e.getMessage().equals("Task not found with ID: " + taskID)) {
+            if (e.getMessage().contains("Task not found with id:")) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
             } else {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -105,11 +112,12 @@ public class TaskController {
         try {
             taskService.updateTask(taskID, taskName, taskDescription, assignerID, taskPriority, dueDate, isComplete);
             return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Task updated successfully");
-        }
-        catch (RuntimeException e) {
-            if (e.getMessage().equals("Task not found with ID: " + taskID)) {
+        } catch (RuntimeException e) {
+            if (e.getMessage().contains("Task not found with id:")) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-            } else if (e.getMessage().contains("User")) {
+            } else if (e.getMessage().contains("User not found with email")) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            } else if (e.getMessage().contains("User does not have permission")) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
             } else {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -123,9 +131,11 @@ public class TaskController {
             taskService.deleteTask(taskID);
             return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Taskdeleted successfully");
         } catch (RuntimeException e) {
-            if (e.getMessage().equals("Task not found with ID: " + taskID)) {
+            if (e.getMessage().contains("Task not found with id:")) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-            } else if (e.getMessage().contains("User")) {
+            } else if (e.getMessage().contains("User not found with email")) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            } else if (e.getMessage().contains("User does not have permission")) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
             } else {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -138,19 +148,15 @@ public class TaskController {
         try {
             taskService.addUser(taskID, email);
             return ResponseEntity.ok("User added successfully");
-        }
-        catch (RuntimeException e){
+        } catch (RuntimeException e) {
             if (e.getMessage().contains("User not found with email: ")) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-            } 
-            else if (e.getMessage().equals("Task not found with id: " + taskID)) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-            }
-            else if (e.getMessage().equals("User does not have permission to add user to task")) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
-            }
-            else {
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            } else if (e.getMessage().equals("Task not found with id: " + taskID)) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            } else if (e.getMessage().equals("User does not have permission to add user to task")) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+            } else {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
             }
         }
     }
@@ -160,19 +166,15 @@ public class TaskController {
         try {
             taskService.removeUser(taskID, email);
             return ResponseEntity.ok("User removed successfully");
-        }
-        catch (RuntimeException e){
-            if (e.getMessage().contains("User not found with email: ")) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-            } 
-            else if (e.getMessage().equals("Task not found with id: " + taskID)) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-            }
-            else if (e.getMessage().equals("User does not have permission to remove user from task")) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
-            }
-            else {
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        } catch (RuntimeException e) {
+            if (e.getMessage().contains("Task not found with id:")) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            } else if (e.getMessage().contains("User not found with email")) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            } else if (e.getMessage().contains("User does not have permission")) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+            } else {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
             }
         }
     }
@@ -182,11 +184,11 @@ public class TaskController {
         try {
             return ResponseEntity.ok(taskService.switchTaskAssigner(taskID, newAssignerEmail));
         } catch (RuntimeException e) {
-            if (e.getMessage().equals("Task not found with ID: " + taskID)) {
+            if (e.getMessage().contains("Task not found with id:")) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-            } else if (e.getMessage().equals("User not found with email: " + newAssignerEmail)) {
+            } else if (e.getMessage().contains("User not found with email")) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-            } else if (e.getMessage().equals("User does not have permission to switch task assigner")) {
+            } else if (e.getMessage().contains("User does not have permission")) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
             } else {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -194,5 +196,4 @@ public class TaskController {
         }
     }
 
-    
 }
