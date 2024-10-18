@@ -191,7 +191,7 @@ export default {
     },
     editProject() {
       // Confirm the current user is the project creator
-      if (this.proj.ProjCreator !== this.currentUser.email) {
+      if (this.proj.projectOwnerID !== this.currentUser.userID) {
         alert("You are not authorized to modify this project.");
         return;
       }
