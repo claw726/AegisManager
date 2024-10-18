@@ -4,7 +4,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.aegis.project.dto.ProjectDTO;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -12,6 +11,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import com.aegis.project.dto.OrgDTO;
+import com.aegis.project.dto.ProjectDTO;
 import com.aegis.project.dto.UserDTO;
 import com.aegis.project.model.OrgModel;
 import com.aegis.project.model.ProjectModel;
@@ -103,10 +103,10 @@ public class OrgService {
         List<ProjectModel> allProjects = projectRepository.findByParentOrgID(orgID);
         return allProjects.stream()
                 .map(project -> new ProjectDTO(project.getProjectID(), project.getParentOrgID(), project.getProjectName(),
-                        project.getProjectDescription(), project.getProjectOwnerID(), project.getEncodedImage(),
-                        project.getAssignedUsers().stream().map(user -> new UserDTO(user.getUserID(), user.getUserName(),
-                                user.getEmail(), user.getProfilePicture())).collect(Collectors.toSet()),
-                        projectService.getProjectTasks(project.getProjectID())))
+                project.getProjectDescription(), project.getProjectOwnerID(), project.getEncodedImage(),
+                project.getAssignedUsers().stream().map(user -> new UserDTO(user.getUserID(), user.getUserName(),
+                user.getEmail(), user.getProfilePicture())).collect(Collectors.toSet()),
+                projectService.getProjectTasks(project.getProjectID())))
                 .collect(Collectors.toSet());
     }
 
@@ -151,7 +151,7 @@ public class OrgService {
 
     public Set<UserDTO> getOrgMembers(int orgID) {
         OrgModel org = orgRepository.findById(orgID)
-                .orElseThrow(() -> new RuntimeException("Org not found with ID: " + orgID));
+                .orElseThrow(() -> new RuntimeException("Org not found with id: " + orgID));
 
         Set<UserModel> members = org.getUsers();
         return members.stream()

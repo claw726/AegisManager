@@ -34,7 +34,7 @@ public class TaskService {
 
     public String switchTaskAssigner(int taskID, String newAssignerEmail) {
         TaskModel task = taskRepository.findById(taskID)
-                .orElseThrow(() -> new RuntimeException("Task not found with ID: " + taskID));
+                .orElseThrow(() -> new RuntimeException("Task not found with id: " + taskID));
 
         userRepository.findByEmail(newAssignerEmail)
                 .orElseThrow(() -> new RuntimeException("User not found with email: " + newAssignerEmail));
@@ -57,14 +57,14 @@ public class TaskService {
 
     public String getTask(int taskID) {
         TaskModel task = taskRepository.findById(taskID)
-                .orElseThrow(() -> new RuntimeException("Task not found with ID: " + taskID));
+                .orElseThrow(() -> new RuntimeException("Task not found with id: " + taskID));
 
         return createTaskJson(task);
     }
 
     public void sendTaskInfoToUsers(int taskID) {
         TaskModel task = taskRepository.findById(taskID)
-                .orElseThrow(() -> new RuntimeException("Task not found with ID: " + taskID));
+                .orElseThrow(() -> new RuntimeException("Task not found with id: " + taskID));
 
         String taskJson = createTaskJson(task);
 
@@ -77,7 +77,7 @@ public class TaskService {
 
     public void notifyTaskDeletion(int taskID) {
         TaskModel task = taskRepository.findById(taskID)
-                .orElseThrow(() -> new RuntimeException("Task not found with ID: " + taskID));
+                .orElseThrow(() -> new RuntimeException("Task not found with id: " + taskID));
 
         Set<UserModel> assignedUsers = task.getAssignedUsers();
 
@@ -110,7 +110,7 @@ public class TaskService {
 
     public Set<UserModel> getAssignedUsers(int taskID) {
         TaskModel task = taskRepository.findById(taskID)
-                .orElseThrow(() -> new RuntimeException("Task not found with ID: " + taskID));
+                .orElseThrow(() -> new RuntimeException("Task not found with id: " + taskID));
         return task.getAssignedUsers();
     }
 
