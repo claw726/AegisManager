@@ -7,19 +7,21 @@
       <div class="flex flex-col items-center space-y-8 mt-12">
         <!-- Title: Centered and Colored Dark Hunter Green -->
         <h1 class="text-4xl font-bold text-hunter-green mb-6">To Do List</h1>
+
+        <button class="edit-btn rounded" @click="goToCreateTask">Create   Task</button>
         
         
-        <!-- <div v-for="task in this.listOfTasks" :key="task.id" class="task-card bg-white border border-gray-300 rounded-lg p-4 shadow-md cursor-pointer" @click="viewTask(task)">
-            <h3 class="font-bold text-lg">Title: {{ task.title }}</h3>
+        <div v-for="task in tasks" :key="task.id" class="task-card bg-white border border-gray-300 rounded-lg p-4 shadow-md cursor-pointer" @click="viewTask(task)">
+            <h3 class="font-bold text-lg">{{ task.title }}</h3>
             <p class="text-gray-600">Due: {{ task.dueDate }}</p>
             <p class="text-gray-600">Priority: {{ task.priority }}</p>
-        </div> -->
+        </div>
 
         <!-- Tasks Container -->
         <div class="flex flex-col w-96 space-y-6 p-4 items-center">
   
           <!-- Task 1 -->
-
+          
           <div
             class="task-card cursor-pointer"
             :class="{ 'bg-gray-300': task1.completed }"
@@ -62,40 +64,25 @@
   
   <script>
   import NavBar from '@/components/NavBar.vue';
-  import TaskCard from "@/components/TaskCard.vue";
+  
   import { mapState } from 'vuex';
   
   export default {
     components: {
       NavBar,
-      TaskCard,
     },
 
     computed: {
-      ...mapState(["isLoggedIn", "currentUser"])
+      ...mapState(['allTasks'])
     },
 
     created() {
       this.loadUserData();
     },
-
-    // async created() {
-    //   try {
-    //         this.listOfTasks = await this.$store.dispatch('fetchTasks', {userID: this.user.userID});
-    //         console.log('Fetched tasks:', this.listOfTasks)
-    //     } catch (error) {
-    //         console.error('Error Loading Tasks:', error.message);
-    //         alert('Failed to load tasks!');
-            
-    //     }
-    //   this.user = this.currentUser;
-    // },
     
     
     data() {
       return {
-        listOfTasks: [],
-        user: this.currentUser,
         task1: {
           id: 1, 
           completed: false,
@@ -127,8 +114,6 @@
     },
 
     methods: {
-
-
       loadUserData() {
         const currentUser = localStorage.getItem('CurrentUser');
         if (currentUser) {
@@ -150,6 +135,10 @@
         //const t = allTasks[taskid.toString()];
         return task;
       },
+
+      goToCreateTask() {
+        this.$router.push({ name: "createTask" });
+      },
       
     },
   };
@@ -159,6 +148,15 @@
   .task-card {
     transition: transform 0.2s;
   }
+
+  .edit-btn {
+  cursor: pointer;
+  background-color: rgb(2, 2, 58);
+  color: white;
+  border: none;
+  padding: 5px 10px;
+}
+
 
   .task-card:hover {
     transform: scale(1.15);

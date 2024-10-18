@@ -59,6 +59,12 @@ const router = createRouter({
                   props: true // Allow passing route params as props
                 },
                 {
+                  path: '/createTask',
+                  name: 'createTask',
+                  component: () => import('./views/CreateTaskView.vue'),
+                  meta: {requiresAuth: true},
+                },
+                {
                   path: '/organization/:orgIndex/createProject',
                   name: 'createProject',
                   component: () => import('./views/CreateProjView.vue'),

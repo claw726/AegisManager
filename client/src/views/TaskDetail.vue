@@ -5,10 +5,10 @@
       
       <div class="flex">
         <input
-          @click="completeTask"
+          v-on:click="decideFun($event)"
           type="checkbox"
           class="checkbox"
-          v-model="this.task.completed"
+          v-model="isChecked"
         />
         <h3 class="font-bold  text-3xl text-hunter-green mb-6">{{  task.title }}</h3>
         <button class="edit-btn rounded top-right-button">Edit   Task</button>
@@ -43,10 +43,10 @@
 
 
         <p>Completed:  
-        <select v-model="selectedValue">
+        <select v-model="selectedCompletionValue" @change="handleOptionChange">
           <option value="">  {{ task.completed }}</option>
-          <option v-for="option in options" :key="option.value" :value="option.value">
-            {{ task.completed }}
+          <option v-for="option in completedOptions" :key="option.value" :value="option.value">
+            {{ option.text }}
           </option>
         </select>
         </p>
@@ -130,6 +130,10 @@ export default {
         { value: 'option2', text: 'Medium' },
         { value: 'option3', text: 'Low' },
       ],
+      completedOptions: [
+        { value: 'true', text: 'true' },
+        { value: 'false', text: 'false' },
+      ],
     };
   },
 
@@ -147,6 +151,16 @@ export default {
   },
 
   methods: {
+
+    handleOptionChange() {
+      if (this.selectedCompletionValue === 'true') {
+        this.completeTask();
+      }
+      if (this.selectedCompletionValue === 'false') {
+        this.unCompleteTask();
+      }
+    },
+
     handleYes() {
       console.log("User wants to delete task");
       this.showPopup = false;
@@ -156,10 +170,26 @@ export default {
       this.showPopup = false;
     },
 
+    decideFun(event) {
+    if(event.target.checked){
+       this.completeTask(this);
+    }else{
+       this.unCompleteTask(this);}
+    }, 
+
     completeTask() {
       this.task.completed = true;
-      const all = this.allTasks;
-      const id = this.taskId;
+      this.selectedAssigner = true;
+      this.isChecked = true;
+
+      //this.allTasks.id.completed = true; 
+      //localStorage.setItem("allTasks", JSON.stringify(all));
+    },
+    unCompleteTask() {
+      this.task.completed = false;
+      this.selectedAssigner = false;
+      this.isChecked = false;
+
       //this.allTasks.id.completed = true; 
       //localStorage.setItem("allTasks", JSON.stringify(all));
     },
