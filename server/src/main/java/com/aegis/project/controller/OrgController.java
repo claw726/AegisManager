@@ -4,7 +4,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 import java.util.List;
 
-import com.aegis.project.dto.ProjectDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -19,6 +18,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.aegis.project.dto.OrgDTO;
+import com.aegis.project.dto.ProjectDTO;
 import com.aegis.project.dto.UserDTO;
 import com.aegis.project.model.OrgModel;
 import com.aegis.project.service.OrgService;
@@ -57,8 +57,6 @@ public class OrgController {
             OrgModel org = orgService.getOrg(orgID); // Fetch the organization model
 
             // Create the OrgDTO using the constructor
-            // OrgDTO constructor was updated to set the getUsers() parameter automatically using the getOrgMembers() function
-            // so I removed the parameter here. Old code is still present and commented out
             OrgDTO orgDTO = new OrgDTO(
                     org.getOrgID(),
                     org.getOrgName(),
@@ -73,8 +71,12 @@ public class OrgController {
 
             return ResponseEntity.ok(orgDTO); // Return the DTO
         } catch (RuntimeException e) {
-            if (e.getMessage().equals("Org not found with ID: " + orgID)) {
+            if (e.getMessage().contains("Org not found with id:")) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            } else if (e.getMessage().contains("User not found with email:")) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            } else if (e.getMessage().contains("User does not have permission to get org")) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
             } else {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
             }
@@ -90,9 +92,11 @@ public class OrgController {
             return ResponseEntity.ok(projects);
         } catch (RuntimeException e) {
             logger.error("Error getting all projects from org: " + e.getMessage());
-            if (e.getMessage().equals("Org not found with ID: " + orgID)) {
+            if (e.getMessage().contains("Org not found with ID:")) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-            } else if (e.getMessage().equals("User does not have permission to get org")) {
+            } else if (e.getMessage().contains("User not found with email:")) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            } else if (e.getMessage().contains("User does not have permission to get projects from org")) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
             } else {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(Collections.emptySet());
@@ -106,9 +110,11 @@ public class OrgController {
             orgService.updateOrg(orgID, orgName, orgDescription, orgOwnerID);
             return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Org updated successfully");
         } catch (RuntimeException e) {
-            if (e.getMessage().equals("Org not found with ID: " + orgID)) {
+            if (e.getMessage().contains("Org not found with id:")) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-            } else if (e.getMessage().contains("User")) {
+            } else if (e.getMessage().contains("User not found with email:")) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            } else if (e.getMessage().contains("User does not have permission to update org")) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
             } else {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -122,9 +128,11 @@ public class OrgController {
             orgService.deleteOrg(orgID);
             return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Org deleted successfully");
         } catch (RuntimeException e) {
-            if (e.getMessage().equals("Org not found with ID: " + orgID)) {
+            if (e.getMessage().contains("Org not found with id:")) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-            } else if (e.getMessage().contains("User")) {
+            } else if (e.getMessage().contains("User not found with email:")) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            } else if (e.getMessage().contains("User does not have permission to delete org")) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
             } else {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
@@ -137,7 +145,7 @@ public class OrgController {
         try {
             return ResponseEntity.ok(orgService.getOrgMembers(orgID));
         } catch (RuntimeException e) {
-            if (e.getMessage().equals("Org not found with ID: " + orgID)) {
+            if (e.getMessage().contains("Org not found with id:")) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
             } else {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
@@ -152,13 +160,13 @@ public class OrgController {
             return ResponseEntity.ok("User added successfully");
         } catch (RuntimeException e) {
             if (e.getMessage().contains("User not found with email: ")) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-            } else if (e.getMessage().equals("Org not found with id: " + orgID)) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-            } else if (e.getMessage().equals("User does not have permission to add user to org")) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            } else if (e.getMessage().contains("Org not found with id:")) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            } else if (e.getMessage().contains("User does not have permission to add user to org")) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
             } else {
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
             }
         }
     }
@@ -170,13 +178,13 @@ public class OrgController {
             return ResponseEntity.ok("User removed successfully");
         } catch (RuntimeException e) {
             if (e.getMessage().contains("User not found with email: ")) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-            } else if (e.getMessage().equals("Org not found with id: " + orgID)) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
-            } else if (e.getMessage().equals("User does not have permission to remove user from org")) {
-                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            } else if (e.getMessage().contains("Org not found with id:")) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            } else if (e.getMessage().contains("User does not have permission to remove user from org")) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
             } else {
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
             }
         }
     }
