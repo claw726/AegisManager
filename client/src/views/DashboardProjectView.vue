@@ -1,6 +1,6 @@
 <template>
   <div
-    v-if="isLoggedIn"
+    v-if="isLoggedIn && proj"
     class="flex flex-col h-full w-full min-h-screen bg-background"
   >
     <NavBar />
@@ -13,19 +13,19 @@
       <div v-if="proj">
         <div class="relative flex h-screen/3 py-4">
           <img
-            :src="proj.ProjImg"
+            :src="proj.encodedImage"
             alt="Profile Picture"
             class="h-48 con drop-shadow-xl col-span-1 rounded-lg"
           />
           <div class="ml-8 flex flex-col justify-center">
             <div class="text-4xl font-bold text-primary">
-              {{ proj.ProjName }}
+              {{ proj.projectName }}
             </div>
             <div class="text-2xl font-semibold text-secondary">
-              {{ proj.ProjDescription }}
+              {{ proj.projectDescription }}
             </div>
             <div class="text-medium text-accent">
-              Created by: {{ proj.ProjCreator }}
+              Created by user no.: {{ proj.projectOwnerID }}
             </div>
           </div>
         </div>
@@ -167,12 +167,13 @@ export default {
   //   this.tasks = this.proj.tasks || [];
   // },
   methods: {
-    getProjData() {
-      this.proj =
-        this.organizations[this.$route.params.orgIndex].projects[
-          this.$route.params.projIndex
-        ];
-      if (!this.proj) {
+    async getProjData() {
+      try {
+        this.proj = await this.$store.dispatch(
+          "fetchProject",
+          this.$route.params.projIndex,
+        );
+      } catch (err) {
         alert("There was an error fetching the organization data");
         this.$router.push({ name: "OrganizationDashboard" });
       }

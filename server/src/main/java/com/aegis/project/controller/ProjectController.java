@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.aegis.project.dto.ProjectDTO;
 
 import com.aegis.project.service.ProjectService;
 
@@ -24,8 +25,8 @@ public class ProjectController {
     public ResponseEntity<String> createProject(@RequestParam String projectName, @RequestParam String projectDescription,
                                                 @RequestParam int projectOwnerID, @RequestParam int parentOrgID, @RequestParam String encodedImage) {
         try {
-            logger.info("Received project creation request with name: {}, description: {}, owner ID: {}, parent org ID: {}, encodedImage: {}",
-                    projectName, projectDescription, projectOwnerID, parentOrgID, encodedImage);
+            logger.info("Received project creation request with name: {}, description: {}, owner ID: {}, parent org ID: {}",
+                    projectName, projectDescription, projectOwnerID, parentOrgID);
             projectService.createProject(projectName, projectDescription, projectOwnerID, parentOrgID, encodedImage);
             logger.info("Project created successfully with name: {}", projectName);
             return ResponseEntity.ok("Project created successfully");
@@ -43,14 +44,17 @@ public class ProjectController {
     }
 
     @GetMapping("/{projectID}/getProject")
-    public ResponseEntity<String> getProject(@PathVariable int projectID) {
+    public ResponseEntity<ProjectDTO> getProject(@PathVariable int projectID) {
         try {
+            logger.info("Received request to get project with ID: {}", projectID);
             return ResponseEntity.ok(projectService.getProject(projectID));
         }
         catch (RuntimeException e) {
             if (e.getMessage().equals("Project not found with ID: " + projectID)) {
+                logger.info("Project not found with ID: {}", projectID);
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
             } else {
+                logger.error("Error getting project: " + e.getMessage());
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
             }
         }
@@ -74,7 +78,7 @@ public class ProjectController {
     }
 
     @DeleteMapping("/{projectID}/deleteProject")
-    public ResponseEntity<String> deleteProject(int projectID) {
+    public ResponseEntity<String> deleteProject(@PathVariable int projectID) {
         try {
             projectService.deleteProject(projectID);
             return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Project deleted successfully");

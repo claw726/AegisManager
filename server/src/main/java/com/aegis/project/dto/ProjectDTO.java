@@ -22,13 +22,13 @@ public class ProjectDTO {
 
 
     public ProjectDTO(int projectID, int parentOrgID, String projectName, String projectDescription,
-                        int projectOwnerID, String encodedImage) {
+                        int projectOwnerID, String encodedImage, Set<UserDTO> assignedUsers, Set<TaskDTO> projectTasks) {
         this.projectID = projectID;
         this.parentOrgID = parentOrgID;
         this.projectName = projectName;
         this.projectDescription = projectDescription;
-        this.assignedUsers = projectService.getAssignedUsers(projectID);
-        this.projectTasks = projectService.getProjectTasks(projectID);
+        this.assignedUsers = assignedUsers;
+        this.projectTasks = projectTasks;
         this.projectOwnerID = projectOwnerID;
         this.encodedImage = encodedImage;
     }

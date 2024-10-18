@@ -83,6 +83,7 @@
           <!-- Submit Button -->
           <button
             @click="submitForm"
+            data-testid="submit-button"
             class="w-full mt-4 bg-primary text-white font-semibold py-3 rounded-lg"
           >
             Submit
@@ -122,9 +123,6 @@ export default {
     "user.email"(newEmail) {
       this.user.email = newEmail.trim();
       this.user.email = newEmail.toLowerCase();
-    },
-    "user.password"(newPassword) {
-      this.user.password = newPassword.trim();
     },
   },
   methods: {
