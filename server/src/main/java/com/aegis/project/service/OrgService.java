@@ -5,6 +5,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.access.method.P;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -19,6 +20,8 @@ import com.aegis.project.model.UserModel;
 import com.aegis.project.repository.OrgRepository;
 import com.aegis.project.repository.ProjectRepository;
 import com.aegis.project.repository.UserRepository;
+
+import com.aegis.project.dto.ProjectDTO;
 
 @Service
 public class OrgService {
@@ -86,16 +89,11 @@ public class OrgService {
 
         UserModel currentUser = userRepository.findByEmail(currentUsername)
                 .orElseThrow(() -> new RuntimeException("User not found with email: " + currentUsername));
-        boolean hasPermission = false;
-        for (UserModel user : org.getUsers()) {
-            if (user.getUserID() == currentUser.getUserID()) {
-                hasPermission = true;
-                break;
-            }
-        }
-        if (org.getOrgOwnerID() == currentUser.getUserID()) {
-            hasPermission = true;
-        }
+
+        boolean hasPermission = org.getUsers().stream()
+                .anyMatch(user -> user.getUserID() == currentUser.getUserID())
+                || org.getOrgOwnerID() == currentUser.getUserID();
+
         if (!hasPermission) {
             throw new RuntimeException("User does not have permission to get projects from org");
         }

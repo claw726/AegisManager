@@ -8,14 +8,8 @@ import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.DeleteMapping;
-import org.springframework.web.bind.annotation.GetMapping;
-import org.springframework.web.bind.annotation.PathVariable;
-import org.springframework.web.bind.annotation.PostMapping;
-import org.springframework.web.bind.annotation.RequestBody;
-import org.springframework.web.bind.annotation.RequestMapping;
-import org.springframework.web.bind.annotation.RequestParam;
-import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.bind.annotation.*;
+import com.aegis.project.dto.ProjectDTO;
 
 import com.aegis.project.dto.TaskDTO;
 import com.aegis.project.service.ProjectService;
@@ -33,8 +27,8 @@ public class ProjectController {
     public ResponseEntity<String> createProject(@RequestParam String projectName, @RequestParam String projectDescription,
             @RequestParam int projectOwnerID, @RequestParam int parentOrgID, @RequestParam String encodedImage) {
         try {
-            logger.info("Received project creation request with name: {}, description: {}, owner ID: {}, parent org ID: {}, encodedImage: {}",
-                    projectName, projectDescription, projectOwnerID, parentOrgID, encodedImage);
+            logger.info("Received project creation request with name: {}, description: {}, owner ID: {}, parent org ID: {}",
+                    projectName, projectDescription, projectOwnerID, parentOrgID);
             projectService.createProject(projectName, projectDescription, projectOwnerID, parentOrgID, encodedImage);
             logger.info("Project created successfully with name: {}", projectName);
             return ResponseEntity.ok("Project created successfully");
@@ -52,26 +46,33 @@ public class ProjectController {
     }
 
     @GetMapping("/{projectID}/getProject")
-    public ResponseEntity<String> getProject(@PathVariable int projectID) {
+    public ResponseEntity<ProjectDTO> getProject(@PathVariable int projectID) {
         try {
+            logger.info("Received request to get project with ID: {}", projectID);
             return ResponseEntity.ok(projectService.getProject(projectID));
         } catch (RuntimeException e) {
             if (e.getMessage().contains("Project not found with id:")) {
+                logger.info("Project not found with ID: {}", projectID);
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
             } else if (e.getMessage().contains("User not found with email:")) {
+                logger.info("User not found with email: {}", e.getMessage());
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
             } else if (e.getMessage().contains("User does not have permission to get project")) {
+                logger.info("User does not have permission to get project: {}", e.getMessage());
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
             } else {
+                logger.error("Error getting project: " + e.getMessage());
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
             }
         }
     }
 
     @PostMapping("/{projectID}/update")
-    public ResponseEntity<String> updateProject(@PathVariable int projectID, @RequestParam String projectName, @RequestParam String projectDescription, @RequestParam int projectOwnerID) {
+    public ResponseEntity<String> updateProject(@PathVariable int projectID, @RequestParam String projectName,
+                                                @RequestParam String projectDescription, @RequestParam int projectOwnerID,
+                                                @RequestParam String encodedImage) {
         try {
-            projectService.updateProject(projectID, projectName, projectDescription, projectOwnerID);
+            projectService.updateProject(projectID, projectName, projectDescription, projectOwnerID, encodedImage);
             return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Project updated successfully");
         } catch (RuntimeException e) {
             if (e.getMessage().contains("Project not found with id:")) {

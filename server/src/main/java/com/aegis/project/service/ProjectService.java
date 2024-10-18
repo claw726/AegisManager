@@ -13,6 +13,7 @@ import org.springframework.stereotype.Service;
 
 import com.aegis.project.dto.TaskDTO;
 import com.aegis.project.dto.UserDTO;
+import com.aegis.project.dto.ProjectDTO;
 import com.aegis.project.model.OrgModel;
 import com.aegis.project.model.ProjectModel;
 import com.aegis.project.model.TaskModel;
@@ -22,8 +23,14 @@ import com.aegis.project.repository.ProjectRepository;
 import com.aegis.project.repository.TaskRepository;
 import com.aegis.project.repository.UserRepository;
 
+// import logging
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
 @Service
 public class ProjectService {
+
+    private static final Logger LOGGER = LoggerFactory.getLogger(ProjectService.class);
 
     @Autowired
     private ProjectRepository projectRepository;
@@ -98,7 +105,7 @@ public class ProjectService {
         return true;
     }
 
-    public String getProject(int projectID) {
+    public ProjectDTO getProject(int projectID) {
         ProjectModel project = projectRepository.findById(projectID)
                 .orElseThrow(() -> new RuntimeException("Project not found with id: " + projectID));
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -106,23 +113,23 @@ public class ProjectService {
 
         UserModel currentUser = userRepository.findByEmail(currentUsername)
                 .orElseThrow(() -> new RuntimeException("User not found with email: " + currentUsername));
-        boolean hasPermission = false;
-        for (UserModel user : project.getAssignedUsers()) {
-            if (user.getUserID() == currentUser.getUserID()) {
-                hasPermission = true;
-                break;
-            }
-        }
-        if (project.getProjectOwnerID() != currentUser.getUserID()) {
-            hasPermission = true;
-        }
+
+        boolean hasPermission = project.getAssignedUsers().stream()
+                .anyMatch(user -> user.getUserID() == currentUser.getUserID())
+                || project.getProjectOwnerID() == currentUser.getUserID();
+
         if (!hasPermission) {
+            LOGGER.error("User does not have permission to get project");
             throw new RuntimeException("User does not have permission to get project");
         }
-        return createProjectJson(project);
+
+        ProjectDTO projectDTO = new ProjectDTO(project.getProjectID(), project.getParentOrgID(), project.getProjectName(), project.getProjectDescription(), project.getProjectOwnerID(), project.getEncodedImage(), getAssignedUsers(projectID), getProjectTasks(projectID));
+        
+
+        return projectDTO;
     }
 
-    public void updateProject(int projectID, String projectName, String projectDescription, int projectOwnerID) {
+    public void updateProject(int projectID, String projectName, String projectDescription, int projectOwnerID, String encodedImage) {
         ProjectModel project = projectRepository.findById(projectID)
                 .orElseThrow(() -> new RuntimeException("Project not found with id: " + projectID));
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -137,6 +144,7 @@ public class ProjectService {
         project.setProjectName(projectName);
         project.setProjectDescription(projectDescription);
         project.setProjectOwnerID(projectOwnerID);
+        project.setEncodedImage(encodedImage);
         projectRepository.save(project);
     }
 

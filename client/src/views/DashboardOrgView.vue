@@ -55,10 +55,10 @@
 
     <div v-if="org && projects" class="grid grid-cols-4 gap-4 m-8">
       <ProjCard
-        v-for="(project, index) in projects"
-        :key="index"
+        v-for="project in projects"
+        :key="project.projectID"
         :project="project"
-        :projIndex="index"
+        :projIndex="project.projectID"
       />
     </div>
   </div>
