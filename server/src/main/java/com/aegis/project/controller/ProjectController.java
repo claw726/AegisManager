@@ -6,6 +6,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
+import com.aegis.project.dto.ProjectDTO;
 
 import com.aegis.project.service.ProjectService;
 
@@ -43,14 +44,17 @@ public class ProjectController {
     }
 
     @GetMapping("/{projectID}/getProject")
-    public ResponseEntity<String> getProject(@PathVariable int projectID) {
+    public ResponseEntity<ProjectDTO> getProject(@PathVariable int projectID) {
         try {
+            logger.info("Received request to get project with ID: {}", projectID);
             return ResponseEntity.ok(projectService.getProject(projectID));
         }
         catch (RuntimeException e) {
             if (e.getMessage().equals("Project not found with ID: " + projectID)) {
+                logger.info("Project not found with ID: {}", projectID);
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
             } else {
+                logger.error("Error getting project: " + e.getMessage());
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
             }
         }

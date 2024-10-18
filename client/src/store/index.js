@@ -390,5 +390,24 @@ export default new Vuex.Store({
     async modifyProject({ commit }, { orgIndex, projIndex, project }) {
       commit("modifyProject", { orgIndex, projIndex, project });
     },
+    async fetchProject({ state }, projID) {
+      try {
+        const response = await axios.get(`/api/projects/${projID}/getProject`, {
+          headers: {
+            Authorization: `Bearer ${state.authToken}`,
+          },
+        });
+
+        console.log(`Project Data for Project ${projID}`, response.data);
+
+        return response.data;
+      } catch (error) {
+        console.error(
+          `Failed to fetch project ${projID}`,
+          error.response ? error.response.data : error.message,
+        );
+        throw new Error("Failed to fetch project");
+      }
+    },
   },
 });

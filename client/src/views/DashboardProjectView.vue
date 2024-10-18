@@ -1,6 +1,6 @@
 <template>
   <div
-    v-if="isLoggedIn"
+    v-if="isLoggedIn && proj"
     class="flex flex-col h-full w-full min-h-screen bg-background"
   >
     <NavBar />
@@ -167,12 +167,13 @@ export default {
   //   this.tasks = this.proj.tasks || [];
   // },
   methods: {
-    getProjData() {
-      this.proj =
-        this.organizations[this.$route.params.orgIndex].projects[
-          this.$route.params.projIndex
-        ];
-      if (!this.proj) {
+    async getProjData() {
+      try {
+        this.proj = await this.$store.dispatch(
+          "fetchProject",
+          this.$route.params.projIndex,
+        );
+      } catch (err) {
         alert("There was an error fetching the organization data");
         this.$router.push({ name: "OrganizationDashboard" });
       }
