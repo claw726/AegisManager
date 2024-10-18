@@ -164,7 +164,7 @@ export default new Vuex.Store({
         }
       }
     },
-    async fetchOrganizations() {
+    async fetchOrganizations({ state }) {
       try {
         const response = await axios.get("/api/orgs/getAllOrgs", {
           headers: {
@@ -184,7 +184,7 @@ export default new Vuex.Store({
       }
     },
 
-    async fetchTasks({state}, userID) {
+    async fetchTasks({ state }, userID) {
       try {
         const response = await axios
           .get(`/api/tasks/getAllUserTasks`, {
@@ -193,18 +193,17 @@ export default new Vuex.Store({
             },
 
             headers: {
-            'Authorization': `Bearer ${state.authToken}`,
-            }
+              Authorization: `Bearer ${state.authToken}`,
+            },
           })
           .then((response) => response.json());
-          //this.tasks = response.data;
+        //this.tasks = response.data;
         return response.data;
       } catch (error) {
         console.error("Failed to fetch tasks:", error.response.data);
         throw new Error("Failed to fetch tasks");
       }
     },
-
 
     async fetchOrganization({ state }, orgID) {
       try {
