@@ -30,18 +30,13 @@
       <!-- Button Row -->
 
       <div class="flex justify-center">
-        <button
-          @click="goToViewTasks"
-          class="button-container dashboard-button"
-        >
-          View Tasks
-        </button>
+
 
         <button @click="goToTDList" class="button-container dashboard-button">
           View Tasks
         </button>
 
-        <button @click="goToKanban" class="button-container dashboard-button">
+        <button @click="goToProjects" class="button-container dashboard-button">
           View Projects
         </button>
 
@@ -93,7 +88,7 @@ export default {
       this.$router.push({ name: "toDoList" });
     },
     goToProjects() {
-      alert("Not Implemented");
+      this.$router.push({ name: "ProjectDashboard" });
     },
     goToSettings() {
       alert("Not Implemented");

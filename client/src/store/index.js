@@ -12,6 +12,7 @@ export default new Vuex.Store({
     authToken: null,
     userAccounts: [],
     organizations: [],
+    tasks: [],
 
     allTasks: {
       1: {
@@ -51,45 +52,15 @@ export default new Vuex.Store({
     setAuthToken(state, token) {
       state.authToken = token;
     },
+    setTasks(state, t) {
+      state.tasks = t;
+    },
     clearAuth(state) {
       state.currentUser = null;
       state.authToken = null;
     },
     setLogin(state, isLoggedIn) {
       state.isLoggedIn = isLoggedIn;
-    },
-
-    addProject(state, { orgIndex, project }) {
-      if (orgIndex >= 0 && orgIndex < state.organizations.length) {
-        state.organizations[orgIndex].projects =
-          state.organizations[orgIndex].projects || [];
-        state.organizations[orgIndex].projects.push(project);
-      } else {
-        console.error("Invalid organization index:", orgIndex);
-        throw new Error("Invalid organization index");
-      }
-    },
-    deleteProject(state, { orgIndex, projIndex }) {
-      state.organizations[orgIndex].projects.splice(projIndex, 1);
-    },
-    modifyProject(state, { orgIndex, projIndex, project }) {
-      if (orgIndex && orgIndex >= 0 && orgIndex < state.organizations.length) {
-        const organization = state.organizations[orgIndex];
-        if (
-          organization &&
-          organization.projects &&
-          projIndex >= 0 &&
-          projIndex < organization.projects.length
-        ) {
-          state.organizations[orgIndex].projects[projIndex] = project;
-        } else {
-          console.error("Invalid project index:", projIndex);
-          throw new Error("Invalid project index");
-        }
-      } else {
-        console.error("Invalid organization index:", orgIndex);
-        throw new Error("Invalid organization index");
-      }
     },
   },
   actions: {
@@ -210,6 +181,27 @@ export default new Vuex.Store({
           error.response ? error.response.data : error.message,
         );
         throw new Error("Failed to fetch organizations");
+      }
+    },
+
+    async fetchTasks({ state }, userID) {
+      try {
+        const response = await axios
+          .get(`/api/tasks/getAllUserTasks`, {
+            params: {
+              userID: userID,
+            },
+
+            headers: {
+              Authorization: `Bearer ${state.authToken}`,
+            },
+          })
+          .then((response) => response.json());
+        //this.tasks = response.data;
+        return response.data;
+      } catch (error) {
+        console.error("Failed to fetch tasks:", error.response.data);
+        throw new Error("Failed to fetch tasks");
       }
     },
 
@@ -384,11 +376,74 @@ export default new Vuex.Store({
         throw new Error("Failed to Create Project");
       }
     },
-    async deleteProject({ commit }, { orgIndex, projIndex }) {
-      commit("deleteProject", { orgIndex, projIndex });
+    async deleteProject({ state }, { projectID }) {
+      try {
+        console.log(`Deleting Project ${projectID}`);
+
+        const response = await axios.delete(
+          `/api/projects/${projectID}/deleteProject`,
+          {
+            headers: {
+              Authorization: `Bearer ${state.authToken}`,
+            },
+          },
+        );
+        if (response.data) {
+          console.log("Project deleted successfully:", response.data);
+        }
+      } catch (error) {
+        console.error(
+          "Failed to delete project:",
+          error.response ? error.response.data : error.message,
+        );
+        if (error.response) {
+          switch (error.response.status) {
+            case 404:
+              console.error("Project not found with ID:", projectID);
+              break;
+            case 403:
+              console.error(
+                "Unauthorized to delete project with ID:",
+                projectID,
+              );
+              break;
+            default:
+              console.error("Failed to delete project with ID:", projectID);
+              break;
+          }
+        }
+      }
     },
-    async modifyProject({ commit }, { orgIndex, projIndex, project }) {
-      commit("modifyProject", { orgIndex, projIndex, project });
+    async modifyProject({ state }, { project, projectID }) {
+      try {
+        console.log(
+          `Modifying Project ${projectID} with parameters:\nName: ${project.projectName}\nDescription: ${project.projectDescription}\nOwnerID: ${project.projectOwnerID}`,
+        );
+
+        const params = new URLSearchParams();
+        params.append("projectName", project.projectName);
+        params.append("projectDescription", project.projectDescription);
+        params.append("projectOwnerID", project.projectOwnerID);
+        const response = await axios.post(
+          `/api/projects/${projectID}/update`,
+          params,
+          {
+            headers: {
+              "Content-Type": "application/x-www-form-urlencoded",
+              Authorization: `Bearer ${state.authToken}`,
+            },
+          },
+        );
+        if (response.data) {
+          console.log("Project modified successfully:", response.data);
+        }
+      } catch (error) {
+        console.error(
+          "Failed to modify project:",
+          error.response ? error.response.data : error.message,
+        );
+        throw new Error("Failed to modify project");
+      }
     },
     async fetchProject({ state }, projID) {
       try {
