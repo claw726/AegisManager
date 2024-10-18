@@ -387,8 +387,36 @@ export default new Vuex.Store({
     async deleteProject({ commit }, { orgIndex, projIndex }) {
       commit("deleteProject", { orgIndex, projIndex });
     },
-    async modifyProject({ commit }, { orgIndex, projIndex, project }) {
-      commit("modifyProject", { orgIndex, projIndex, project });
+    async modifyProject({ state }, { project, projectID }) {
+      try {
+        console.log(
+          `Modifying Project ${projectID} with parameters:\nName: ${project.projectName}\nDescription: ${project.projectDescription}\nOwnerID: ${project.projectOwnerID}`,
+        );
+
+        const params = new URLSearchParams();
+        params.append("projectName", project.projectName);
+        params.append("projectDescription", project.projectDescription);
+        params.append("projectOwnerID", project.projectOwnerID);
+        const response = await axios.post(
+          `/api/projects/${projectID}/update`,
+          params,
+          {
+            headers: {
+              "Content-Type": "application/x-www-form-urlencoded",
+              Authorization: `Bearer ${state.authToken}`,
+            },
+          },
+        );
+        if (response.data) {
+          console.log("Project modified successfully:", response.data);
+        }
+      } catch (error) {
+        console.error(
+          "Failed to modify project:",
+          error.response ? error.response.data : error.message,
+        );
+        throw new Error("Failed to modify project");
+      }
     },
     async fetchProject({ state }, projID) {
       try {
