@@ -100,6 +100,8 @@ public class ProjectService {
         Set<ProjectModel> orgProjects = parentOrg.getOrgProjects();
         orgProjects.add(project);
         orgRepository.save(parentOrg);
+
+        addUser(project.getProjectID(), userRepository.findById(projectOwnerID).get().getEmail());
         return true;
     }
 
