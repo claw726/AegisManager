@@ -6,6 +6,9 @@ import java.util.Optional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.security.core.Authentication;
+import org.springframework.security.core.context.SecurityContextHolder;
+import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.stereotype.Service;
 
@@ -38,6 +41,30 @@ public class UserService {
         userRepository.save(user);
         logger.info("User with email: {} created successfully", email);
         return true;
+    }
+
+    public void updateUser(int userID, String name, String email, String profilePicture) {
+        logger.info("Updating user with ID: {}", userID);
+        UserModel user = userRepository.findById(userID)
+                .orElseThrow(() -> new RuntimeException("User not found with ID: " + userID));
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUsername = ((UserDetails) authentication.getPrincipal()).getUsername();
+
+        if (!currentUsername.equals(user.getEmail())) {
+            logger.warn("User with email: {} does not have permission to update user with ID: {}", currentUsername, userID);
+            throw new RuntimeException("User with email: " + currentUsername + " does not have permission to update user with ID: " + userID);
+        }
+
+        if (userRepository.existsByEmail(email) && !userRepository.findByEmail(email).get().getEmail().equals(user.getEmail())) {
+            logger.warn("User with email: {} already exists", email);
+            throw new RuntimeException("User with email: " + email + " already exists");
+        }
+        user.setUserName(name);
+        user.setEmail(email);
+        user.setProfilePicture(profilePicture);
+        userRepository.save(user);
+        logger.info("Updated user with ID: {}", userID);
     }
 
     public Optional<UserModel> findUserByEmail(String email) {
