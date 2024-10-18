@@ -70,6 +70,7 @@
                   @click="triggerFileInput"
                   class="flex-col flex px-8 bg-primary text-white font-semibold py-3 rounded-lg"
                 >
+
                   Upload Image
                   <span v-if="imageUploaded" class="text-gray-500 ml-2"
                     >(Image Uploaded)</span
