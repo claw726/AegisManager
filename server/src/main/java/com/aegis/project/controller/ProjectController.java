@@ -1,5 +1,6 @@
 package com.aegis.project.controller;
 
+import com.aegis.project.dto.UserDTO;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +11,7 @@ import org.springframework.web.bind.annotation.*;
 import com.aegis.project.service.ProjectService;
 
 import java.util.List;
+import java.util.Set;
 
 @RestController
 @RequestMapping("api/projects")
@@ -150,6 +152,24 @@ public class ProjectController {
                 return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
             }
             else {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+            }
+        }
+    }
+
+    @GetMapping("/{projectID}/getUsers")
+    public ResponseEntity<Set<UserDTO>> getUsers(@PathVariable int projectID) {
+        try {
+            return ResponseEntity.ok(projectService.getAssignedUsers(projectID));
+        }
+        catch (RuntimeException e) {
+            if (e.getMessage().equals("Project not found with ID: " + projectID)) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            } else if (e.getMessage().contains("User not found")) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            } else if (e.getMessage().contains("User does not have permission to view users")) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+            } else {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
             }
         }
