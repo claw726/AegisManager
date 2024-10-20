@@ -124,11 +124,15 @@ export default new Vuex.Store({
       commit("clearAuth");
       commit("setLogin", false);
     },
-    async fetchUserAccountByID(userID) {
+    async fetchUserAccountByID({ state }, userID) {
       try {
-        const response = await axios
-          .get(`/api/users/${userID}`)
-          .then((response) => response.json());
+
+        const response = await axios.get(`/api/users/${userID}`, {
+          headers: {
+            Authorization: `Bearer ${state.authToken}`,
+          },
+        });
+
         return response.data;
       } catch (error) {
         console.error("Failed to fetch user account:", error.response.data);
@@ -489,5 +493,34 @@ export default new Vuex.Store({
         throw new Error("Failed to fetch project");
       }
     },
+    async fetchProjectMembers({ state }, projectID) {
+      try {
+        const response = await axios.get(`/api/projects/${projectID}/members`, {
+          headers: {
+            Authorization: `Bearer ${state.authToken}`,
+          },
+        });
+        return response.data;
+      } catch (error) {
+        console.error('Error fetching project members: ', error.response?.data || error.message);
+        throw error;
+      }
+    },
+    async removeUserFromProject({ state }, { projectID, email}) {
+      try {
+        const params = new URLSearchParams();
+        params.append('email', email)
+
+        const response = await axios.post(`/api/projects/${projectID}/removeUser`, params, {
+          headers: {
+            Authorization: `Bearer ${state.authToken}`,
+          }
+        });
+        console.log('User removed successfully: ', response.data);
+      } catch (error) {
+        console.error('Error removing user from project: ', error.response?.data || error.message);
+        throw error;
+      }
+    }
   },
 });

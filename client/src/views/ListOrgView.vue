@@ -49,8 +49,8 @@ export default {
             userOrganizations: null,
         };
     },
-    mounted() {
-        this.fetchOrganizations();
+    async mounted() {
+        await this.fetchOrganizations();
     },
     watch: {
         organizations: {
