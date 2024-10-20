@@ -198,6 +198,9 @@ public class OrgService {
 
         org.getUsers().remove(userToRemove);
         orgRepository.save(org);
+
+        userToRemove.getOrgs().remove(org);
+        userRepository.save(userToRemove);
     }
 
     public String createOrgJson(OrgModel org) {
