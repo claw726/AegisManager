@@ -162,7 +162,28 @@ public class ProjectService {
         ProjectModel project = projectRepository.findById(projectID)
                 .orElseThrow(() -> new RuntimeException("Project not found with id: " + projectID));
 
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUsername = ((UserDetails) authentication.getPrincipal()).getUsername();
+
+        UserModel currentUser = userRepository.findByEmail(currentUsername)
+                .orElseThrow(() -> new RuntimeException("User not found with email: " + currentUsername));
+        boolean hasPermission = false;
+
         Set<UserModel> members = project.getAssignedUsers();
+
+        for (UserModel user : members) {
+            if (user.getUserID() == currentUser.getUserID()) {
+                hasPermission = true;
+                break;
+            }
+        }
+        if (project.getProjectOwnerID() != currentUser.getUserID()) {
+            hasPermission = true;
+        }
+        if (!hasPermission) {
+            throw new RuntimeException("User does not have permission to view users");
+        }
+
         return members.stream()
                 .map(user -> new UserDTO(user.getUserID(), user.getUserName(), user.getEmail(), user.getProfilePicture()))
                 .collect(Collectors.toSet());
