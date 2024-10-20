@@ -6,6 +6,9 @@
         <div class="text-4xl font-bold text-primary text-center py-4">Your Organizations</div>
         <div class="h-1 bg-accent drop-shadow-lg"></div>
         <div class="grid grid-cols-3">
+
+            <!-- List of a user's orgs -->
+
             <div class="flex-col" />
             <div class="relative flex-col col-span-1 justify-center flex w-full">
             <div v-if="userOrganizations && userOrganizations.length > 0">
@@ -46,18 +49,29 @@ export default {
             userOrganizations: null,
         };
     },
-    async created() {
-        try {
-            this.userOrganizations = await this.$store.dispatch('fetchOrganizations');
-            console.log('Fetched Organizations:', this.userOrganizations)
-        } catch (error) {
-            console.error('Error Loading Organizaitons:', error.message);
-            alert('Failed to load organizations!');
-        }
+    mounted() {
+        this.fetchOrganizations();
+    },
+    watch: {
+        organizations: {
+            handler (newVal) {
+                this.userOrganizations = newVal;
+            },
+            immediate: true,
+        },
     },
     methods: {
         goToCreateOrg() {
             this.$router.push({ name: 'createOrg' });
+        },
+        async fetchOrganizations() {
+            try {
+                this.userOrganizations = await this.$store.dispatch('fetchOrganizations');
+                console.log('Fetched Organizations:', this.userOrganizations)
+            } catch (error) {
+                console.error('Error Loading Organizaitons:', error.message);
+                alert('Failed to load organizations!');
+            }
         }
     }
 };
