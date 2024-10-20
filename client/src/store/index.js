@@ -313,40 +313,65 @@ export default new Vuex.Store({
         throw new Error("Failed to delete organization");
       }
     },
-    async addUserToOrganization({ orgID, email }) {
+    async addUserToOrganization({ state }, { orgID, email}) {
       try {
         const params = new URLSearchParams();
         params.append("email", email);
-        await axios.post(`/api/orgs/${orgID}/addUser`, params, {
+        const response = await axios.post(`/api/orgs/${orgID}/addUser`, params, {
           headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
+            Authorization: `Bearer ${state.authToken}`,
           },
         });
-        return true;
+        console.log(`User with email: ${email} added successfully:`, response.data);
+        return response.data;
       } catch (error) {
-        console.error(
-          "Failed to add user to organization:",
-          error.response.data,
-        );
-        throw new Error("Failed to add user to organization");
+        console.error("Error adding user to organization: ", error.response?.data || error.message);
+        throw error;
       }
     },
-    async removeUserFromOrganization({ orgID, email }) {
+    async removeUserFromOrganization({ state }, { orgID, email }) {
       try {
         const params = new URLSearchParams();
         params.append("email", email);
-        await axios.post(`/api/orgs/${orgID}/removeUser`, params, {
+        const response = await axios.post(`/api/orgs/${orgID}/removeUser`, params, {
           headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
+            Authorization: `Bearer ${state.authToken}`,
           },
         });
-        return true;
+        console.log(`User with email ${email} removed successfully: `, response.data);
+        return response.data;
       } catch (error) {
         console.error(
-          "Failed to remove user from organization:",
-          error.response.data,
+          "Failed to remove user from organization: ",
+          error.response?.data || error.message
         );
-        throw new Error("Failed to remove user from organization");
+        throw error;
+      }
+    },
+    async fetchOrgMembers({ state }, orgID) {
+      try {
+        const response = await axios.get(`/api/orgs/${orgID}/members`, {
+          headers: {
+            Authorization: `Bearer ${state.authToken}`,
+          },
+        });
+        return response.data;
+      } catch (error) {
+        console.error('Error fetching organization members:', error);
+        throw error;
+      }
+    },
+    async fetchAllUsers({ state }) {
+      try {
+        const response = await axios.get('/api/users/getAllUsers', {
+          headers: {
+            Authorization: `Bearer ${state.authToken}`,
+          },
+        });
+        return response.data;
+      } catch (error) {
+        console.error('Error fetching all users:', error);
+        throw error;
       }
     },
     async createProject({ state }, project) {

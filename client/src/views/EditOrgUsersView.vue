@@ -32,7 +32,7 @@
             <!-- Remove Users Table -->
             <CurrentUsersTable
               v-else
-              :users="currentUsers"
+              :users="members"
               @removeUser="removeUser"
             />
           </div>
@@ -52,7 +52,7 @@ export default {
   data() {
     return {
       availableUsers: [],
-      currentUsers: [],
+      members: [],
       showAddUsers: true,
     };
   },
@@ -64,49 +64,64 @@ export default {
   computed: {
     ...mapState(["isLoggedIn", "currentUser", "organizations"]),
   },
-  created() {
-    const organization = this.organizations[this.$route.params.orgIndex];
-    if (organization) {
-      this.currentUsers = organization.members;
-      this.availableUsers = this.$store.state.userAccounts.filter(
-        (user) => !organization.members.includes(user.email),
-      );
-    }
+  mounted() {
+    this.fetchOrgMembers();
   },
   methods: {
-    async addUser(userEmail) {
-      const organizationID = this.$route.params.orgIndex;
-      await this.$store
-        .dispatch("addUserToOrganization", {
-          orgIndex: organizationID,
-          userEmails: userEmail,
-        })
-        .then(() => {
-          this.currentUsers.push(userEmail);
-        })
-        .catch((error) => {
-          alert(error);
+    async addUser(email) {
+      try {
+        const orgID = this.$route.params.orgIndex;
+        console.log(`Adding ${email} to org ${orgID}`);
+        const message = await this.$store.dispatch('addUserToOrganization', {
+          orgID, email
         });
+        alert(message);
+        this.fetchOrgMembers();
+      } catch (error) {
+        alert('Failed to add user to organization:' + (error.response?.data || error.message));
+      }
     },
-    async removeUser(userEmail) {
-      const organizationID = this.$route.params.orgIndex;
-      await this.$store
-        .dispatch("removeUserFromOrganization", {
-          orgIndex: organizationID,
-          userEmail: userEmail,
-        })
-        .then(() => {
-          this.currentUsers = this.currentUsers.filter(
-            (user) => user !== userEmail,
-          );
-        })
-        .catch((error) => {
-          alert(error);
-        });
+    async removeUser(email) {
+      try {
+        const orgID = this.$route.params.orgIndex;
+        const message = await this.$store
+          .dispatch("removeUserFromOrganization", {
+            orgID, email
+          });
+        alert(message);
+        this.fetchOrgMembers();
+      } catch (error) {
+        alert("Failed to remove member from organization: " + (error.response?.data || error.message));
+      }
     },
     toggleTable() {
       this.showAddUsers = !this.showAddUsers;
     },
+    async fetchOrgMembers() {
+      try {
+        const orgID = this.$route.params.orgIndex;
+        if (!orgID) {
+          throw new Error('Organization ID is not available!');
+        }
+
+        // Fetch org members
+        this.members = await this.$store.dispatch('fetchOrgMembers', orgID);
+        console.log('Organization Members:', this.members);
+
+        // Fetch all users
+        const allUsers = await this.$store.dispatch('fetchAllUsers');
+        console.log('All Users:', allUsers);
+
+        // Filter out users who are not a member of this org
+        const memberIDs = this.members.map(member => member.userID);
+        this.availableUsers = allUsers.filter(
+          user => !memberIDs.includes(user.userID)
+        );
+      } catch (error) {
+        console.error("Error fetching organization members or users:", error.message);
+        alert('Failed to load organization members or available users. Please Try again later');
+      }
+    }
   },
 };
 </script>
