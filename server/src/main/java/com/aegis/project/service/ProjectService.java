@@ -101,7 +101,7 @@ public class ProjectService {
         orgProjects.add(project);
         orgRepository.save(parentOrg);
 
-        addUser(project.getProjectID(), userRepository.findById(projectOwnerID).get().getEmail());
+        // addUser(project.getProjectID(), userRepository.findById(projectOwnerID).get().getEmail());
         return true;
     }
 
