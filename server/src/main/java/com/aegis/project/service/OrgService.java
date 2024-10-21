@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.access.method.P;
 import org.springframework.security.core.Authentication;
@@ -46,7 +47,12 @@ public class OrgService {
         org.setOrgOwnerID(ownerID);
         org.setEncodedImage(encodedImage);
         orgRepository.save(org);
-        addUser(org.getOrgID(), userRepository.findById(ownerID).get().getEmail());
+        try {
+            addUser(org.getOrgID(), userRepository.findById(ownerID).get().getEmail());
+        } catch (Exception e) {
+            orgRepository.deleteById(org.getOrgID());
+            throw new RuntimeException("Error adding owner to org");
+        }
         return true;
     }
 
@@ -127,6 +133,7 @@ public class OrgService {
         orgRepository.save(org);
     }
 
+    @Transactional
     public void deleteOrg(int orgID) {
         OrgModel org = orgRepository.findById(orgID)
                 .orElseThrow(() -> new RuntimeException("Org not found with id: " + orgID));
