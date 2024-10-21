@@ -275,13 +275,9 @@ public class ProjectService {
         }
 
         project.getAssignedUsers().remove(userToRemove);
+        simpMessageTemplate.convertAndSendToUser(userToRemove.getEmail(), "/queue/project-updates",
+                "User removed from project with ID: " + projectID);
         projectRepository.save(project);
-
-        OrgModel parentOrg = orgRepository.findById(project.getParentOrgID())
-                .orElseThrow(() -> new RuntimeException("Parent org not found with id: " + projectID));
-        parentOrg.getOrgProjects().remove(project);
-        orgRepository.save(parentOrg);
-        taskRepository.deleteByParentProjectID(projectID);
     }
 
     public Set<TaskDTO> getAllTasksFromProject(int projectID) {
