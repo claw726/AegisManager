@@ -480,6 +480,7 @@ export default new Vuex.Store({
         params.append("projectName", project.projectName);
         params.append("projectDescription", project.projectDescription);
         params.append("projectOwnerID", project.projectOwnerID);
+        params.append("encodedImage", project.encodedImage);
         const response = await axios.post(
           `/api/projects/${projectID}/update`,
           params,
