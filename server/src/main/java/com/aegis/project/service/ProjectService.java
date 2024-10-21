@@ -92,6 +92,15 @@ public class ProjectService {
         project.setParentOrgID(parentOrgID);
         projectRepository.save(project);
 
+        try {
+            addUser(project.getProjectID(), userRepository.findById(projectOwnerID).get().getEmail());
+        } catch (Exception e) {
+            projectRepository.deleteById(project.getProjectID());
+            LOGGER.error("Error adding project owner to project");
+            throw new RuntimeException("Error adding project owner to project");
+        }
+
+
         OrgModel parentOrg = orgRepository.findById(parentOrgID)
                 .orElseThrow(() -> new RuntimeException("Org not found with id: " + parentOrgID));
 
@@ -100,8 +109,6 @@ public class ProjectService {
         Set<ProjectModel> orgProjects = parentOrg.getOrgProjects();
         orgProjects.add(project);
         orgRepository.save(parentOrg);
-
-        addUser(project.getProjectID(), userRepository.findById(projectOwnerID).get().getEmail());
         return true;
     }
 
