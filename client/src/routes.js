@@ -107,6 +107,12 @@ const router = createRouter({
                   meta: {requiresAuth: true},
                 },
                 {
+                  path: '/organization/:orgIndex/project/:projIndex/editUsers',
+                  name: 'EditProjUsers',
+                  component: () => import('./views/EditProjUsersView.vue'),
+                  meta: {requiresAuth: true},
+                },
+                {
                   path: '/organization/:orgIndex/project/:projIndex/edit/assignUsers',
                   name: 'assignUsersinProj',
                   component: () => import('./views/ListProjUsersView.vue'),

@@ -5,13 +5,11 @@
   >
     <NavBar />
 
-    <div class="absolute justify-end top-1 right-1">
-      <DropdownMenu title="⚙️" :items="dropdownOpts" />
-    </div>
+    
 
-    <div class="flex justify-center justify-items-center p-4">
-      <div v-if="org">
-        <div class="relative flex h-screen/3 py-4">
+    <div class="flex justify-center p-4">
+      <div v-if="org" class="relative flex flex-row items-start h-screen/3 py-4">
+        <div class="flex flex-col items-center mr-8">
           <img
             :src="
               org.encodedImage ||
@@ -20,17 +18,20 @@
             alt="Organization Logo"
             class="w-48 h-48 rounded-full drop-shadow-xl col-span-1"
           />
-          <div class="ml-8 flex flex-col justify-center">
-            <div class="text-4xl font-bold text-primary">{{ org.orgName }}</div>
-            <div class="text-2xl font-semibold text-secondary">
-              {{ org.orgDescription }}
-            </div>
-            <button @click="viewUsersInOrg" class="text-2xl font-semibold text-secondary">
-              View {{ org.OrgName }} Users
-            </button>
-            <div class="text-medium text-accent">
-              Created by: {{ org.orgOwnerID }}
-            </div>
+          <div class="mt-4">
+            <DropdownMenu title="⚙️" :items="dropdownOpts" />
+          </div>
+        </div>
+        <div class="flex flex-col justify-center p-4">
+          <div class="text-4xl font-bold text-primary">{{ org.orgName }}</div>
+          <div class="text-xl font-semibold text-secondary">
+            {{ org.orgDescription }}
+          </div>
+          <button @click="viewUsersInOrg" class="text-2xl font-semibold text-secondary">
+            View {{ org.OrgName }} Users
+          </button>
+          <div class="text-medium text-accent" v-if="creator.userName">
+            Created by: {{ creator.userName }}
           </div>
         </div>
       </div>
@@ -80,7 +81,7 @@ export default {
     DropdownMenu,
   },
   computed: {
-    ...mapState(["isLoggedIn"]),
+    ...mapState(["isLoggedIn", "currentUser"]),
   },
   data() {
     return {
@@ -100,11 +101,14 @@ export default {
           command: this.editOrgUsers,
         },
       ],
+      creator: {},
     };
   },
   async created() {
     await this.getOrgData(); // Ensure this is awaited
     await this.getAllOrgProjects(); // Ensure this is awaited
+    await this.getCreatorData();
+    
   },
   methods: {
     async getOrgData() {
@@ -129,6 +133,13 @@ export default {
       } catch (error) {
         console.error("Error fetching projects:", error);
         alert("Failed to load projects: " + error.message);
+      }
+    },
+    async getCreatorData() {
+      try {
+        this.creator = await this.$store.dispatch("fetchUserAccountByID", this.org.orgOwnerID)
+      } catch (error) {
+        console.error("Error getting org owner info");
       }
     },
     goToCreateProject() {
@@ -167,7 +178,7 @@ export default {
     },
 
     viewUsersInOrg() {
-      this.$router.push({ name: 'viewUsersInOrg', query: {org: org, orgIndex: this.$route.params.orgIndex } });
+      this.$router.push({ name: 'viewUsersInOrg', query: {org: this.org, orgIndex: this.$route.params.orgIndex } });
     },
   },
 };

@@ -7,10 +7,7 @@
     <div class="">
       <div class="flex flex-col justify-center h-screen/3 py-16">
         <div class="text-4xl font-bold text-primary text-center py-8">
-          Edit Organization
-        </div>
-        <div class="text-4xl font-bold text-red-500 text-center py-8">
-          Can't implement until server is completed
+          Edit Project Users
         </div>
         <div class="h-1 bg-accent rounded-lg"></div>
         <div class="py-16">
@@ -65,63 +62,76 @@ export default {
     ...mapState(["isLoggedIn", "currentUser", "organizations"]),
   },
   mounted() {
-    this.fetchOrgMembers();
+    this.fetchProjMembers();
   },
   methods: {
     async addUser(email) {
       try {
-        const orgID = this.$route.params.orgIndex;
-        console.log(`Adding ${email} to org ${orgID}`);
-        const message = await this.$store.dispatch('addUserToOrganization', {
-          orgID, email
+        const projectID = this.$route.params.projIndex;
+        console.log(`Adding ${email} to proj ${projectID}`);
+        const message = await this.$store.dispatch("addUserToProject", {
+          projectID,
+          email,
         });
         alert(message);
-        this.fetchOrgMembers();
+        this.fetchProjMembers();
       } catch (error) {
-        alert('Failed to add user to organization:' + (error.response?.data || error.message));
+        alert(
+          "Failed to add user to Project:" +
+            (error.response?.data || error.message),
+        );
       }
     },
     async removeUser(email) {
       try {
-        const orgID = this.$route.params.orgIndex;
-        const message = await this.$store
-          .dispatch("removeUserFromOrganization", {
-            orgID, email
-          });
+        const projectID = this.$route.params.projIndex;
+        const message = await this.$store.dispatch("removeUserFromProject", {
+          projectID,
+          email,
+        });
         alert(message);
-        this.fetchOrgMembers();
+        this.fetchProjMembers();
       } catch (error) {
-        alert("Failed to remove member from organization: " + (error.response?.data || error.message));
+        alert(
+          "Failed to remove member from Project: " +
+            (error.response?.data || error.message),
+        );
       }
     },
     toggleTable() {
       this.showAddUsers = !this.showAddUsers;
     },
-    async fetchOrgMembers() {
+    async fetchProjMembers() {
       try {
         const orgID = this.$route.params.orgIndex;
-        if (!orgID) {
-          throw new Error('Organization ID is not available!');
+        const projID = this.$route.params.projIndex;
+        if (!projID || !orgID) {
+          throw new Error("Organization ID is not available!");
         }
 
-        // Fetch org members
-        this.members = await this.$store.dispatch('fetchOrgMembers', orgID);
-        console.log('Organization Members:', this.members);
+        // Fetch proj members
+        this.members = await this.$store.dispatch(
+          "fetchProjectMembers",
+          projID,
+        );
+        console.log("Organization Members:", this.members);
 
-        // Fetch all users
-        const allUsers = await this.$store.dispatch('fetchAllUsers');
-        console.log('All Users:', allUsers);
+        // Fetch all org users
+        const allUsers = await this.$store.dispatch("fetchOrgMembers", orgID);
+        console.log("All org Users:", allUsers);
 
-        // Filter out users who are not a member of this org
-        const memberIDs = this.members.map(member => member.userID);
+        // Filter out users who are not a member of this project
+        const memberIDs = this.members.map((member) => member.userID);
         this.availableUsers = allUsers.filter(
-          user => !memberIDs.includes(user.userID)
+          (user) => !memberIDs.includes(user.userID),
         );
       } catch (error) {
-        console.error("Error fetching organization members or users:", error.message);
-        alert('Failed to load organization members or available users. Please Try again later');
+        console.error("Error fetching project members:", error.message);
+        alert(
+          "Failed to load project members or available users. Please Try again later",
+        );
       }
-    }
+    },
   },
 };
 </script>

@@ -5,28 +5,28 @@
   >
     <NavBar />
 
-    <div class="absolute justify-end top-1 right-1">
-      <DropdownMenu title="⚙️" :items="dropdownOpts" @command="handleCommand" />
-    </div>
-
-    <div class="flex justify-center justify-items-center p-4">
-      <div v-if="proj">
-        <div class="relative flex h-screen/3 py-4">
+    <div class="flex justify-center p-4">
+      <div v-if="proj" class="relative flex flex-row items-start h-screen/3 py-4">
+        <div class="flex flex-col items-center mr-8">
           <img
             :src="proj.encodedImage"
             alt="Profile Picture"
-            class="h-48 con drop-shadow-xl col-span-1 rounded-lg"
+            class="h-auto w-full drop-shadow-xl col-span-1 rounded-lg"
           />
-          <div class="ml-8 flex flex-col justify-center">
-            <div class="text-4xl font-bold text-primary">
-              {{ proj.projectName }}
-            </div>
-            <div class="text-2xl font-semibold text-secondary">
-              {{ proj.projectDescription }}
-            </div>
-            <div class="text-medium text-accent">
-              Created by user no.: {{ proj.projectOwnerID }}
-            </div>
+          <!-- Dropdown Menu -->
+          <div class="mt-4">
+            <DropdownMenu title="⚙️" :items="dropdownOpts" @command="handleCommand" />
+          </div>
+        </div>
+        <div class="flex flex-col justify-center p-4">
+          <div class="text-4xl font-bold text-primary">
+            {{ proj.projectName }}
+          </div>
+          <div class="text-xl font-semibold text-secondary mt-2">
+            {{ proj.projectDescription }}
+          </div>
+          <div class="text-medium text-accent mt-2">
+            Created by: {{ creator.userName }}
           </div>
         </div>
       </div>
@@ -76,13 +76,17 @@ export default {
       projects: [],
       dropdownOpts: [
         {
-          title: "Edit Project Details",
+          title: "Edit Project Details ✏️",
           command: this.editProject,
         },
         {
-          title: "Delete This Project",
+          title: "Delete This Project 🗑️",
           command: this.deleteProject,
         },
+        {
+          title: "Edit Project Members 🤵",
+          command: this.editProjUsers,
+        }
       ],
       tasks: [
         {
@@ -150,6 +154,7 @@ export default {
         },
         // Add more tasks as needed
       ],
+      creator: {},
     };
   },
   components: {
@@ -157,8 +162,9 @@ export default {
     TaskCard,
     DropdownMenu,
   },
-  created() {
-    this.getProjData();
+  async created() {
+    await this.getProjData();
+    await this.getCreatorData();
   },
   computed: {
     ...mapState(["isLoggedIn", "organizations", "currentUser"]),
@@ -176,6 +182,13 @@ export default {
       } catch (err) {
         alert("There was an error fetching the organization data");
         this.$router.push({ name: "OrganizationDashboard" });
+      }
+    },
+    async getCreatorData() {
+      try {
+        this.creator = await this.$store.dispatch("fetchUserAccountByID", this.proj.projectOwnerID);
+      } catch (error) {
+        console.error("Error getting project owner info");
       }
     },
     goToCreateTask() {
@@ -225,6 +238,15 @@ export default {
           });
       }
     },
+    editProjUsers() {
+      this.$router.push({
+        name: "EditProjUsers",
+        params: {
+          orgIndex: this.$route.params.orgIndex,
+          projIndex: this.$route.params.projIndex
+        }
+      })
+    }
   },
 };
 </script>

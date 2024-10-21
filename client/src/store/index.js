@@ -124,11 +124,14 @@ export default new Vuex.Store({
       commit("clearAuth");
       commit("setLogin", false);
     },
-    async fetchUserAccountByID(userID) {
+    async fetchUserAccountByID({ state }, userID) {
       try {
-        const response = await axios
-          .get(`/api/users/${userID}`)
-          .then((response) => response.json());
+        const response = await axios.get(`/api/users/${userID}`, {
+          headers: {
+            Authorization: `Bearer ${state.authToken}`,
+          },
+        });
+
         return response.data;
       } catch (error) {
         console.error("Failed to fetch user account:", error.response.data);
@@ -313,40 +316,93 @@ export default new Vuex.Store({
         throw new Error("Failed to delete organization");
       }
     },
-    async addUserToOrganization({ orgID, email }) {
+    async addUserToOrganization({ state }, { orgID, email }) {
       try {
         const params = new URLSearchParams();
         params.append("email", email);
-        await axios.post(`/api/orgs/${orgID}/addUser`, params, {
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
+        const response = await axios.post(
+          `/api/orgs/${orgID}/addUser`,
+          params,
+          {
+            headers: {
+              Authorization: `Bearer ${state.authToken}`,
+            },
           },
-        });
-        return true;
+        );
+        console.log(
+          `User with email: ${email} added successfully:`,
+          response.data,
+        );
+        return response.data;
       } catch (error) {
         console.error(
-          "Failed to add user to organization:",
-          error.response.data,
+          "Error adding user to organization: ",
+          error.response?.data || error.message,
         );
-        throw new Error("Failed to add user to organization");
+        throw error;
       }
     },
-    async removeUserFromOrganization({ orgID, email }) {
+    async removeUserFromOrganization({ state }, { orgID, email }) {
       try {
         const params = new URLSearchParams();
         params.append("email", email);
-        await axios.post(`/api/orgs/${orgID}/removeUser`, params, {
-          headers: {
-            "Content-Type": "application/x-www-form-urlencoded",
+        const response = await axios.post(
+          `/api/orgs/${orgID}/removeUser`,
+          params,
+          {
+            headers: {
+              Authorization: `Bearer ${state.authToken}`,
+            },
           },
-        });
-        return true;
+        );
+        console.log(
+          `User with email ${email} removed successfully: `,
+          response.data,
+        );
+        return response.data;
       } catch (error) {
         console.error(
-          "Failed to remove user from organization:",
-          error.response.data,
+          "Failed to remove user from organization: ",
+          error.response?.data || error.message,
         );
-        throw new Error("Failed to remove user from organization");
+        throw error;
+      }
+    },
+    async fetchOrgMembers({ state }, orgID) {
+      try {
+        const response = await axios.get(`/api/orgs/${orgID}/members`, {
+          headers: {
+            Authorization: `Bearer ${state.authToken}`,
+          },
+        });
+
+        const users =
+          typeof response.data === "string"
+            ? JSON.parse(response.data)
+            : response.data;
+
+        if (!Array.isArray(users)) {
+          throw new Error("Expected an array of users");
+        }
+        return users;
+      } catch (error) {
+        console.error("Error fetching organization members:", error);
+        throw error;
+      }
+    },
+    async fetchAllUsers({ state }) {
+      try {
+        const response = await axios.get("/api/users/getAllUsers", {
+          headers: {
+            Authorization: `Bearer ${state.authToken}`,
+            "Content-Type": "application/json",
+          },
+        });
+
+        return response.data;
+      } catch (error) {
+        console.error("Error fetching all users:", error);
+        throw error;
       }
     },
     async createProject({ state }, project) {
@@ -424,6 +480,7 @@ export default new Vuex.Store({
         params.append("projectName", project.projectName);
         params.append("projectDescription", project.projectDescription);
         params.append("projectOwnerID", project.projectOwnerID);
+        params.append("encodedImage", project.encodedImage);
         const response = await axios.post(
           `/api/projects/${projectID}/update`,
           params,
@@ -462,6 +519,75 @@ export default new Vuex.Store({
           error.response ? error.response.data : error.message,
         );
         throw new Error("Failed to fetch project");
+      }
+    },
+    async fetchProjectMembers({ state }, projectID) {
+      try {
+        const response = await axios.get(
+          `/api/projects/${projectID}/getUsers`,
+          {
+            headers: {
+              Authorization: `Bearer ${state.authToken}`,
+            },
+          },
+        );
+        return response.data;
+      } catch (error) {
+        console.error(
+          "Error fetching project members: ",
+          error.response?.data || error.message,
+        );
+        throw error;
+      }
+    },
+    async removeUserFromProject({ state }, { projectID, email }) {
+      try {
+        const params = new URLSearchParams();
+        params.append("email", email);
+
+        const response = await axios.post(
+          `/api/projects/${projectID}/removeUser`,
+          params,
+          {
+            headers: {
+              Authorization: `Bearer ${state.authToken}`,
+            },
+          },
+        );
+        console.log("User removed successfully: ", response.data);
+        return response.data;
+      } catch (error) {
+        console.error(
+          "Error removing user from project: ",
+          error.response?.data || error.message,
+        );
+        throw error;
+      }
+    },
+    async addUserToProject({ state }, { projectID, email }) {
+      try {
+        const params = new URLSearchParams();
+        params.append("email", email);
+        const response = await axios.post(
+          `/api/projects/${projectID}/addUser`,
+          params,
+          {
+            headers: {
+              Authorization: `Bearer ${state.authToken}`,
+            },
+          },
+        );
+        console.log(
+          `User with email: ${email} added successfully:`,
+          response.data,
+        );
+        return response.data;
+      } catch (error) {
+        console.error(
+          "Error adding user to project: ",
+          error.response?.data || error.message,
+        );
+        throw error;
       }
     },
   },
