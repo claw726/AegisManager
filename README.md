@@ -18,19 +18,11 @@ Aegis is a project management system designed to simplify task management for sm
 - Vue.js installed globally (optional but recommended for development).
 
 
-### Step 1: Build the Docker Image
-Open a terminal in the `./client` directory and run the following command to build the Docker image:
-
-```
-docker-compose build
-```
-
-
-### Step 2: Run the Docker Container
+### Run the website in test-mode
 Once the image is built, you can run a container from it using the following command:
 
 ```
-docker-compose up
+npm run dev
 ```
 
 
