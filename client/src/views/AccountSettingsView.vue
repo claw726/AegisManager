@@ -29,7 +29,7 @@
             <div class="text-2xl font-semibold text-secondary text-center">
               Email: {{ currentUser.email }}
             </div>
-            <button class="dashboard-button mt-4">Edit Profile Details</button>
+            <button class="dashboard-button mt-4" @click="goToEditProfile">Edit Profile Details</button>
           </div>
         </div>
       </div>
@@ -51,7 +51,7 @@ export default {
   },
   methods: {
     goToEditProfile() {
-      alert("Not Implemented");
+      this.$router.push({ name: 'UpdateAccount' });
     },
   },
 };
