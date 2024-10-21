@@ -275,6 +275,8 @@ public class ProjectService {
         }
 
         project.getAssignedUsers().remove(userToRemove);
+        simpMessageTemplate.convertAndSendToUser(userToRemove.getEmail(), "/queue/project-updates",
+                "User removed from project with ID: " + projectID);
         projectRepository.save(project);
     }
 
