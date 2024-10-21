@@ -19,11 +19,18 @@ Aegis is a project management system designed to simplify task management for sm
 
 
 ### Run the website in test-mode
-Once the image is built, you can run a container from it using the following command:
+To run the website in a dev environment (JIT compiling)
 
 ```
 npm run dev
 ```
+
+
+### to build the website and run it
+```
+npm run build
+
+
 
 
 ### Step 3: Verify the Application

@@ -6,7 +6,10 @@
     <NavBar />
 
     <div class="flex justify-center p-4">
-      <div v-if="proj" class="relative flex flex-row items-start h-screen/3 py-4">
+      <div
+        v-if="proj"
+        class="relative flex flex-row items-start h-screen/3 py-4"
+      >
         <div class="flex flex-col items-center mr-8">
           <img
             :src="proj.encodedImage"
@@ -14,8 +17,12 @@
             class="h-auto w-full drop-shadow-xl col-span-1 rounded-lg"
           />
           <!-- Dropdown Menu -->
-          <div class="mt-4">
-            <DropdownMenu title="⚙️" :items="dropdownOpts" @command="handleCommand" />
+          <div class="mt-4" v-if="currentUser.userID === proj.projectOwnerID">
+            <DropdownMenu
+              title="⚙️"
+              :items="dropdownOpts"
+              @command="handleCommand"
+            />
           </div>
         </div>
         <div class="flex flex-col justify-center p-4">
@@ -86,7 +93,7 @@ export default {
         {
           title: "Edit Project Members 🤵",
           command: this.editProjUsers,
-        }
+        },
       ],
       tasks: [
         {
@@ -155,6 +162,7 @@ export default {
         // Add more tasks as needed
       ],
       creator: {},
+      isLoaded: false,
     };
   },
   components: {
@@ -167,7 +175,7 @@ export default {
     await this.getCreatorData();
   },
   computed: {
-    ...mapState(["isLoggedIn", "organizations", "currentUser"]),
+    ...mapState(["isLoggedIn", "currentUser"]),
   },
   // mounted() {
   //   this.tasks = this.proj.tasks || [];
@@ -186,7 +194,10 @@ export default {
     },
     async getCreatorData() {
       try {
-        this.creator = await this.$store.dispatch("fetchUserAccountByID", this.proj.projectOwnerID);
+        this.creator = await this.$store.dispatch(
+          "fetchUserAccountByID",
+          this.proj.projectOwnerID,
+        );
       } catch (error) {
         console.error("Error getting project owner info");
       }
@@ -243,10 +254,10 @@ export default {
         name: "EditProjUsers",
         params: {
           orgIndex: this.$route.params.orgIndex,
-          projIndex: this.$route.params.projIndex
-        }
-      })
-    }
+          projIndex: this.$route.params.projIndex,
+        },
+      });
+    },
   },
 };
 </script>
