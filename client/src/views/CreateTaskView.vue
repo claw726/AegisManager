@@ -56,14 +56,18 @@
 
           <!-- Submit Button -->
           <button
-            @click="showNotification"
+            @click="showTaskCreatedNotif"
             data-testid="submit-button"
             class="w-full mt-4 bg-primary text-white font-semibold py-3 rounded-lg"
           >
             Submit
           </button>
-          <Notification v-if="show" type="success" >
-            Notification Message
+
+          <Notification 
+            @close="closeTaskCreatedNotif"
+            v-if="showTaskCreatedNotifBool" 
+            type="error" 
+            message="This feature is not functional yet.">
           </Notification>
         </div>
       </div>
@@ -72,11 +76,14 @@
 <script>
 import { mapState, mapActions } from "vuex";
 import NavBar from "@/components/NavBar.vue";
+import Notification from "../components/Notification.vue";
+
 export default {
   components: {
     NavBar,
     Notification,
   },
+
   computed: {
     ...mapState(["isLoggedIn"]),
   },
@@ -91,7 +98,7 @@ export default {
         projId: null,
         userId: null,
       },
-      show: false,
+      showTaskCreatedNotifBool: false,
     };
   },
   watch: {
@@ -99,8 +106,11 @@ export default {
   },
   methods: {
     ...mapActions(["user", "isLoggedIn"]),
-    showNotification() {
-      this.show = true;
+    showTaskCreatedNotif() {
+      this.showTaskCreatedNotifBool = true;
+    },
+    closeTaskCreatedNotif() {
+      this.showTaskCreatedNotifBool = false;
     },
     createUserJson() {
       const userJson = JSON.stringify(this.user, null, 2);
