@@ -4,9 +4,15 @@
 
     <div v-if="isLoggedIn">
       <!-- Profile Section -->
-      <div v-if="user" class="relative flex justify-center h-screen/3 py-12">
+      <div
+        v-if="currentUser"
+        class="relative flex justify-center h-screen/3 py-12"
+      >
         <img
-          :src="currentUser.profilePicture || 'https://toppng.com/public/uploads/preview/instagram-default-profile-picture-11562973083brycehrmyv.png'" 
+          :src="
+            currentUser.profilePicture ||
+            'https://toppng.com/public/uploads/preview/instagram-default-profile-picture-11562973083brycehrmyv.png'
+          "
           alt="Profile Picture"
           class="w-48 h-48 rounded-full drop-shadow-xl col-span-1"
         />
@@ -30,22 +36,12 @@
       <!-- Button Row -->
 
       <div class="flex justify-center">
-
-
         <button @click="goToTDList" class="button-container dashboard-button">
           View Tasks
         </button>
 
-        <button @click="goToProjects" class="button-container dashboard-button">
-          View Projects
-        </button>
-
-        <button @click="goToViewOrgs" class="button-container dashboard-button">
-          View Organizations 🏢
-        </button>
-
         <button @click="goToSettings" class="button-container dashboard-button">
-          Settings ⚙️
+          Account Settings ⚙️
         </button>
       </div>
     </div>
@@ -63,14 +59,6 @@ export default {
   computed: {
     ...mapState(["isLoggedIn", "currentUser"]),
   },
-  data() {
-    return {
-      user: this.currentUser,
-    };
-  },
-  created() {
-    this.user = this.currentUser
-  },
   methods: {
     goToViewOrgs() {
       this.$router.push({ name: "viewOrgs" });
@@ -87,11 +75,8 @@ export default {
     goToViewTasks() {
       this.$router.push({ name: "toDoList" });
     },
-    goToProjects() {
-      this.$router.push({ name: "ProjectDashboard" });
-    },
     goToSettings() {
-      alert("Not Implemented");
+      this.$router.push({ name: "AccountSettings" });
     },
   },
 };

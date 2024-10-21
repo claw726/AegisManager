@@ -1,5 +1,5 @@
 <template>
-  <div class="relative w-full h-screen bg-background">
+  <div class="relative w-full min-h-screen h-full bg-background">
     <!-- Navbar -->
     <NavBar />
 
@@ -7,41 +7,48 @@
     <div class="flex justify-center items-center h-full px-28">
       <!-- Container for organizations and their users -->
       <div class="w-full max-w-6xl space-y-12">
-          <!-- Organization Information -->
-          <div class="mb-6 bg-white shadow-lg rounded-lg p-8">
-            <h2 class="text-4xl font-bold text-primary">Organization Name: {{ org.orgName }}</h2>
-            <p class="text-lg text-gray-700">Organization ID: {{ org.orgID }}</p>
-          </div>
+        <!-- Organization Information -->
+        <div class="mb-6 bg-white shadow-lg rounded-lg p-8">
+          <h2 class="text-4xl font-bold text-primary">
+            Organization Name: {{ org.orgName }}
+          </h2>
+          <p class="text-lg text-gray-700">Organization ID: {{ org.orgID }}</p>
+        </div>
 
-          <!-- Users List -->
-          <div>
-            <h3 class="text-2xl font-semibold text-gray-800 mb-4">Users</h3>
-            <ul class="space-y-4">
-              <li v-for="user in org.users" :key="user.username" class="flex justify-between items-center bg-gray-100 p-4 rounded-lg">
-                <div>
-                  <p class="text-lg font-medium text-gray-900">Name: {{ user.name }}</p>
-                  <p class="text-sm text-gray-600">Email: {{ user.email }}</p>
-                </div>
-              </li>
-            </ul>
-          </div>
-        
+        <!-- Users List -->
+        <div>
+          <h3 class="text-2xl font-semibold text-gray-800 mb-4">Users</h3>
+          <ul class="space-y-4">
+            <li
+              v-for="user in org.users"
+              :key="user.username"
+              class="flex justify-between items-center bg-gray-100 p-4 rounded-lg"
+            >
+              <div>
+                <p class="text-lg font-medium text-gray-900">
+                  Name: {{ user.name }}
+                </p>
+                <p class="text-sm text-gray-600">Email: {{ user.email }}</p>
+              </div>
+            </li>
+          </ul>
+        </div>
       </div>
     </div>
   </div>
 </template>
 
 <script>
-import NavBar from '../components/NavBar.vue';
+import NavBar from "../components/NavBar.vue";
 
 export default {
-  name: 'OrganizationUsersPage',
+  name: "OrganizationUsersPage",
   components: {
     NavBar,
   },
 
   computed: {
-    ...mapState(['organizations']), 
+    ...mapState(["organizations"]),
   },
 
   data() {
@@ -60,7 +67,7 @@ export default {
         this.$router.push({ name: "viewOrgs" });
       }
     },
-  }
+  },
 };
 </script>
 
@@ -79,6 +86,8 @@ export default {
 }
 
 .shadow-lg {
-  box-shadow: 0 10px 15px -3px rgba(0, 0, 0, 0.1), 0 4px 6px -2px rgba(0, 0, 0, 0.05);
+  box-shadow:
+    0 10px 15px -3px rgba(0, 0, 0, 0.1),
+    0 4px 6px -2px rgba(0, 0, 0, 0.05);
 }
 </style>
