@@ -7,6 +7,8 @@
       <div class="flex flex-col items-center space-y-8 mt-12">
         <!-- Title: Centered and Colored Dark Hunter Green -->
         <h1 class="text-4xl font-bold text-hunter-green mb-6">To Do List</h1>
+
+        <button class="edit-btn rounded" @click="goToCreateTask">Create   Task</button>
         
         
         <div v-for="task in tasks" :key="task.id" class="task-card bg-white border border-gray-300 rounded-lg p-4 shadow-md cursor-pointer" @click="viewTask(task)">
@@ -19,6 +21,7 @@
         <div class="flex flex-col w-96 space-y-6 p-4 items-center">
   
           <!-- Task 1 -->
+          
           <div
             class="task-card cursor-pointer"
             :class="{ 'bg-gray-300': task1.completed }"
@@ -132,6 +135,10 @@
         //const t = allTasks[taskid.toString()];
         return task;
       },
+
+      goToCreateTask() {
+        this.$router.push({ name: "createTask" });
+      },
       
     },
   };
@@ -141,6 +148,15 @@
   .task-card {
     transition: transform 0.2s;
   }
+
+  .edit-btn {
+  cursor: pointer;
+  background-color: rgb(2, 2, 58);
+  color: white;
+  border: none;
+  padding: 5px 10px;
+}
+
 
   .task-card:hover {
     transform: scale(1.15);

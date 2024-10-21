@@ -59,6 +59,12 @@ const router = createRouter({
                   props: true // Allow passing route params as props
                 },
                 {
+                  path: '/organization/:orgIndex/project/:projIndex/createTask',
+                  name: 'createTask',
+                  component: () => import('./views/CreateTaskView.vue'),
+                  meta: {requiresAuth: true},
+                },
+                {
                   path: '/organization/:orgIndex/createProject',
                   name: 'createProject',
                   component: () => import('./views/CreateProjView.vue'),
@@ -93,7 +99,21 @@ const router = createRouter({
                   name: 'EditProject',
                   component: () => import('./views/EditProjectView.vue'),
                   meta: {requiresAuth: true},
+                },
+                {
+                  path: '/organization/:orgIndex/viewUsers',
+                  name: 'viewUsersInOrg',
+                  component: () => import('./views/ListOrgUsersView.vue'),
+                  meta: {requiresAuth: true},
+                },
+                {
+                  path: '/organization/:orgIndex/project/:projIndex/edit/assignUsers',
+                  name: 'assignUsersinProj',
+                  component: () => import('./views/ListProjUsersView.vue'),
+                  meta: {requiresAuth: true},
                 }
+
+                
             ],
     });
 

@@ -17,25 +17,12 @@
           <div class="text-2xl font-semibold text-secondary">
             Welcome to your dashboard!
           </div>
-          <div class="py-4 flex-col">
-            <button
-              class="bg-primary text-white rounded-lg p-4"
-              @click="goToViewOrgs"
-            >
-              Your Organizations 🏢
-            </button>
-          </div>
         </div>
       </div>
       <!-- Button Row -->
 
       <div class="flex justify-center">
-        <button
-          @click="goToViewTasks"
-          class="button-container dashboard-button"
-        >
-          View Tasks
-        </button>
+
 
         <button @click="goToTDList" class="button-container dashboard-button">
           View Tasks

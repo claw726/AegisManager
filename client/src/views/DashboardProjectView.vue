@@ -180,7 +180,14 @@ export default {
     },
     goToCreateTask() {
       // this.$router.push({ name: 'createTask', params: { orgIndex: this.index }});
-      alert("Bilsha, can you implement this?");
+      this.$router.push({
+        name: "createTask",
+        params: {
+          orgId: this.$route.params.orgIndex,
+          projId: this.$route.params.projIndex,
+          userID: this.currentUser.userID,
+        },
+      });
     },
     handleCommand(command) {
       if (command === "edit") {
