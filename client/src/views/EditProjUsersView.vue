@@ -68,27 +68,34 @@ export default {
     async addUser(email) {
       try {
         const projectID = this.$route.params.projIndex;
-        console.log(`Adding ${email} to org ${projectID}`);
-        const message = await this.$store.dispatch('addUserToOrganization', {
-          projectID, email
+        console.log(`Adding ${email} to proj ${projectID}`);
+        const message = await this.$store.dispatch("addUserToProject", {
+          projectID,
+          email,
         });
         alert(message);
         this.fetchProjMembers();
       } catch (error) {
-        alert('Failed to add user to Project:' + (error.response?.data || error.message));
+        alert(
+          "Failed to add user to Project:" +
+            (error.response?.data || error.message),
+        );
       }
     },
     async removeUser(email) {
       try {
         const projectID = this.$route.params.projIndex;
-        const message = await this.$store
-          .dispatch("removeUserFromProject", {
-            projectID, email
-          });
+        const message = await this.$store.dispatch("removeUserFromProject", {
+          projectID,
+          email,
+        });
         alert(message);
         this.fetchProjMembers();
       } catch (error) {
-        alert("Failed to remove member from Project: " + (error.response?.data || error.message));
+        alert(
+          "Failed to remove member from Project: " +
+            (error.response?.data || error.message),
+        );
       }
     },
     toggleTable() {
@@ -99,27 +106,32 @@ export default {
         const orgID = this.$route.params.orgIndex;
         const projID = this.$route.params.projIndex;
         if (!projID || !orgID) {
-          throw new Error('Organization ID is not available!');
+          throw new Error("Organization ID is not available!");
         }
 
         // Fetch proj members
-        this.members = await this.$store.dispatch('fetchProjectMembers', projID);
-        console.log('Organization Members:', this.members);
+        this.members = await this.$store.dispatch(
+          "fetchProjectMembers",
+          projID,
+        );
+        console.log("Organization Members:", this.members);
 
         // Fetch all org users
-        const allUsers = await this.$store.dispatch('fetchOrgMembers', orgID);
-        console.log('All org Users:', allUsers);
+        const allUsers = await this.$store.dispatch("fetchOrgMembers", orgID);
+        console.log("All org Users:", allUsers);
 
         // Filter out users who are not a member of this project
-        const memberIDs = this.members.map(member => member.userID);
+        const memberIDs = this.members.map((member) => member.userID);
         this.availableUsers = allUsers.filter(
-          user => !memberIDs.includes(user.userID)
+          (user) => !memberIDs.includes(user.userID),
         );
       } catch (error) {
         console.error("Error fetching project members:", error.message);
-        alert('Failed to load project members or available users. Please Try again later');
+        alert(
+          "Failed to load project members or available users. Please Try again later",
+        );
       }
-    }
+    },
   },
 };
 </script>

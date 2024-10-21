@@ -177,7 +177,7 @@ public class ProjectService {
                 break;
             }
         }
-        if (project.getProjectOwnerID() != currentUser.getUserID()) {
+        if (project.getProjectOwnerID() == currentUser.getUserID()) {
             hasPermission = true;
         }
         if (!hasPermission) {

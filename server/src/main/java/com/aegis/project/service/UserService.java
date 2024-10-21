@@ -1,6 +1,5 @@
 package com.aegis.project.service;
 
-import java.util.Set;
 import java.util.List;
 import java.util.stream.Collectors;
 import java.util.Optional;
@@ -105,7 +104,7 @@ public class UserService {
         logger.info("Updated failed login attempts for user ID: {}", userID);
     }
 
-    public Set<UserDTO> getAllUsers() {
+    public List<UserDTO> getAllUsers() {
         List<UserModel> allUsers = userRepository.findAll();
         return allUsers.stream()
             .map(user -> new UserDTO(
@@ -114,7 +113,7 @@ public class UserService {
                 user.getEmail(),
                 user.getProfilePicture()
             ))
-            .collect(Collectors.toSet());
+            .collect(Collectors.toList());
     }
 
     public String createUserJson(UserModel user) {

@@ -14,7 +14,7 @@ import jdk.jfr.Registered;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
-import java.util.Set;
+import java.util.List;
 
 
 @RestController
@@ -55,7 +55,7 @@ public class UserController {
     }
 
     @GetMapping("/getAllUsers")
-    public ResponseEntity<Set<UserDTO>> getAllUsers() {
+    public ResponseEntity<List<UserDTO>> getAllUsers() {
         try {
             return ResponseEntity.ok(userService.getAllUsers());
         } catch (RuntimeException e) {
