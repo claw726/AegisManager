@@ -148,6 +148,11 @@ public class OrgService {
             throw new RuntimeException("User does not have permission to delete org");
         }
 
+        for (UserModel user : org.getUsers()) {
+            user.getOrgs().remove(org);
+            userRepository.save(user);
+        }
+
         projectRepository.deleteByParentOrgID(orgID);
         taskRepository.deleteByParentOrgID(orgID);
 
