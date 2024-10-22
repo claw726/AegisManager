@@ -56,11 +56,16 @@
         </form>
       </div>
     </div>
+
+    <Notification v-if="notification.show" :type="notification.type" @close="notification.show = false">
+      {{ notification.message }}
+    </Notification>
   </div>
 </template>
 
 <script>
 import NavBar from "@/components/NavBar.vue";
+import Notification from "@/components/Notification.vue";
 import { mapState } from "vuex";
 import axios from "axios";
 import imageCompression from "browser-image-compression";
@@ -68,12 +73,18 @@ import imageCompression from "browser-image-compression";
 export default {
   components: {
     NavBar,
+    Notification,
   },
   data() {
     return {
       userName: this.currentUser.userName,
       email: this.currentUser.email,
       profilePicture: this.currentUser.profilePicture || '',
+      notification: {
+        show: false,
+        type: 'error',
+        message: '',
+      },
     };
   },
   computed: {
@@ -143,10 +154,10 @@ export default {
           reader.readAsDataURL(file);
         } catch (error) {
           console.error("Error compressing image:", error);
-          alert("An error occurred while compressing the image. Please try again with a new file.");
+          this.showNotification('error', "An error occurred while compressing the image. Please try again with a new file.");
         }
       } else {
-        alert("Please select a valid image format.");
+        this.showNotification('error', "Please select a valid image format.");
       }
     },
     async updateUserDetails() {
@@ -158,7 +169,7 @@ export default {
 
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(updatedDetails.email)) {
-        alert("Please enter a valid email address.");
+        this.showNotification('error', "Please enter a valid email address.");
         return;
       }
 
@@ -170,11 +181,16 @@ export default {
           }
         });
         this.$store.commit("setCurrentUser", response.data);
-        alert("User details updated successfully!");
+        this.showNotification('success', "User details updated successfully!");
       } catch (error) {
         console.error("Error updating user details:", error);
-        alert("Failed to update user details.");
+        this.showNotification('error', "Failed to update user details.");
       }
+    },
+    showNotification(type, message) {
+      this.notification.type = type;
+      this.notification.message = message;
+      this.notification.show = true;
     },
   },
 };
