@@ -10,54 +10,62 @@
       <div v-if="currentUser" class="relative flex flex-col items-center py-12">
         <form @submit.prevent="updateUserDetails" class="w-full max-w-lg">
           <div class="mb-4">
-            <label class="block text-gray-700 text-sm font-bold mb-2" for="userName">
+            <label
+              class="block text-gray-700 text-sm font-bold mb-2"
+              for="userName"
+            >
               Name
             </label>
             <input
-                v-model="userName"
-                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                id="userName"
-                type="text"
-                placeholder="Enter your name"
+              v-model="userName"
+              class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              id="userName"
+              type="text"
+              placeholder="Enter your name"
             />
           </div>
           <div class="mb-4">
-            <label class="block text-gray-700 text-sm font-bold mb-2" for="email">
+            <label
+              class="block text-gray-700 text-sm font-bold mb-2"
+              for="email"
+            >
               Email
             </label>
             <input
-                v-model="email"
-                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                id="email"
-                type="email"
-                placeholder="Enter your email"
+              v-model="email"
+              class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              id="email"
+              type="email"
+              placeholder="Enter your email"
             />
           </div>
           <div class="mb-4">
-            <label class="block text-gray-700 text-sm font-bold mb-2" for="profilePicture">
+            <label
+              class="block text-gray-700 text-sm font-bold mb-2"
+              for="profilePicture"
+            >
               Profile Picture
             </label>
             <input
-                @change="handleFileUpload"
-                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-                id="profilePicture"
-                type="file"
-                accept="image/*"
+              @change="handleFileUpload"
+              class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+              id="profilePicture"
+              type="file"
+              accept="image/*"
             />
           </div>
           <div class="flex items-center justify-between">
-            <button
-                class="dashboard-button"
-                type="submit"
-            >
-              Save Changes
-            </button>
+            <button class="dashboard-button" type="submit">Save Changes</button>
           </div>
         </form>
       </div>
     </div>
 
-    <Notification v-if="notification.show" :type="notification.type" @close="notification.show = false">
+    <Notification
+      v-if="notification.show"
+      :type="notification.type"
+      @close="notification.show = false"
+    >
       {{ notification.message }}
     </Notification>
   </div>
@@ -77,18 +85,32 @@ export default {
   },
   data() {
     return {
-      userName: this.currentUser.userName,
-      email: this.currentUser.email,
-      profilePicture: this.currentUser.profilePicture || '',
+      // Need to initiate these values as empty strings to avoid null values in the input fields
+      userName: "",
+      email: "",
+      profilePicture: "",
       notification: {
         show: false,
-        type: 'error',
-        message: '',
+        type: "error",
+        message: "",
       },
     };
   },
   computed: {
     ...mapState(["isLoggedIn", "currentUser"]),
+  },
+  // Watch for changes in the currentUser object and update the data properties accordingly
+  watch: {
+    currentUser: {
+      immediate: true,
+      handler(currentUser) {
+        if (currentUser) {
+          this.userName = currentUser.userName;
+          this.email = currentUser.email;
+          this.profilePicture = currentUser.profilePicture;
+        }
+      },
+    },
   },
   methods: {
     async handleFileUpload(event) {
@@ -109,7 +131,7 @@ export default {
             image.onload = async () => {
               const canvas = document.createElement("canvas");
               const ctx = canvas.getContext("2d");
-              const {width: imageWidth, height: imageHeight} = image;
+              const { width: imageWidth, height: imageHeight } = image;
               const aspectRatio = imageWidth / imageHeight;
               let newWidth, newHeight;
 
@@ -127,21 +149,28 @@ export default {
               canvas.width = newWidth;
               canvas.height = newHeight;
               ctx.drawImage(
-                  image,
-                  x,
-                  y,
-                  newWidth,
-                  newHeight,
-                  0,
-                  0,
-                  newWidth,
-                  newHeight,
+                image,
+                x,
+                y,
+                newWidth,
+                newHeight,
+                0,
+                0,
+                newWidth,
+                newHeight,
               );
 
               const croppedDataURL = canvas.toDataURL("image/jpeg", 0.92);
-              const blob = await fetch(croppedDataURL).then((res) => res.blob());
-              const newFile = new File([blob], file.name, {type: "image/jpeg"});
-              const compressedCroppedFile = await imageCompression(newFile, options);
+              const blob = await fetch(croppedDataURL).then((res) =>
+                res.blob(),
+              );
+              const newFile = new File([blob], file.name, {
+                type: "image/jpeg",
+              });
+              const compressedCroppedFile = await imageCompression(
+                newFile,
+                options,
+              );
 
               const reader = new FileReader();
               reader.onload = (e) => {
@@ -154,10 +183,13 @@ export default {
           reader.readAsDataURL(file);
         } catch (error) {
           console.error("Error compressing image:", error);
-          this.showNotification('error', "An error occurred while compressing the image. Please try again with a new file.");
+          this.showNotification(
+            "error",
+            "An error occurred while compressing the image. Please try again with a new file.",
+          );
         }
       } else {
-        this.showNotification('error', "Please select a valid image format.");
+        this.showNotification("error", "Please select a valid image format.");
       }
     },
     async updateUserDetails() {
@@ -169,22 +201,26 @@ export default {
 
       const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
       if (!emailRegex.test(updatedDetails.email)) {
-        this.showNotification('error', "Please enter a valid email address.");
+        this.showNotification("error", "Please enter a valid email address.");
         return;
       }
 
       try {
-        const response = await axios.put(`/api/users/${this.currentUser.id}/update`, new URLSearchParams(updatedDetails), {
-          headers: {
-            'Authorization': `Bearer ${this.$store.state.authToken}`,
-            'Content-Type': 'application/x-www-form-urlencoded'
-          }
-        });
+        const response = await axios.put(
+          `/api/users/${this.currentUser.id}/update`,
+          new URLSearchParams(updatedDetails),
+          {
+            headers: {
+              Authorization: `Bearer ${this.$store.state.authToken}`,
+              "Content-Type": "application/x-www-form-urlencoded",
+            },
+          },
+        );
         this.$store.commit("setCurrentUser", response.data);
-        this.showNotification('success', "User details updated successfully!");
+        this.showNotification("success", "User details updated successfully!");
       } catch (error) {
         console.error("Error updating user details:", error);
-        this.showNotification('error', "Failed to update user details.");
+        this.showNotification("error", "Failed to update user details.");
       }
     },
     showNotification(type, message) {
