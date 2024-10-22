@@ -12,10 +12,16 @@
 
         <div class="flex-col" />
         <div class="relative flex-col col-span-1 justify-center flex w-full">
-          <div v-if="userOrganizations && userOrganizations.length > 0">
+          <div
+            v-if="
+              !isLoading &&
+              filteredOrganizations &&
+              filteredOrganizations.length > 0
+            "
+          >
             <div
-              v-for="(organization, index) in userOrganizations"
-              :key="index"
+              v-for="organization in filteredOrganizations"
+              :key="organization.orgID"
               class="grid my-4"
             >
               <div class="p-4 card">
@@ -57,11 +63,22 @@ export default {
     OrgCard,
   },
   computed: {
-    ...mapState(["isLoggedIn"]),
+    ...mapState(["isLoggedIn", "currentUser"]),
+    filteredOrganizations() {
+      const filteredOrganizations = (this.userOrganizations || []).filter(
+        (organization) =>
+          organization.users.some(
+            (user) => user.userID === this.currentUser.userID,
+          ),
+      );
+      console.log("Filtered Organizations:", filteredOrganizations);
+      return filteredOrganizations;
+    },
   },
   data() {
     return {
       userOrganizations: null,
+      isLoading: false,
     };
   },
   async mounted() {
@@ -70,6 +87,7 @@ export default {
     await delay(500);
 
     await this.fetchOrganizations();
+    this.isLoading = false;
   },
   watch: {
     organizations: {

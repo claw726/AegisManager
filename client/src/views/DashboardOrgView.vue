@@ -5,10 +5,11 @@
   >
     <NavBar />
 
-    
-
     <div class="flex justify-center p-4">
-      <div v-if="org" class="relative flex flex-row items-start h-screen/3 py-4">
+      <div
+        v-if="org"
+        class="relative flex flex-row items-start h-screen/3 py-4"
+      >
         <div class="flex flex-col items-center mr-8">
           <img
             :src="
@@ -18,7 +19,7 @@
             alt="Organization Logo"
             class="w-48 h-48 rounded-full drop-shadow-xl col-span-1"
           />
-          <div class="mt-4">
+          <div class="mt-4" v-if="currentUser.userID === org.orgOwnerID">
             <DropdownMenu title="⚙️" :items="dropdownOpts" />
           </div>
         </div>
@@ -27,7 +28,10 @@
           <div class="text-xl font-semibold text-secondary">
             {{ org.orgDescription }}
           </div>
-          <button @click="viewUsersInOrg" class="text-2xl font-semibold text-secondary">
+          <button
+            @click="viewUsersInOrg"
+            class="text-2xl font-semibold text-secondary"
+          >
             View {{ org.OrgName }} Users
           </button>
           <div class="text-medium text-accent" v-if="creator.userName">
@@ -108,7 +112,6 @@ export default {
     await this.getOrgData(); // Ensure this is awaited
     await this.getAllOrgProjects(); // Ensure this is awaited
     await this.getCreatorData();
-    
   },
   methods: {
     async getOrgData() {
@@ -128,8 +131,25 @@ export default {
     async getAllOrgProjects() {
       try {
         const orgID = this.$route.params.orgIndex; // Ensure you are getting the correct orgID
-        this.projects = await this.$store.dispatch("fetchOrgProjects", orgID);
-        console.log("Fetched Projects:", this.projects); // Log the fetched projects
+        const orgProjects = await this.$store.dispatch(
+          "fetchOrgProjects",
+          orgID,
+        );
+        const filteredProjects = orgProjects.filter((project) => {
+          // Log each project's assignedUsers to verify the data
+          console.log("Project Assigned Users:", project.assignedUsers);
+
+          // Check if currentUser.userID is in the assignedUsers array or is the project owner
+          const isAssignedUser = project.assignedUsers.some(
+            (user) => user.userID === this.currentUser.userID,
+          );
+          const isProjectOwner =
+            project.projectOwnerID === this.currentUser.userID;
+
+          return isAssignedUser || isProjectOwner;
+        });
+        console.log("Fetched Projects:", filteredProjects); // Log the fetched projects
+        this.projects = filteredProjects;
       } catch (error) {
         console.error("Error fetching projects:", error);
         alert("Failed to load projects: " + error.message);
@@ -137,7 +157,10 @@ export default {
     },
     async getCreatorData() {
       try {
-        this.creator = await this.$store.dispatch("fetchUserAccountByID", this.org.orgOwnerID)
+        this.creator = await this.$store.dispatch(
+          "fetchUserAccountByID",
+          this.org.orgOwnerID,
+        );
       } catch (error) {
         console.error("Error getting org owner info");
       }
@@ -178,7 +201,10 @@ export default {
     },
 
     viewUsersInOrg() {
-      this.$router.push({ name: 'viewUsersInOrg', query: {org: this.org, orgIndex: this.$route.params.orgIndex } });
+      this.$router.push({
+        name: "viewUsersInOrg",
+        query: { org: this.org, orgIndex: this.$route.params.orgIndex },
+      });
     },
   },
 };

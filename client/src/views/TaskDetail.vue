@@ -1,8 +1,10 @@
 <template>
-  <div class="flex flex-col items-center space-y-4 p-4">
-    <div class="task-card cursor-pointerbg-white border border-gray-300 rounded-lg p-4 shadow-md cursor-pointer">
-      
-      
+  <div
+    class="flex flex-col items-center min-h-screen h-full w-full space-y-4 p-4"
+  >
+    <div
+      class="task-card cursor-pointerbg-white border border-gray-300 rounded-lg p-4 shadow-md cursor-pointer"
+    >
       <div class="flex">
         <input
           v-on:click="decideFun($event)"
@@ -10,10 +12,16 @@
           class="checkbox"
           v-model="isChecked"
         />
-        <h3 class="font-bold  text-3xl text-hunter-green mb-6">{{  task.title }}</h3>
-        <button class="edit-btn rounded top-right-button">Edit   Task</button>
-        <button @click="showPopup = true" class="delete-btn rounded top-right-button">Delete Task</button>
-        
+        <h3 class="font-bold text-3xl text-hunter-green mb-6">
+          {{ task.title }}
+        </h3>
+        <button class="edit-btn rounded top-right-button">Edit Task</button>
+        <button
+          @click="showPopup = true"
+          class="delete-btn rounded top-right-button"
+        >
+          Delete Task
+        </button>
       </div>
 
       <div v-if="showPopup" class="popup">
@@ -23,88 +31,120 @@
           <button @click="handleNo" class="remove-btn">No</button>
         </div>
       </div>
-      
 
       <div class="h-1 bg-accent drop-shadow-lg my-4 rounded" />
-      <div style="margin-inline-start: 20px;">
+      <div style="margin-inline-start: 20px">
+        <div class="flex items-center mb-4 infobar text-hunter-green text-xl">
+          <p>
+            Assigner:
+            <select v-model="selectedValue">
+              <option value="">{{ task.task_assigner }}</option>
+              <option
+                v-for="option in options"
+                :key="option.value"
+                :value="option.value"
+              >
+                {{ option.text }}
+              </option>
+            </select>
+          </p>
+          <!-- <p>Selected: {{ selectedValue }}</p> -->
 
-      <div class="flex items-center mb-4 infobar text-hunter-green text-xl">
+          <p>
+            Completed:
+            <select
+              v-model="selectedCompletionValue"
+              @change="handleOptionChange"
+            >
+              <option value="">{{ task.completed }}</option>
+              <option
+                v-for="option in completedOptions"
+                :key="option.value"
+                :value="option.value"
+              >
+                {{ option.text }}
+              </option>
+            </select>
+          </p>
 
-        <p>Assigner:  
-        <select v-model="selectedValue">
-          <option value="">  {{ task.task_assigner }}</option>
-          <option v-for="option in options" :key="option.value" :value="option.value">
-            {{ option.text }}
-          </option>
-        </select>
-        </p>
-        <!-- <p>Selected: {{ selectedValue }}</p> -->
+          <p>
+            Due Date:
+            <select v-model="selectedValue">
+              <option value="">{{ task.dueDate }}</option>
+              <option
+                v-for="option in options"
+                :key="option.value"
+                :value="option.value"
+              >
+                {{ task.dueDate }}
+              </option>
+            </select>
+          </p>
 
+          <p>
+            Priority:
+            <select v-model="selectedValue">
+              <option value="">{{ task.priority }}</option>
+              <option
+                v-for="option in priorityOptions"
+                :key="option.value"
+                :value="option.value"
+              >
+                {{ option.text }}
+              </option>
+            </select>
+          </p>
+        </div>
 
+        <h4 class="text-hunter-green text-xl infobar">
+          Description: {{ task.description }}
+        </h4>
 
-        <p>Completed:  
-        <select v-model="selectedCompletionValue" @change="handleOptionChange">
-          <option value="">  {{ task.completed }}</option>
-          <option v-for="option in completedOptions" :key="option.value" :value="option.value">
-            {{ option.text }}
-          </option>
-        </select>
-        </p>
+        <!-- Dropdown for Assignees -->
+        <div class="text-lg">
+          <label for="assignees-dropdown" class="text-hunter-green text-xl"
+            >Assignees:</label
+          >
 
-        <p>Due Date:  
-        <select v-model="selectedValue">
-          <option value="">  {{ task.dueDate }}</option>
-          <option v-for="option in options" :key="option.value" :value="option.value">
-            {{ task.dueDate }}
-          </option>
-        </select>
-        </p>
+          <!-- List of Assignees with Remove Button -->
+          <ul class="text-hunter-green text-xl">
+            <li
+              v-for="(assignee, index) in task.assignees"
+              :key="index"
+              class="flex items-center space-x-2"
+            >
+              <span>{{ assignee }}</span>
+              <button
+                @click="removeAssignee(index)"
+                class="remove-btn rounded text-red-600"
+              >
+                Remove
+              </button>
+            </li>
+          </ul>
+        </div>
 
-        <p>Priority:  
-        <select v-model="selectedValue">
-          <option value="">  {{ task.priority }}</option>
-          <option v-for="option in priorityOptions" :key="option.value" :value="option.value">
-            {{ option.text }}
-          </option>
-        </select>
-        </p>
-
-        
+        <!-- Button to add new assignees -->
+        <div class="add-assignee mt-4 flex items-center space-x-2">
+          <input
+            v-model="newAssignee"
+            placeholder="Enter new assignee name"
+            class="border rounded p-2"
+          />
+          <button
+            @click="addAssignee"
+            class="bg-green-500 card:hover bg-light-blue text-white p-2 rounded"
+          >
+            Add Assignee
+          </button>
+        </div>
       </div>
-          
-      <h4 class="text-hunter-green text-xl infobar">Description: {{ task.description }}</h4>
-      
-    
-      <!-- Dropdown for Assignees -->
-      <div class="text-lg ">
-        <label for="assignees-dropdown" class="text-hunter-green text-xl">Assignees:</label>
-        
-        <!-- List of Assignees with Remove Button -->
-        <ul class="text-hunter-green text-xl">
-          <li v-for="(assignee, index) in task.assignees" :key="index" class="flex items-center space-x-2">
-            <span>{{ assignee }}</span>
-            <button @click="removeAssignee(index)" class="remove-btn rounded text-red-600">Remove</button>
-          </li>
-        </ul>
-      </div>
-
-      <!-- Button to add new assignees -->
-      <div class="add-assignee mt-4 flex items-center space-x-2">
-        <input v-model="newAssignee" placeholder="Enter new assignee name" class="border rounded p-2" />
-        <button @click="addAssignee" class="bg-green-500 card:hover bg-light-blue text-white p-2 rounded">Add Assignee</button>
-      </div>
-      </div>
-
-
     </div>
   </div>
 </template>
 
 <script>
-import { mapState } from 'vuex';
-
-
-
+import { mapState } from "vuex";
 
 export default {
   data() {
@@ -113,26 +153,25 @@ export default {
       taskId: "",
       task: "",
       selectedAssignee: null, // For the dropdown
-      newAssignee: "",        // For adding a new assignee
-      selectedAssigner: null, 
+      newAssignee: "", // For adding a new assignee
+      selectedAssigner: null,
       newAssigner: "",
-
 
       selectedValue: "",
       options: [
-        { value: 'option1', text: 'Option 1' },
-        { value: 'option2', text: 'Option 2' },
-        { value: 'option3', text: 'Option 3' },
+        { value: "option1", text: "Option 1" },
+        { value: "option2", text: "Option 2" },
+        { value: "option3", text: "Option 3" },
       ],
 
       priorityOptions: [
-        { value: 'option1', text: 'High' },
-        { value: 'option2', text: 'Medium' },
-        { value: 'option3', text: 'Low' },
+        { value: "option1", text: "High" },
+        { value: "option2", text: "Medium" },
+        { value: "option3", text: "Low" },
       ],
       completedOptions: [
-        { value: 'true', text: 'true' },
-        { value: 'false', text: 'false' },
+        { value: "true", text: "true" },
+        { value: "false", text: "false" },
       ],
     };
   },
@@ -147,16 +186,15 @@ export default {
   },
 
   computed: {
-    ...mapState(['allTasks']),
+    ...mapState(["allTasks"]),
   },
 
   methods: {
-
     handleOptionChange() {
-      if (this.selectedCompletionValue === 'true') {
+      if (this.selectedCompletionValue === "true") {
         this.completeTask();
       }
-      if (this.selectedCompletionValue === 'false') {
+      if (this.selectedCompletionValue === "false") {
         this.unCompleteTask();
       }
     },
@@ -171,18 +209,19 @@ export default {
     },
 
     decideFun(event) {
-    if(event.target.checked){
-       this.completeTask(this);
-    }else{
-       this.unCompleteTask(this);}
-    }, 
+      if (event.target.checked) {
+        this.completeTask(this);
+      } else {
+        this.unCompleteTask(this);
+      }
+    },
 
     completeTask() {
       this.task.completed = true;
       this.selectedAssigner = true;
       this.isChecked = true;
 
-      //this.allTasks.id.completed = true; 
+      //this.allTasks.id.completed = true;
       //localStorage.setItem("allTasks", JSON.stringify(all));
     },
     unCompleteTask() {
@@ -190,12 +229,14 @@ export default {
       this.selectedAssigner = false;
       this.isChecked = false;
 
-      //this.allTasks.id.completed = true; 
+      //this.allTasks.id.completed = true;
       //localStorage.setItem("allTasks", JSON.stringify(all));
     },
 
     getTaskfromStorage(taskId) {
-      const task = JSON.parse(JSON.stringify(this.allTasks))[String(this.taskId)];
+      const task = JSON.parse(JSON.stringify(this.allTasks))[
+        String(this.taskId)
+      ];
       return task;
     },
 
@@ -214,17 +255,16 @@ export default {
 
     assignerClick() {
       this.updateTaskAssigner(this.selectedAssigner);
-    }, 
+    },
 
     updateTaskAssigner(newAssigner) {
-      this.$store.commit('setNewTaskAssignee', this.taskId, newAssigner);
+      this.$store.commit("setNewTaskAssignee", this.taskId, newAssigner);
     },
   },
 };
 </script>
 
 <style scoped>
-
 select {
   padding: 10px;
   border: 1px solid #ccc;
@@ -251,13 +291,11 @@ select {
   border-radius: 5px;
 }
 
-
 .infobar {
   margin-right: 600px;
   gap: 20px;
   font-size: "text-lg";
   margin-bottom: 20px;
-  
 }
 .task-card {
   transition: transform 0.2s;
@@ -272,7 +310,7 @@ select {
   color: white;
   border: none;
   padding: 5px 10px;
-  margin-left: 63px
+  margin-left: 63px;
 }
 
 .edit-btn {

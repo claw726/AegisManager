@@ -7,14 +7,25 @@
       Ægis Manager
     </div>
     <!-- Navigation Buttons -->
-    <div class="flex space-x-4">
+    <div class="flex flex-row items-center space-x-4">
       <!-- If the user is logged in, show the logout button -->
-      <button v-if="isLoggedIn" @click="goToDashboard" class="dashboard-button">
-        Dashboard
-      </button>
-      <button v-if="isLoggedIn" @click="logout" class="dashboard-button">
-        Log Out
-      </button>
+      <div v-if="isLoggedIn" class="flex items-center space-x-4">
+        <button @click="goToDashboard" class="dashboard-button">
+          Dashboard
+        </button>
+        <button @click="logout" class="dashboard-button">Log Out</button>
+        <!-- User Profile Button -->
+        <button @click="goToSettings">
+          <img
+            :src="
+              currentUser.profilePicture ||
+              'https://toppng.com/public/uploads/preview/instagram-default-profile-picture-11562973083brycehrmyv.png'
+            "
+            alt="Profile Picture"
+            class="w-12 h-12 rounded-full drop-shadow-xl border border-gray-200 justify-center transform transition-transform duration-300 hover:scale-105"
+          />
+        </button>
+      </div>
       <!-- If the user is not logged in, show the login and sign up buttons -->
       <template v-else>
         <button
@@ -40,7 +51,7 @@ import { mapState, mapActions } from "vuex";
 export default {
   name: "NavBar",
   computed: {
-    ...mapState(["isLoggedIn"]),
+    ...mapState(["isLoggedIn", "currentUser"]),
   },
   methods: {
     ...mapActions(["logout"]),
@@ -68,6 +79,9 @@ export default {
     //Access Dashboard from anywhere
     goToDashboard() {
       this.$router.push({ name: "Dashboard" });
+    },
+    goToSettings() {
+      this.$router.push({ name: "AccountSettings" });
     },
   },
 };

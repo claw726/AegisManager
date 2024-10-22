@@ -1,5 +1,5 @@
 <template>
-  <div class="relative w-full h-screen bg-background">
+  <div class="relative w-full min-h-screen h-full bg-background">
     <!-- Navbar -->
     <NavBar />
 
