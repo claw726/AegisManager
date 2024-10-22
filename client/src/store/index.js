@@ -420,7 +420,9 @@ export default new Vuex.Store({
           "/api/projects/createProject",
           params,
           {
-            Authorization: `Bearer ${state.authToken}`,
+            headers: {
+              Authorization: `Bearer ${state.authToken}`,
+            },
           },
         );
         console.log("Project created successfully:", response.data);
