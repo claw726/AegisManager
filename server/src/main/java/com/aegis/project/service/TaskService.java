@@ -1,7 +1,9 @@
 package com.aegis.project.service;
 
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -10,6 +12,7 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import com.aegis.project.dto.TaskDTO;
 import com.aegis.project.model.ProjectModel;
 import com.aegis.project.model.TaskModel;
 import com.aegis.project.model.UserModel;
@@ -280,5 +283,14 @@ public class TaskService {
         }
         ret += "]}";
         return ret;
+    }
+
+    public Set<TaskDTO> getAllTasks() {
+        List<TaskModel> tasks = taskRepository.findAllSorted();
+
+        return tasks.stream()
+                .map(task -> new TaskDTO(task.getTaskID(), task.getParentProjectID(), task.getParentOrgID(), task.getTaskName(),
+                task.getTaskDescription(), task.getAssignerID(), task.getTaskPriority(), task.getDueDate(), task.isComplete()))
+                .collect(Collectors.toSet());
     }
 }
