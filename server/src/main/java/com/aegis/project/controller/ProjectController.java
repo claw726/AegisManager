@@ -53,24 +53,24 @@ public class ProjectController {
         } catch (RuntimeException e) {
             if (e.getMessage().contains("Project not found with id:")) {
                 logger.info("Project not found with ID: {}", projectID);
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
             } else if (e.getMessage().contains("User not found with email:")) {
                 logger.info("User not found with email: {}", e.getMessage());
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
             } else if (e.getMessage().contains("User does not have permission to get project")) {
                 logger.info("User does not have permission to get project: {}", e.getMessage());
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(null);
             } else {
                 logger.error("Error getting project: " + e.getMessage());
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
             }
         }
     }
 
     @PostMapping("/{projectID}/update")
     public ResponseEntity<String> updateProject(@PathVariable int projectID, @RequestParam String projectName,
-                                                @RequestParam String projectDescription, @RequestParam int projectOwnerID,
-                                                @RequestParam String encodedImage) {
+            @RequestParam String projectDescription, @RequestParam int projectOwnerID,
+            @RequestParam String encodedImage) {
         try {
             projectService.updateProject(projectID, projectName, projectDescription, projectOwnerID, encodedImage);
             return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Project updated successfully");
