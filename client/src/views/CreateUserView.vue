@@ -76,7 +76,10 @@
           <!-- Password Input -->
           <div class="w-full flex justify-center px-4 mb-4">
             <div class="w-full md:w-1/2">
-              <PasswordInput @update-password="updatePassword" />
+              <PasswordInput
+                @update-password="updatePassword"
+                :Title="'Password'"
+              />
             </div>
           </div>
 

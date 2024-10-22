@@ -71,7 +71,6 @@ export default {
             (user) => user.userID === this.currentUser.userID,
           ),
       );
-      console.log("Filtered Organizations:", filteredOrganizations);
       return filteredOrganizations;
     },
   },
@@ -105,7 +104,6 @@ export default {
       try {
         this.userOrganizations =
           await this.$store.dispatch("fetchOrganizations");
-        console.log("Fetched Organizations:", this.userOrganizations);
       } catch (error) {
         console.error("Error Loading Organizaitons:", error.message);
         alert("Failed to load organizations!");

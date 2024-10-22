@@ -102,8 +102,6 @@ export default new Vuex.Store({
         if (response.data && response.data.token) {
           commit("setAuthToken", response.data.token);
           commit("setLogin", true);
-          console.log("Login successful:", response.data);
-
           // Fetch user details after login
           const user = await dispatch("fetchUserAccountByEmail", email);
           commit("setCurrentUser", user);
@@ -150,9 +148,6 @@ export default new Vuex.Store({
             Authorization: `Bearer ${state.authToken}`,
           },
         });
-
-        console.log("User Data:", response.data);
-
         return response.data;
       } catch (error) {
         if (error.response && error.response.status === 404) {
@@ -174,9 +169,6 @@ export default new Vuex.Store({
             Authorization: `Bearer ${state.authToken}`,
           },
         });
-
-        console.log("Organization Data:", response.data);
-
         return response.data;
       } catch (error) {
         console.error(
@@ -215,9 +207,6 @@ export default new Vuex.Store({
             Authorization: `Bearer ${state.authToken}`,
           },
         });
-
-        console.log(`Organization Data for Org ${orgID}`, response.data);
-
         return response.data;
       } catch (error) {
         console.error(
@@ -230,10 +219,6 @@ export default new Vuex.Store({
 
     async fetchOrgProjects({ state }, orgID) {
       try {
-        console.log(
-          `Fetching Projects for org ${orgID} with token:`,
-          state.authToken,
-        );
         const response = await axios.get(
           `/api/orgs/${orgID}/getAllProjectsFromOrg`,
           {
@@ -242,12 +227,6 @@ export default new Vuex.Store({
             },
           },
         );
-
-        console.log(
-          `Projects for Org ${orgID}:`,
-          response.data ? response.data : response,
-        );
-
         return response.data;
       } catch (error) {
         console.error(
@@ -329,10 +308,6 @@ export default new Vuex.Store({
             },
           },
         );
-        console.log(
-          `User with email: ${email} added successfully:`,
-          response.data,
-        );
         return response.data;
       } catch (error) {
         console.error(
@@ -354,10 +329,6 @@ export default new Vuex.Store({
               Authorization: `Bearer ${state.authToken}`,
             },
           },
-        );
-        console.log(
-          `User with email ${email} removed successfully: `,
-          response.data,
         );
         return response.data;
       } catch (error) {
@@ -414,18 +385,11 @@ export default new Vuex.Store({
         params.append("parentOrgID", project.parentOrgID);
         params.append("encodedImage", project.projImg);
 
-        console.log("Project Creation Params:", Object.fromEntries(params));
-
-        const response = await axios.post(
-          "/api/projects/createProject",
-          params,
-          {
-            headers: {
-              Authorization: `Bearer ${state.authToken}`,
-            },
+        await axios.post("/api/projects/createProject", params, {
+          headers: {
+            Authorization: `Bearer ${state.authToken}`,
           },
-        );
-        console.log("Project created successfully:", response.data);
+        });
       } catch (error) {
         console.error(
           "Error creating project:",
@@ -436,19 +400,11 @@ export default new Vuex.Store({
     },
     async deleteProject({ state }, { projectID }) {
       try {
-        console.log(`Deleting Project ${projectID}`);
-
-        const response = await axios.delete(
-          `/api/projects/${projectID}/deleteProject`,
-          {
-            headers: {
-              Authorization: `Bearer ${state.authToken}`,
-            },
+        await axios.delete(`/api/projects/${projectID}/deleteProject`, {
+          headers: {
+            Authorization: `Bearer ${state.authToken}`,
           },
-        );
-        if (response.data) {
-          console.log("Project deleted successfully:", response.data);
-        }
+        });
       } catch (error) {
         console.error(
           "Failed to delete project:",
@@ -474,28 +430,17 @@ export default new Vuex.Store({
     },
     async modifyProject({ state }, { project, projectID }) {
       try {
-        console.log(
-          `Modifying Project ${projectID} with parameters:\nName: ${project.projectName}\nDescription: ${project.projectDescription}\nOwnerID: ${project.projectOwnerID}`,
-        );
-
         const params = new URLSearchParams();
         params.append("projectName", project.projectName);
         params.append("projectDescription", project.projectDescription);
         params.append("projectOwnerID", project.projectOwnerID);
         params.append("encodedImage", project.encodedImage);
-        const response = await axios.post(
-          `/api/projects/${projectID}/update`,
-          params,
-          {
-            headers: {
-              "Content-Type": "application/x-www-form-urlencoded",
-              Authorization: `Bearer ${state.authToken}`,
-            },
+        await axios.post(`/api/projects/${projectID}/update`, params, {
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            Authorization: `Bearer ${state.authToken}`,
           },
-        );
-        if (response.data) {
-          console.log("Project modified successfully:", response.data);
-        }
+        });
       } catch (error) {
         console.error(
           "Failed to modify project:",
@@ -511,9 +456,6 @@ export default new Vuex.Store({
             Authorization: `Bearer ${state.authToken}`,
           },
         });
-
-        console.log(`Project Data for Project ${projID}`, response.data);
-
         return response.data;
       } catch (error) {
         console.error(
@@ -556,7 +498,6 @@ export default new Vuex.Store({
             },
           },
         );
-        console.log("User removed successfully: ", response.data);
         return response.data;
       } catch (error) {
         console.error(
@@ -578,10 +519,6 @@ export default new Vuex.Store({
               Authorization: `Bearer ${state.authToken}`,
             },
           },
-        );
-        console.log(
-          `User with email: ${email} added successfully:`,
-          response.data,
         );
         return response.data;
       } catch (error) {

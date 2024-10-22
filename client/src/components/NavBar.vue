@@ -17,10 +17,17 @@
         <!-- User Profile Button -->
         <button @click="goToSettings">
           <img
+            v-if="currentUser"
             :src="
               currentUser.profilePicture ||
               'https://toppng.com/public/uploads/preview/instagram-default-profile-picture-11562973083brycehrmyv.png'
             "
+            alt="Profile Picture"
+            class="w-12 h-12 rounded-full drop-shadow-xl border border-gray-200 justify-center transform transition-transform duration-300 hover:scale-105"
+          />
+          <img
+            v-else
+            src="https://toppng.com/public/uploads/preview/instagram-default-profile-picture-11562973083brycehrmyv.png"
             alt="Profile Picture"
             class="w-12 h-12 rounded-full drop-shadow-xl border border-gray-200 justify-center transform transition-transform duration-300 hover:scale-105"
           />
