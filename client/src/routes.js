@@ -130,6 +130,12 @@ const router = createRouter({
       component: () => import("./views/EditUserView.vue"),
       meta: { requiresAuth: true },
     },
+    {
+      path: "/resetPassword/:token",
+      name: "ResetPassword",
+      component: () => import("./views/ResetPasswordView.vue"),
+      meta: { requiresAuth: false }, // No need to be logged in to reset password
+    },
   ],
 });
 

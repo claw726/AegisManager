@@ -18,6 +18,8 @@
             >
             <input
               type="email"
+              id="email"
+              autocomplete="on"
               v-model="email"
               class="w-full border border-highlight rounded-lg p-3"
             />
@@ -28,12 +30,15 @@
             >
             <input
               type="password"
+              id="password"
+              autocomplete="on"
               v-model="password"
               class="w-full border border-highlight rounded-lg p-3"
             />
           </div>
           <button
             @click="login"
+            id="loginButton"
             class="w-full mt-4 bg-primary text-white font-semibold py-3 rounded-lg"
           >
             Log In
