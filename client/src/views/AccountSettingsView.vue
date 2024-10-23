@@ -8,7 +8,7 @@
       </div>
       <div v-if="currentUser" class="relative flex flex-col items-center py-12">
         <div class="text-2xl font-semibold text-secondary mb-8">
-          Welcome to your account settings!
+          Manage your account here:
         </div>
         <div class="h-1 bg-accent drop-shadow-lg w-screen"></div>
         <div
