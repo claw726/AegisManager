@@ -162,6 +162,31 @@ export default new Vuex.Store({
         }
       }
     },
+    async updateUser({ commit, state, dispatch }, updatedDetails) {
+      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+      if (!emailRegex.test(updatedDetails.email)) {
+        throw new Error("Please enter a valid email address.");
+      }
+
+      try {
+        const response = await axios.put(
+            `/api/users/${state.currentUser.userID}/update`,
+            new URLSearchParams(updatedDetails),
+            {
+              headers: {
+                Authorization: `Bearer ${state.authToken}`,
+                "Content-Type": "application/x-www-form-urlencoded",
+              },
+            },
+        );
+        const user = await dispatch("fetchUserAccountByEmail", updatedDetails.email);
+        commit("setCurrentUser", user);
+        return response.data;
+      } catch (error) {
+        console.error("Error updating user details:", error);
+        throw new Error("Failed to update user details.");
+      }
+    },
     async fetchOrganizations({ state }) {
       try {
         const response = await axios.get("/api/orgs/getAllOrgs", {
