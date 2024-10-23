@@ -166,15 +166,11 @@ export default new Vuex.Store({
       try {
         const params = new URLSearchParams();
         params.append("email", email);
-        const response = await axios.post(
-          "/api/auth/requestPasswordReset",
-          params,
-          {
-            headers: {
-              Authorization: `Bearer ${state.authToken}`,
-            },
+        const response = await axios.post(params, {
+          headers: {
+            Authorization: `Bearer ${state.authToken}`,
           },
-        );
+        });
         console.log("Password reset requested:", response.data);
         return response.data;
       } catch (error) {
