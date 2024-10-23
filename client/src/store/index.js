@@ -3,6 +3,8 @@ import createPersistedState from "vuex-persistedstate";
 import axios from "@/utils/axios.js";
 // import LocalStorageService from '@/utils/LocalStorageService.js';
 
+import auth from './modules/auth.js';
+
 export default new Vuex.Store({
   plugins: [createPersistedState()],
 
