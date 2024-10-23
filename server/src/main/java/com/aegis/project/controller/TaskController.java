@@ -203,6 +203,22 @@ public class TaskController {
         }
     }
 
+    @PostMapping("/{taskID}/assignerDecision")
+    public ResponseEntity<String> assignerDecision(@PathVariable int taskID, @RequestParam boolean accept) {
+        try {
+            taskService.assignerDecision(taskID, accept);
+            return ResponseEntity.ok("Assigner decision updated successfully");
+        } catch (RuntimeException e) {
+            if (e.getMessage().contains("Task not found with id:")) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            } else if (e.getMessage().contains("User not found with email")) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            } else {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+            }
+        }
+    }
+
     @GetMapping("/getAllTasks")
     public ResponseEntity<Set<TaskDTO>> getAllTasks() {
         try {

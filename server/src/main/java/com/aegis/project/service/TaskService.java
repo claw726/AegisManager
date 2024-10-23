@@ -52,10 +52,38 @@ public class TaskService {
             throw new RuntimeException("User does not have permission to switch task assigner");
         }
 
-        task.setAssignerID(userRepository.findByEmail(newAssignerEmail).get().getUserID());
-        taskRepository.save(task);
+        simpMessageTemplate.convertAndSendToUser(newAssignerEmail, "/queue/task-updates",
+                "User has been invited to become the task assigner for task with ID: " + taskID);
 
-        return "Assigner switched successfully";
+        return "Assigner invite sent successfully";
+    }
+
+    public String assignerDecision(int taskID, boolean accepted) {
+        TaskModel task = taskRepository.findById(taskID)
+                .orElseThrow(() -> new RuntimeException("Task not found with id: " + taskID));
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUsername = ((UserDetails) authentication.getPrincipal()).getUsername();
+
+        UserModel currentUser = userRepository.findByEmail(currentUsername)
+                .orElseThrow(() -> new RuntimeException("User not found with email: " + currentUsername));
+
+        String result;
+        int oldAssignerID = task.getAssignerID();
+        UserModel oldAssigner = userRepository.findById(oldAssignerID)
+                .orElseThrow(() -> new RuntimeException("User not found with ID: " + oldAssignerID));
+
+        if (accepted) {
+            task.setAssignerID(currentUser.getUserID());
+            taskRepository.save(task);
+            result = "Assigner successfully switched for task with ID: " + taskID;
+        } else {
+            result = "Assigner switch declined for task with ID: " + taskID;
+        }
+
+        simpMessageTemplate.convertAndSendToUser(oldAssigner.getEmail(), "/queue/task-updates", result);
+
+        return result;
     }
 
     public String getTask(int taskID) {
