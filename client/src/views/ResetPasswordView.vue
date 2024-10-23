@@ -6,6 +6,7 @@
       <div class="text-3xl font-bold text-primary" data-testid="Header">
         Reset Password
       </div>
+      <div class="text-lg text-secondary mt-4">Your token: {{ token }}</div>
 
       <div class="w-3/4 max-w-4xl mt-10 bg-white shadow-lg rounded-lg p-8">
         <div class="flex flex-wrap -mx-4">
@@ -44,6 +45,9 @@ export default {
   },
   computed: {
     ...mapState(["isLoggedIn", "currentUser"]),
+    token() {
+      return this.$route.query.token;
+    },
   },
   data() {
     return {
@@ -53,7 +57,15 @@ export default {
   },
   methods: {
     resetPassword() {
-      alert("Not implemented yet");
+      try {
+        this.$store.dispatch("resetPassword", {
+          newPassword: this.password,
+          token: this.token,
+        });
+      } catch (error) {
+        alert("Error resetting password");
+      }
+      this.$router.push({ name: "Login" });
     },
     updatePassword(password) {
       this.password = password;

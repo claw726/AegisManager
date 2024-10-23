@@ -162,6 +162,51 @@ export default new Vuex.Store({
         }
       }
     },
+    async requestPasswordReset({ state }, email) {
+      try {
+        const params = new URLSearchParams();
+        params.append("email", email);
+        const response = await axios.post(
+          "/api/auth/requestPasswordReset",
+          params,
+          {
+            headers: {
+              Authorization: `Bearer ${state.authToken}`,
+            },
+          },
+        );
+        console.log("Password reset requested:", response.data);
+        return response.data;
+      } catch (error) {
+        console.error(
+          "Failed to request password reset:",
+          error.response?.data || error.message,
+        );
+        throw new Error(
+          error.response?.data || "Error requesting password reset",
+        );
+      }
+    },
+    async resetPassword({ state }, { newPassword, token }) {
+      try {
+        const params = new URLSearchParams();
+        params.append("password", newPassword);
+        params.append("token", token);
+        const response = await axios.post("/api/auth/resetPassword", params, {
+          headers: {
+            Authorization: `Bearer ${state.authToken}`,
+          },
+        });
+        console.log("Password reset:", response.data);
+        return response.data;
+      } catch (error) {
+        console.error(
+          "Failed to reset password:",
+          error.response?.data || error.message,
+        );
+        throw new Error(error.response?.data || "Error resetting password");
+      }
+    },
     async fetchOrganizations({ state }) {
       try {
         const response = await axios.get("/api/orgs/getAllOrgs", {

@@ -70,11 +70,8 @@ export default {
       this.$router.push({ name: "UpdateAccount" });
     },
     resetPassword() {
-      alert("Not implemented. Waiting for API.");
-      this.$router.push({
-        name: "ResetPassword",
-        params: { token: this.currentUser.email },
-      });
+      this.$store.dispatch("requestPasswordReset", this.currentUser.email);
+      alert("Password reset email sent!");
     },
   },
 };
