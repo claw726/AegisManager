@@ -1,5 +1,10 @@
 package com.aegis.project.controller;
 
+import com.aegis.project.model.PasswordResetToken;
+import com.aegis.project.model.UserModel;
+import com.aegis.project.repository.PasswordResetTokenRepository;
+import com.aegis.project.repository.UserRepository;
+import com.aegis.project.service.EmailService;
 import com.aegis.project.service.TokenService;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
@@ -7,14 +12,17 @@ import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.AuthenticationException;
+import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import com.aegis.project.service.UserService;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 
+import java.time.LocalDateTime;
 import java.util.HashMap;
 import java.util.Map;
+import java.util.UUID;
 
 @RestController
 @RequestMapping("/api/auth")
@@ -30,6 +38,17 @@ public class AuthController {
 
     @Autowired
     private UserService userService;
+
+    @Autowired
+    private EmailService emailService;
+
+    @Autowired
+    private UserRepository userRepository;
+
+    @Autowired
+    private PasswordResetTokenRepository passwordResetTokenRepository;
+    @Autowired
+    private BCryptPasswordEncoder passwordEncoder;
 
     // Registration endpoint
     @PostMapping("/register")
@@ -73,6 +92,63 @@ public class AuthController {
             logger.error("Error authenticating user: " + email + " Error message: " + e.getMessage());
 
             return ResponseEntity.badRequest().body(response);
+        }
+    }
+
+    @PostMapping("/requestPasswordReset")
+    public ResponseEntity<String> requestPasswordReset(@RequestParam String email) {
+        logger.info("Received password reset request for email: {}", email);
+        try {
+            UserModel user = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
+
+            String existingToken = user.getPasswordResetToken();
+            if (existingToken != null) {
+                logger.info("Deleting existing password reset token for user: {}", email);
+                passwordResetTokenRepository.deleteByToken(existingToken);
+                user.setPasswordResetToken(null);
+                userRepository.save(user);
+            }
+
+            String token = UUID.randomUUID().toString();
+            PasswordResetToken resetToken = new PasswordResetToken(token, user.getUserID(), LocalDateTime.now().plusMinutes(15));
+            passwordResetTokenRepository.save(resetToken);
+
+            user.setPasswordResetToken(resetToken.getToken());
+            userRepository.save(user);
+
+            emailService.sendPasswordResetEmail(email, token, LocalDateTime.now().plusMinutes(15));
+            return ResponseEntity.ok("Password reset requested successfully with token: " + token);
+        } catch (RuntimeException e) {
+            logger.error("Error requesting password reset: " + e.getMessage());
+            return ResponseEntity.internalServerError().body("Error requesting password reset");
+        }
+    }
+
+    @PostMapping("/resetPassword")
+    public ResponseEntity<String> resetPassword(@RequestParam String token, @RequestParam String password) {
+        logger.info("Received password reset request with token: {}", token);
+        try {
+            PasswordResetToken resetToken = passwordResetTokenRepository.findByToken(token)
+                    .orElseThrow(() -> new RuntimeException("Token not found: " + token));
+
+            if (resetToken.isExpired()) {
+                logger.warn("Token: {} has expired", token);
+                return ResponseEntity.badRequest().body("Token has expired");
+            }
+
+            int userId = resetToken.getUserId();
+            UserModel user = userRepository.findById(userId)
+                    .orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));
+            user.setPWHash(passwordEncoder.encode(password));
+            user.setPasswordResetToken(null);
+            userRepository.save(user);
+            passwordResetTokenRepository.deleteById(resetToken.getId());
+
+            return ResponseEntity.ok("Password reset successfully");
+        } catch (RuntimeException e) {
+            logger.error("Error resetting password: " + e.getMessage());
+            return ResponseEntity.internalServerError().body("Error resetting password");
         }
     }
 }
