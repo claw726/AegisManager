@@ -1,6 +1,9 @@
 package com.aegis.project.controller;
 
 import java.util.Date;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,6 +19,10 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
+import com.aegis.project.dto.OrgDTO;
+import com.aegis.project.dto.TaskDTO;
+import com.aegis.project.model.OrgModel;
+import com.aegis.project.model.TaskModel;
 import com.aegis.project.service.TaskService;
 
 @RestController
@@ -196,4 +203,12 @@ public class TaskController {
         }
     }
 
+    @GetMapping("/getAllTasks")
+    public ResponseEntity<Set<TaskDTO>> getAllTasks() {
+        try {
+            return ResponseEntity.ok(taskService.getAllTasks());
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
 }

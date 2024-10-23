@@ -27,6 +27,9 @@ public interface TaskRepository extends JpaRepository<TaskModel, Integer> {
     @Query("SELECT t FROM TaskModel t WHERE t.parentProjectID = :parentProjectID")
     List<TaskModel> findByParentProjectID(@Param("parentProjectID") int parentProjectID);
 
+    @Query("SELECT t FROM TaskModel t ORDER BY t.dueDate ASC")
+    List<TaskModel> findAllSorted();
+
     @Query("SELECT t FROM TaskModel t "
             + "LEFT JOIN t.assignedUsers u "
             + "WHERE (t.assignerID = :userID OR u.id = :userID) "
