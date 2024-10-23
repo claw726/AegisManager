@@ -12,7 +12,7 @@
         <div class="h-1 bg-accent rounded-lg"></div>
         <div class="py-16">
           <div
-            class="relative flex flex-col justify-items-center p-16 mx-96 rounded-lg bg-white drop-shadow-lg"
+            class="relative flex flex-col justify-items-center p-16 mx-24 rounded-lg bg-white drop-shadow-lg"
           >
             <div>
               <!-- Proj Title -->

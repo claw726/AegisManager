@@ -28,12 +28,6 @@
           <div class="text-xl font-semibold text-secondary">
             {{ org.orgDescription }}
           </div>
-          <button
-            @click="viewUsersInOrg"
-            class="text-2xl font-semibold text-secondary"
-          >
-            View {{ org.OrgName }} Users
-          </button>
           <div class="text-medium text-accent" v-if="creator.userName">
             Created by: {{ creator.userName }}
           </div>
@@ -118,7 +112,6 @@ export default {
       try {
         const orgID = this.$route.params.orgIndex; // Ensure you are getting the correct orgID
         this.org = await this.$store.dispatch("fetchOrganization", orgID);
-        console.log("Fetched Organization:", this.org); // Log the fetched organization
       } catch (error) {
         console.error("Error fetching organization data:", error);
         alert("Failed to load organization data: " + error.message);
@@ -136,9 +129,6 @@ export default {
           orgID,
         );
         const filteredProjects = orgProjects.filter((project) => {
-          // Log each project's assignedUsers to verify the data
-          console.log("Project Assigned Users:", project.assignedUsers);
-
           // Check if currentUser.userID is in the assignedUsers array or is the project owner
           const isAssignedUser = project.assignedUsers.some(
             (user) => user.userID === this.currentUser.userID,
@@ -148,7 +138,6 @@ export default {
 
           return isAssignedUser || isProjectOwner;
         });
-        console.log("Fetched Projects:", filteredProjects); // Log the fetched projects
         this.projects = filteredProjects;
       } catch (error) {
         console.error("Error fetching projects:", error);
