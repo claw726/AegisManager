@@ -131,7 +131,7 @@ const router = createRouter({
       meta: { requiresAuth: true },
     },
     {
-      path: "/resetPassword/:token",
+      path: "/reset-password",
       name: "ResetPassword",
       component: () => import("./views/ResetPasswordView.vue"),
       meta: { requiresAuth: false }, // No need to be logged in to reset password
@@ -141,7 +141,7 @@ const router = createRouter({
 
 // Navigation Guard
 router.beforeEach((to, from, next) => {
-  const isLoggedIn = store.state.isLoggedIn;
+  const isLoggedIn = store.state.auth.isLoggedIn;
 
   if (to.matched.some((record) => record.meta.requiresAuth) && !isLoggedIn) {
     // Redirect to login if trying to access a protected route without being logged in

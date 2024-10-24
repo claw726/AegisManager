@@ -43,7 +43,14 @@ export default {
     PasswordInput,
   },
   computed: {
+<<<<<<< HEAD
     ...mapState(["isLoggedIn", "currentUser"]),
+=======
+    ...mapState('auth', ["isLoggedIn", "currentUser"]),
+    token() {
+      return this.$route.query.token;
+    },
+>>>>>>> claw
   },
   data() {
     return {
@@ -53,7 +60,19 @@ export default {
   },
   methods: {
     resetPassword() {
+<<<<<<< HEAD
       alert("Not implemented yet");
+=======
+      try {
+        this.$store.dispatch("auth/resetPassword", {
+          newPassword: this.password,
+          token: this.token,
+        });
+      } catch (error) {
+        alert("Error resetting password");
+      }
+      this.$router.push({ name: "Login" });
+>>>>>>> claw
     },
     updatePassword(password) {
       this.password = password;

@@ -29,8 +29,6 @@
 </template>
 
 <script>
-import { mapState } from "vuex";
-
 export default {
   props: {
     user: {
@@ -45,9 +43,6 @@ export default {
       type: Boolean,
       required: true,
     },
-  },
-  computed: {
-    ...mapState(["userEmail"]),
   },
   methods: {
     addUser(user) {

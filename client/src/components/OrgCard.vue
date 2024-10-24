@@ -11,8 +11,6 @@
   
   <script>
 
-  import { mapState } from 'vuex';
-
   export default {
     props: {
       organization: {
@@ -23,9 +21,6 @@
         type: Number,
         required: true,
       },
-    },
-    computed: {
-        ...mapState(['userEmail']),
     },
     methods: {
         viewOrganization() {

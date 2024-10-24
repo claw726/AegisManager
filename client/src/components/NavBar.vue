@@ -58,14 +58,11 @@ import { mapState, mapActions } from "vuex";
 export default {
   name: "NavBar",
   computed: {
-    ...mapState(["isLoggedIn", "currentUser"]),
+    ...mapState('auth', ["isLoggedIn", "currentUser"]),
   },
   methods: {
-    ...mapActions(["logout"]),
+    ...mapActions(['auth', ["logout"]]),
     // Check if the user is logged in
-    checkLoginStatus() {
-      this.$store.dispatch("checkLoginStatus");
-    },
     // Navigate to the home page
     goToHome() {
       this.$router.push({ name: "Home" });
@@ -80,7 +77,7 @@ export default {
     },
     // Logout the user and navigate to the home page
     logout() {
-      this.$store.dispatch("logout");
+      this.logout();
       this.$router.push({ name: "Home" });
     },
     //Access Dashboard from anywhere

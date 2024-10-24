@@ -110,7 +110,7 @@ export default {
     NavBar,
   },
   computed: {
-    ...mapState(["isLoggedIn", "currentUser", "organizations"]),
+    ...mapState('auth', ["isLoggedIn", "currentUser"]),
   },
   created() {
     this.getProjectData();
@@ -127,7 +127,7 @@ export default {
     },
     async getProjectData() {
       const projIndex = this.$route.params.projIndex;
-      const proj = await this.$store.dispatch("fetchProject", projIndex);
+      const proj = await this.$store.dispatch("projects/fetchProject", projIndex);
       this.modifiedProject = proj;
     },
 
@@ -244,7 +244,7 @@ export default {
 
       // Modify the project in the organization
       await this.$store
-        .dispatch("modifyProject", {
+        .dispatch("projects/modifyProject", {
           project: this.modifiedProject,
           projectID: this.$route.params.projIndex,
         })

@@ -59,7 +59,7 @@ export default {
     CurrentUsersTable,
   },
   computed: {
-    ...mapState(["isLoggedIn", "currentUser", "organizations"]),
+    ...mapState('auth', ["isLoggedIn", "currentUser"]),
   },
   mounted() {
     this.fetchOrgMembers();
@@ -69,7 +69,7 @@ export default {
       try {
         const orgID = this.$route.params.orgIndex;
         console.log(`Adding ${email} to org ${orgID}`);
-        const message = await this.$store.dispatch("addUserToOrganization", {
+        const message = await this.$store.dispatch("organizations/addUserToOrganization", {
           orgID,
           email,
         });
@@ -86,7 +86,7 @@ export default {
       try {
         const orgID = this.$route.params.orgIndex;
         const message = await this.$store.dispatch(
-          "removeUserFromOrganization",
+          "organizations/removeUserFromOrganization",
           {
             orgID,
             email,
@@ -112,11 +112,11 @@ export default {
         }
 
         // Fetch org members
-        this.members = await this.$store.dispatch("fetchOrgMembers", orgID);
+        this.members = await this.$store.dispatch("organizations/fetchOrgMembers", orgID);
         console.log("Organization Members:", this.members);
 
         // Fetch all users
-        const allUsers = await this.$store.dispatch("fetchAllUsers");
+        const allUsers = await this.$store.dispatch("users/fetchAllUsers");
         console.log("All Users:", allUsers);
 
         // Filter out users who are not a member of this org

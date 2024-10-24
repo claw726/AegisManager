@@ -97,7 +97,7 @@ export default {
     };
   },
   computed: {
-    ...mapState(["isLoggedIn", "currentUser"]),
+    ...mapState('auth', ["isLoggedIn", "currentUser"]),
   },
   // Watch for changes in the currentUser object and update the data properties accordingly
   watch: {

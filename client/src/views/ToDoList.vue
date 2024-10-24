@@ -79,7 +79,7 @@ export default {
   },
 
   computed: {
-    ...mapState(["allTasks"]),
+    ...mapState('tasks', ["allTasks"]),
   },
 
   created() {

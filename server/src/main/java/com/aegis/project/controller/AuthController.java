@@ -24,6 +24,9 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.UUID;
 
+import org.springframework.transaction.annotation.Transactional;
+
+
 @RestController
 @RequestMapping("/api/auth")
 public class AuthController {
@@ -96,6 +99,7 @@ public class AuthController {
     }
 
     @PostMapping("/requestPasswordReset")
+    @Transactional
     public ResponseEntity<String> requestPasswordReset(@RequestParam String email) {
         logger.info("Received password reset request for email: {}", email);
         try {

@@ -107,7 +107,7 @@ export default {
     NavBar,
   },
   computed: {
-    ...mapState(["isLoggedIn", "currentUser"]),
+    ...mapState('auth', ["isLoggedIn", "currentUser"]),
   },
   methods: {
     handleImageChange(event) {
@@ -228,7 +228,7 @@ export default {
 
       // Add the store to the localStore
       try {
-        await this.$store.dispatch("createProject", project);
+        await this.$store.dispatch("projects/createProject", project);
 
         // Redirect to the Org Dashboard
         this.$router.push({

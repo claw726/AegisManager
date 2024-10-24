@@ -86,7 +86,7 @@ export default {
     NavBar,
   },
   computed: {
-    ...mapState(["isLoggedIn", "currentUser"]),
+    ...mapState('auth', ["isLoggedIn", "currentUser"]),
   },
   data() {
     return {
@@ -216,7 +216,7 @@ export default {
       // Add the current user to the members list
       this.newOrg.members.push(this.currentUser.userID);
       try {
-        this.$store.dispatch("createOrganization", this.newOrg);
+        this.$store.dispatch("organizations/createOrganization", this.newOrg);
 
         // Redirect to the viewOrgs page
         this.$router.push({ name: "viewOrgs" });

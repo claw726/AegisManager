@@ -76,7 +76,7 @@ export default {
     Notification,
   },
   computed: {
-    ...mapState(["isLoggedIn"]),
+    ...mapState('auth', ["isLoggedIn"]),
   },
   data() {
     return {

@@ -8,7 +8,7 @@
       </div>
       <div v-if="currentUser" class="relative flex flex-col items-center py-12">
         <div class="text-2xl font-semibold text-secondary mb-8">
-          Welcome to your account settings!
+          Manage your account here:
         </div>
         <div class="h-1 bg-accent drop-shadow-lg w-screen"></div>
         <div
@@ -63,18 +63,15 @@ export default {
     NavBar,
   },
   computed: {
-    ...mapState(["isLoggedIn", "currentUser"]),
+    ...mapState("auth", ["isLoggedIn", "currentUser"]),
   },
   methods: {
     goToEditProfile() {
       this.$router.push({ name: "UpdateAccount" });
     },
     resetPassword() {
-      alert("Not implemented. Waiting for API.");
-      this.$router.push({
-        name: "ResetPassword",
-        params: { token: this.currentUser.email },
-      });
+      this.$store.dispatch("auth/requestPasswordReset", this.currentUser.email);
+      alert("Password reset email sent!");
     },
   },
 };

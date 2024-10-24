@@ -79,7 +79,7 @@ export default {
     DropdownMenu,
   },
   computed: {
-    ...mapState(["isLoggedIn", "currentUser"]),
+    ...mapState("auth", ["isLoggedIn", "currentUser"]),
   },
   data() {
     return {
@@ -111,7 +111,10 @@ export default {
     async getOrgData() {
       try {
         const orgID = this.$route.params.orgIndex; // Ensure you are getting the correct orgID
-        this.org = await this.$store.dispatch("fetchOrganization", orgID);
+        this.org = await this.$store.dispatch(
+          "organizations/fetchOrganization",
+          orgID,
+        );
       } catch (error) {
         console.error("Error fetching organization data:", error);
         alert("Failed to load organization data: " + error.message);
@@ -125,7 +128,7 @@ export default {
       try {
         const orgID = this.$route.params.orgIndex; // Ensure you are getting the correct orgID
         const orgProjects = await this.$store.dispatch(
-          "fetchOrgProjects",
+          "projects/fetchOrgProjects",
           orgID,
         );
         const filteredProjects = orgProjects.filter((project) => {
@@ -147,7 +150,7 @@ export default {
     async getCreatorData() {
       try {
         this.creator = await this.$store.dispatch(
-          "fetchUserAccountByID",
+          "users/fetchUserAccountByID",
           this.org.orgOwnerID,
         );
       } catch (error) {
@@ -169,7 +172,10 @@ export default {
     deleteOrg() {
       if (confirm("Are you sure you want to delete this organization?")) {
         this.$store
-          .dispatch("deleteOrganization", this.$route.params.orgIndex)
+          .dispatch(
+            "organizations/deleteOrganization",
+            this.$route.params.orgIndex,
+          )
           .then(() => {
             alert("Organization deleted successfully!");
             this.$router.push({

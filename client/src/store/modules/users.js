@@ -1,45 +1,65 @@
-const user = {
-    state: {
-      userAccounts: [],
-      isLoggedIn: false,
-      currentUser: null,
-      authToken: null
-    },
-    mutations: {
-      addUserAccount(state, user) {
-        state.userAccounts.push(user);
-      },
-      setCurrentUser(state, user) {
-        state.currentUser = user;
-      },
-      setAuthToken(state, token) {
-        state.authToken = token;
-      },
-      setLogin(state, isLoggedIn) {
-        state.isLoggedIn = isLoggedIn;
+import axios from "@/utils/axios.js";
+
+const actions = {
+  async fetchUserAccountByID({ rootState }, userID) {
+      try {
+        const response = await axios.get(`/api/users/${userID}`, {
+          headers: {
+            Authorization: `Bearer ${rootState.auth.authToken}`,
+          },
+        });
+
+        return response.data;
+      } catch (error) {
+        console.error("Failed to fetch user account:", error.response.data);
+        throw new Error("Failed to fetch user account");
       }
     },
-    actions: {
-      async register({ commit }, { firstName, lastName, email, password, profilePicture }) {
-        const user = {firstName, lastName, email, password, profilePicture};
-        commit('addUserAccount', user);
-        commit('login', { email, password });
-      },
-      async login({ commit, state }, { email, password }) {
-        const user = state.userAccounts.find(user => user.email === email);
-        if (user && user.password === password) {
-          commit('setCurrentUser', user);
-          commit('setAuthToken', 'logged_in');
-          commit('setLogin', true);
-        } else {
-          alert('Login failed: Invalid email or password');
+    async fetchUserAccountByEmail({ rootState }, email) {
+      try {
+        if (typeof email !== "string") {
+          throw new Error("Email must be a String!");
         }
-      },
-      logout({ commit }) {
-        commit('clearAuth');
-        commit('setLogin', false);
+
+        const response = await axios.get("/api/users/getUserByEmail", {
+          params: { email },
+          headers: {
+            Authorization: `Bearer ${rootState.auth.authToken}`,
+          },
+        });
+        return response.data;
+      } catch (error) {
+        if (error.response && error.response.status === 404) {
+          console.error("User not found: ", error.response.data);
+          throw new Error("User not found:");
+        } else {
+          console.error(
+            "Failed to Fetch User:",
+            error.response ? error.response.data : error.message,
+          );
+          throw new Error("Failed to Fetch User");
+        }
       }
-    }
-  };
-  
-  export default user;
+    },
+    async fetchAllUsers({ rootState }) {
+      try {
+        const response = await axios.get("/api/users/getAllUsers", {
+          headers: {
+            Authorization: `Bearer ${rootState.auth.authToken}`,
+            "Content-Type": "application/json",
+          },
+        });
+
+        return response.data;
+      } catch (error) {
+        console.error("Error fetching all users:", error);
+        throw error;
+      }
+    },
+  // Other project-related actions
+};
+
+export default {
+  namespaced: true,
+  actions,
+};

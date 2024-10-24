@@ -47,10 +47,6 @@ export default {
     NavBar,
   },
 
-  computed: {
-    ...mapState(["organizations"]),
-  },
-
   data() {
     return {
       org: null,
