@@ -27,6 +27,12 @@ public interface TaskRepository extends JpaRepository<TaskModel, Integer> {
     @Query("SELECT t FROM TaskModel t WHERE t.parentProjectID = :parentProjectID")
     List<TaskModel> findByParentProjectID(@Param("parentProjectID") int parentProjectID);
 
+    @Query("SELECT t FROM TaskModel t "
+            + "JOIN t.assignedUsers u "
+            + "WHERE t.parentProjectID = :projectID "
+            + "AND (t.assignerID = :userID OR u.UserID = :userID)")
+    List<TaskModel> findByParentProjectIDAndUserID(@Param("projectID") int projectID, @Param("userID") int userID);
+
     @Query("SELECT t FROM TaskModel t ORDER BY t.dueDate ASC")
     List<TaskModel> findAllSorted();
 
@@ -37,4 +43,8 @@ public interface TaskRepository extends JpaRepository<TaskModel, Integer> {
             + "AND (:projectID = -1 OR t.parentProjectID = :projectID) "
             + "ORDER BY t.dueDate ASC")
     Set<TaskModel> getAllUserTasks(@Param("userID") int userID, @Param("orgID") int orgID, @Param("projectID") int projectID);
+
+    @Query("SELECT CASE WHEN COUNT(t) > 0 THEN true ELSE false END "
+            + "FROM TaskModel t WHERE t.parentProjectID = :parentProjectID AND t.taskName = :taskName")
+    boolean existsTaskByProjectAndName(int parentProjectID, String taskName);
 }
