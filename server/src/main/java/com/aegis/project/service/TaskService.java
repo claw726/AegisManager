@@ -13,9 +13,11 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import com.aegis.project.dto.TaskDTO;
+import com.aegis.project.model.OrgModel;
 import com.aegis.project.model.ProjectModel;
 import com.aegis.project.model.TaskModel;
 import com.aegis.project.model.UserModel;
+import com.aegis.project.repository.OrgRepository;
 import com.aegis.project.repository.ProjectRepository;
 import com.aegis.project.repository.TaskRepository;
 import com.aegis.project.repository.UserRepository;
@@ -29,6 +31,8 @@ public class TaskService {
     private UserRepository userRepository;
     @Autowired
     private ProjectRepository projectRepository;
+    @Autowired
+    private OrgRepository orgRepository;
     @Autowired
     private UserService userService;
 
@@ -89,7 +93,10 @@ public class TaskService {
         }
     }
 
-    public boolean createTask(int parentProjectID, int parentOrgID, String taskName, String taskDescription, int assignerID, String taskPriority, Date dueDate) {
+    public boolean createTask(int parentProjectID, int parentOrgID, String taskName, String taskDescription, int assignerID, String taskPriority, String dueDate) {
+        if (taskRepository.existsTaskByProjectAndName(parentProjectID, taskName)) {
+            throw new RuntimeException("Task with given name already exists in project");
+        }
         TaskModel task = new TaskModel();
         task.setParentProjectID(parentProjectID);
         task.setParentOrgID(parentOrgID);
@@ -97,15 +104,29 @@ public class TaskService {
         task.setTaskDescription(taskDescription);
         task.setAssignerID(assignerID);
         task.setTaskPriority(taskPriority);
-        task.setDueDate(dueDate);
+        task.setComplete(false);
+
+        try {
+            String[] splitDueDate = dueDate.split("-");
+            int year = Integer.parseInt(splitDueDate[0]);
+            int month = Integer.parseInt(splitDueDate[1]);
+            int day = Integer.parseInt(splitDueDate[2]);
+            Date date = new Date(year, month, day);
+            task.setDueDate(date);
+        } catch (Exception e) {
+            throw new RuntimeException("Error with date format");
+        }
 
         taskRepository.save(task);
+
+        OrgModel parentOrg = orgRepository.findById(parentOrgID)
+                .orElseThrow(() -> new RuntimeException("Org not found with id: " + parentOrgID));
 
         ProjectModel parentProject = projectRepository.findById(parentProjectID)
                 .orElseThrow(() -> new RuntimeException("Project not found with id: " + parentProjectID));
         Set<TaskModel> projectTasks = parentProject.getProjectTasks();
         projectTasks.add(task);
-        parentProject.setProjectTasks(projectTasks);
+        //parentProject.setProjectTasks(projectTasks);
         projectRepository.save(parentProject);
 
         return true;
