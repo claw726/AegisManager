@@ -117,12 +117,12 @@ export default {
     NavBar,
   },
   computed: {
-    ...mapState(["isLoggedIn", "currentUser"]),
+    ...mapState('auth', ["isLoggedIn", "currentUser"]),
   },
   async created() {
     try {
         const orgID = this.$route.params.orgIndex; // Ensure you are getting the correct orgID
-        this.modifiedOrganization = await this.$store.dispatch("fetchOrganization", orgID);
+        this.modifiedOrganization = await this.$store.dispatch("organizations/fetchOrganization", orgID);
         console.log('Fetched Organization:', this.modifiedOrganization); // Log the fetched organization
       } catch (error) {
         console.error('Error fetching organization data:', error);
@@ -251,7 +251,7 @@ export default {
 
       // Modify the project in the organization
       await this.$store
-        .dispatch("modifyOrganization", {
+        .dispatch("organizations/modifyOrganization", {
           orgID: organizationID,
           organization: this.modifiedOrganization,
         })

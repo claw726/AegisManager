@@ -141,7 +141,7 @@ const router = createRouter({
 
 // Navigation Guard
 router.beforeEach((to, from, next) => {
-  const isLoggedIn = store.state.isLoggedIn;
+  const isLoggedIn = store.state.auth.isLoggedIn;
 
   if (to.matched.some((record) => record.meta.requiresAuth) && !isLoggedIn) {
     // Redirect to login if trying to access a protected route without being logged in

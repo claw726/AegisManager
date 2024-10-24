@@ -175,7 +175,7 @@ export default {
     await this.getCreatorData();
   },
   computed: {
-    ...mapState(["isLoggedIn", "currentUser"]),
+    ...mapState('auth', ["isLoggedIn", "currentUser"]),
   },
   // mounted() {
   //   this.tasks = this.proj.tasks || [];
@@ -184,7 +184,7 @@ export default {
     async getProjData() {
       try {
         this.proj = await this.$store.dispatch(
-          "fetchProject",
+          "projects/fetchProject",
           this.$route.params.projIndex,
         );
       } catch (err) {
@@ -195,7 +195,7 @@ export default {
     async getCreatorData() {
       try {
         this.creator = await this.$store.dispatch(
-          "fetchUserAccountByID",
+          "users/fetchUserAccountByID",
           this.proj.projectOwnerID,
         );
       } catch (error) {
@@ -236,7 +236,7 @@ export default {
 
       if (confirm("Are you sure you want to delete this project?")) {
         this.$store
-          .dispatch("deleteProject", {
+          .dispatch("projects/deleteProject", {
             projectID: this.$route.params.projIndex,
           })
           .then(() => {

@@ -59,7 +59,7 @@
       };
     },
     computed: {
-      ...mapState(['isLoggedIn', 'userEmail', 'userFirstName', 'userLastName', 'userPhoto']),
+      ...mapState('auth', ['isLoggedIn', 'currentUser']),
     },
     methods: {
 

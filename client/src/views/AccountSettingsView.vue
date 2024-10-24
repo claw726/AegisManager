@@ -63,14 +63,14 @@ export default {
     NavBar,
   },
   computed: {
-    ...mapState(["isLoggedIn", "currentUser"]),
+    ...mapState('auth', ["isLoggedIn", "currentUser"]),
   },
   methods: {
     goToEditProfile() {
       this.$router.push({ name: "UpdateAccount" });
     },
     resetPassword() {
-      this.$store.dispatch("requestPasswordReset", this.currentUser.email);
+      this.$store.dispatch("auth/requestPasswordReset", this.currentUser.email);
       alert("Password reset email sent!");
     },
   },

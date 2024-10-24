@@ -44,7 +44,7 @@ export default {
     PasswordInput,
   },
   computed: {
-    ...mapState(["isLoggedIn", "currentUser"]),
+    ...mapState('auth', ["isLoggedIn", "currentUser"]),
     token() {
       return this.$route.query.token;
     },
@@ -58,7 +58,7 @@ export default {
   methods: {
     resetPassword() {
       try {
-        this.$store.dispatch("resetPassword", {
+        this.$store.dispatch("auth/resetPassword", {
           newPassword: this.password,
           token: this.token,
         });

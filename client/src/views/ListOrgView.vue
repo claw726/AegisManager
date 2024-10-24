@@ -63,7 +63,7 @@ export default {
     OrgCard,
   },
   computed: {
-    ...mapState(["isLoggedIn", "currentUser"]),
+    ...mapState('auth', ["isLoggedIn", "currentUser"]),
     filteredOrganizations() {
       const filteredOrganizations = (this.userOrganizations || []).filter(
         (organization) =>
@@ -103,7 +103,7 @@ export default {
     async fetchOrganizations() {
       try {
         this.userOrganizations =
-          await this.$store.dispatch("fetchOrganizations");
+          await this.$store.dispatch("organizations/fetchOrganizations");
       } catch (error) {
         console.error("Error Loading Organizaitons:", error.message);
         alert("Failed to load organizations!");

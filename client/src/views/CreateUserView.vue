@@ -108,7 +108,7 @@ export default {
     NavBar,
   },
   computed: {
-    ...mapState(["isLoggedIn"]),
+    ...mapState('auth', ["isLoggedIn"]),
   },
   data() {
     return {

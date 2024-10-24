@@ -58,7 +58,7 @@ export default {
     NavBar,
   },
   computed: {
-    ...mapState(["isLoggedIn", "currentUser"]),
+    ...mapState('auth', ["isLoggedIn", "currentUser"]),
   },
   data() {
     return {
@@ -82,7 +82,7 @@ export default {
         return;
       }
       try {
-        await this.$store.dispatch("login", {
+        await this.$store.dispatch("auth/login", {
           email: this.email,
           password: this.password,
         });
