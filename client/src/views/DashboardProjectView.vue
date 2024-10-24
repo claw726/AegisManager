@@ -95,72 +95,7 @@ export default {
           command: this.editProjUsers,
         },
       ],
-      tasks: [
-        {
-          TaskName: "Gather Materials for Tempest Hull",
-          TaskDescription:
-            "Collect 1000 units of Mexallon and 500 units of Pyroxeres",
-          AssignerID: 1,
-          AssignedUsers: ["Capsuleer1", "Capsuleer2"],
-          TaskPriority: "High",
-          DueDate: new Date("2024-10-01T14:30:00.000Z"),
-          TaskFiles: [
-            "Mexallon_Sourcing_Report.pdf",
-            "Pyroxeres_Sourcing_Report.pdf",
-          ],
-          IsComplete: false,
-        },
-        {
-          TaskName: "Assemble Tempest Frame",
-          TaskDescription: "Construct the frame of the Tempest Battleship",
-          AssignerID: 2,
-          AssignedUsers: ["Capsuleer3", "Capsuleer4"],
-          TaskPriority: "Medium",
-          DueDate: new Date("2024-10-05T10:00:00.000Z"),
-          TaskFiles: [
-            "Tempest_Frame_Blueprint.bpt",
-            "Assembly_Instructions.pdf",
-          ],
-          IsComplete: true,
-        },
-        {
-          TaskName: "Install Propulsion System",
-          TaskDescription:
-            "Install the propulsion system for the Tempest Battleship",
-          AssignerID: 3,
-          AssignedUsers: ["Capsuleer5", "Capsuleer6"],
-          TaskPriority: "Low",
-          DueDate: new Date("2024-10-10T12:00:00.000Z"),
-          TaskFiles: [
-            "Propulsion_System_Blueprint.bpt",
-            "Installation_Guide.pdf",
-          ],
-          IsComplete: false,
-        },
-        {
-          TaskName: "Fit Turrets and Missiles",
-          TaskDescription:
-            "Equip the Tempest Battleship with turrets and missiles",
-          AssignerID: 4,
-          AssignedUsers: ["Capsuleer7", "Capsuleer8"],
-          TaskPriority: "High",
-          DueDate: new Date("2024-10-15T14:00:00.000Z"),
-          TaskFiles: ["Turret_Fitting_Guide.pdf", "Missile_Fitting_Guide.pdf"],
-          IsComplete: false,
-        },
-        {
-          TaskName: "Finalize Ship Configuration",
-          TaskDescription:
-            "Finalize the configuration of the Tempest Battleship",
-          AssignerID: 5,
-          AssignedUsers: ["Capsuleer9", "Capsuleer10"],
-          TaskPriority: "Medium",
-          DueDate: new Date("2024-10-20T10:00:00.000Z"),
-          TaskFiles: ["Ship_Configuration_Guide.pdf", "Final_Checklist.pdf"],
-          IsComplete: false,
-        },
-        // Add more tasks as needed
-      ],
+      tasks: [],
       creator: {},
       isLoaded: false,
     };
@@ -202,9 +137,17 @@ export default {
         console.error("Error getting project owner info");
       }
     },
+    async getAllProjectTasks() {
+      try {
+        const projID = this.$route.params.projIndex;
+        const projTasks = null;
+      } catch (error) {
+        alert("Error getting project tasks")
+      }
+    }
     goToCreateTask() {
-      // this.$router.push({ name: 'createTask', params: { orgIndex: this.index }});
-      alert("Bilsha, can you implement this?");
+      this.$router.push({ name: 'createTask', params: { orgIndex: this.$route.params.orgIndex, projIndex: this.$route.params.projIndex}});
+      
     },
     handleCommand(command) {
       if (command === "edit") {
