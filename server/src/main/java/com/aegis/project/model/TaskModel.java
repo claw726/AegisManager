@@ -1,7 +1,5 @@
 package com.aegis.project.model;
 
-import com.aegis.project.model.ProjectModel;
-
 
 import java.util.Date;
 import java.util.HashSet;

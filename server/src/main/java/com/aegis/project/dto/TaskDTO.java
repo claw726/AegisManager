@@ -1,17 +1,11 @@
 package com.aegis.project.dto;
 
 import java.util.Set;
-import java.util.HashSet;
 import java.util.Date;
 
-import com.aegis.project.dto.UserDTO;
-
-import com.aegis.project.model.ProjectModel;
 import com.aegis.project.model.UserModel;
 
 import com.aegis.project.service.TaskService;
-import com.aegis.project.dto.UserDTO;
-
 public class TaskDTO {
     private int taskID;
     private int parentProjectID;

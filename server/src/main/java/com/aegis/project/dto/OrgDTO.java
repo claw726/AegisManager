@@ -3,8 +3,6 @@ package com.aegis.project.dto;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.aegis.project.service.OrgService;
-
 public class OrgDTO {
 
     private int orgID;
@@ -13,8 +11,6 @@ public class OrgDTO {
     private int orgOwnerID;
     private Set<UserDTO> users = new HashSet<>();
     private String encodedImage;
-
-    private OrgService orgService;
 
     public OrgDTO(int orgID, String orgName, String orgDescription, int orgOwnerID, String encodedImage, Set<UserDTO> users) {
         this.orgID = orgID;
