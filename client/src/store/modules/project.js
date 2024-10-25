@@ -167,6 +167,42 @@ const actions = {
       throw error;
     }
   },
+  async fetchTasksFromProject({ rootState }, projectID) {
+    try {
+      const response = await axios.get(
+        `/api/projects/${projectID}/getAllTasksFromProject`,
+        {
+          headers: {
+            Authorization: `Bearer ${rootState.auth.authToken}`,
+          },
+        },
+      );
+      return response.data;
+    } catch (error) {
+      let errorMessage = "An error occurred while fetching tasks.";
+      if (error.response) {
+        switch (error.response.status) {
+          case 404:
+            errorMessage = "Project not found.";
+            break;
+          case 403:
+            errorMessage = "Unauthorized to fetch tasks.";
+            break;
+          case 500:
+            errorMessage = "Internal server error. Please Try again later";
+            break;
+          default:
+            errorMessage = `Unexpected error: ${error.response.status}`;
+            break;
+        }
+      } else if (error.request) {
+        errorMessage = "No response from server. Please check your connection.";
+      } else {
+        errorMessage = `Error: ${error.message}`;
+      }
+      throw new Error(errorMessage);
+    }
+  },
   // Other project-related actions
 };
 

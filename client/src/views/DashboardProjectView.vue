@@ -59,13 +59,18 @@
     </div>
 
     <!-- List of Tasks -->
-    <div class="grid grid-cols-4 gap-4 m-8">
+    <div v-if="tasks && tasks.length > 0" class="grid grid-cols-4 gap-4 m-8">
       <TaskCard
         v-for="(task, index) in tasks"
         :key="index"
         :task="task"
         :taskIndex="index"
       />
+    </div>
+    <div v-else class="flex justify-center p-4">
+      <p class="text-xl font-semibold text-primary">
+        You have no tasks assigned to you! 🎉.
+      </p>
     </div>
   </div>
 </template>
@@ -110,7 +115,7 @@ export default {
     await this.getCreatorData();
   },
   computed: {
-    ...mapState('auth', ["isLoggedIn", "currentUser"]),
+    ...mapState("auth", ["isLoggedIn", "currentUser"]),
   },
   // mounted() {
   //   this.tasks = this.proj.tasks || [];
@@ -140,14 +145,22 @@ export default {
     async getAllProjectTasks() {
       try {
         const projID = this.$route.params.projIndex;
-        const projTasks = null;
+        this.tasks = this.$store.dispatch(
+          "projects/fetchTasksFromProject",
+          projID,
+        );
       } catch (error) {
-        alert("Error getting project tasks")
+        alert("Error getting project tasks");
       }
-    }
+    },
     goToCreateTask() {
-      this.$router.push({ name: 'createTask', params: { orgIndex: this.$route.params.orgIndex, projIndex: this.$route.params.projIndex}});
-      
+      this.$router.push({
+        name: "createTask",
+        params: {
+          orgIndex: this.$route.params.orgIndex,
+          projIndex: this.$route.params.projIndex,
+        },
+      });
     },
     handleCommand(command) {
       if (command === "edit") {

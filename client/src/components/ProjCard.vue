@@ -40,18 +40,22 @@ export default {
     },
   },
   methods: {
-    goToProj() {
+    async goToProj() {
       if (this.projIndex === undefined || this.projIndex === null) {
         console.error("Project index is not defined:", this.projIndex);
         return;
-      } else {
-        this.$router.push({
+      }
+      try {
+        await this.$router.push({
           name: "ProjectDashboard",
           params: {
             orgIndex: this.$route.params.orgIndex,
             projIndex: this.projIndex,
           },
         });
+      } catch (error) {
+        console.error("Failed to navigate to project dashboard:", error);
+        alert("Failed to navigate to project dashboard.");
       }
     },
   },
