@@ -74,7 +74,7 @@
 <script>
 import NavBar from "@/components/NavBar.vue";
 import Notification from "@/components/Notification.vue";
-import { mapState } from "vuex";
+import {mapActions, mapState} from "vuex";
 import axios from "axios";
 import imageCompression from "browser-image-compression";
 
@@ -113,6 +113,7 @@ export default {
     },
   },
   methods: {
+    ...mapActions(["updateUser"]),
     async handleFileUpload(event) {
       event.preventDefault();
       const file = event.target.files[0];
@@ -199,28 +200,11 @@ export default {
         profilePicture: this.profilePicture || this.currentUser.profilePicture,
       };
 
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(updatedDetails.email)) {
-        this.showNotification("error", "Please enter a valid email address.");
-        return;
-      }
-
       try {
-        const response = await axios.put(
-          `/api/users/${this.currentUser.id}/update`,
-          new URLSearchParams(updatedDetails),
-          {
-            headers: {
-              Authorization: `Bearer ${this.$store.state.authToken}`,
-              "Content-Type": "application/x-www-form-urlencoded",
-            },
-          },
-        );
-        this.$store.commit("setCurrentUser", response.data);
+        await this.updateUser(updatedDetails);
         this.showNotification("success", "User details updated successfully!");
       } catch (error) {
-        console.error("Error updating user details:", error);
-        this.showNotification("error", "Failed to update user details.");
+        this.showNotification("error", error.message);
       }
     },
     showNotification(type, message) {

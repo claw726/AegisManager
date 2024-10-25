@@ -63,7 +63,7 @@ export default {
     NavBar,
   },
   computed: {
-    ...mapState('auth', ["isLoggedIn", "currentUser"]),
+    ...mapState("auth", ["isLoggedIn", "currentUser"]),
   },
   methods: {
     goToEditProfile() {

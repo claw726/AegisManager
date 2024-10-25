@@ -6,7 +6,6 @@
       <div class="text-3xl font-bold text-primary" data-testid="Header">
         Reset Password
       </div>
-      <div class="text-lg text-secondary mt-4">Your token: {{ token }}</div>
 
       <div class="w-3/4 max-w-4xl mt-10 bg-white shadow-lg rounded-lg p-8">
         <div class="flex flex-wrap -mx-4">
@@ -44,7 +43,7 @@ export default {
     PasswordInput,
   },
   computed: {
-    ...mapState('auth', ["isLoggedIn", "currentUser"]),
+    ...mapState("auth", ["isLoggedIn", "currentUser"]),
     token() {
       return this.$route.query.token;
     },

@@ -34,7 +34,7 @@ public class TaskController {
     private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
 
     @PostMapping("/createTask")
-    public ResponseEntity<String> createTask(@RequestParam int parentProjectID, @RequestParam int parentOrgID, @RequestParam String taskName, @RequestParam String taskDescription, @RequestParam int assignerID, @RequestParam String taskPriority, @RequestParam Date dueDate) {
+    public ResponseEntity<String> createTask(@RequestParam int parentProjectID, @RequestParam int parentOrgID, @RequestParam String taskName, @RequestParam String taskDescription, @RequestParam int assignerID, @RequestParam String taskPriority, @RequestParam String dueDate) {
         // Log the input parameters
         logger.info("Received task creation request with parent project ID: {}, parent org ID: {}, name: {}, description: {}, assigner ID: {}, priority: {}, due date: {}", parentProjectID, parentOrgID, taskName, taskDescription, assignerID, taskPriority, dueDate);
         try {
@@ -197,6 +197,22 @@ public class TaskController {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
             } else if (e.getMessage().contains("User does not have permission")) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+            } else {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+            }
+        }
+    }
+
+    @PostMapping("/{taskID}/assignerDecision")
+    public ResponseEntity<String> assignerDecision(@PathVariable int taskID, @RequestParam boolean accept) {
+        try {
+            taskService.assignerDecision(taskID, accept);
+            return ResponseEntity.ok("Assigner decision updated successfully");
+        } catch (RuntimeException e) {
+            if (e.getMessage().contains("Task not found with id:")) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            } else if (e.getMessage().contains("User not found with email")) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
             } else {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
             }
