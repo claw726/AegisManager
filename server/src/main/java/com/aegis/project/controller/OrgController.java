@@ -2,7 +2,6 @@ package com.aegis.project.controller;
 
 import java.util.Set;
 import java.util.stream.Collectors;
-import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -25,7 +24,6 @@ import com.aegis.project.service.OrgService;
 
 import io.jsonwebtoken.lang.Collections;
 
-import com.aegis.project.dto.ProjectDTO;
 
 @RestController
 @RequestMapping("api/orgs")

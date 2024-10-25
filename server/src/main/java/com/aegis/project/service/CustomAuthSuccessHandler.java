@@ -2,7 +2,6 @@ package com.aegis.project.service;
 
 import com.aegis.project.model.UserModel;
 import com.aegis.project.repository.UserRepository;
-import jakarta.servlet.ServletException;
 import jakarta.servlet.http.HttpServletRequest;
 import jakarta.servlet.http.HttpServletResponse;
 import org.springframework.beans.factory.annotation.Autowired;

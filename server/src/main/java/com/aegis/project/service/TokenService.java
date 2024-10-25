@@ -1,7 +1,6 @@
 package com.aegis.project.service;
 
 import io.jsonwebtoken.*;
-import io.jsonwebtoken.security.Keys;
 import jakarta.servlet.http.HttpServletRequest;
 import org.springframework.security.core.Authentication;
 import org.springframework.stereotype.Service;
@@ -15,15 +14,15 @@ import javax.crypto.SecretKey;
 
 @Service
 public class TokenService {
-    private final SecretKey key = Keys.secretKeyFor(SignatureAlgorithm.HS512);
+    private final SecretKey key = Jwts.SIG.HS512.key().build();
     private final long expirationTime = 1000 * 60 * 15; // 15 minutes
     private static final Logger logger = LoggerFactory.getLogger(TokenService.class);
 
     public String generateToken(Authentication auth) {
         String token = Jwts.builder()
-                .setSubject(auth.getName())
-                .setIssuedAt(new Date())
-                .setExpiration(new Date(System.currentTimeMillis() + expirationTime))
+                .subject(auth.getName())
+                .issuedAt(new Date())
+                .expiration(new Date(System.currentTimeMillis() + expirationTime))
                 .signWith(key)
                 .compact();
 
@@ -43,8 +42,7 @@ public class TokenService {
 
     public boolean validateToken(String token) {
         try {
-            JwtParser parser = Jwts.parser().setSigningKey(key).build();
-            parser.parseClaimsJws(token);
+            Jwts.parser().verifyWith(key).build().parseSignedClaims(token);
             return true;
         } catch (ExpiredJwtException e) {
             logger.warn("Token is expired: {}", e.getMessage());
@@ -55,9 +53,7 @@ public class TokenService {
     }
 
     public String getUsername(String token) {
-        JwtParser parser = Jwts.parser().setSigningKey(key).build();
-        Claims claims = parser.parseClaimsJws(token).getBody();
-        return claims.getSubject();
+        return Jwts.parser().verifyWith(key).build().parseSignedClaims(token).getPayload().getSubject();
     }
 
 }

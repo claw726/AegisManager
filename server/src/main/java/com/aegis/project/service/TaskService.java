@@ -1,5 +1,7 @@
 package com.aegis.project.service;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -101,8 +103,6 @@ public class TaskService {
         TaskModel task = taskRepository.findById(taskID)
                 .orElseThrow(() -> new RuntimeException("Task not found with id: " + taskID));
 
-        String taskJson = createTaskJson(task);
-
         Set<UserModel> assignedUsers = task.getAssignedUsers();
 
         for (UserModel user : assignedUsers) {
@@ -139,7 +139,9 @@ public class TaskService {
             int year = Integer.parseInt(splitDueDate[0]);
             int month = Integer.parseInt(splitDueDate[1]);
             int day = Integer.parseInt(splitDueDate[2]);
-            Date date = new Date(year, month, day);
+
+            LocalDate localDate = LocalDate.of(year, month, day);
+            Date date = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
             task.setDueDate(date);
         } catch (Exception e) {
             throw new RuntimeException("Error with date format");

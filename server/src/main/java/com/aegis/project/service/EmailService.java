@@ -1,19 +1,14 @@
 package com.aegis.project.service;
 
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.mail.SimpleMailMessage;
 import org.springframework.mail.javamail.JavaMailSender;
 import org.springframework.mail.javamail.MimeMessageHelper;
 import org.springframework.stereotype.Service;
 
 import jakarta.mail.MessagingException;
 import jakarta.mail.internet.MimeMessage;
-import java.io.InputStream;
-import java.nio.charset.StandardCharsets;
-import java.util.Scanner;
 
 import java.time.LocalDateTime;
-import java.time.format.DateTimeFormatter;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -30,14 +25,10 @@ public class EmailService {
 
     public void sendPasswordResetEmail(String email, String token, LocalDateTime expiryDate) {
         String subject = "Password Reset Request";
-        String resetUrl = "http://localhost:8081/reset-password?token=" + token;
         String content = loadEmailTemplate("src/main/resources/templates/password-reset-email.html");
 
         if (content != null) {
             content = content.replace("{{token}}", token);
-            DateTimeFormatter formatter = DateTimeFormatter.ofPattern("dd MMMM yyyy HH:mm");
-            String formattedExpiryDate = expiryDate.format(formatter);
-
             MimeMessage message = mailSender.createMimeMessage();
             try {
                 MimeMessageHelper helper = new MimeMessageHelper(message, true);
