@@ -136,6 +136,12 @@ const router = createRouter({
       component: () => import("./views/ResetPasswordView.vue"),
       meta: { requiresAuth: false }, // No need to be logged in to reset password
     },
+    {
+      path: "/calendar/",
+      name: "Calendar",
+      component: () => import("./views/CalendarTaskView.vue"),
+      meta: { requiresAuth: true },
+    },
   ],
 });
 

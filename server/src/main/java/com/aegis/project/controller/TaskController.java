@@ -2,6 +2,7 @@ package com.aegis.project.controller;
 
 import java.util.Date;
 import java.util.Set;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -16,9 +17,11 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
 import com.aegis.project.dto.TaskDTO;
 import com.aegis.project.service.TaskService;
+import com.aegis.project.model.TaskModel;
 
 @RestController
 @RequestMapping("api/tasks")
@@ -47,18 +50,18 @@ public class TaskController {
     }
 
     @GetMapping("/getAllUserTasks")
-    public ResponseEntity<String> getAllUserTasks(@RequestParam int userID, @RequestParam(required = false, defaultValue = "-1") int orgID, @RequestParam(required = false, defaultValue = "-1") int projectID) {
+    public ResponseEntity<List<TaskModel>> getAllUserTasks(@RequestParam int userID, @RequestParam(required = false, defaultValue = "-1") int orgID, @RequestParam(required = false, defaultValue = "-1") int projectID) {
         logger.info("Received task retrieval request for user ID: {}, org ID: {}, projectID: {} ", userID, orgID, projectID);
         try {
             return ResponseEntity.ok(taskService.getAllUserTasks(userID, orgID, projectID));
         } catch (Exception e) {
             logger.error("Error retrieving tasks for user ID {}, org ID {}, projectID {}: {}", userID, orgID, projectID, e.getMessage());
             if (e.getMessage().contains("User not found with email:")) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
             } else if (e.getMessage().contains("User does not have permission to access task list")) {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());
             } else {
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
             }
         }
     }

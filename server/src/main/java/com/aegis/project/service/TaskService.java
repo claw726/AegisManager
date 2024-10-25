@@ -2,6 +2,7 @@ package com.aegis.project.service;
 
 import java.time.LocalDate;
 import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -168,26 +169,16 @@ public class TaskService {
         return task.getAssignedUsers();
     }
 
-    public String getAllUserTasks(int userID, int orgID, int projectID) {
+    public List<TaskModel> getAllUserTasks(int userID, int orgID, int projectID) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String currentUsername = ((UserDetails) authentication.getPrincipal()).getUsername();
         UserModel currentUser = userRepository.findByEmail(currentUsername)
                 .orElseThrow(() -> new RuntimeException("User not found with email: " + currentUsername));
         if (currentUser.getUserID() == userID) {
             Set<TaskModel> tasks = taskRepository.getAllUserTasks(userID, orgID, projectID);
-            String ret = "{";
-            for (TaskModel task : tasks) {
-                if (ret.length() > 1) {
-                    ret += ",";
-                }
-                ret += createTaskJson(task);
-            }
-            ret += "}";
-            return ret;
+            
+            return new ArrayList<>(tasks);
 
-            /*return tasks.stream()
-                .map(task -> new TaskDTO(task.getTaskID(), task.getParentProjectID(), task.getParentOrgID(), task.getTaskName(), task.getTaskDescription(), task.getAssignerID(), task.getTaskPriority(), task.getDueDate(), task.isComplete()))
-                .collect(Collectors.toSet());*/
         } else {
             throw new RuntimeException("User does not have permission to access task list");
         }

@@ -43,6 +43,10 @@
         <button @click="goToSettings" class="button-container dashboard-button">
           Account Settings ⚙️
         </button>
+
+        <button @click="goToCalendar" class="button-container dashboard-button">
+          Calendar 📅
+        </button>
       </div>
     </div>
   </div>
@@ -57,7 +61,7 @@ export default {
     NavBar,
   },
   computed: {
-    ...mapState('auth', ["isLoggedIn", "currentUser"]),
+    ...mapState("auth", ["isLoggedIn", "currentUser"]),
   },
   methods: {
     goToViewOrgs() {
@@ -77,6 +81,9 @@ export default {
     },
     goToSettings() {
       this.$router.push({ name: "AccountSettings" });
+    },
+    goToCalendar() {
+      this.$router.push({ name: "Calendar" });
     },
   },
 };
