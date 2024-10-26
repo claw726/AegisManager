@@ -69,6 +69,41 @@ public class UserService {
         logger.info("Updated user with ID: {}", userID);
     }
 
+    public void updateUser2FA(int userID, String twoFactorAuthInfo) {
+        logger.info("Updating 2FA for user with ID: {}", userID);
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUsername = ((UserDetails) authentication.getPrincipal()).getUsername();
+
+        if (!currentUsername.equals(userRepository.findById(userID).get().getEmail())) {
+            logger.warn("User does not have permission to update 2FA for user with ID: {}", userID);
+            throw new RuntimeException("User with does not have permission to update 2FA for user with ID: " + userID);
+        }
+
+        UserModel user = userRepository.findById(userID)
+                .orElseThrow(() -> new RuntimeException("User not found with ID: " + userID));
+        user.setTwoFactorAuthInfo(twoFactorAuthInfo);
+        userRepository.save(user);
+        logger.info("Updated 2FA for user with ID: {}", userID);
+    }
+
+    public String getUser2FA(int userID) {
+        logger.info("Getting 2FA for user with ID: {}", userID);
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUsername = ((UserDetails) authentication.getPrincipal()).getUsername();
+
+        if (!currentUsername.equals(userRepository.findById(userID).get().getEmail())) {
+            logger.warn("User does not have permission to get 2FA for user with ID: {}", userID);
+            throw new RuntimeException("User with does not have permission to get 2FA for user with ID: " + userID);
+        }
+
+        UserModel user = userRepository.findById(userID)
+                .orElseThrow(() -> new RuntimeException("User not found with ID: " + userID));
+        logger.info("Got 2FA for user with ID: {}", userID);
+        return user.getTwoFactorAuthInfo();
+    }
+
     public Optional<UserModel> findUserByEmail(String email) {
         logger.info("Searching for user with email: {}", email);
         Optional<UserModel> user = userRepository.findByEmail(email);
