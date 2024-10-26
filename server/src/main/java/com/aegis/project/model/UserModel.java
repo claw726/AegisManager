@@ -52,7 +52,7 @@ public class UserModel {
         this.email = email;
         this.PWHash = PWHash;
         this.profilePicture = profilePicture;
-        TwoFactorAuthInfo = "none";
+        TwoFactorAuthInfo = null;
         passwordResetToken = null;
         IsLoggedIn = false;
         this.failedLoginAttempts = 0;
