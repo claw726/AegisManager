@@ -53,7 +53,7 @@ const router = createRouter({
                     meta: {requiresAuth: true},
                 },
                 {
-                  path: '/taskdetail',
+                  path: '/tasks/:taskId',
                   name: 'TaskDetail',
                   component: () => import('./views/TaskDetail.vue'),
                   props: true // Allow passing route params as props
@@ -110,6 +110,24 @@ const router = createRouter({
                   path: '/organization/:orgIndex/project/:projIndex/edit/assignUsers',
                   name: 'assignUsersinProj',
                   component: () => import('./views/ListProjUsersView.vue'),
+                  meta: {requiresAuth: true},
+                },
+                {
+                  path: '/calendar',
+                  name: 'Calendar',
+                  component: () => import('./views/CalendarTaskView.vue'),
+                  meta: {requiresAuth: true},
+                },
+                {
+                  path: '/accountSettings',
+                  name: 'AccountSettings',
+                  component: () => import('./views/AccountSettingsView.vue'),
+                  meta: {requiresAuth: true},
+                },
+                {
+                  path: '/updateAccount',
+                  name: 'UpdateAccount',
+                  component: () => import('./views/EditUserView.vue'),
                   meta: {requiresAuth: true},
                 }
 

@@ -164,22 +164,22 @@ public class AuthController {
         }
     }
 
-    @PostMapping("/enable2FA")
-    public ResponseEntity<String> enable2FA(@RequestParam int userID) {
-        try {
+    // @PostMapping("/enable2FA")
+    // public ResponseEntity<String> enable2FA(@RequestParam int userID) {
+    //     try {
 
-            userService.updateUser2FA(userID, secretKey);
-            return ResponseEntity.ok(qrCodeURL);
-        } catch (RuntimeException e) {
-            if (e.getMessage().equals("User not found with ID: " + userID)) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found with ID: " + userID);
-            } else if (e.getMessage().contains("does not have permission")) {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).body("User does not have permission to enable 2FA for user with ID: " + userID);
-            } else {
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error enabling 2FA");
-            }
-        }
-    }
+    //         userService.updateUser2FA(userID, secretKey);
+    //         return ResponseEntity.ok(qrCodeURL);
+    //     } catch (RuntimeException e) {
+    //         if (e.getMessage().equals("User not found with ID: " + userID)) {
+    //             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found with ID: " + userID);
+    //         } else if (e.getMessage().contains("does not have permission")) {
+    //             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("User does not have permission to enable 2FA for user with ID: " + userID);
+    //         } else {
+    //             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error enabling 2FA");
+    //         }
+    //     }
+    // }
 
     @PostMapping("/verify2FA")
     public ResponseEntity<String> verify2FA(@RequestParam int userID, @RequestParam int code) {
