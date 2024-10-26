@@ -46,6 +46,9 @@
         placeholder="Placeholder for Search All Projects"
       />
       <button class="dashboard-button">Search</button>
+      <button @click="viewUsersInOrg" class="dashboard-button mt-4">
+        View Organization Users
+      </button>
     </div>
     <div class="h-1 bg-accent drop-shadow-lg rounded mx-16" />
 
