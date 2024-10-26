@@ -151,6 +151,13 @@ public class TaskService {
         if (taskRepository.existsTaskByProjectAndName(parentProjectID, taskName)) {
             throw new RuntimeException("Task with given name already exists in project");
         }
+
+        OrgModel parentOrg = orgRepository.findById(parentOrgID)
+                .orElseThrow(() -> new RuntimeException("Org not found with id: " + parentOrgID));
+
+        ProjectModel parentProject = projectRepository.findById(parentProjectID)
+                .orElseThrow(() -> new RuntimeException("Project not found with id: " + parentProjectID));
+
         TaskModel task = new TaskModel();
         task.setParentProjectID(parentProjectID);
         task.setParentOrgID(parentOrgID);
@@ -163,11 +170,7 @@ public class TaskService {
 
         taskRepository.save(task);
 
-        OrgModel parentOrg = orgRepository.findById(parentOrgID)
-                .orElseThrow(() -> new RuntimeException("Org not found with id: " + parentOrgID));
-
-        ProjectModel parentProject = projectRepository.findById(parentProjectID)
-                .orElseThrow(() -> new RuntimeException("Project not found with id: " + parentProjectID));
+        
         Set<TaskModel> projectTasks = parentProject.getProjectTasks();
         projectTasks.add(task);
         //parentProject.setProjectTasks(projectTasks);

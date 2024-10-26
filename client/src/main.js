@@ -5,6 +5,7 @@ import "./styles/tailwind.css";
 import $bus from "./utils/events.js";
 import store from "./store/index.js";
 import { addBeforeUnloadListener } from "./utils/autoLogout.js";
+import '@fortawesome/fontawesome-free/css/all.css'
 
 const app = createApp(App);
 
