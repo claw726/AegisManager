@@ -43,7 +43,7 @@ export default {
           center: "title",
           right: "dayGridMonth,dayGridWeek,listWeek",
         },
-        editable: true,
+        editable: false,
         selectable: true,
         events: [],
         // Event Handlers

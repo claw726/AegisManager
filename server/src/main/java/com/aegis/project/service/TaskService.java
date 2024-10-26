@@ -8,6 +8,11 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import jakarta.persistence.EntityNotFoundException;
+
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.Authentication;
@@ -25,6 +30,8 @@ import com.aegis.project.repository.ProjectRepository;
 import com.aegis.project.repository.TaskRepository;
 import com.aegis.project.repository.UserRepository;
 
+import com.aegis.project.exception.TaskNotFoundException;
+
 @Service
 public class TaskService {
 
@@ -41,6 +48,8 @@ public class TaskService {
 
     @Autowired
     private SimpMessagingTemplate simpMessageTemplate;
+
+    private static final Logger logger = LoggerFactory.getLogger(TaskService.class);
 
     public String switchTaskAssigner(int taskID, String newAssignerEmail) {
         TaskModel task = taskRepository.findById(taskID)
@@ -93,11 +102,27 @@ public class TaskService {
         return result;
     }
 
-    public String getTask(int taskID) {
-        TaskModel task = taskRepository.findById(taskID)
-                .orElseThrow(() -> new RuntimeException("Task not found with id: " + taskID));
-
-        return createTaskJson(task);
+    public TaskDTO getTask(int taskId) {
+        try {
+            TaskModel task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new TaskNotFoundException("Task not found with id: " + taskId));
+            
+            // Add null check before creating DTO
+            if (task == null) {
+                throw new TaskNotFoundException("Task is null for id: " + taskId);
+            }
+            
+            TaskDTO taskDTO = new TaskDTO(task);
+            logger.debug("Created TaskDTO for task ID {}: {}", taskId, taskDTO);
+            
+            return taskDTO;
+        } catch (TaskNotFoundException e) {
+            logger.error("Task not found: {}", e.getMessage());
+            throw e;
+        } catch (Exception e) {
+            logger.error("Error fetching task: {}", e.getMessage(), e);
+            throw new RuntimeException("Error fetching task: " + e.getMessage());
+        }
     }
 
     public void sendTaskInfoToUsers(int taskID) {
@@ -122,7 +147,7 @@ public class TaskService {
         }
     }
 
-    public boolean createTask(int parentProjectID, int parentOrgID, String taskName, String taskDescription, int assignerID, String taskPriority, String dueDate) {
+    public boolean createTask(Integer parentProjectID, Integer parentOrgID, String taskName, String taskDescription, Integer assignerID, String taskPriority, Date dueDate) {
         if (taskRepository.existsTaskByProjectAndName(parentProjectID, taskName)) {
             throw new RuntimeException("Task with given name already exists in project");
         }
@@ -134,19 +159,7 @@ public class TaskService {
         task.setAssignerID(assignerID);
         task.setTaskPriority(taskPriority);
         task.setComplete(false);
-
-        try {
-            String[] splitDueDate = dueDate.split("-");
-            int year = Integer.parseInt(splitDueDate[0]);
-            int month = Integer.parseInt(splitDueDate[1]);
-            int day = Integer.parseInt(splitDueDate[2]);
-
-            LocalDate localDate = LocalDate.of(year, month, day);
-            Date date = Date.from(localDate.atStartOfDay(ZoneId.systemDefault()).toInstant());
-            task.setDueDate(date);
-        } catch (Exception e) {
-            throw new RuntimeException("Error with date format");
-        }
+        task.setDueDate(dueDate);
 
         taskRepository.save(task);
 

@@ -4,15 +4,16 @@ import java.util.Set;
 import java.util.Date;
 
 import com.aegis.project.model.UserModel;
+import com.aegis.project.model.TaskModel;
 
 import com.aegis.project.service.TaskService;
 public class TaskDTO {
-    private int taskID;
-    private int parentProjectID;
-    private int parentOrgID;
+    private Integer taskID;
+    private Integer parentProjectID;
+    private Integer parentOrgID;
     private String taskName;
     private String taskDescription;
-    private int assignerID;
+    private Integer assignerID;
     private Set<UserModel> assignedUsers;
     private String taskPriority;
     private Date dueDate;
@@ -20,8 +21,22 @@ public class TaskDTO {
 
     private TaskService taskService;
 
-    public TaskDTO(int taskID, int parentProjectID, int ParentOrgID, String TaskName,
-                    String TaskDescription, int AssignerID, String TaskPriority,
+    public TaskDTO(TaskModel task) {
+        this.taskID = task.getTaskID();
+        this.parentProjectID = task.getParentProjectID();
+        this.parentOrgID = task.getParentOrgID();
+        this.taskName = task.getTaskName();
+        this.taskDescription = task.getTaskDescription();
+        this.assignerID = task.getAssignerID();
+        this.taskPriority = task.getTaskPriority();
+        this.dueDate = task.getDueDate();
+        this.isComplete = task.isComplete();
+        this.assignedUsers = task.getAssignedUsers();
+        // Map other fields
+    }
+
+    public TaskDTO(Integer taskID, Integer parentProjectID, Integer ParentOrgID, String TaskName,
+                    String TaskDescription, Integer AssignerID, String TaskPriority,
                     Date DueDate, boolean IsComplete) {
         this.taskID = taskID;
         this.parentProjectID = parentProjectID;
@@ -36,27 +51,27 @@ public class TaskDTO {
         this.assignedUsers = taskService.getAssignedUsers(taskID);
     }
 
-    public int getTaskID() {
+    public Integer getTaskID() {
         return taskID;
     }
 
-    public void setTaskID(int taskID) {
+    public void setTaskID(Integer taskID) {
         this.taskID = taskID;
     }
 
-    public int getParentProjectID() {
+    public Integer getParentProjectID() {
         return parentProjectID;
     }
 
-    public void setParentProjectID(int parentProjectID) {
+    public void setParentProjectID(Integer parentProjectID) {
         this.parentProjectID = parentProjectID;
     }
 
-    public int getParentOrgID() {
+    public Integer getParentOrgID() {
         return parentOrgID;
     }
 
-    public void setParentOrgID(int parentOrgID) {
+    public void setParentOrgID(Integer parentOrgID) {
         this.parentOrgID = parentOrgID;
     }
 
@@ -76,11 +91,11 @@ public class TaskDTO {
         this.taskDescription = taskDescription;
     }
 
-    public int getAssignerID() {
+    public Integer getAssignerID() {
         return assignerID;
     }
 
-    public void setAssignerID(int assignerID) {
+    public void setAssignerID(Integer assignerID) {
         this.assignerID = assignerID;
     }
 
