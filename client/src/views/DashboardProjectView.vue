@@ -5,28 +5,35 @@
   >
     <NavBar />
 
-    <div class="absolute justify-end top-1 right-1">
-      <DropdownMenu title="⚙️" :items="dropdownOpts" @command="handleCommand" />
-    </div>
-
-    <div class="flex justify-center justify-items-center p-4">
-      <div v-if="proj">
-        <div class="relative flex h-screen/3 py-4">
+    <div class="flex justify-center p-4">
+      <div
+        v-if="proj"
+        class="relative flex flex-row items-start h-screen/3 py-4"
+      >
+        <div class="flex flex-col items-center mr-8">
           <img
             :src="proj.encodedImage"
             alt="Profile Picture"
-            class="h-48 con drop-shadow-xl col-span-1 rounded-lg"
+            class="h-auto w-full drop-shadow-xl col-span-1 rounded-lg"
           />
-          <div class="ml-8 flex flex-col justify-center">
-            <div class="text-4xl font-bold text-primary">
-              {{ proj.projectName }}
-            </div>
-            <div class="text-2xl font-semibold text-secondary">
-              {{ proj.projectDescription }}
-            </div>
-            <div class="text-medium text-accent">
-              Created by user no.: {{ proj.projectOwnerID }}
-            </div>
+          <!-- Dropdown Menu -->
+          <div class="mt-4" v-if="currentUser.userID === proj.projectOwnerID">
+            <DropdownMenu
+              title="⚙️"
+              :items="dropdownOpts"
+              @command="handleCommand"
+            />
+          </div>
+        </div>
+        <div class="flex flex-col justify-center p-4">
+          <div class="text-4xl font-bold text-primary">
+            {{ proj.projectName }}
+          </div>
+          <div class="text-xl font-semibold text-secondary mt-2">
+            {{ proj.projectDescription }}
+          </div>
+          <div class="text-medium text-accent mt-2">
+            Created by: {{ creator.userName }}
           </div>
         </div>
       </div>
@@ -52,13 +59,18 @@
     </div>
 
     <!-- List of Tasks -->
-    <div class="grid grid-cols-4 gap-4 m-8">
+    <div v-if="tasks && tasks.length > 0" class="grid grid-cols-4 gap-4 m-8">
       <TaskCard
         v-for="(task, index) in tasks"
         :key="index"
         :task="task"
         :taskIndex="index"
       />
+    </div>
+    <div v-else class="flex justify-center p-4">
+      <p class="text-xl font-semibold text-primary">
+        You have no tasks assigned to you! 🎉.
+      </p>
     </div>
   </div>
 </template>
@@ -76,80 +88,21 @@ export default {
       projects: [],
       dropdownOpts: [
         {
-          title: "Edit Project Details",
+          title: "Edit Project Details ✏️",
           command: this.editProject,
         },
         {
-          title: "Delete This Project",
+          title: "Delete This Project 🗑️",
           command: this.deleteProject,
         },
+        {
+          title: "Edit Project Members 🤵",
+          command: this.editProjUsers,
+        },
       ],
-      tasks: [
-        {
-          TaskName: "Gather Materials for Tempest Hull",
-          TaskDescription:
-            "Collect 1000 units of Mexallon and 500 units of Pyroxeres",
-          AssignerID: 1,
-          AssignedUsers: ["Capsuleer1", "Capsuleer2"],
-          TaskPriority: "High",
-          DueDate: new Date("2024-10-01T14:30:00.000Z"),
-          TaskFiles: [
-            "Mexallon_Sourcing_Report.pdf",
-            "Pyroxeres_Sourcing_Report.pdf",
-          ],
-          IsComplete: false,
-        },
-        {
-          TaskName: "Assemble Tempest Frame",
-          TaskDescription: "Construct the frame of the Tempest Battleship",
-          AssignerID: 2,
-          AssignedUsers: ["Capsuleer3", "Capsuleer4"],
-          TaskPriority: "Medium",
-          DueDate: new Date("2024-10-05T10:00:00.000Z"),
-          TaskFiles: [
-            "Tempest_Frame_Blueprint.bpt",
-            "Assembly_Instructions.pdf",
-          ],
-          IsComplete: true,
-        },
-        {
-          TaskName: "Install Propulsion System",
-          TaskDescription:
-            "Install the propulsion system for the Tempest Battleship",
-          AssignerID: 3,
-          AssignedUsers: ["Capsuleer5", "Capsuleer6"],
-          TaskPriority: "Low",
-          DueDate: new Date("2024-10-10T12:00:00.000Z"),
-          TaskFiles: [
-            "Propulsion_System_Blueprint.bpt",
-            "Installation_Guide.pdf",
-          ],
-          IsComplete: false,
-        },
-        {
-          TaskName: "Fit Turrets and Missiles",
-          TaskDescription:
-            "Equip the Tempest Battleship with turrets and missiles",
-          AssignerID: 4,
-          AssignedUsers: ["Capsuleer7", "Capsuleer8"],
-          TaskPriority: "High",
-          DueDate: new Date("2024-10-15T14:00:00.000Z"),
-          TaskFiles: ["Turret_Fitting_Guide.pdf", "Missile_Fitting_Guide.pdf"],
-          IsComplete: false,
-        },
-        {
-          TaskName: "Finalize Ship Configuration",
-          TaskDescription:
-            "Finalize the configuration of the Tempest Battleship",
-          AssignerID: 5,
-          AssignedUsers: ["Capsuleer9", "Capsuleer10"],
-          TaskPriority: "Medium",
-          DueDate: new Date("2024-10-20T10:00:00.000Z"),
-          TaskFiles: ["Ship_Configuration_Guide.pdf", "Final_Checklist.pdf"],
-          IsComplete: false,
-        },
-        // Add more tasks as needed
-      ],
+      tasks: [],
+      creator: {},
+      isLoaded: false,
     };
   },
   components: {
@@ -157,11 +110,12 @@ export default {
     TaskCard,
     DropdownMenu,
   },
-  created() {
-    this.getProjData();
+  async created() {
+    await this.getProjData();
+    await this.getCreatorData();
   },
   computed: {
-    ...mapState(["isLoggedIn", "organizations", "currentUser"]),
+    ...mapState("auth", ["isLoggedIn", "currentUser"]),
   },
   // mounted() {
   //   this.tasks = this.proj.tasks || [];
@@ -170,7 +124,7 @@ export default {
     async getProjData() {
       try {
         this.proj = await this.$store.dispatch(
-          "fetchProject",
+          "projects/fetchProject",
           this.$route.params.projIndex,
         );
       } catch (err) {
@@ -178,9 +132,35 @@ export default {
         this.$router.push({ name: "OrganizationDashboard" });
       }
     },
+    async getCreatorData() {
+      try {
+        this.creator = await this.$store.dispatch(
+          "users/fetchUserAccountByID",
+          this.proj.projectOwnerID,
+        );
+      } catch (error) {
+        console.error("Error getting project owner info");
+      }
+    },
+    async getAllProjectTasks() {
+      try {
+        const projID = this.$route.params.projIndex;
+        this.tasks = this.$store.dispatch(
+          "projects/fetchTasksFromProject",
+          projID,
+        );
+      } catch (error) {
+        alert("Error getting project tasks");
+      }
+    },
     goToCreateTask() {
-      // this.$router.push({ name: 'createTask', params: { orgIndex: this.index }});
-      alert("Bilsha, can you implement this?");
+      this.$router.push({
+        name: "createTask",
+        params: {
+          orgIndex: this.$route.params.orgIndex,
+          projIndex: this.$route.params.projIndex,
+        },
+      });
     },
     handleCommand(command) {
       if (command === "edit") {
@@ -212,7 +192,7 @@ export default {
 
       if (confirm("Are you sure you want to delete this project?")) {
         this.$store
-          .dispatch("deleteProject", {
+          .dispatch("projects/deleteProject", {
             projectID: this.$route.params.projIndex,
           })
           .then(() => {
@@ -224,6 +204,15 @@ export default {
             console.error(err);
           });
       }
+    },
+    editProjUsers() {
+      this.$router.push({
+        name: "EditProjUsers",
+        params: {
+          orgIndex: this.$route.params.orgIndex,
+          projIndex: this.$route.params.projIndex,
+        },
+      });
     },
   },
 };

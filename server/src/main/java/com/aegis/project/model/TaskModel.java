@@ -1,7 +1,5 @@
 package com.aegis.project.model;
 
-import com.aegis.project.model.ProjectModel;
-
 
 import java.util.Date;
 import java.util.HashSet;
@@ -25,10 +23,10 @@ public class TaskModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int taskID;
+    private Integer taskID;
 
     @Column(name = "parent_project_ID", insertable = false, updatable = false)
-    private int parentProjectID;
+    private Integer parentProjectID;
 
     /*
     @ManyToOne
@@ -40,7 +38,7 @@ public class TaskModel {
     private ProjectModel parentProject;
 
     @Column(name = "parent_org_ID", insertable = false, updatable = false)
-    private int parentOrgID;
+    private Integer parentOrgID;
 
     @Column(name = "task_name")
     private String taskName;
@@ -74,7 +72,7 @@ public class TaskModel {
     //private String TaskFilesTableName;
 
 
-    public int getTaskID() {
+    public Integer getTaskID() {
         return taskID;
     }
 
@@ -90,7 +88,7 @@ public class TaskModel {
         this.parentProject = parentProject;
     }
 
-    public int getParentProjectID() {
+    public Integer getParentProjectID() {
         return parentProjectID;
     }
 
@@ -98,7 +96,7 @@ public class TaskModel {
         this.parentProjectID = parentProjectID;
     }
 
-    public int getParentOrgID() {
+    public Integer getParentOrgID() {
         return parentOrgID;
     }
 
@@ -122,7 +120,7 @@ public class TaskModel {
         this.taskDescription = taskDescription;
     }
 
-    public int getAssignerID() {
+    public Integer getAssignerID() {
         return assignerID;
     }
 

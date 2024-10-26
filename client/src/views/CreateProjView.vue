@@ -5,14 +5,14 @@
   >
     <NavBar />
     <div class="">
-      <div class="flex flex-col justify-center h-screen/3 py-16">
+      <div class="flex flex-col justify-center py-16">
         <div class="text-4xl font-bold text-primary text-center py-8">
           Create New Project
         </div>
         <div class="h-1 bg-accent rounded-lg"></div>
         <div class="py-16">
           <div
-            class="relative flex flex-col justify-items-center p-16 mx-96 rounded-lg bg-white drop-shadow-lg"
+            class="relative flex flex-col justify-items-center p-16 mx-24 rounded-lg bg-white drop-shadow-lg"
           >
             <div>
               <!-- Proj Title -->
@@ -41,18 +41,6 @@
                   v-model="newProj.projDescription"
                   class="w-full border border-gray-300 rounded-lg p-2"
                 ></textarea>
-              </div>
-
-              <!-- Proj Users -->
-              <div class="flex flex-col justify-center p-4 bg-white">
-                <label
-                  for="projDescription"
-                  class="text-lg font-bold text-gray-800"
-                  >Project Description:</label
-                >
-                <Button class="dashboard-button" @click="selectUsers"
-                  >Select Users</Button
-                >
               </div>
 
               <!-- Proj Img -->
@@ -119,14 +107,11 @@ export default {
     NavBar,
   },
   computed: {
-    ...mapState(["isLoggedIn", "currentUser"]),
+    ...mapState('auth', ["isLoggedIn", "currentUser"]),
   },
   methods: {
     handleImageChange(event) {
       this.projImg = event.target.files[0];
-    },
-    selectUsers() {
-      alert("Not Implementing. Selecting all users");
     },
     triggerFileInput() {
       this.$refs.fileInput.click();
@@ -243,7 +228,7 @@ export default {
 
       // Add the store to the localStore
       try {
-        await this.$store.dispatch("createProject", project);
+        await this.$store.dispatch("projects/createProject", project);
 
         // Redirect to the Org Dashboard
         this.$router.push({

@@ -3,10 +3,6 @@ package com.aegis.project.dto;
 import java.util.HashSet;
 import java.util.Set;
 
-import com.aegis.project.dto.TaskDTO;
-import com.aegis.project.dto.UserDTO;
-import com.aegis.project.service.ProjectService;
-
 public class ProjectDTO {
     private int projectID;
     private int parentOrgID;
@@ -17,8 +13,6 @@ public class ProjectDTO {
     private int projectOwnerID;
     private Set<TaskDTO> projectTasks = new HashSet<>();
     private String encodedImage;
-
-    private ProjectService projectService;
 
 
     public ProjectDTO(int projectID, int parentOrgID, String projectName, String projectDescription,

@@ -1,19 +1,26 @@
 package com.aegis.project.controller;
 
-import com.aegis.project.dto.UserDTO;
+import java.util.List;
+import java.util.Set;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
-import org.springframework.web.bind.annotation.*;
+import org.springframework.web.bind.annotation.DeleteMapping;
+import org.springframework.web.bind.annotation.GetMapping;
+import org.springframework.web.bind.annotation.PathVariable;
+import org.springframework.web.bind.annotation.PostMapping;
+import org.springframework.web.bind.annotation.RequestBody;
+import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
+import org.springframework.web.bind.annotation.RestController;
 
 import com.aegis.project.dto.ProjectDTO;
 import com.aegis.project.dto.TaskDTO;
+import com.aegis.project.dto.UserDTO;
 import com.aegis.project.service.ProjectService;
-
-import java.util.List;
-import java.util.Set;
 
 @RestController
 @RequestMapping("api/projects")
@@ -26,7 +33,7 @@ public class ProjectController {
 
     @PostMapping("/createProject")
     public ResponseEntity<String> createProject(@RequestParam String projectName, @RequestParam String projectDescription,
-                                                @RequestParam int projectOwnerID, @RequestParam int parentOrgID, @RequestParam String encodedImage) {
+            @RequestParam int projectOwnerID, @RequestParam int parentOrgID, @RequestParam String encodedImage) {
         try {
             logger.info("Received project creation request with name: {}, description: {}, owner ID: {}, parent org ID: {}",
                     projectName, projectDescription, projectOwnerID, parentOrgID);
@@ -42,7 +49,7 @@ public class ProjectController {
             } else {
                 return ResponseEntity.internalServerError().body("There was an error creating the project");
             }
-            
+
         }
     }
 
@@ -70,8 +77,8 @@ public class ProjectController {
 
     @PostMapping("/{projectID}/update")
     public ResponseEntity<String> updateProject(@PathVariable int projectID, @RequestParam String projectName,
-                                                @RequestParam String projectDescription, @RequestParam int projectOwnerID,
-                                                @RequestParam String encodedImage) {
+            @RequestParam String projectDescription, @RequestParam int projectOwnerID,
+            @RequestParam String encodedImage) {
         try {
             projectService.updateProject(projectID, projectName, projectDescription, projectOwnerID, encodedImage);
             return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Project updated successfully");
@@ -178,12 +185,29 @@ public class ProjectController {
             }
         }
     }
+
     @GetMapping("/{projectID}/getUsers")
     public ResponseEntity<Set<UserDTO>> getUsers(@PathVariable int projectID) {
         try {
             return ResponseEntity.ok(projectService.getAssignedUsers(projectID));
+        } catch (RuntimeException e) {
+            if (e.getMessage().equals("Project not found with ID: " + projectID)) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            } else if (e.getMessage().contains("User not found")) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            } else if (e.getMessage().contains("User does not have permission to view users")) {
+                return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(null);
+            } else {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+            }
         }
-        catch (RuntimeException e) {
+    }
+
+    @GetMapping("/{projectID}/getAllTasksForUser")
+    public ResponseEntity<Set<TaskDTO>> getAllTasksForUser(@PathVariable int projectID, @RequestParam String email) {
+        try {
+            return ResponseEntity.ok(projectService.getAllTasksForUser(projectID, email));
+        } catch (RuntimeException e) {
             if (e.getMessage().equals("Project not found with ID: " + projectID)) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
             } else if (e.getMessage().contains("User not found")) {

@@ -12,7 +12,7 @@
         <div class="h-1 bg-accent rounded-lg"></div>
         <div class="py-16">
           <div
-            class="relative flex flex-col justify-items-center p-16 mx-96 rounded-lg bg-white drop-shadow-lg"
+            class="relative flex flex-col justify-items-center p-16 mx-24 rounded-lg bg-white drop-shadow-lg"
           >
             <div>
               <!-- Proj Title -->
@@ -70,7 +70,6 @@
                   @click="triggerFileInput"
                   class="flex-col flex px-8 bg-primary text-white font-semibold py-3 rounded-lg"
                 >
-
                   Upload Image
                   <span v-if="imageUploaded" class="text-gray-500 ml-2"
                     >(Image Uploaded)</span
@@ -111,7 +110,7 @@ export default {
     NavBar,
   },
   computed: {
-    ...mapState(["isLoggedIn", "currentUser", "organizations"]),
+    ...mapState('auth', ["isLoggedIn", "currentUser"]),
   },
   created() {
     this.getProjectData();
@@ -128,7 +127,7 @@ export default {
     },
     async getProjectData() {
       const projIndex = this.$route.params.projIndex;
-      const proj = await this.$store.dispatch("fetchProject", projIndex);
+      const proj = await this.$store.dispatch("projects/fetchProject", projIndex);
       this.modifiedProject = proj;
     },
 
@@ -245,9 +244,9 @@ export default {
 
       // Modify the project in the organization
       await this.$store
-        .dispatch("modifyProject", {
+        .dispatch("projects/modifyProject", {
           project: this.modifiedProject,
-          projectID: this.$route.params.orgIndex,
+          projectID: this.$route.params.projIndex,
         })
         .then(() => {
           alert("Project updated successfully!");

@@ -12,7 +12,7 @@
         <div class="h-1 bg-accent rounded-lg"></div>
         <div class="py-16">
           <div
-            class="relative flex flex-col justify-items-center p-16 mx-96 rounded-lg bg-white drop-shadow-lg"
+            class="relative flex flex-col justify-items-center p-16 mx-24 rounded-lg bg-white drop-shadow-lg"
           >
             <div>
               <div class="flex flex-col justify-center p-4 bg-white">
@@ -86,7 +86,7 @@ export default {
     NavBar,
   },
   computed: {
-    ...mapState(["isLoggedIn", "currentUser"]),
+    ...mapState('auth', ["isLoggedIn", "currentUser"]),
   },
   data() {
     return {
@@ -206,7 +206,7 @@ export default {
         alert("Please Tell us more about your organization.");
         return;
       }
-      this.newOrg.orgOwnerID = parseInt(this.currentUser.userID, /*base*/10);
+      this.newOrg.orgOwnerID = parseInt(this.currentUser.userID, /*base*/ 10);
       if (!this.newOrg.orgOwnerID) {
         alert(
           "Error determining your identity! Please log out and back in to continue.",
@@ -216,7 +216,7 @@ export default {
       // Add the current user to the members list
       this.newOrg.members.push(this.currentUser.userID);
       try {
-        this.$store.dispatch("createOrganization", this.newOrg);
+        this.$store.dispatch("organizations/createOrganization", this.newOrg);
 
         // Redirect to the viewOrgs page
         this.$router.push({ name: "viewOrgs" });

@@ -1,7 +1,17 @@
 package com.aegis.project.service;
 
+import java.time.LocalDate;
+import java.time.ZoneId;
+import java.util.ArrayList;
 import java.util.Date;
+import java.util.List;
 import java.util.Set;
+import java.util.stream.Collectors;
+
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
+
+import jakarta.persistence.EntityNotFoundException;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
@@ -10,12 +20,17 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import com.aegis.project.dto.TaskDTO;
+import com.aegis.project.model.OrgModel;
 import com.aegis.project.model.ProjectModel;
 import com.aegis.project.model.TaskModel;
 import com.aegis.project.model.UserModel;
+import com.aegis.project.repository.OrgRepository;
 import com.aegis.project.repository.ProjectRepository;
 import com.aegis.project.repository.TaskRepository;
 import com.aegis.project.repository.UserRepository;
+
+import com.aegis.project.exception.TaskNotFoundException;
 
 @Service
 public class TaskService {
@@ -27,10 +42,14 @@ public class TaskService {
     @Autowired
     private ProjectRepository projectRepository;
     @Autowired
+    private OrgRepository orgRepository;
+    @Autowired
     private UserService userService;
 
     @Autowired
     private SimpMessagingTemplate simpMessageTemplate;
+
+    private static final Logger logger = LoggerFactory.getLogger(TaskService.class);
 
     public String switchTaskAssigner(int taskID, String newAssignerEmail) {
         TaskModel task = taskRepository.findById(taskID)
@@ -49,24 +68,66 @@ public class TaskService {
             throw new RuntimeException("User does not have permission to switch task assigner");
         }
 
-        task.setAssignerID(userRepository.findByEmail(newAssignerEmail).get().getUserID());
-        taskRepository.save(task);
+        simpMessageTemplate.convertAndSendToUser(newAssignerEmail, "/queue/task-updates",
+                "User has been invited to become the task assigner for task with ID: " + taskID);
 
-        return "Assigner switched successfully";
+        return "Assigner invite sent successfully";
     }
 
-    public String getTask(int taskID) {
+    public String assignerDecision(int taskID, boolean accepted) {
         TaskModel task = taskRepository.findById(taskID)
                 .orElseThrow(() -> new RuntimeException("Task not found with id: " + taskID));
 
-        return createTaskJson(task);
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUsername = ((UserDetails) authentication.getPrincipal()).getUsername();
+
+        UserModel currentUser = userRepository.findByEmail(currentUsername)
+                .orElseThrow(() -> new RuntimeException("User not found with email: " + currentUsername));
+
+        String result;
+        int oldAssignerID = task.getAssignerID();
+        UserModel oldAssigner = userRepository.findById(oldAssignerID)
+                .orElseThrow(() -> new RuntimeException("User not found with ID: " + oldAssignerID));
+
+        if (accepted) {
+            task.setAssignerID(currentUser.getUserID());
+            taskRepository.save(task);
+            result = "Assigner successfully switched for task with ID: " + taskID;
+        } else {
+            result = "Assigner switch declined for task with ID: " + taskID;
+        }
+
+        simpMessageTemplate.convertAndSendToUser(oldAssigner.getEmail(), "/queue/task-updates", result);
+
+        return result;
+    }
+
+    public TaskDTO getTask(int taskId) {
+        try {
+            TaskModel task = taskRepository.findById(taskId)
+                .orElseThrow(() -> new TaskNotFoundException("Task not found with id: " + taskId));
+            
+            // Add null check before creating DTO
+            if (task == null) {
+                throw new TaskNotFoundException("Task is null for id: " + taskId);
+            }
+            
+            TaskDTO taskDTO = new TaskDTO(task);
+            logger.debug("Created TaskDTO for task ID {}: {}", taskId, taskDTO);
+            
+            return taskDTO;
+        } catch (TaskNotFoundException e) {
+            logger.error("Task not found: {}", e.getMessage());
+            throw e;
+        } catch (Exception e) {
+            logger.error("Error fetching task: {}", e.getMessage(), e);
+            throw new RuntimeException("Error fetching task: " + e.getMessage());
+        }
     }
 
     public void sendTaskInfoToUsers(int taskID) {
         TaskModel task = taskRepository.findById(taskID)
                 .orElseThrow(() -> new RuntimeException("Task not found with id: " + taskID));
-
-        String taskJson = createTaskJson(task);
 
         Set<UserModel> assignedUsers = task.getAssignedUsers();
 
@@ -86,7 +147,10 @@ public class TaskService {
         }
     }
 
-    public boolean createTask(int parentProjectID, int parentOrgID, String taskName, String taskDescription, int assignerID, String taskPriority, Date dueDate) {
+    public boolean createTask(Integer parentProjectID, Integer parentOrgID, String taskName, String taskDescription, Integer assignerID, String taskPriority, Date dueDate) {
+        if (taskRepository.existsTaskByProjectAndName(parentProjectID, taskName)) {
+            throw new RuntimeException("Task with given name already exists in project");
+        }
         TaskModel task = new TaskModel();
         task.setParentProjectID(parentProjectID);
         task.setParentOrgID(parentOrgID);
@@ -94,15 +158,19 @@ public class TaskService {
         task.setTaskDescription(taskDescription);
         task.setAssignerID(assignerID);
         task.setTaskPriority(taskPriority);
+        task.setComplete(false);
         task.setDueDate(dueDate);
 
         taskRepository.save(task);
+
+        OrgModel parentOrg = orgRepository.findById(parentOrgID)
+                .orElseThrow(() -> new RuntimeException("Org not found with id: " + parentOrgID));
 
         ProjectModel parentProject = projectRepository.findById(parentProjectID)
                 .orElseThrow(() -> new RuntimeException("Project not found with id: " + parentProjectID));
         Set<TaskModel> projectTasks = parentProject.getProjectTasks();
         projectTasks.add(task);
-        parentProject.setProjectTasks(projectTasks);
+        //parentProject.setProjectTasks(projectTasks);
         projectRepository.save(parentProject);
 
         return true;
@@ -114,26 +182,16 @@ public class TaskService {
         return task.getAssignedUsers();
     }
 
-    public String getAllUserTasks(int userID, int orgID, int projectID) {
+    public List<TaskModel> getAllUserTasks(int userID, int orgID, int projectID) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String currentUsername = ((UserDetails) authentication.getPrincipal()).getUsername();
         UserModel currentUser = userRepository.findByEmail(currentUsername)
                 .orElseThrow(() -> new RuntimeException("User not found with email: " + currentUsername));
         if (currentUser.getUserID() == userID) {
             Set<TaskModel> tasks = taskRepository.getAllUserTasks(userID, orgID, projectID);
-            String ret = "{";
-            for (TaskModel task : tasks) {
-                if (ret.length() > 1) {
-                    ret += ",";
-                }
-                ret += createTaskJson(task);
-            }
-            ret += "}";
-            return ret;
+            
+            return new ArrayList<>(tasks);
 
-            /*return tasks.stream()
-                .map(task -> new TaskDTO(task.getTaskID(), task.getParentProjectID(), task.getParentOrgID(), task.getTaskName(), task.getTaskDescription(), task.getAssignerID(), task.getTaskPriority(), task.getDueDate(), task.isComplete()))
-                .collect(Collectors.toSet());*/
         } else {
             throw new RuntimeException("User does not have permission to access task list");
         }
@@ -280,5 +338,14 @@ public class TaskService {
         }
         ret += "]}";
         return ret;
+    }
+
+    public Set<TaskDTO> getAllTasks() {
+        List<TaskModel> tasks = taskRepository.findAllSorted();
+
+        return tasks.stream()
+                .map(task -> new TaskDTO(task.getTaskID(), task.getParentProjectID(), task.getParentOrgID(), task.getTaskName(),
+                task.getTaskDescription(), task.getAssignerID(), task.getTaskPriority(), task.getDueDate(), task.isComplete()))
+                .collect(Collectors.toSet());
     }
 }

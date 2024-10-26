@@ -4,8 +4,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.security.access.method.P;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -20,8 +20,6 @@ import com.aegis.project.model.UserModel;
 import com.aegis.project.repository.OrgRepository;
 import com.aegis.project.repository.ProjectRepository;
 import com.aegis.project.repository.UserRepository;
-
-import com.aegis.project.dto.ProjectDTO;
 
 @Service
 public class OrgService {
@@ -46,7 +44,12 @@ public class OrgService {
         org.setOrgOwnerID(ownerID);
         org.setEncodedImage(encodedImage);
         orgRepository.save(org);
-        addUser(org.getOrgID(), userRepository.findById(ownerID).get().getEmail());
+        try {
+            addUser(org.getOrgID(), userRepository.findById(ownerID).get().getEmail());
+        } catch (Exception e) {
+            orgRepository.deleteById(org.getOrgID());
+            throw new RuntimeException("Error adding owner to org");
+        }
         return true;
     }
 
@@ -127,6 +130,7 @@ public class OrgService {
         orgRepository.save(org);
     }
 
+    @Transactional
     public void deleteOrg(int orgID) {
         OrgModel org = orgRepository.findById(orgID)
                 .orElseThrow(() -> new RuntimeException("Org not found with id: " + orgID));
@@ -139,6 +143,11 @@ public class OrgService {
 
         if (org.getOrgOwnerID() != currentUser.getUserID()) {
             throw new RuntimeException("User does not have permission to delete org");
+        }
+
+        for (UserModel user : org.getUsers()) {
+            user.getOrgs().remove(org);
+            userRepository.save(user);
         }
 
         projectRepository.deleteByParentOrgID(orgID);

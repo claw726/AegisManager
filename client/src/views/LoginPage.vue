@@ -1,5 +1,5 @@
 <template>
-  <div class="relative w-full h-screen bg-background">
+  <div class="relative w-full min-h-screen h-full bg-background">
     <NavBar />
 
     <div v-if="!isLoggedIn" class="flex flex-col items-center mt-20">
@@ -18,6 +18,8 @@
             >
             <input
               type="email"
+              id="email"
+              autocomplete="on"
               v-model="email"
               class="w-full border border-highlight rounded-lg p-3"
             />
@@ -28,12 +30,15 @@
             >
             <input
               type="password"
+              id="password"
+              autocomplete="on"
               v-model="password"
               class="w-full border border-highlight rounded-lg p-3"
             />
           </div>
           <button
             @click="login"
+            id="loginButton"
             class="w-full mt-4 bg-primary text-white font-semibold py-3 rounded-lg"
           >
             Log In
@@ -53,7 +58,7 @@ export default {
     NavBar,
   },
   computed: {
-    ...mapState(["isLoggedIn", "currentUser"]),
+    ...mapState('auth', ["isLoggedIn", "currentUser"]),
   },
   data() {
     return {
@@ -77,7 +82,7 @@ export default {
         return;
       }
       try {
-        await this.$store.dispatch("login", {
+        await this.$store.dispatch("auth/login", {
           email: this.email,
           password: this.password,
         });

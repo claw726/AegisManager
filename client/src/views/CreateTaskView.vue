@@ -1,72 +1,70 @@
 <template>
-  <div class="relative w-full h-screen bg-background">
+  <div class="relative w-full min-h-screen h-full bg-background">
     <!-- NavBar  -->
     <NavBar />
 
     <!-- Main Content -->
-      <div class="text-3xl cc font-bold text-primary">Create Task</div>
+    <div class="text-3xl cc font-bold text-primary">Create Task</div>
 
-
-      <!-- Form Container -->
-        <div class="flex flex-wrap -mx-4 bg-white shadow-lg rounded-lg p-8">
-
-          <div class="w-full md:w-1/2 px-4 mb-4 ">
-            <label class="block text-sm font-semibold text-gray-800 mb-2"
-              >Task Name</label
-            >
-            <input
-              type="text"
-              v-model="task.name"
-              class="w-full border border-highlight rounded-lg p-3"
-            />
-          </div>
-
-          <div class="w-full md:w-1/2 px-4 mb-4">
-            <label class="block text-sm font-semibold text-gray-800 mb-2"
-              >Task Description</label
-            >
-            <input
-              type="text"
-              v-model="task.description"
-              class="w-full border border-highlight rounded-lg p-3"
-            />
-          </div>
-
-          <div class="w-full md:w-1/2 px-4 mb-4">
-            <label class="block text-sm font-semibold text-gray-800 mb-2"
-              >Due Date</label
-            >
-            <input
-              type="date"
-              v-model="task.dueDate"
-              class="w-full border border-highlight rounded-lg p-3"
-            />
-          </div>
-
-          <div class="w-full md:w-1/2 px-4 mb-4">
-            <label class="block text-sm font-semibold text-gray-800 mb-2"
-              >Priority</label
-            >
-            <select v-model="selectedOption">
-                <option value="Low">Low</option>
-                <option value="Medium">Medium</option>
-                <option value="High">High</option>
-            </select>
-          </div>
-
-          <!-- Submit Button -->
-          <button
-            @click="showNotification"
-            data-testid="submit-button"
-            class="w-full mt-4 bg-primary text-white font-semibold py-3 rounded-lg"
-          >
-            Submit
-          </button>
-          <Notification v-if="show" type="success" >
-            Notification Message
-          </Notification>
-        </div>
+    <!-- Form Container -->
+    <div class="flex flex-wrap -mx-4 bg-white shadow-lg rounded-lg p-8">
+      <div class="w-full md:w-1/2 px-4 mb-4">
+        <label class="block text-sm font-semibold text-gray-800 mb-2"
+          >Task Name</label
+        >
+        <input
+          type="text"
+          v-model="task.name"
+          class="w-full border border-highlight rounded-lg p-3"
+        />
       </div>
+
+      <div class="w-full md:w-1/2 px-4 mb-4">
+        <label class="block text-sm font-semibold text-gray-800 mb-2"
+          >Task Description</label
+        >
+        <input
+          type="text"
+          v-model="task.description"
+          class="w-full border border-highlight rounded-lg p-3"
+        />
+      </div>
+
+      <div class="w-full md:w-1/2 px-4 mb-4">
+        <label class="block text-sm font-semibold text-gray-800 mb-2"
+          >Due Date</label
+        >
+        <input
+          type="date"
+          v-model="task.dueDate"
+          class="w-full border border-highlight rounded-lg p-3"
+        />
+      </div>
+
+      <div class="w-full md:w-1/2 px-4 mb-4">
+        <label class="block text-sm font-semibold text-gray-800 mb-2"
+          >Priority</label
+        >
+        <select v-model="selectedOption">
+          <option value="Low">Low</option>
+          <option value="Medium">Medium</option>
+          <option value="High">High</option>
+        </select>
+      </div>
+
+      <!-- Submit Button -->
+      <button
+        @click="showNotification"
+        data-testid="submit-button"
+        class="w-full mt-4 bg-primary text-white font-semibold py-3 rounded-lg"
+      >
+        Submit
+      </button>
+      <Notification v-if="show" type="success">
+        Notification Message
+      </Notification>
+    </div>
+  </div>
 </template>
 
 <script>
@@ -78,7 +76,7 @@ export default {
     Notification,
   },
   computed: {
-    ...mapState(["isLoggedIn"]),
+    ...mapState('auth', ["isLoggedIn"]),
   },
   data() {
     return {
@@ -91,9 +89,7 @@ export default {
       show: false,
     };
   },
-  watch: {
-    
-  },
+  watch: {},
   methods: {
     ...mapActions(["user", "isLoggedIn"]),
     showNotification() {
@@ -109,8 +105,7 @@ export default {
 </script>
 
 <style scoped>
-
 .cc {
-    text-align: center;
+  text-align: center;
 }
 </style>

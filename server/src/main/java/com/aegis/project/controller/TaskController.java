@@ -1,6 +1,10 @@
 package com.aegis.project.controller;
 
+import java.text.ParseException;
+import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Set;
+import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -15,8 +19,11 @@ import org.springframework.web.bind.annotation.PutMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
+import org.springframework.web.server.ResponseStatusException;
 
+import com.aegis.project.dto.TaskDTO;
 import com.aegis.project.service.TaskService;
+import com.aegis.project.model.TaskModel;
 
 @RestController
 @RequestMapping("api/tasks")
@@ -24,14 +31,16 @@ public class TaskController {
 
     @Autowired
     private TaskService taskService;
-    private static final Logger logger = LoggerFactory.getLogger(AuthController.class);
+    private static final Logger logger = LoggerFactory.getLogger(TaskController.class);
 
     @PostMapping("/createTask")
-    public ResponseEntity<String> createTask(@RequestParam int parentProjectID, @RequestParam int parentOrgID, @RequestParam String taskName, @RequestParam String taskDescription, @RequestParam int assignerID, @RequestParam String taskPriority, @RequestParam Date dueDate) {
+    public ResponseEntity<String> createTask(@RequestParam Integer parentProjectID, @RequestParam Integer parentOrgID, @RequestParam String taskName, @RequestParam String taskDescription, @RequestParam Integer assignerID, @RequestParam String taskPriority, @RequestParam String dueDate) {
         // Log the input parameters
         logger.info("Received task creation request with parent project ID: {}, parent org ID: {}, name: {}, description: {}, assigner ID: {}, priority: {}, due date: {}", parentProjectID, parentOrgID, taskName, taskDescription, assignerID, taskPriority, dueDate);
         try {
-            if (taskService.createTask(parentProjectID, parentOrgID, taskName, taskDescription, assignerID, taskPriority, dueDate)) {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX");
+            Date parsedDueDate = dateFormat.parse(dueDate);
+            if (taskService.createTask(parentProjectID, parentOrgID, taskName, taskDescription, assignerID, taskPriority, parsedDueDate)) {
                 logger.info("Task created successfully for task name: {}", taskName);
                 return ResponseEntity.ok("Task created successfully");
             } else {
@@ -45,18 +54,18 @@ public class TaskController {
     }
 
     @GetMapping("/getAllUserTasks")
-    public ResponseEntity<String> getAllUserTasks(@RequestParam int userID, @RequestParam(required = false, defaultValue = "-1") int orgID, @RequestParam(required = false, defaultValue = "-1") int projectID) {
+    public ResponseEntity<List<TaskModel>> getAllUserTasks(@RequestParam int userID, @RequestParam(required = false, defaultValue = "-1") int orgID, @RequestParam(required = false, defaultValue = "-1") int projectID) {
         logger.info("Received task retrieval request for user ID: {}, org ID: {}, projectID: {} ", userID, orgID, projectID);
         try {
             return ResponseEntity.ok(taskService.getAllUserTasks(userID, orgID, projectID));
         } catch (Exception e) {
             logger.error("Error retrieving tasks for user ID {}, org ID {}, projectID {}: {}", userID, orgID, projectID, e.getMessage());
             if (e.getMessage().contains("User not found with email:")) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
             } else if (e.getMessage().contains("User does not have permission to access task list")) {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());
             } else {
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
             }
         }
     }
@@ -95,34 +104,40 @@ public class TaskController {
     }
 
     @GetMapping("/{taskID}/getTask")
-    public ResponseEntity<String> getTask(@PathVariable int taskID) {
+    public ResponseEntity<TaskDTO> getTask(@PathVariable int taskID) {
         try {
-            return ResponseEntity.ok(taskService.getTask(taskID));
+            TaskDTO task = taskService.getTask(taskID);
+            logger.info("Got task: " + task);
+            return ResponseEntity.ok(task);
         } catch (RuntimeException e) {
+            logger.error("Error fetching task with ID: " + taskID, e);
             if (e.getMessage().contains("Task not found with id:")) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
             } else {
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
             }
         }
     }
 
     @PostMapping("/{taskID}/update")
-    public ResponseEntity<String> updateTask(@PathVariable int taskID, @RequestParam String taskName, @RequestParam String taskDescription, @RequestParam int assignerID, @RequestParam String taskPriority, @RequestParam Date dueDate, @RequestParam boolean isComplete) {
+    public ResponseEntity<String> updateTask(@PathVariable int taskID, @RequestParam String taskName, @RequestParam String taskDescription, @RequestParam int assignerID, @RequestParam String taskPriority, @RequestParam String dueDate, @RequestParam boolean isComplete) {
         try {
-            taskService.updateTask(taskID, taskName, taskDescription, assignerID, taskPriority, dueDate, isComplete);
+            Date parsedDueDate = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ss.SSSX").parse(dueDate);
+            taskService.updateTask(taskID, taskName, taskDescription, assignerID, taskPriority, parsedDueDate, isComplete);
             return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Task updated successfully");
+        } catch (ParseException e) {
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid date format", e); 
         } catch (RuntimeException e) {
             if (e.getMessage().contains("Task not found with id:")) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
             } else if (e.getMessage().contains("User not found with email")) {
-                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+                throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
             } else if (e.getMessage().contains("User does not have permission")) {
-                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+                throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());
             } else {
-                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
             }
-        }
+        } 
     }
 
     @DeleteMapping("/{taskID}/deleteTask")
@@ -196,4 +211,28 @@ public class TaskController {
         }
     }
 
+    @PostMapping("/{taskID}/assignerDecision")
+    public ResponseEntity<String> assignerDecision(@PathVariable int taskID, @RequestParam boolean accept) {
+        try {
+            taskService.assignerDecision(taskID, accept);
+            return ResponseEntity.ok("Assigner decision updated successfully");
+        } catch (RuntimeException e) {
+            if (e.getMessage().contains("Task not found with id:")) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            } else if (e.getMessage().contains("User not found with email")) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            } else {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+            }
+        }
+    }
+
+    @GetMapping("/getAllTasks")
+    public ResponseEntity<Set<TaskDTO>> getAllTasks() {
+        try {
+            return ResponseEntity.ok(taskService.getAllTasks());
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
 }

@@ -1,6 +1,7 @@
 package com.aegis.project.service;
 
 import java.util.List;
+import java.util.stream.Collectors;
 import java.util.Optional;
 
 import org.slf4j.Logger;
@@ -17,6 +18,7 @@ import com.aegis.project.model.UserModel;
 import com.aegis.project.repository.UserRepository;
 
 import jakarta.transaction.Transactional;
+
 
 @Service
 public class UserService {
@@ -102,17 +104,16 @@ public class UserService {
         logger.info("Updated failed login attempts for user ID: {}", userID);
     }
 
-    public String getAllUsers() {
+    public List<UserDTO> getAllUsers() {
         List<UserModel> allUsers = userRepository.findAll();
-        String ret = "{";
-        for (UserModel user : allUsers) {
-            if (ret.length() > 1) {
-                ret += ",";
-            }
-            ret += createUserJson(user);
-        }
-        ret += "}";
-        return ret;
+        return allUsers.stream()
+            .map(user -> new UserDTO(
+                user.getUserID(),
+                user.getUserName(),
+                user.getEmail(),
+                user.getProfilePicture()
+            ))
+            .collect(Collectors.toList());
     }
 
     public String createUserJson(UserModel user) {

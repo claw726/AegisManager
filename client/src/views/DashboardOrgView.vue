@@ -5,13 +5,12 @@
   >
     <NavBar />
 
-    <div class="absolute justify-end top-1 right-1">
-      <DropdownMenu title="⚙️" :items="dropdownOpts" />
-    </div>
-
-    <div class="flex justify-center justify-items-center p-4">
-      <div v-if="org">
-        <div class="relative flex h-screen/3 py-4">
+    <div class="flex justify-center p-4">
+      <div
+        v-if="org"
+        class="relative flex flex-row items-start h-screen/3 py-4"
+      >
+        <div class="flex flex-col items-center mr-8">
           <img
             :src="
               org.encodedImage ||
@@ -20,17 +19,17 @@
             alt="Organization Logo"
             class="w-48 h-48 rounded-full drop-shadow-xl col-span-1"
           />
-          <div class="ml-8 flex flex-col justify-center">
-            <div class="text-4xl font-bold text-primary">{{ org.orgName }}</div>
-            <div class="text-2xl font-semibold text-secondary">
-              {{ org.orgDescription }}
-            </div>
-            <button @click="viewUsersInOrg" class="text-2xl font-semibold text-secondary">
-              View {{ org.OrgName }} Users
-            </button>
-            <div class="text-medium text-accent">
-              Created by: {{ org.orgOwnerID }}
-            </div>
+          <div class="mt-4" v-if="currentUser.userID === org.orgOwnerID">
+            <DropdownMenu title="⚙️" :items="dropdownOpts" />
+          </div>
+        </div>
+        <div class="flex flex-col justify-center p-4">
+          <div class="text-4xl font-bold text-primary">{{ org.orgName }}</div>
+          <div class="text-xl font-semibold text-secondary">
+            {{ org.orgDescription }}
+          </div>
+          <div class="text-medium text-accent" v-if="creator.userName">
+            Created by: {{ creator.userName }}
           </div>
         </div>
       </div>
@@ -80,7 +79,7 @@ export default {
     DropdownMenu,
   },
   computed: {
-    ...mapState(["isLoggedIn"]),
+    ...mapState("auth", ["isLoggedIn", "currentUser"]),
   },
   data() {
     return {
@@ -100,18 +99,22 @@ export default {
           command: this.editOrgUsers,
         },
       ],
+      creator: {},
     };
   },
   async created() {
     await this.getOrgData(); // Ensure this is awaited
     await this.getAllOrgProjects(); // Ensure this is awaited
+    await this.getCreatorData();
   },
   methods: {
     async getOrgData() {
       try {
         const orgID = this.$route.params.orgIndex; // Ensure you are getting the correct orgID
-        this.org = await this.$store.dispatch("fetchOrganization", orgID);
-        console.log("Fetched Organization:", this.org); // Log the fetched organization
+        this.org = await this.$store.dispatch(
+          "organizations/fetchOrganization",
+          orgID,
+        );
       } catch (error) {
         console.error("Error fetching organization data:", error);
         alert("Failed to load organization data: " + error.message);
@@ -124,11 +127,34 @@ export default {
     async getAllOrgProjects() {
       try {
         const orgID = this.$route.params.orgIndex; // Ensure you are getting the correct orgID
-        this.projects = await this.$store.dispatch("fetchOrgProjects", orgID);
-        console.log("Fetched Projects:", this.projects); // Log the fetched projects
+        const orgProjects = await this.$store.dispatch(
+          "projects/fetchOrgProjects",
+          orgID,
+        );
+        const filteredProjects = orgProjects.filter((project) => {
+          // Check if currentUser.userID is in the assignedUsers array or is the project owner
+          const isAssignedUser = project.assignedUsers.some(
+            (user) => user.userID === this.currentUser.userID,
+          );
+          const isProjectOwner =
+            project.projectOwnerID === this.currentUser.userID;
+
+          return isAssignedUser || isProjectOwner;
+        });
+        this.projects = filteredProjects;
       } catch (error) {
         console.error("Error fetching projects:", error);
         alert("Failed to load projects: " + error.message);
+      }
+    },
+    async getCreatorData() {
+      try {
+        this.creator = await this.$store.dispatch(
+          "users/fetchUserAccountByID",
+          this.org.orgOwnerID,
+        );
+      } catch (error) {
+        console.error("Error getting org owner info");
       }
     },
     goToCreateProject() {
@@ -146,7 +172,10 @@ export default {
     deleteOrg() {
       if (confirm("Are you sure you want to delete this organization?")) {
         this.$store
-          .dispatch("deleteOrganization", this.$route.params.orgIndex)
+          .dispatch(
+            "organizations/deleteOrganization",
+            this.$route.params.orgIndex,
+          )
           .then(() => {
             alert("Organization deleted successfully!");
             this.$router.push({
@@ -167,7 +196,10 @@ export default {
     },
 
     viewUsersInOrg() {
-      this.$router.push({ name: 'viewUsersInOrg', query: {org: org, orgIndex: this.$route.params.orgIndex } });
+      this.$router.push({
+        name: "viewUsersInOrg",
+        query: { org: this.org, orgIndex: this.$route.params.orgIndex },
+      });
     },
   },
 };

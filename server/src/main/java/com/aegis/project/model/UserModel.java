@@ -33,7 +33,7 @@ public class UserModel {
     private String TwoFactorAuthInfo;
 
     @Column(name = "password_reset_token")
-    private String PasswordResetToken;
+    private String passwordResetToken;
 
     @Column(name = "is_logged_in")
     private Boolean IsLoggedIn;
@@ -53,7 +53,7 @@ public class UserModel {
         this.PWHash = PWHash;
         this.profilePicture = profilePicture;
         TwoFactorAuthInfo = "none";
-        PasswordResetToken = "none";
+        passwordResetToken = null;
         IsLoggedIn = false;
         this.failedLoginAttempts = 0;
         this.isLocked = false;
@@ -111,11 +111,11 @@ public class UserModel {
     }
 
     public String getPasswordResetToken() {
-        return PasswordResetToken;
+        return passwordResetToken;
     }
 
     public void setPasswordResetToken(String passwordResetToken) {
-        PasswordResetToken = passwordResetToken;
+        this.passwordResetToken = passwordResetToken;
     }
 
     public Boolean getLoggedIn() {

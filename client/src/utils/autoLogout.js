@@ -8,7 +8,7 @@ export function logout() {
 
     localStorage.removeItem('CurrentUser');
 
-    store.dispatch('logout');
+    store.dispatch('auth/logout');
   }
   
   export function addBeforeUnloadListener() {

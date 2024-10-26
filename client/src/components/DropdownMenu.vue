@@ -1,6 +1,6 @@
 <template>
   <div class="menu-item" @click="isOpen = !isOpen">
-    <div class="relative mr-48 mt-24 critical-button">
+    <div class="relative mx-4 mt-4 critical-button">
       <div class="text-gray-800">⚙️</div>
     </div>
     <transition name="fade" appear>
