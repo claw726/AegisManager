@@ -178,16 +178,16 @@ export default {
         console.log('Fetched Organization:', this.modifiedOrganization); // Log the fetched organization
       } catch (error) {
         console.error('Error fetching organization data:', error);
-        alert('Failed to load organization data: ' + error.message);
+        this.showNotification(
+          "error",
+          "Failed to load organization data: " + error.message
+        );
         this.$router.push({ name: "viewOrgs", params: { orgIndex: undefined } });
       }
   },
   methods: {
     handleImageChange(event) {
       this.projImg = event.target.files[0];
-    },
-    selectUsers() {
-      alert("Not Implementing. Selecting all users");
     },
     triggerFileInput() {
       this.$refs.fileInput.click();
@@ -308,7 +308,7 @@ export default {
       // Modify the project in the organization
 
       try{
-        this.$store.dispatch("organizations/modifyOrganizaiton", {
+        await this.$store.dispatch("organizations/modifyOrganization", {
           orgID: organizationID,
           organization: this.modifiedOrganization,
         });

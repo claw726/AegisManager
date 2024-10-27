@@ -28,6 +28,14 @@
           </button>
         </div>
       </div>
+      <NotificationComponent
+          class="flex"
+          :show="notification.show"
+          :type="notification.type"
+          @close="closeNotification"
+        >
+          {{ notification.message }}
+        </NotificationComponent>
     </div>
   </div>
 </template>
@@ -36,11 +44,13 @@
 import NavBar from "@/components/NavBar.vue";
 import { mapState } from "vuex";
 import PasswordInput from "@/components/PasswordCreator.vue";
+import NotificationComponent from "@/components/NotificationComponent.vue";
 
 export default {
   components: {
     NavBar,
     PasswordInput,
+    NotificationComponent,
   },
   computed: {
     ...mapState("auth", ["isLoggedIn", "currentUser"]),
@@ -52,22 +62,47 @@ export default {
     return {
       email: "",
       password: "",
+       notification: {
+        show: false,
+        type: "info",
+        message: "",
+      },
     };
   },
   methods: {
-    resetPassword() {
+    async resetPassword() {
       try {
-        this.$store.dispatch("auth/resetPassword", {
+        await this.$store.dispatch("auth/resetPassword", {
           newPassword: this.password,
           token: this.token,
         });
+        this.showNotification(
+          "success",
+          "Password successfully updated"
+        );
       } catch (error) {
-        alert("Error resetting password");
+        this.showNotification(
+          "error",
+          "Error resetting password: " + error.message
+        );
       }
-      this.$router.push({ name: "Login" });
     },
     updatePassword(password) {
       this.password = password;
+    },
+    showNotification(type, message) {
+      this.notification = {
+        show: true,
+        type,
+        message,
+      };
+
+      if (type == "success") {
+        setTimeout(this.closeNotification, 5000);
+      }
+    },
+    closeNotification() {
+      this.notification.show = false;
     },
   },
 };

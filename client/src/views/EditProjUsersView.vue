@@ -34,6 +34,14 @@
             />
           </div>
         </div>
+        <NotificationComponent
+          class="flex"
+          :show="notification.show"
+          :type="notification.type"
+          @close="closeNotification"
+        >
+          {{ notification.message }}
+        </NotificationComponent>
       </div>
     </div>
   </div>
@@ -44,6 +52,7 @@ import NavBar from "@/components/NavBar.vue";
 import { mapState } from "vuex";
 import AvailableUsersTable from "@/components/AvailableUsersTable.vue";
 import CurrentUsersTable from "@/components/CurrentUsersTable.vue";
+import NotificationComponent from "@/components/NotificationComponent.vue";
 
 export default {
   data() {
@@ -51,12 +60,18 @@ export default {
       availableUsers: [],
       members: [],
       showAddUsers: true,
+      notification: {
+        show: false,
+        type: "info",
+        message: "",
+      },
     };
   },
   components: {
     NavBar,
     AvailableUsersTable,
     CurrentUsersTable,
+    NotificationComponent,
   },
   computed: {
     ...mapState('auth', ["isLoggedIn", "currentUser"]),
@@ -69,33 +84,35 @@ export default {
       try {
         const projectID = this.$route.params.projIndex;
         console.log(`Adding ${email} to proj ${projectID}`);
-        const message = await this.$store.dispatch("projects/addUserToProject", {
+        await this.$store.dispatch("projects/addUserToProject", {
           projectID,
           email,
         });
-        alert(message);
+
         this.fetchProjMembers();
       } catch (error) {
-        alert(
-          "Failed to add user to Project:" +
+        this.showNotification(
+            "error",
+            "Failed to add user to Project: " +
             (error.response?.data || error.message),
-        );
+          );
+        
       }
     },
     async removeUser(email) {
       try {
         const projectID = this.$route.params.projIndex;
-        const message = await this.$store.dispatch("projects/removeUserFromProject", {
+        await this.$store.dispatch("projects/removeUserFromProject", {
           projectID,
           email,
         });
-        alert(message);
         this.fetchProjMembers();
       } catch (error) {
-        alert(
-          "Failed to remove member from Project: " +
+        this.showNotification(
+            "error",
+            "Failed to remove member from Project: " +
             (error.response?.data || error.message),
-        );
+          );
       }
     },
     toggleTable() {
@@ -106,7 +123,10 @@ export default {
         const orgID = this.$route.params.orgIndex;
         const projID = this.$route.params.projIndex;
         if (!projID || !orgID) {
-          throw new Error("Organization ID is not available!");
+          this.showNotification(
+            "error",
+            "Project or Org does not exist!",
+          );
         }
 
         // Fetch proj members
@@ -127,10 +147,25 @@ export default {
         );
       } catch (error) {
         console.error("Error fetching project members:", error.message);
-        alert(
-          "Failed to load project members or available users. Please Try again later",
-        );
+        this.showNotification(
+            "error",
+            "Failed to fetch users",
+          );
       }
+    },
+    showNotification(type, message) {
+      this.notification = {
+        show: true,
+        type,
+        message,
+      };
+
+      if (type == "success") {
+        setTimeout(this.closeNotification, 5000);
+      }
+    },
+    closeNotification() {
+      this.notification.show = false;
     },
   },
 };

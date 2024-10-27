@@ -294,7 +294,7 @@ export default {
       }
 
       // Show confirmation notification
-      this.showNotification('warning', 'Are you sure you want to delete this project? Click again to confirm.', 0);
+      this.showNotification('warning', 'Are you sure you want to delete this project? Click the \'delete\' button again to confirm.', 0);
 
       // Set up confirmation action
       if (!this.deleteConfirmation) {
