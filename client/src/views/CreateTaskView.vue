@@ -72,13 +72,6 @@
            Submit
          </button>
 
-
-         <Notification
-           @close="closeTaskCreatedNotif"
-           v-if="showTaskCreatedNotifBool"
-           type="error"
-           message="This feature is not functional yet.">
-         </Notification>
        </div>
        </form>
      </div>
@@ -121,28 +114,20 @@ export default {
    ...mapActions(["user", "isLoggedIn", 'currentUser']),
    showTaskCreatedNotif() {
      this.showTaskCreatedNotifBool = true;
+     this.callCreateTask();
+   },
 
-
-     //make dueDate right kind of field
-     //this.task.dueDate = this.task.dueDate.toString();
-     //this.task.taskName = this.task.taskName.toString();
-     const t = {
-       dueDate: this.task.dueDate,
-       taskName: "Trying manuallly", //this.task.taskName.toString(),
-       taskDescription: "what happens here wooooooo",
-       taskPriority: "High",
-
-
-       assignerID : 9,
-       parentProjectID : parseInt(this.$route.params.projIndex, 10),
-       parentOrgID : parseInt(this.$route.params.orgIndex, 10),
+   callCreateTask() {
+    const t = {
+       dueDate: "2024-11-01T05:11.111Z", //this.task.dueDate.toString();
+       taskName: "Trying to create task", //this.task.taskName,
+       taskDescription: "what happens next?", //this.task.taskDescription;
+       taskPriority: "High", //this.task.taskPriority;
+       assignerID : 9, //parseInt(this.$route.params.userID, 10);
+       parentProjectID : 6, //parseInt(this.$route.params.projIndex, 10),
+       parentOrgID : 3, //parseInt(this.$route.params.orgIndex, 10),
      }
 
-
-     // add client fetched fields to task
-     //this.task.assignerID = parseInt(this.$route.params.userID, 10);
-     //this.task.parentProjectID = parseInt(this.$route.params.projIndex, 10);
-     //this.task.parentOrgID = parseInt(this.$route.params.orgIndex, 10);
      console.log(t);
      this.$store.dispatch("tasks/createTask", t);
    },
