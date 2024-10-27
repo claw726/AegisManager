@@ -1,6 +1,15 @@
 <template>
   <div v-if="isLoggedIn && proj" class="min-h-screen bg-background">
     <NavBar />
+    
+    <!-- Notifications -->
+    <NotificationComponent
+      v-model:show="notification.show"
+      :type="notification.type"
+      @close="clearNotification"
+    >
+      {{ notification.message }}
+    </NotificationComponent>
 
     <!-- Project Header Section -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -173,6 +182,7 @@ import NavBar from "@/components/NavBar.vue";
 import { mapState } from "vuex";
 import TaskCard from "@/components/TaskCard.vue";
 import DropdownMenu from "@/components/DropdownMenu.vue";
+import NotificationComponent from "@/components/NotificationComponent.vue";
 
 export default {
   data() {
@@ -196,12 +206,18 @@ export default {
       tasks: [],
       creator: {},
       isLoaded: false,
+      notification: {
+        show: false,
+        type: 'info',
+        message: '',
+      },
     };
   },
   components: {
     NavBar,
     TaskCard,
     DropdownMenu,
+    NotificationComponent,
   },
   async created() {
     await this.getProjData();
@@ -210,10 +226,22 @@ export default {
   computed: {
     ...mapState("auth", ["isLoggedIn", "currentUser"]),
   },
-  // mounted() {
-  //   this.tasks = this.proj.tasks || [];
-  // },
   methods: {
+    showNotification(type, message, duration = 5000) {
+      this.notification = {
+        show: true,
+        type,
+        message,
+      };
+      if (duration > 0) {
+        setTimeout(() => {
+          this.clearNotification();
+        }, duration);
+      }
+    },
+    clearNotification() {
+      this.notification.show = false;
+    },
     async getProjData() {
       try {
         this.proj = await this.$store.dispatch(
@@ -221,7 +249,7 @@ export default {
           this.$route.params.projIndex,
         );
       } catch (err) {
-        alert("There was an error fetching the organization data");
+        this.showNotification('error', 'There was an error fetching the organization data');
         this.$router.push({ name: "OrganizationDashboard" });
       }
     },
@@ -232,7 +260,7 @@ export default {
           this.proj.projectOwnerID,
         );
       } catch (error) {
-        console.error("Error getting project owner info");
+        this.showNotification('error', 'Error getting project owner info');
       }
     },
     async getAllProjectTasks() {
@@ -243,29 +271,12 @@ export default {
           projID,
         );
       } catch (error) {
-        alert("Error getting project tasks");
-      }
-    },
-    goToCreateTask() {
-      this.$router.push({
-        name: "createTask",
-        params: {
-          orgIndex: this.$route.params.orgIndex,
-          projIndex: this.$route.params.projIndex,
-        },
-      });
-    },
-    handleCommand(command) {
-      if (command === "edit") {
-        this.editProject();
-      } else if (command === "delete") {
-        this.deleteProject();
+        this.showNotification('error', 'Error getting project tasks');
       }
     },
     editProject() {
-      // Confirm the current user is the project creator
       if (this.proj.projectOwnerID !== this.currentUser.userID) {
-        alert("You are not authorized to modify this project.");
+        this.showNotification('error', 'You are not authorized to modify this project.');
         return;
       }
       this.$router.push({
@@ -276,27 +287,40 @@ export default {
         },
       });
     },
-    deleteProject() {
-      // Confirm the current user is the project creator
+    async deleteProject() {
       if (this.proj.projectOwnerID !== this.currentUser.userID) {
-        alert("You are not authorized to delete this project.");
+        this.showNotification('error', 'You are not authorized to delete this project.');
         return;
       }
 
-      if (confirm("Are you sure you want to delete this project?")) {
-        this.$store
-          .dispatch("projects/deleteProject", {
-            projectID: this.$route.params.projIndex,
-          })
-          .then(() => {
-            alert("Project deleted successfully!");
-            this.$router.push({ name: "OrganizationDashboard" });
-          })
-          .catch((err) => {
-            alert("Failed to delete project");
-            console.error(err);
-          });
+      // Show confirmation notification
+      this.showNotification('warning', 'Are you sure you want to delete this project? Click again to confirm.', 0);
+
+      // Set up confirmation action
+      if (!this.deleteConfirmation) {
+        this.deleteConfirmation = true;
+        setTimeout(() => {
+          this.deleteConfirmation = false;
+          this.clearNotification();
+        }, 5000);
+        return;
       }
+
+      try {
+        await this.$store.dispatch("projects/deleteProject", {
+          projectID: this.$route.params.projIndex,
+        });
+        
+        this.showNotification('success', 'Project deleted successfully!');
+        setTimeout(() => {
+          this.$router.push({ name: "OrganizationDashboard" });
+        }, 1500);
+      } catch (err) {
+        this.showNotification('error', 'Failed to delete project');
+        console.error(err);
+      }
+      
+      this.deleteConfirmation = false;
     },
     editProjUsers() {
       this.$router.push({
