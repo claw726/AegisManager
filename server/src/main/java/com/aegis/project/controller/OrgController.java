@@ -103,9 +103,9 @@ public class OrgController {
     }
 
     @PostMapping("/{orgID}/update")
-    public ResponseEntity<String> updateOrg(@PathVariable int orgID, @RequestParam String orgName, @RequestParam String orgDescription, @RequestParam int orgOwnerID) {
+    public ResponseEntity<String> updateOrg(@PathVariable int orgID, @RequestParam String orgName, @RequestParam String orgDescription, @RequestParam int orgOwnerID, @RequestParam String encodedImage) {
         try {
-            orgService.updateOrg(orgID, orgName, orgDescription, orgOwnerID);
+            orgService.updateOrg(orgID, orgName, orgDescription, orgOwnerID, encodedImage);
             return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Org updated successfully");
         } catch (RuntimeException e) {
             if (e.getMessage().contains("Org not found with id:")) {

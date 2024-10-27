@@ -23,22 +23,17 @@ public class TaskModel {
 
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private Integer taskID;
+    private int taskID;
 
-    @Column(name = "parent_project_ID", insertable = false, updatable = false)
-    private Integer parentProjectID;
+    @Column(name = "parent_project_ID")
+    private int parentProjectID;
 
-    /*
-    @ManyToOne
-    @JoinColumn(name = "parent_project")
-    private ProjectModel parentProject;
-    */
     @ManyToOne(fetch = FetchType.LAZY)
-    @JoinColumn(name = "parent_project_ID")  // Foreign key column in ProjectModel table
+    @JoinColumn(name = "parent_project")  // Foreign key column in ProjectModel table
     private ProjectModel parentProject;
 
-    @Column(name = "parent_org_ID", insertable = false, updatable = false)
-    private Integer parentOrgID;
+    @Column(name = "parent_org_ID")
+    private int parentOrgID;
 
     @Column(name = "task_name")
     private String taskName;
@@ -72,7 +67,7 @@ public class TaskModel {
     //private String TaskFilesTableName;
 
 
-    public Integer getTaskID() {
+    public int getTaskID() {
         return taskID;
     }
 
@@ -88,7 +83,7 @@ public class TaskModel {
         this.parentProject = parentProject;
     }
 
-    public Integer getParentProjectID() {
+    public int getParentProjectID() {
         return parentProjectID;
     }
 
@@ -96,7 +91,7 @@ public class TaskModel {
         this.parentProjectID = parentProjectID;
     }
 
-    public Integer getParentOrgID() {
+    public int getParentOrgID() {
         return parentOrgID;
     }
 
@@ -120,7 +115,7 @@ public class TaskModel {
         this.taskDescription = taskDescription;
     }
 
-    public Integer getAssignerID() {
+    public int getAssignerID() {
         return assignerID;
     }
 
