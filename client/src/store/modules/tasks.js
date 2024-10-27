@@ -37,6 +37,9 @@ const mutations = {
 };
 
 const actions = {
+
+
+
   async fetchTasks({ commit, rootState }) {
     try {
       const userID = rootState.auth.currentUser.userID;
@@ -125,6 +128,45 @@ const actions = {
       commit('SET_LOADING', false);
     }
   },
+
+  async createTask({ commit, rootState }, task) {
+    try {
+      const params = {
+        taskName: task.taskName,
+        taskDescription: task.taskDescription,
+        dueDate: task.dueDate,
+        taskPriority: task.taskPriority,
+
+        assignerID: task.assignerID,
+        parentProjectID: task.parentProjectID,
+        parentOrgID: task.parentOrgID,
+      };
+
+      const response = await axios({
+        method: 'post',
+        url: `/api/tasks/createTask`,
+        params: params,
+          headers: {
+            Authorization: `Bearer ${rootState.auth.authToken}`,
+            'Content-Type': 'application/x-www-form-urlencoded',
+          }
+        });
+
+      if (response.status === 204) {
+        //commit('UPDATE_TASK_IN_LIST', { taskId, ...taskData });
+        //commit('SET_UPDATE_STATUS', { success: true });
+        console.log("Task created 204");
+        return true;
+      }
+      console.log("Task created successfully");
+    } catch (error) {
+      console.log('An error occurred while updating the task.');
+      console.log('error response: ', error.response);
+      console.log('error status: ', error.response.status);
+    }
+
+  },  
+
   async updateTask({ commit, rootState }, { taskId, taskData }) {
     commit('SET_UPDATE_STATUS', { loading: true, error: null, success: false });
     
