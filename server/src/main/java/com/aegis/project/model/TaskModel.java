@@ -47,7 +47,7 @@ public class TaskModel {
     private String taskDescription;
 
     @Column(name = "assigner_ID")
-    private int assignerID;
+    private Integer assignerID;
 
     @ManyToMany
     @JoinTable(
@@ -68,7 +68,7 @@ public class TaskModel {
 
     //TODO: implement task chat table and task files table
 
-    //private int TaskChatID;
+    //private Integer TaskChatID;
     //private String TaskFilesTableName;
 
 
@@ -76,7 +76,7 @@ public class TaskModel {
         return taskID;
     }
 
-    public void setTaskID(int taskID) {
+    public void setTaskID(Integer taskID) {
         this.taskID = taskID;
     }
 
@@ -92,7 +92,7 @@ public class TaskModel {
         return parentProjectID;
     }
 
-    public void setParentProjectID(int parentProjectID) {
+    public void setParentProjectID(Integer parentProjectID) {
         this.parentProjectID = parentProjectID;
     }
 
@@ -100,7 +100,7 @@ public class TaskModel {
         return parentOrgID;
     }
 
-    public void setParentOrgID(int parentOrgID) {
+    public void setParentOrgID(Integer parentOrgID) {
         this.parentOrgID = parentOrgID;
     }
 
@@ -124,7 +124,7 @@ public class TaskModel {
         return assignerID;
     }
 
-    public void setAssignerID(int assignerID) {
+    public void setAssignerID(Integer assignerID) {
         this.assignerID = assignerID;
     }
 

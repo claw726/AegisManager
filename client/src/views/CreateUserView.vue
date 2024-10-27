@@ -1,60 +1,54 @@
 <template>
   <div class="relative w-full min-h-screen h-full bg-background">
-    <!-- NavBar  -->
     <NavBar />
 
-    <!-- Main Content -->
     <div v-if="!isLoggedIn" class="flex flex-col items-center mt-20">
-      <!-- Adjusted margin to ensure content is below the NavBar -->
       <div class="text-3xl font-bold text-primary">Create Profile</div>
       <div class="text-xl font-semibold text-secondary mt-2">
         Register Securely with Aegis
       </div>
 
-      <!-- Form Container -->
       <div class="w-3/4 max-w-4xl mt-10 bg-white shadow-lg rounded-lg p-8">
         <div class="flex flex-wrap -mx-4">
           <!-- First Name -->
           <div class="w-full md:w-1/2 px-4 mb-4">
-            <label class="block text-sm font-semibold text-gray-800 mb-2"
-              >First Name</label
-            >
+            <label class="block text-sm font-semibold text-gray-800 mb-2">First Name</label>
             <input
               type="text"
               v-model="user.firstName"
               class="w-full border border-highlight rounded-lg p-3"
+              @focus="clearError('firstName')"
             />
+            <p v-if="errors.firstName" class="mt-1 text-sm text-red-500">{{ errors.firstName }}</p>
           </div>
 
           <!-- Last Name -->
           <div class="w-full md:w-1/2 px-4 mb-4">
-            <label class="block text-sm font-semibold text-gray-800 mb-2"
-              >Last Name</label
-            >
+            <label class="block text-sm font-semibold text-gray-800 mb-2">Last Name</label>
             <input
               type="text"
               v-model="user.lastName"
               class="w-full border border-highlight rounded-lg p-3"
+              @focus="clearError('lastName')"
             />
+            <p v-if="errors.lastName" class="mt-1 text-sm text-red-500">{{ errors.lastName }}</p>
           </div>
 
           <!-- Email Address -->
           <div class="w-full md:w-1/2 px-4 mb-4">
-            <label class="block text-sm font-semibold text-gray-800 mb-2"
-              >Email Address</label
-            >
+            <label class="block text-sm font-semibold text-gray-800 mb-2">Email Address</label>
             <input
               type="email"
               v-model="user.email"
               class="w-full border border-highlight rounded-lg p-3"
+              @focus="clearError('email')"
             />
+            <p v-if="errors.email" class="mt-1 text-sm text-red-500">{{ errors.email }}</p>
           </div>
 
           <!-- Profile Picture -->
           <div class="w-full md:w-1/2 px-4 mb-4">
-            <label class="block text-sm font-semibold text-gray-800 mb-2"
-              >Profile Picture</label
-            >
+            <label class="block text-sm font-semibold text-gray-800 mb-2">Profile Picture</label>
             <input
               type="file"
               accept="image/jpeg"
@@ -67,9 +61,7 @@
               class="w-full bg-primary text-white font-semibold py-3 rounded-lg"
             >
               Upload Image
-              <span v-if="imageUploaded" class="text-gray-500 ml-2"
-                >(Image Uploaded)</span
-              >
+              <span v-if="imageUploaded" class="text-gray-500 ml-2">(Image Uploaded)</span>
             </button>
           </div>
 
@@ -80,6 +72,7 @@
                 @update-password="updatePassword"
                 :Title="'Password'"
               />
+              <p v-if="errors.password" class="mt-1 text-sm text-red-500">{{ errors.password }}</p>
             </div>
           </div>
 
@@ -91,6 +84,13 @@
           >
             Submit
           </button>
+        </div>
+
+        <!-- General Error Message -->
+        <div v-if="errors.general" class="mt-4">
+          <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+            <span class="block sm:inline">{{ errors.general }}</span>
+          </div>
         </div>
       </div>
     </div>
@@ -108,7 +108,7 @@ export default {
     NavBar,
   },
   computed: {
-    ...mapState('auth', ["isLoggedIn"]),
+    ...mapState('auth', ["isLoggedIn", "error"]),
   },
   data() {
     return {
@@ -120,6 +120,13 @@ export default {
         profilePicture: "",
       },
       imageUploaded: false, // Track if an image has been uploaded
+      errors: {
+        firstName: "",
+        lastName: "",
+        email: "",
+        password: "",
+        general: "",
+      },
     };
   },
   watch: {
@@ -129,7 +136,11 @@ export default {
     },
   },
   methods: {
-    ...mapActions(["register", "login"]),
+    ...mapActions("auth", ["register", "login"]),
+    clearError(field) {
+      this.errors[field] = "";
+      this.errors.general = "";
+    },
     triggerFileInput() {
       this.$refs.fileInput.click();
     },
@@ -227,53 +238,54 @@ export default {
         alert("Please select a valid image format.");
       }
     },
-    createUserJson() {
-      const userJson = JSON.stringify(this.user, null, 2);
-      console.log("User JSON:", userJson);
-      return userJson;
-    },
     async submitForm() {
-      // TODO: when server is setup, request all user accounts and check if email already exists
-      if (
-        !this.user.firstName ||
-        !this.user.lastName ||
-        !this.user.email ||
-        !this.user.password
-      ) {
-        alert("Please fill out all fields and upload an image.");
-        return;
+      // Clear previous errors
+      this.clearError();
+
+      // Validate fields
+      if (!this.user.firstName) {
+        this.errors.firstName = "First name is required.";
       }
-      // Validate email
-      const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-      if (!emailRegex.test(this.user.email)) {
-        alert("Please enter a valid email address.");
-        return;
+      if (!this.user.lastName) {
+        this.errors.lastName = "Last name is required.";
+      }
+      if (!this.user.email) {
+        this.errors.email = "Email is required.";
+      } else {
+        const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+        if (!emailRegex.test(this.user.email)) {
+          this.errors.email = "Please enter a valid email address.";
+        }
+      }
+      if (!this.user.password) {
+        this.errors.password = "Password is required.";
+      }
+      if (!this.user.profilePicture) {
+        this.errors.general = "Please upload a profile picture.";
+      }
+
+      // Check if there are any errors
+      if (Object.values(this.errors).some(error => error)) {
+        return; // Stop if there are errors
       }
 
       try {
-        //Register the user from vuex
+        // Register the user
         await this.register({
           email: this.user.email,
-          name: this.user.firstName + " " + this.user.lastName,
+          name: `${this.user.firstName} ${this.user.lastName}`,
           password: this.user.password,
           profilePicture: this.user.profilePicture,
         });
 
-        // Log in the user
-        await this.login({
-          email: this.user.email,
-          password: this.user.password,
-        });
-        // if (this.token === undefined || !this.token) {
-        //   alert('An error occurred while logging in. Please try again.');
-        //   return;
-        // }
-        alert("User created successfully");
-        setTimeout(this.goToDash, 1000); //needs to wait for user to be stored in JSON before continuing. Removing this breaks the app...
-        this.goToDash;
+        this.goToDash();
       } catch (error) {
-        console.error("Error during registration or login:", error);
-        alert("An Error occured. Please try again.");
+        // Set error messages based on the response
+        if (error.response) {
+          this.errors.general = error.response.data || "Registration failed. Please try again.";
+        } else {
+          this.errors.general = error || "Unable to connect to the server. Please check your internet connection.";
+        }
       }
     },
     goToDash() {
