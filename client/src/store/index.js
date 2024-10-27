@@ -410,6 +410,55 @@ export default new Vuex.Store({
       }
     },
 
+    async createTask({ state }, { task }) {
+      try {
+        const params = new URLSearchParams();
+        // user created fields
+        console.log(task);
+        params.append("taskName", task.taskName);
+        params.append("taskDescription", task.taskDescription);
+        params.append("taskPriority", task.taskPriority);
+        params.append("dueDate", task.dueDate);
+        //client assigned fields
+        params.append("assignerID", task.assignerID);
+        params.append("parentProjectID", task.parentProjectID);
+        params.append("parentOrgID", task.parentOrgID);
+        
+        console.log("Task Creation Params:", Object.fromEntries(params)); 
+
+        const response = await axios.post(`/api/tasks/createTask`, params, {
+          headers: {
+            Authorization: `Bearer ${state.authToken}`,
+          },
+        });
+
+        console.log(`Response Data for Task ${taskID}`, response.data);
+
+        return response.data;
+      } catch (error) {
+        console.error("Failed to create task:", error);
+        throw new Error("Failed to create task");
+      }
+    },
+
+    async fetchTask({ state }, { taskID }) {
+      try {
+        const params = new URLSearchParams();
+        params.append("taskID", task.taskID);
+        
+        const response = await axios.post(`/api/tasks/${taskId}/getTask`, params, {
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            Authorization: `Bearer ${state.authToken}`,
+          },
+        });
+        return response.data;
+      } catch (error) {
+        console.error("Failed to get task:", error.response.data);
+        throw new Error("Failed to get task");
+      }
+    },
+
     async modifyTask({ state }, { task }) {
       try {
         const params = new URLSearchParams();
