@@ -49,13 +49,13 @@
             </div>
           </div>
           <NotificationComponent
-          class="flex"
-          :show="notification.show"
-          :type="notification.type"
-          @close="closeNotification"
-        >
-          {{ notification.message }}
-        </NotificationComponent>
+            class="flex"
+            :show="notification.show"
+            :type="notification.type"
+            @close="closeNotification"
+          >
+            {{ notification.message }}
+          </NotificationComponent>
         </div>
       </div>
     </div>
@@ -70,7 +70,7 @@ import NotificationComponent from "@/components/NotificationComponent.vue";
 export default {
   components: {
     NavBar,
-    NotificationComponent
+    NotificationComponent,
   },
   data() {
     return {
@@ -79,7 +79,7 @@ export default {
         type: "info",
         message: "",
       },
-    }
+    };
   },
   computed: {
     ...mapState("auth", ["isLoggedIn", "currentUser"]),
@@ -90,19 +90,21 @@ export default {
     },
     async resetPassword() {
       try {
-        await this.$store.dispatch("auth/requestPasswordReset", this.currentUser.email);
+        await this.$store.dispatch(
+          "auth/requestPasswordReset",
+          this.currentUser.email,
+        );
         this.showNotification(
-            "success",
-            "Sent a password request to " + this.currentUser.email,
-          );
+          "success",
+          "Sent a password request to " + this.currentUser.email,
+        );
       } catch (error) {
         this.showNotification(
-            "error",
-            "Failed to update password: " +
+          "error",
+          "Failed to update password: " +
             (error.response?.data || error.message),
-          );
+        );
       }
-      
     },
     showNotification(type, message) {
       this.notification = {

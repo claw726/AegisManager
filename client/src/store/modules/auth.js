@@ -31,9 +31,12 @@ const mutations = {
 };
 
 const actions = {
-  async register({ commit, dispatch }, { email, name, password, profilePicture }) {
+  async register(
+    { commit, dispatch },
+    { email, name, password, profilePicture },
+  ) {
     // Clear previous errors
-    commit('SET_ERROR', null);
+    commit("SET_ERROR", null);
 
     try {
       const params = new URLSearchParams();
@@ -50,12 +53,11 @@ const actions = {
 
       if (response.data == "User created successfully") {
         // Automatically log in the user after successful registration
-      
+
         await dispatch("login", { email, password });
       } else {
         commit("SET_ERROR", "Registration failed. Please try again.");
       }
-
     } catch (error) {
       let errorMessage = "An unexpected error occurred. Please try again.";
 
@@ -66,16 +68,20 @@ const actions = {
             errorMessage = "Invalid input. Please check your details."; // General error for bad requests
             break;
           case 409: // Conflict, e.g., email already exists
-            errorMessage = "Email already exists. Please use a different email.";
+            errorMessage =
+              "Email already exists. Please use a different email.";
             break;
           case 500:
             errorMessage = "Server error. Please try again later.";
             break;
-          default: error.response.data.message || "An unexpected error occurred. Please try again.";
+          default:
+            error.response.data.message ||
+              "An unexpected error occurred. Please try again.";
         }
       } else if (error.request) {
         // Network error or other issues
-        errorMessage = "Unable to connect to the server. Please check your internet connection. Is the server running? 🤔";
+        errorMessage =
+          "Unable to connect to the server. Please check your internet connection. Is the server running? 🤔";
       } else {
         errorMessage = error.message;
       }
@@ -132,7 +138,8 @@ const actions = {
         }
       } else if (error.request) {
         // The request was made but no response was received
-        errorMessage = "Unable to connect to the server. Please check your internet connection.";
+        errorMessage =
+          "Unable to connect to the server. Please check your internet connection.";
       } else {
         // Something happened in setting up the request that triggered an Error
         errorMessage = error.message;
@@ -148,11 +155,15 @@ const actions = {
     try {
       const params = new URLSearchParams();
       params.append("email", email);
-      const response = await axios.post("/api/auth/requestPasswordReset", params, {
-        headers: {
-          Authorization: `Bearer ${state.authToken}`,
+      const response = await axios.post(
+        "/api/auth/requestPasswordReset",
+        params,
+        {
+          headers: {
+            Authorization: `Bearer ${state.authToken}`,
+          },
         },
-      });
+      );
       console.log("Password reset requested:", response.data);
       return response.data;
     } catch (error) {

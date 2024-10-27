@@ -74,7 +74,7 @@ export default {
     NotificationComponent,
   },
   computed: {
-    ...mapState('auth', ["isLoggedIn", "currentUser"]),
+    ...mapState("auth", ["isLoggedIn", "currentUser"]),
   },
   mounted() {
     this.fetchOrgMembers();
@@ -84,36 +84,39 @@ export default {
       try {
         const orgID = this.$route.params.orgIndex;
         console.log(`Adding ${email} to org ${orgID}`);
-        await this.$store.dispatch("organizations/addUserToOrganization", {
-          orgID,
-          email,
-        });
+        const message = await this.$store.dispatch(
+          "organizations/addUserToOrganization",
+          {
+            orgID,
+            email,
+          },
+        );
+        alert(message);
         this.fetchOrgMembers();
       } catch (error) {
-        this.showNotification(
-            "error",
-            "Failed to add user to Project: " +
+        alert(
+          "Failed to add user to organization:" +
             (error.response?.data || error.message),
-          );
+        );
       }
     },
     async removeUser(email) {
       try {
         const orgID = this.$route.params.orgIndex;
-        await this.$store.dispatch(
+        const message = await this.$store.dispatch(
           "organizations/removeUserFromOrganization",
           {
             orgID,
             email,
           },
         );
+        alert(message);
         this.fetchOrgMembers();
       } catch (error) {
-        this.showNotification(
-            "error",
-            "Failed to remove member from Project: " +
+        alert(
+          "Failed to remove member from organization: " +
             (error.response?.data || error.message),
-          );
+        );
       }
     },
     toggleTable() {
@@ -123,14 +126,14 @@ export default {
       try {
         const orgID = this.$route.params.orgIndex;
         if (!orgID) {
-          this.showNotification(
-            "error",
-            "This organization does not exist!",
-          );
+          throw new Error("Organization ID is not available!");
         }
 
         // Fetch org members
-        this.members = await this.$store.dispatch("organizations/fetchOrgMembers", orgID);
+        this.members = await this.$store.dispatch(
+          "organizations/fetchOrgMembers",
+          orgID,
+        );
         console.log("Organization Members:", this.members);
 
         // Fetch all users
@@ -147,25 +150,10 @@ export default {
           "Error fetching organization members or users:",
           error.message,
         );
-        this.showNotification(
-            "error",
-            "Failed to fetch users",
-          );
+        alert(
+          "Failed to load organization members or available users. Please Try again later",
+        );
       }
-    },
-    showNotification(type, message) {
-      this.notification = {
-        show: true,
-        type,
-        message,
-      };
-
-      if (type == "success") {
-        setTimeout(this.closeNotification, 5000);
-      }
-    },
-    closeNotification() {
-      this.notification.show = false;
     },
   },
 };

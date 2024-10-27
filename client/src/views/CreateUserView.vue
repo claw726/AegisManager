@@ -12,43 +12,57 @@
         <div class="flex flex-wrap -mx-4">
           <!-- First Name -->
           <div class="w-full md:w-1/2 px-4 mb-4">
-            <label class="block text-sm font-semibold text-gray-800 mb-2">First Name</label>
+            <label class="block text-sm font-semibold text-gray-800 mb-2"
+              >First Name</label
+            >
             <input
               type="text"
               v-model="user.firstName"
               class="w-full border border-highlight rounded-lg p-3"
               @focus="clearError('firstName')"
             />
-            <p v-if="errors.firstName" class="mt-1 text-sm text-red-500">{{ errors.firstName }}</p>
+            <p v-if="errors.firstName" class="mt-1 text-sm text-red-500">
+              {{ errors.firstName }}
+            </p>
           </div>
 
           <!-- Last Name -->
           <div class="w-full md:w-1/2 px-4 mb-4">
-            <label class="block text-sm font-semibold text-gray-800 mb-2">Last Name</label>
+            <label class="block text-sm font-semibold text-gray-800 mb-2"
+              >Last Name</label
+            >
             <input
               type="text"
               v-model="user.lastName"
               class="w-full border border-highlight rounded-lg p-3"
               @focus="clearError('lastName')"
             />
-            <p v-if="errors.lastName" class="mt-1 text-sm text-red-500">{{ errors.lastName }}</p>
+            <p v-if="errors.lastName" class="mt-1 text-sm text-red-500">
+              {{ errors.lastName }}
+            </p>
           </div>
 
           <!-- Email Address -->
           <div class="w-full md:w-1/2 px-4 mb-4">
-            <label class="block text-sm font-semibold text-gray-800 mb-2">Email Address</label>
+            <label class="block text-sm font-semibold text-gray-800 mb-2"
+              >Email Address</label
+            >
             <input
               type="email"
               v-model="user.email"
               class="w-full border border-highlight rounded-lg p-3"
               @focus="clearError('email')"
             />
-            <p v-if="errors.email" class="mt-1 text-sm text-red-500">{{ errors.email }}</p>
+            <p v-if="errors.email" class="mt-1 text-sm text-red-500">
+              {{ errors.email }}
+            </p>
           </div>
 
           <!-- Profile Picture -->
           <div class="w-full md:w-1/2 px-4 mb-4">
-            <label class="block text-sm font-semibold text-gray-800 mb-2">Profile Picture</label>
+            <label class="block text-sm font-semibold text-gray-800 mb-2"
+              >Profile Picture</label
+            >
             <input
               type="file"
               accept="image/jpeg"
@@ -61,7 +75,9 @@
               class="w-full bg-primary text-white font-semibold py-3 rounded-lg"
             >
               Upload Image
-              <span v-if="imageUploaded" class="text-gray-500 ml-2">(Image Uploaded)</span>
+              <span v-if="imageUploaded" class="text-gray-500 ml-2"
+                >(Image Uploaded)</span
+              >
             </button>
           </div>
 
@@ -72,7 +88,9 @@
                 @update-password="updatePassword"
                 :Title="'Password'"
               />
-              <p v-if="errors.password" class="mt-1 text-sm text-red-500">{{ errors.password }}</p>
+              <p v-if="errors.password" class="mt-1 text-sm text-red-500">
+                {{ errors.password }}
+              </p>
             </div>
           </div>
 
@@ -88,7 +106,10 @@
 
         <!-- General Error Message -->
         <div v-if="errors.general" class="mt-4">
-          <div class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative" role="alert">
+          <div
+            class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
+            role="alert"
+          >
             <span class="block sm:inline">{{ errors.general }}</span>
           </div>
         </div>
@@ -108,7 +129,7 @@ export default {
     NavBar,
   },
   computed: {
-    ...mapState('auth', ["isLoggedIn", "error"]),
+    ...mapState("auth", ["isLoggedIn", "error"]),
   },
   data() {
     return {
@@ -230,7 +251,8 @@ export default {
           reader.readAsDataURL(file);
         } catch (error) {
           console.error("Error compressing image:", error);
-          this.errors.general = "An error occurred while compressing the image. Please try again with a new file."
+          this.errors.general =
+            "An error occurred while compressing the image. Please try again with a new file.";
         }
       } else {
         this.errors.general = "Please select a valid image format.";
@@ -263,7 +285,7 @@ export default {
       }
 
       // Check if there are any errors
-      if (Object.values(this.errors).some(error => error)) {
+      if (Object.values(this.errors).some((error) => error)) {
         return; // Stop if there are errors
       }
 
@@ -280,9 +302,12 @@ export default {
       } catch (error) {
         // Set error messages based on the response
         if (error.response) {
-          this.errors.general = error.response.data || "Registration failed. Please try again.";
+          this.errors.general =
+            error.response.data || "Registration failed. Please try again.";
         } else {
-          this.errors.general = error || "Unable to connect to the server. Please check your internet connection.";
+          this.errors.general =
+            error ||
+            "Unable to connect to the server. Please check your internet connection.";
         }
       }
     },

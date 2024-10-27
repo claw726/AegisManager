@@ -1,5 +1,6 @@
 <template>
   <div v-if="isLoggedIn" class="min-h-screen bg-background">
+  <div v-if="isLoggedIn" class="min-h-screen bg-background">
     <NavBar />
 
     
@@ -74,9 +75,57 @@
                 >Created by {{ creator.userName }}</span
               >
             </div>
+
+          <!-- Right Column - Organization Info -->
+          <div class="flex-1 space-y-4">
+            <h1 class="text-4xl font-bold text-gray-900">{{ org.orgName }}</h1>
+            <p class="text-xl text-gray-600">{{ org.orgDescription }}</p>
+            <div class="flex items-center space-x-2 text-sm text-gray-500">
+              <svg
+                xmlns="http://www.w3.org/2000/svg"
+                class="h-4 w-4"
+                viewBox="0 0 20 20"
+                fill="currentColor"
+              >
+                <path
+                  d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"
+                />
+              </svg>
+              <span v-if="creator.userName"
+                >Created by {{ creator.userName }}</span
+              >
+            </div>
           </div>
         </div>
       </div>
+      <div v-else class="text-center py-12">
+        <div class="animate-pulse flex justify-center items-center">
+          <div class="h-8 w-8 mr-2">
+            <svg
+              class="animate-spin h-8 w-8 text-blue-500"
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+            >
+              <circle
+                class="opacity-25"
+                cx="12"
+                cy="12"
+                r="10"
+                stroke="currentColor"
+                stroke-width="4"
+              ></circle>
+              <path
+                class="opacity-75"
+                fill="currentColor"
+                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
+              ></path>
+            </svg>
+          </div>
+          <span class="text-lg text-gray-600"
+            >Loading organization data...</span
+          >
+        </div>
       <div v-else class="text-center py-12">
         <div class="animate-pulse flex justify-center items-center">
           <div class="h-8 w-8 mr-2">
@@ -176,6 +225,23 @@
       <div v-else-if="!projects" class="text-center py-12">
         <p class="text-gray-500">No projects found.</p>
       </div>
+    <!-- Projects Grid -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <div
+        v-if="org && projects"
+        class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
+      >
+        <ProjCard
+          v-for="project in projects"
+          :key="project.projectID"
+          :project="project"
+          :projIndex="project.projectID"
+          class="transform hover:scale-105 transition duration-200"
+        />
+      </div>
+      <div v-else-if="!projects" class="text-center py-12">
+        <p class="text-gray-500">No projects found.</p>
+      </div>
     </div>
   </div>
 </template>
@@ -186,12 +252,14 @@ import { mapState } from "vuex";
 import ProjCard from "@/components/ProjCard.vue";
 import DropdownMenu from "@/components/DropdownMenu.vue";
 import NotificationComponent from "@/components/NotificationComponent.vue";
+import NotificationComponent from "@/components/NotificationComponent.vue";
 
 export default {
   components: {
     NavBar,
     ProjCard,
     DropdownMenu,
+    NotificationComponent,
     NotificationComponent,
   },
   computed: {
@@ -201,21 +269,32 @@ export default {
     return {
       org: null,
       projects: null,
+      org: null,
+      projects: null,
       dropdownOpts: [
         {
+          title: "Edit Organization Details ✏️",
           title: "Edit Organization Details ✏️",
           command: this.editOrg,
         },
         {
           title: "Delete This Organization 🗑️",
+          title: "Delete This Organization 🗑️",
           command: this.deleteOrg,
         },
         {
+          title: "Edit Organization Users 🤵",
           title: "Edit Organization Users 🤵",
           command: this.editOrgUsers,
         },
       ],
       creator: {},
+      notification: {
+        show: false,
+        type: "info",
+        message: "",
+      },
+      deleteConfirmation: false,
       notification: {
         show: false,
         type: 'info',
@@ -225,6 +304,8 @@ export default {
     };
   },
   async created() {
+    await this.getOrgData();
+    await this.getAllOrgProjects();
     await this.getOrgData();
     await this.getAllOrgProjects();
     await this.getCreatorData();
@@ -245,8 +326,24 @@ export default {
     clearNotification() {
       this.notification.show = false;
     },
+    showNotification(type, message, duration = 5000) {
+      this.notification = {
+        show: true,
+        type,
+        message,
+      };
+      if (duration > 0) {
+        setTimeout(() => {
+          this.clearNotification();
+        }, duration);
+      }
+    },
+    clearNotification() {
+      this.notification.show = false;
+    },
     async getOrgData() {
       try {
+        const orgID = this.$route.params.orgIndex;
         const orgID = this.$route.params.orgIndex;
         this.org = await this.$store.dispatch(
           "organizations/fetchOrganization",
@@ -254,11 +351,16 @@ export default {
         );
       } catch (error) {
         console.error("Error fetching organization data:", error);
+        this.showNotification(
+          "error",
+          `Failed to load organization data: ${error.message}`,
+        );
         this.showNotification('error', `Failed to load organization data: ${error.message}`);
       }
     },
     async getAllOrgProjects() {
       try {
+        const orgID = this.$route.params.orgIndex;
         const orgID = this.$route.params.orgIndex;
         const orgProjects = await this.$store.dispatch(
           "projects/fetchOrgProjects",
@@ -276,6 +378,10 @@ export default {
         this.projects = filteredProjects;
       } catch (error) {
         console.error("Error fetching projects:", error);
+        this.showNotification(
+          "error",
+          `Failed to load projects: ${error.message}`,
+        );
         this.showNotification('error', `Failed to load projects: ${error.message}`);
       }
     },
@@ -287,6 +393,10 @@ export default {
         );
       } catch (error) {
         console.error("Error getting org owner info");
+        this.showNotification(
+          "error",
+          "Failed to load organization owner information",
+        );
         this.showNotification('error', 'Failed to load organization owner information');
       }
     },
@@ -299,6 +409,15 @@ export default {
     editOrg() {
       // Check if user has permission
       if (this.org.orgOwnerID !== this.currentUser.userID) {
+        this.showNotification(
+          "error",
+          "You do not have permission to edit this organization",
+        );
+        return;
+      }
+
+      // Check if user has permission
+      if (this.org.orgOwnerID !== this.currentUser.userID) {
         this.showNotification('error', 'You do not have permission to edit this organization');
         return;
       }
@@ -308,6 +427,51 @@ export default {
         params: { orgIndex: this.$route.params.orgIndex },
       });
     },
+    async deleteOrg() {
+      // Check if user has permission
+      if (this.org.orgOwnerID !== this.currentUser.userID) {
+        this.showNotification(
+          "error",
+          "You do not have permission to delete this organization",
+        );
+        return;
+      }
+
+      // Show confirmation notification
+      if (!this.deleteConfirmation) {
+        this.showNotification(
+          "warning",
+          "Are you sure you want to delete this organization? Click delete again to confirm.",
+          5000,
+        );
+        this.deleteConfirmation = true;
+        setTimeout(() => {
+          this.deleteConfirmation = false;
+        }, 5000);
+        return;
+      }
+
+      try {
+        await this.$store.dispatch(
+          "organizations/deleteOrganization",
+          this.$route.params.orgIndex,
+        );
+
+        this.showNotification("success", "Organization deleted successfully!");
+        setTimeout(() => {
+          this.$router.push({
+            name: "viewOrgs",
+            params: { orgIndex: undefined },
+          });
+        }, 1500);
+      } catch (err) {
+        this.showNotification(
+          "error",
+          `Failed to delete organization: ${err.message}`,
+        );
+      }
+
+      this.deleteConfirmation = false;
     async deleteOrg() {
       // Check if user has permission
       if (this.org.orgOwnerID !== this.currentUser.userID) {
@@ -345,6 +509,15 @@ export default {
       this.deleteConfirmation = false;
     },
     editOrgUsers() {
+      // Check if user has permission
+      if (this.org.orgOwnerID !== this.currentUser.userID) {
+        this.showNotification(
+          "error",
+          "You do not have permission to edit organization users",
+        );
+        return;
+      }
+
       // Check if user has permission
       if (this.org.orgOwnerID !== this.currentUser.userID) {
         this.showNotification('error', 'You do not have permission to edit organization users');

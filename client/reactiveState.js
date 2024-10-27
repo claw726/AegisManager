@@ -1,11 +1,11 @@
-import Vue from 'vue';
+import Vue from "vue";
 
 export const state = Vue.observable({
-    isLoggedIn: !!localStorage.getItem('CurrentUser'),
+  isLoggedIn: !!localStorage.getItem("CurrentUser"),
 });
 
 export const mutations = {
-    setLoginStatus(status) {
-        state.isLoggedIn = status;
-    },
+  setLoginStatus(status) {
+    state.isLoggedIn = status;
+  },
 };
