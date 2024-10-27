@@ -34,6 +34,14 @@
             />
           </div>
         </div>
+        <NotificationComponent
+          class="flex"
+          :show="notification.show"
+          :type="notification.type"
+          @close="closeNotification"
+        >
+          {{ notification.message }}
+        </NotificationComponent>
       </div>
     </div>
   </div>
@@ -44,6 +52,7 @@ import NavBar from "@/components/NavBar.vue";
 import { mapState } from "vuex";
 import AvailableUsersTable from "@/components/AvailableUsersTable.vue";
 import CurrentUsersTable from "@/components/CurrentUsersTable.vue";
+import NotificationComponent from "@/components/NotificationComponent.vue";
 
 export default {
   data() {
@@ -51,12 +60,18 @@ export default {
       availableUsers: [],
       members: [],
       showAddUsers: true,
+      notification: {
+        show: false,
+        type: "info",
+        message: "",
+      },
     };
   },
   components: {
     NavBar,
     AvailableUsersTable,
     CurrentUsersTable,
+    NotificationComponent,
   },
   computed: {
     ...mapState('auth', ["isLoggedIn", "currentUser"]),
@@ -69,36 +84,36 @@ export default {
       try {
         const orgID = this.$route.params.orgIndex;
         console.log(`Adding ${email} to org ${orgID}`);
-        const message = await this.$store.dispatch("organizations/addUserToOrganization", {
+        await this.$store.dispatch("organizations/addUserToOrganization", {
           orgID,
           email,
         });
-        alert(message);
         this.fetchOrgMembers();
       } catch (error) {
-        alert(
-          "Failed to add user to organization:" +
+        this.showNotification(
+            "error",
+            "Failed to add user to Project: " +
             (error.response?.data || error.message),
-        );
+          );
       }
     },
     async removeUser(email) {
       try {
         const orgID = this.$route.params.orgIndex;
-        const message = await this.$store.dispatch(
+        await this.$store.dispatch(
           "organizations/removeUserFromOrganization",
           {
             orgID,
             email,
           },
         );
-        alert(message);
         this.fetchOrgMembers();
       } catch (error) {
-        alert(
-          "Failed to remove member from organization: " +
+        this.showNotification(
+            "error",
+            "Failed to remove member from Project: " +
             (error.response?.data || error.message),
-        );
+          );
       }
     },
     toggleTable() {
@@ -108,7 +123,10 @@ export default {
       try {
         const orgID = this.$route.params.orgIndex;
         if (!orgID) {
-          throw new Error("Organization ID is not available!");
+          this.showNotification(
+            "error",
+            "This organization does not exist!",
+          );
         }
 
         // Fetch org members
@@ -129,10 +147,25 @@ export default {
           "Error fetching organization members or users:",
           error.message,
         );
-        alert(
-          "Failed to load organization members or available users. Please Try again later",
-        );
+        this.showNotification(
+            "error",
+            "Failed to fetch users",
+          );
       }
+    },
+    showNotification(type, message) {
+      this.notification = {
+        show: true,
+        type,
+        message,
+      };
+
+      if (type == "success") {
+        setTimeout(this.closeNotification, 5000);
+      }
+    },
+    closeNotification() {
+      this.notification.show = false;
     },
   },
 };

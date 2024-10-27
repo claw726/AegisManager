@@ -48,6 +48,14 @@
               >
             </div>
           </div>
+          <NotificationComponent
+          class="flex"
+          :show="notification.show"
+          :type="notification.type"
+          @close="closeNotification"
+        >
+          {{ notification.message }}
+        </NotificationComponent>
         </div>
       </div>
     </div>
@@ -57,10 +65,21 @@
 <script>
 import NavBar from "@/components/NavBar.vue";
 import { mapState } from "vuex";
+import NotificationComponent from "@/components/NotificationComponent.vue";
 
 export default {
   components: {
     NavBar,
+    NotificationComponent
+  },
+  data() {
+    return {
+      notification: {
+        show: false,
+        type: "info",
+        message: "",
+      },
+    }
   },
   computed: {
     ...mapState("auth", ["isLoggedIn", "currentUser"]),
@@ -69,9 +88,35 @@ export default {
     goToEditProfile() {
       this.$router.push({ name: "UpdateAccount" });
     },
-    resetPassword() {
-      this.$store.dispatch("auth/requestPasswordReset", this.currentUser.email);
-      alert("Password reset email sent!");
+    async resetPassword() {
+      try {
+        await this.$store.dispatch("auth/requestPasswordReset", this.currentUser.email);
+        this.showNotification(
+            "success",
+            "Sent a password request to " + this.currentUser.email,
+          );
+      } catch (error) {
+        this.showNotification(
+            "error",
+            "Failed to update password: " +
+            (error.response?.data || error.message),
+          );
+      }
+      
+    },
+    showNotification(type, message) {
+      this.notification = {
+        show: true,
+        type,
+        message,
+      };
+
+      if (type == "success") {
+        setTimeout(this.closeNotification, 5000);
+      }
+    },
+    closeNotification() {
+      this.notification.show = false;
     },
   },
 };

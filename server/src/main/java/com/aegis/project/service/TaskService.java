@@ -171,6 +171,7 @@ public class TaskService {
 
         taskRepository.save(task);
 
+        
         Set<TaskModel> projectTasks = parentProject.getProjectTasks();
         projectTasks.add(task);
         projectRepository.save(parentProject);

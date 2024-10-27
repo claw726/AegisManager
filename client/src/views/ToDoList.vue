@@ -1,7 +1,7 @@
 <template>
   <NavBar />
   <div class="bg-background flex flex-col items-center min-h-screen h-full">
-    <div class="flex flex-col items-center space-y-8 mt-12">
+    <div class="flex flex-col items-center w-full max-w-7xl px-4 mx-auto space-y-8 mt-12">
       <h1 class="text-4xl font-bold text-hunter-green mb-6">To Do List</h1>
 
       <div class="h-1 bg-accent drop-shadow-lg rounded mx-16 flex w-screen" />
@@ -20,7 +20,7 @@
           <button 
             @click="isFilterMenuOpen = !isFilterMenuOpen"
             class="flex items-center px-4 py-2 rounded-md 
-          hover:bg-blue-50 transition-all duration-200 
+            hover:bg-blue-50 transition-all duration-200 
             border border-gray-200 hover:border-blue-300 
             hover:shadow-md group">
               <i class="fas fa-sliders-h mr-2 text-blue-600 
