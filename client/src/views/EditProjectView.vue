@@ -110,7 +110,7 @@ export default {
     NavBar,
   },
   computed: {
-    ...mapState('auth', ["isLoggedIn", "currentUser"]),
+    ...mapState("auth", ["isLoggedIn", "currentUser"]),
   },
   created() {
     this.getProjectData();
@@ -127,7 +127,10 @@ export default {
     },
     async getProjectData() {
       const projIndex = this.$route.params.projIndex;
-      const proj = await this.$store.dispatch("projects/fetchProject", projIndex);
+      const proj = await this.$store.dispatch(
+        "projects/fetchProject",
+        projIndex,
+      );
       this.modifiedProject = proj;
     },
 

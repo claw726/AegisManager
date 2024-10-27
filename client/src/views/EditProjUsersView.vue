@@ -59,7 +59,7 @@ export default {
     CurrentUsersTable,
   },
   computed: {
-    ...mapState('auth', ["isLoggedIn", "currentUser"]),
+    ...mapState("auth", ["isLoggedIn", "currentUser"]),
   },
   mounted() {
     this.fetchProjMembers();
@@ -69,10 +69,13 @@ export default {
       try {
         const projectID = this.$route.params.projIndex;
         console.log(`Adding ${email} to proj ${projectID}`);
-        const message = await this.$store.dispatch("projects/addUserToProject", {
-          projectID,
-          email,
-        });
+        const message = await this.$store.dispatch(
+          "projects/addUserToProject",
+          {
+            projectID,
+            email,
+          },
+        );
         alert(message);
         this.fetchProjMembers();
       } catch (error) {
@@ -85,10 +88,13 @@ export default {
     async removeUser(email) {
       try {
         const projectID = this.$route.params.projIndex;
-        const message = await this.$store.dispatch("projects/removeUserFromProject", {
-          projectID,
-          email,
-        });
+        const message = await this.$store.dispatch(
+          "projects/removeUserFromProject",
+          {
+            projectID,
+            email,
+          },
+        );
         alert(message);
         this.fetchProjMembers();
       } catch (error) {
@@ -117,7 +123,10 @@ export default {
         console.log("Organization Members:", this.members);
 
         // Fetch all org users
-        const allUsers = await this.$store.dispatch("organizations/fetchOrgMembers", orgID);
+        const allUsers = await this.$store.dispatch(
+          "organizations/fetchOrgMembers",
+          orgID,
+        );
         console.log("All org Users:", allUsers);
 
         // Filter out users who are not a member of this project

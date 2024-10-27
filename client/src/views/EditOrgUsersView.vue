@@ -59,7 +59,7 @@ export default {
     CurrentUsersTable,
   },
   computed: {
-    ...mapState('auth', ["isLoggedIn", "currentUser"]),
+    ...mapState("auth", ["isLoggedIn", "currentUser"]),
   },
   mounted() {
     this.fetchOrgMembers();
@@ -69,10 +69,13 @@ export default {
       try {
         const orgID = this.$route.params.orgIndex;
         console.log(`Adding ${email} to org ${orgID}`);
-        const message = await this.$store.dispatch("organizations/addUserToOrganization", {
-          orgID,
-          email,
-        });
+        const message = await this.$store.dispatch(
+          "organizations/addUserToOrganization",
+          {
+            orgID,
+            email,
+          },
+        );
         alert(message);
         this.fetchOrgMembers();
       } catch (error) {
@@ -112,7 +115,10 @@ export default {
         }
 
         // Fetch org members
-        this.members = await this.$store.dispatch("organizations/fetchOrgMembers", orgID);
+        this.members = await this.$store.dispatch(
+          "organizations/fetchOrgMembers",
+          orgID,
+        );
         console.log("Organization Members:", this.members);
 
         // Fetch all users

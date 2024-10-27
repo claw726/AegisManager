@@ -1,7 +1,7 @@
 <template>
   <div v-if="isLoggedIn && proj" class="min-h-screen bg-background">
     <NavBar />
-    
+
     <!-- Notifications -->
     <NotificationComponent
       v-model:show="notification.show"
@@ -20,13 +20,13 @@
             <div class="relative group">
               <div class="aspect-video rounded-lg overflow-hidden">
                 <img
-                :src="
-                  proj.encodedImage ||
-                  'https://d31kswug2i6wp2.cloudfront.net/fallback/company/medium_logo_default.png'
-                "
-                alt="Organization Logo"
-                class="object-cover h-48 transition-transform duration-300 transform hover:scale-105"
-              />
+                  :src="
+                    proj.encodedImage ||
+                    'https://d31kswug2i6wp2.cloudfront.net/fallback/company/medium_logo_default.png'
+                  "
+                  alt="Organization Logo"
+                  class="object-cover h-48 transition-transform duration-300 transform hover:scale-105"
+                />
               </div>
               <div
                 v-if="currentUser.userID === proj.projectOwnerID"
@@ -208,8 +208,8 @@ export default {
       isLoaded: false,
       notification: {
         show: false,
-        type: 'info',
-        message: '',
+        type: "info",
+        message: "",
       },
     };
   },
@@ -249,7 +249,10 @@ export default {
           this.$route.params.projIndex,
         );
       } catch (err) {
-        this.showNotification('error', 'There was an error fetching the organization data');
+        this.showNotification(
+          "error",
+          "There was an error fetching the organization data",
+        );
         this.$router.push({ name: "OrganizationDashboard" });
       }
     },
@@ -260,7 +263,7 @@ export default {
           this.proj.projectOwnerID,
         );
       } catch (error) {
-        this.showNotification('error', 'Error getting project owner info');
+        this.showNotification("error", "Error getting project owner info");
       }
     },
     async getAllProjectTasks() {
@@ -271,12 +274,15 @@ export default {
           projID,
         );
       } catch (error) {
-        this.showNotification('error', 'Error getting project tasks');
+        this.showNotification("error", "Error getting project tasks");
       }
     },
     editProject() {
       if (this.proj.projectOwnerID !== this.currentUser.userID) {
-        this.showNotification('error', 'You are not authorized to modify this project.');
+        this.showNotification(
+          "error",
+          "You are not authorized to modify this project.",
+        );
         return;
       }
       this.$router.push({
@@ -289,12 +295,19 @@ export default {
     },
     async deleteProject() {
       if (this.proj.projectOwnerID !== this.currentUser.userID) {
-        this.showNotification('error', 'You are not authorized to delete this project.');
+        this.showNotification(
+          "error",
+          "You are not authorized to delete this project.",
+        );
         return;
       }
 
       // Show confirmation notification
-      this.showNotification('warning', 'Are you sure you want to delete this project? Click again to confirm.', 0);
+      this.showNotification(
+        "warning",
+        "Are you sure you want to delete this project? Click again to confirm.",
+        0,
+      );
 
       // Set up confirmation action
       if (!this.deleteConfirmation) {
@@ -310,16 +323,16 @@ export default {
         await this.$store.dispatch("projects/deleteProject", {
           projectID: this.$route.params.projIndex,
         });
-        
-        this.showNotification('success', 'Project deleted successfully!');
+
+        this.showNotification("success", "Project deleted successfully!");
         setTimeout(() => {
           this.$router.push({ name: "OrganizationDashboard" });
         }, 1500);
       } catch (err) {
-        this.showNotification('error', 'Failed to delete project');
+        this.showNotification("error", "Failed to delete project");
         console.error(err);
       }
-      
+
       this.deleteConfirmation = false;
     },
     editProjUsers() {
