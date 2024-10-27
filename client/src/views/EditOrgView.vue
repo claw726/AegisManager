@@ -189,9 +189,6 @@ export default {
     handleImageChange(event) {
       this.projImg = event.target.files[0];
     },
-    selectUsers() {
-      alert("Not Implementing. Selecting all users");
-    },
     triggerFileInput() {
       this.$refs.fileInput.click();
     },

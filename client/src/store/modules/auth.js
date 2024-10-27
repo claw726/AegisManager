@@ -148,7 +148,7 @@ const actions = {
     try {
       const params = new URLSearchParams();
       params.append("email", email);
-      const response = await axios.post(params, {
+      const response = await axios.post("/api/auth/requestPasswordReset", params, {
         headers: {
           Authorization: `Bearer ${state.authToken}`,
         },

@@ -251,12 +251,10 @@ export default {
           reader.readAsDataURL(file);
         } catch (error) {
           console.error("Error compressing image:", error);
-          alert(
-            "An error occurred while compressing the image. Please try again with a new file.",
-          );
+          this.errors.general = "An error occurred while compressing the image. Please try again with a new file."
         }
       } else {
-        alert("Please select a valid image format.");
+        this.errors.general = "Please select a valid image format.";
       }
     },
     async submitForm() {

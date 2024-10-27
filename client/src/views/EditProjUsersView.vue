@@ -34,6 +34,14 @@
             />
           </div>
         </div>
+        <NotificationComponent
+          class="flex"
+          :show="notification.show"
+          :type="notification.type"
+          @close="closeNotification"
+        >
+          {{ notification.message }}
+        </NotificationComponent>
       </div>
     </div>
   </div>
@@ -44,6 +52,7 @@ import NavBar from "@/components/NavBar.vue";
 import { mapState } from "vuex";
 import AvailableUsersTable from "@/components/AvailableUsersTable.vue";
 import CurrentUsersTable from "@/components/CurrentUsersTable.vue";
+import NotificationComponent from "@/components/NotificationComponent.vue";
 
 export default {
   data() {
@@ -51,12 +60,18 @@ export default {
       availableUsers: [],
       members: [],
       showAddUsers: true,
+      notification: {
+        show: false,
+        type: "info",
+        message: "",
+      },
     };
   },
   components: {
     NavBar,
     AvailableUsersTable,
     CurrentUsersTable,
+    NotificationComponent,
   },
   computed: {
     ...mapState("auth", ["isLoggedIn", "currentUser"]),

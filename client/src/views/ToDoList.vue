@@ -1,7 +1,9 @@
 <template>
   <NavBar />
   <div class="bg-background flex flex-col items-center min-h-screen h-full">
-    <div class="flex flex-col items-center space-y-8 mt-12">
+    <div
+      class="flex flex-col items-center w-full max-w-7xl px-4 mx-auto space-y-8 mt-12"
+    >
       <h1 class="text-4xl font-bold text-hunter-green mb-6">To Do List</h1>
 
       <div class="h-1 bg-accent drop-shadow-lg rounded mx-16 flex w-screen" />
