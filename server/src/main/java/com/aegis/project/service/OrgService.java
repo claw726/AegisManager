@@ -111,7 +111,7 @@ public class OrgService {
                 .collect(Collectors.toSet());
     }
 
-    public void updateOrg(int orgID, String orgName, String orgDescription, int orgOwnerID) {
+    public void updateOrg(int orgID, String orgName, String orgDescription, int orgOwnerID, String encodedImage) {
         OrgModel org = orgRepository.findById(orgID)
                 .orElseThrow(() -> new RuntimeException("Org not found with id: " + orgID));
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -127,6 +127,7 @@ public class OrgService {
         org.setOrgName(orgName);
         org.setOrgDescription(orgDescription);
         org.setOrgOwnerID(orgOwnerID);
+        org.setEncodedImage(encodedImage);
         orgRepository.save(org);
     }
 

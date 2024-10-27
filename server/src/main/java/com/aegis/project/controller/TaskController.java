@@ -86,7 +86,7 @@ public class TaskController {
     }
 
     @PostMapping("/updateTaskCompletionStatus")
-    public ResponseEntity<String> updateTaskCompletionStatus(int taskID, boolean completed) {
+    public ResponseEntity<String> updateTaskCompletionStatus(@RequestParam int taskID, @RequestParam boolean completed) {
         try {
             taskService.updateTaskCompletionStatus(taskID, completed);
             return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Task completion status updated successfully");
@@ -141,7 +141,7 @@ public class TaskController {
     }
 
     @DeleteMapping("/{taskID}/deleteTask")
-    public ResponseEntity<String> deleteTask(int taskID) {
+    public ResponseEntity<String> deleteTask(@PathVariable int taskID) {
         try {
             taskService.deleteTask(taskID);
             return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Taskdeleted successfully");
