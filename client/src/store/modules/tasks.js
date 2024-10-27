@@ -38,8 +38,6 @@ const mutations = {
 
 const actions = {
 
-
-
   async fetchTasks({ commit, rootState }) {
     try {
       const userID = rootState.auth.currentUser.userID;
@@ -89,6 +87,7 @@ const actions = {
       throw new Error(errorMessage);
     }
   },
+
   async fetchTask({ commit, rootState }, taskId) {
     commit('SET_LOADING', true);
     commit('SET_ERROR', null);
@@ -121,13 +120,9 @@ const actions = {
             errorMessage = error.response.data || errorMessage;
         }
       }
-      
-      commit('SET_ERROR', errorMessage);
-      throw new Error(errorMessage);
-    } finally {
-      commit('SET_LOADING', false);
     }
   },
+      
 
   async createTask({ commit, rootState }, task) {
     try {
