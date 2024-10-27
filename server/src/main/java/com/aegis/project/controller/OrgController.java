@@ -105,9 +105,12 @@ public class OrgController {
     @PostMapping("/{orgID}/update")
     public ResponseEntity<String> updateOrg(@PathVariable int orgID, @RequestParam String orgName, @RequestParam String orgDescription, @RequestParam int orgOwnerID) {
         try {
+            logger.info("Received request to update org #{}", orgID);
             orgService.updateOrg(orgID, orgName, orgDescription, orgOwnerID);
+            logger.info("Successfully updated org {}", orgID);
             return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Org updated successfully");
         } catch (RuntimeException e) {
+            logger.error("Error updating org {}: " + e.getMessage(), orgID);
             if (e.getMessage().contains("Org not found with id:")) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
             } else if (e.getMessage().contains("User not found with email:")) {
