@@ -56,7 +56,6 @@ const actions = {
         commit("SET_ERROR", "Registration failed. Please try again.");
       }
 
-      
     } catch (error) {
       let errorMessage = "An unexpected error occurred. Please try again.";
 
@@ -81,7 +80,6 @@ const actions = {
         errorMessage = error.message;
       }
 
-      console.error("Failed to register user: ", errorMessage);
       commit("SET_ERROR", errorMessage);
       throw new Error(errorMessage);
     }
