@@ -102,6 +102,7 @@
 
 <script>
 import { mapState } from 'vuex';
+import DropdownMenu from "@/components/DropdownMenu.vue";
 
 
 
@@ -144,6 +145,10 @@ export default {
   mounted() {
     this.taskId = this.$route.query.taskId;
     this.task = this.getTaskfromStorage(this.taskId);
+  },
+
+  components: {
+    DropdownMenu,
   },
 
   computed: {

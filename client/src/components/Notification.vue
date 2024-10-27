@@ -61,7 +61,7 @@ export default {
 /* Add styles for different types */
 .info {
   background-color: #e0f3fe;
-  color: #2196f3;
+  color: #10426b;
 }
 
 .success {

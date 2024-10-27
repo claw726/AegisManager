@@ -409,5 +409,29 @@ export default new Vuex.Store({
         throw new Error("Failed to fetch project");
       }
     },
+
+    async modifyTask({ state }, { task }) {
+      try {
+        const params = new URLSearchParams();
+        params.append("taskID", task.taskID);
+        params.append("taskName", task.taskName);
+        params.append("taskDescription", task.taskDescription);
+        params.append("assignerID", task.assignerID);
+        params.append("taskPriority", task.taskPriority);
+        params.append("dueDate", task.dueDate);
+        params.append("isComplete", task.isComplete);
+        
+        const response = await axios.post(`/api/tasks/${taskID}/update`, params, {
+          headers: {
+            "Content-Type": "application/x-www-form-urlencoded",
+            Authorization: `Bearer ${state.authToken}`,
+          },
+        });
+        return response.data;
+      } catch (error) {
+        console.error("Failed to modify task:", error.response.data);
+        throw new Error("Failed to modify task");
+      }
+    },
   },
 });
