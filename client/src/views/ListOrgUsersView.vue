@@ -44,8 +44,8 @@
 </template>
 
 <script>
-import NavBar from "../components/NavBar.vue";
-import Notification from "../components/Notification.vue";
+import NavBar from "@/components/NavBar.vue";
+import Notification from "@/components/NotificationComponent.vue";
 
 export default {
   name: "OrganizationUsersPage",
