@@ -113,7 +113,7 @@ export default {
     },
   },
   methods: {
-    ...mapActions(["updateUser"]),
+    ...mapActions('users', ["updateUser"]),
     async handleFileUpload(event) {
       event.preventDefault();
       const file = event.target.files[0];

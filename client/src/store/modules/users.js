@@ -55,8 +55,34 @@ const actions = {
       throw error;
     }
   },
-  // Other project-related actions
+  async updateUser({ commit, rootState, dispatch }, updatedDetails) {
+    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
+    if (!emailRegex.test(updatedDetails.email)) {
+      throw new Error("Please enter a valid email address.");
+    }
+
+    try {
+      const response = await axios.put(
+        `/api/users/${rootState.auth.currentUser.userID}/update`,
+        new URLSearchParams(updatedDetails),
+        {
+          headers: {
+            Authorization: `Bearer ${rootState.auth.authToken}`,
+            "Content-Type": "application/x-www-form-urlencoded",
+          },
+        }
+      );
+      const user = await dispatch("fetchUserAccountByEmail", updatedDetails.email);
+      commit("auth/setCurrentUser", user, { root: true });
+
+      return response.data;
+    } catch (error) {
+      console.error("Error updating user details:", error);
+      throw new Error("Failed to update user details.");
+    }
+  },
 };
+
 
 export default {
   namespaced: true,
