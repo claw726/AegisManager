@@ -90,7 +90,7 @@ export default {
 
 
  computed: {
-   ...mapState(["isLoggedIn"]),
+   ...mapState(["isLoggedIn", "currentUser"]),
  },
  data() {
    return {
@@ -119,13 +119,13 @@ export default {
 
    callCreateTask() {
     const t = {
-       dueDate: "2024-11-01T05:11.111Z", //this.task.dueDate.toString();
-       taskName: "Trying to create task", //this.task.taskName,
-       taskDescription: "what happens next?", //this.task.taskDescription;
-       taskPriority: "High", //this.task.taskPriority;
-       assignerID : 9, //parseInt(this.$route.params.userID, 10);
-       parentProjectID : 6, //parseInt(this.$route.params.projIndex, 10),
-       parentOrgID : 3, //parseInt(this.$route.params.orgIndex, 10),
+       dueDate: this.task.dueDate.toString().concat("T11:00:11.000Z") ,
+       taskName: this.task.taskName,
+       taskDescription: this.task.taskDescription,
+       taskPriority: this.task.taskPriority,
+       assignerID : 9, //NEED TO FIX, FOR NOW HARDCODING USERID this.currentUser.userID
+       parentProjectID : parseInt(this.$route.params.projIndex, 10),
+       parentOrgID : parseInt(this.$route.params.orgIndex, 10),
      }
 
      console.log(t);
