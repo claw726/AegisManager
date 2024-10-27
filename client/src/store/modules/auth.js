@@ -4,9 +4,17 @@ const state = {
   isLoggedIn: false,
   currentUser: null,
   authToken: null,
+  loading: false,
+  error: null,
 };
 
 const mutations = {
+  SET_LOADING(state, status) {
+    state.loading = status;
+  },
+  SET_ERROR(state, error) {
+    state.error = error;
+  },
   setCurrentUser(state, user) {
     state.currentUser = user;
   },
@@ -23,7 +31,10 @@ const mutations = {
 };
 
 const actions = {
-  async register({ dispatch }, { email, name, password, profilePicture }) {
+  async register({ commit, dispatch }, { email, name, password, profilePicture }) {
+    // Clear previous errors
+    commit('SET_ERROR', null);
+
     try {
       const params = new URLSearchParams();
       params.append("email", email);
@@ -37,13 +48,45 @@ const actions = {
         },
       });
 
-      alert(response.data);
-      await dispatch("login", { email, password });
+      if (response.data == "User created successfully") {
+        // Automatically log in the user after successful registration
+      
+        await dispatch("login", { email, password });
+      } else {
+        commit("SET_ERROR", "Registration failed. Please try again.");
+      }
+
+      
     } catch (error) {
-      console.error("Failed to register:", error.response.data);
-      alert("Registration failed: " + error.response.data);
+      let errorMessage = "An unexpected error occurred. Please try again.";
+
+      // Handle specific error responses
+      if (error.response) {
+        switch (error.response.status) {
+          case 400:
+            errorMessage = "Invalid input. Please check your details."; // General error for bad requests
+            break;
+          case 409: // Conflict, e.g., email already exists
+            errorMessage = "Email already exists. Please use a different email.";
+            break;
+          case 500:
+            errorMessage = "Server error. Please try again later.";
+            break;
+          default: error.response.data.message || "An unexpected error occurred. Please try again.";
+        }
+      } else if (error.request) {
+        // Network error or other issues
+        errorMessage = "Unable to connect to the server. Please check your internet connection. Is the server running? 🤔";
+      } else {
+        errorMessage = error.message;
+      }
+
+      console.error("Failed to register user: ", errorMessage);
+      commit("SET_ERROR", errorMessage);
+      throw new Error(errorMessage);
     }
   },
+
   async login({ commit, dispatch }, { email, password }) {
     try {
       const params = new URLSearchParams();
@@ -58,8 +101,8 @@ const actions = {
 
       const data = response.data;
 
-      if (response.data && response.data.token) {
-        commit("setAuthToken", response.data.token);
+      if (data && data.token) {
+        commit("setAuthToken", data.token);
         commit("setLogin", true);
         // Fetch user details after login
         const user = await dispatch("users/fetchUserAccountByEmail", email, {
@@ -70,13 +113,37 @@ const actions = {
         console.error("Login Failed:", data ? data : "No data received!");
         throw new Error("Login Failed!");
       }
+      commit("SET_ERROR", null);
     } catch (error) {
-      console.error(
-        "Failed to login:",
-        error.response ? error.response.data : error.message,
-      );
-      alert("Login failed");
-      throw error;
+      let errorMessage = "An unexpected error occurred. Please try again.";
+
+      if (error.response) {
+        // Handle specific error responses
+        switch (error.response.status) {
+          case 401:
+            errorMessage = "Incorrect password. Please try again.";
+            break;
+          case 404:
+            errorMessage = "Email not found. Please check your email.";
+            break;
+          case 400:
+            errorMessage = "Invalid request. Please check your input.";
+            break;
+          default:
+            errorMessage = error.response.data.message || errorMessage;
+        }
+      } else if (error.request) {
+        // The request was made but no response was received
+        errorMessage = "Unable to connect to the server. Please check your internet connection.";
+      } else {
+        // Something happened in setting up the request that triggered an Error
+        errorMessage = error.message;
+      }
+
+      console.error("Failed to login:", errorMessage);
+      // Optionally, you can commit an error message to the state
+      commit("SET_ERROR", errorMessage); // Assuming you have a mutation to handle errors
+      throw new Error(errorMessage); // Rethrow the error for further handling
     }
   },
   async requestPasswordReset({ state }, email) {

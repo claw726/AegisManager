@@ -14,11 +14,14 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.core.parameters.P;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 import com.aegis.project.service.UserService;
+
+import org.springframework.security.authentication.BadCredentialsException;
+import org.springframework.security.core.userdetails.UsernameNotFoundException;
+import org.springframework.security.core.AuthenticationException;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -72,37 +75,58 @@ public class AuthController {
                 return ResponseEntity.ok("User created successfully");
             } else {
                 logger.warn("User already exists with email: {}", email);
-                return ResponseEntity.badRequest().body("User already exists");
+                return ResponseEntity.status(HttpStatus.CONFLICT).body("User already exists");
             }
         } catch (Exception e) {
             logger.error("Error creating user: " + e.getMessage());
-            return ResponseEntity.internalServerError().body("There was an error creating the user");
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("There was an error creating the user");
         }
     }
 
-    // Login endpoint
     @PostMapping("/login")
     public ResponseEntity<Map<String, String>> loginUser(@RequestParam String email, @RequestParam String password) {
         Map<String, String> response = new HashMap<>();
-
-        logger.info("Recieved Login Request from: " + email);
+        
+        logger.info("Received Login Request from: " + email);
 
         try {
-            Authentication auth = authManager.authenticate(new UsernamePasswordAuthenticationToken(email, password));
-
+            Authentication auth = authManager.authenticate(
+                new UsernamePasswordAuthenticationToken(email, password)
+            );
+            
             String token = tokenService.generateToken(auth);
 
             response.put("message", "Login successful");
             response.put("token", token);
-
-            logger.info("Sending response to user: " + response);
-
+            
             return ResponseEntity.ok(response);
-        } catch (AuthenticationException e) {
-            response.put("message", "Login failed");
-            logger.error("Error authenticating user: " + email + " Error message: " + e.getMessage());
 
-            return ResponseEntity.badRequest().body(response);
+        } catch (AuthenticationException e) {
+            // Get the specific cause of the authentication failure
+            String errorMessage;
+            HttpStatus status;
+
+            if (e instanceof BadCredentialsException) {
+                errorMessage = "Invalid password";
+                status = HttpStatus.UNAUTHORIZED;
+                logger.warn("Invalid password attempt for user: " + email);
+            } else if (e instanceof UsernameNotFoundException) {
+                errorMessage = "Email not found";
+                status = HttpStatus.NOT_FOUND;
+                logger.warn("Login attempt with non-existent email: " + email);
+            } else {
+                errorMessage = "Authentication failed";
+                status = HttpStatus.UNAUTHORIZED;
+                logger.error("Authentication error for user: " + email + " Error: " + e.getMessage());
+            }
+
+            response.put("message", errorMessage);
+            return ResponseEntity.status(status).body(response);
+
+        } catch (Exception e) {
+            response.put("message", "An unexpected error occurred");
+            logger.error("Unexpected error during login for user: " + email + " Error: " + e.getMessage());
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(response);
         }
     }
 
