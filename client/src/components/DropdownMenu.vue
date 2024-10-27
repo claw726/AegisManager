@@ -7,11 +7,11 @@
       class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-white border border-gray-200 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200"
       :class="{ 'ring-2 ring-blue-500 ring-offset-2': isOpen }"
     >
-      <svg 
-        xmlns="http://www.w3.org/2000/svg" 
+      <svg
+        xmlns="http://www.w3.org/2000/svg"
         class="h-5 w-5 text-gray-600"
         :class="{ 'rotate-180': isOpen }"
-        viewBox="0 0 20 20" 
+        viewBox="0 0 20 20"
         fill="currentColor"
       >
         <path
@@ -44,10 +44,13 @@
             class="group flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors duration-150"
           >
             <!-- Item Icon (if provided) -->
-            <span v-if="item.icon" class="mr-3 h-5 w-5 text-gray-400 group-hover:text-blue-500">
+            <span
+              v-if="item.icon"
+              class="mr-3 h-5 w-5 text-gray-400 group-hover:text-blue-500"
+            >
               <component :is="item.icon" />
             </span>
-            
+
             <!-- Item Title -->
             <span class="flex-1">{{ item.title }}</span>
 
@@ -73,35 +76,40 @@
 
 <script>
 export default {
-  name: 'DropdownMenu',
+  name: "DropdownMenu",
   props: {
     items: {
       type: Array,
-      required: true
-    }
+      required: true,
+    },
   },
   data() {
     return {
-      isOpen: false
-    }
+      isOpen: false,
+    };
   },
   directives: {
-    'click-outside': {
+    "click-outside": {
       mounted(el, binding) {
-        el.clickOutsideEvent = function(event) {
+        el.clickOutsideEvent = function (event) {
           // Add check to prevent closing when clicking the trigger button
           const triggerButton = el.previousElementSibling;
-          if (!(el === event.target || el.contains(event.target)) && 
-              !(triggerButton === event.target || triggerButton.contains(event.target))) {
+          if (
+            !(el === event.target || el.contains(event.target)) &&
+            !(
+              triggerButton === event.target ||
+              triggerButton.contains(event.target)
+            )
+          ) {
             binding.value(event);
           }
         };
-        document.addEventListener('click', el.clickOutsideEvent);
+        document.addEventListener("click", el.clickOutsideEvent);
       },
       unmounted(el) {
-        document.removeEventListener('click', el.clickOutsideEvent);
-      }
-    }
+        document.removeEventListener("click", el.clickOutsideEvent);
+      },
+    },
   },
   methods: {
     toggleMenu(event) {
@@ -117,19 +125,18 @@ export default {
         item.command();
       }
       this.closeMenu();
-    }
+    },
   },
   mounted() {
     // Close menu on escape key
-    document.addEventListener('keydown', (e) => {
-      if (e.key === 'Escape' && this.isOpen) {
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && this.isOpen) {
         this.closeMenu();
       }
     });
   },
   beforeUnmount() {
-    document.removeEventListener('keydown', this.closeMenu);
-  }
-}
+    document.removeEventListener("keydown", this.closeMenu);
+  },
+};
 </script>
-
