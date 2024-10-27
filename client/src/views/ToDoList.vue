@@ -1,6 +1,6 @@
 <template>
   <NavBar />
-  <div class="bg-white flex flex-col items-center min-h-screen h-full">
+  <div class="bg-background flex flex-col items-center min-h-screen h-full">
     <div class="flex flex-col items-center space-y-8 mt-12">
       <h1 class="text-4xl font-bold text-hunter-green mb-6">To Do List</h1>
 
@@ -67,7 +67,7 @@
                 </div>
 
                 <!-- Assigner Filter -->
-                <div class="space-y-1">
+                <div class="space-y-1" v-if="uniqueAssigners">
                   <label class="text-sm text-gray-600">Assigner</label>
                   <select 
                     v-model="selectedAssigner"
@@ -148,6 +148,15 @@
                     <i class="fas fa-times"></i>
                   </button>
                 </span>
+                <span 
+                  v-if="selectedAssigner"
+                  class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800"
+                >
+                  Assigned By: {{ getAssignerName(selectedAssigner) }}
+                  <button @click="selectedAssigner = ''" class="ml-2 text-blue-600 hover:text-blue-800">
+                    <i class="fas fa-times"></i>
+                  </button>
+                </span>
                 <!-- Add similar spans for other active filters -->
               </div>
             </div>
@@ -187,12 +196,19 @@ export default {
     return {
       isFilterMenuOpen: false,
       selectedPriority: '',
-      selectedAssigner: '',
+      selectedAssigner: null,
+      selectedAssignerName: '',
       selectedProject: '',
       selectedOrg: '',
       sortField: 'dueDate',
       sortOrder: 'asc',
+      uniqueAssigners: {},
     };
+  },
+
+  async mounted() {
+    this.fetchTasks();
+    await this.fetchUniqueAssigners();
   },
 
   computed: {
@@ -243,13 +259,6 @@ export default {
       return tasks;
     },
 
-    uniqueAssigners() {
-      return [...new Set(this.tasks.map(task => ({
-        id: task.assignerID,
-        name: task.assignerName
-      })))];
-    },
-
     uniqueProjects() {
       return [...new Set(this.tasks.map(task => ({
         id: task.parentProjectID,
@@ -265,12 +274,28 @@ export default {
     },
   },
 
-  created() {
-    this.fetchTasks();
-  },
-
   methods: {
     ...mapActions('tasks', ['fetchTasks']),
+
+    async fetchUniqueAssigners() {
+      // Get unique assigner IDs from tasks
+      const assignerIDs = [...new Set(this.tasks.map(task => task.assignerID))];
+
+      // Use Promise.all to wait for all user fetches to complete
+      const assigners = await Promise.all(assignerIDs.map(async (id) => {
+        const user = await this.$store.dispatch("users/fetchUserAccountByID", id);
+        return {
+          id,
+          name: user ? user.userName : 'Unknown User', // Adjust based on your user object structure
+        };
+      }));
+      this.uniqueAssigners = assigners;
+    },
+
+    getAssignerName(assignerID) {
+      const assigner = this.uniqueAssigners.find(assigner => assigner.id === assignerID);
+      return assigner ? assigner.name : 'Unknown User';
+    },
 
     filterTasks() {
       // Method kept for potential future use
