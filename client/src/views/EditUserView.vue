@@ -61,27 +61,26 @@
       </div>
     </div>
 
-    <Notification
+    <NotificationComponent
       v-if="notification.show"
       :type="notification.type"
       @close="notification.show = false"
     >
       {{ notification.message }}
-    </Notification>
+    </NotificationComponent>
   </div>
 </template>
 
 <script>
 import NavBar from "@/components/NavBar.vue";
-import Notification from "@/components/Notification.vue";
-import {mapActions, mapState} from "vuex";
-import axios from "axios";
+import NotificationComponent from "@/components/NotificationComponent.vue";
+import { mapActions, mapState } from "vuex";
 import imageCompression from "browser-image-compression";
 
 export default {
   components: {
     NavBar,
-    Notification,
+    NotificationComponent,
   },
   data() {
     return {
@@ -97,7 +96,7 @@ export default {
     };
   },
   computed: {
-    ...mapState('auth', ["isLoggedIn", "currentUser"]),
+    ...mapState("auth", ["isLoggedIn", "currentUser"]),
   },
   // Watch for changes in the currentUser object and update the data properties accordingly
   watch: {
