@@ -9,14 +9,16 @@
           <!-- Left Column - Logo & Settings -->
           <div class="flex flex-col items-center">
             <div class="relative group">
-              <img
+              <div class="aspect-video rounded-lg overflow-hidden">
+                <img
                 :src="
                   proj.encodedImage ||
                   'https://d31kswug2i6wp2.cloudfront.net/fallback/company/medium_logo_default.png'
                 "
                 alt="Organization Logo"
-                class="w-48 h-48 rounded-full object-cover ring-4 ring-blue-50 shadow-xl"
+                class="object-cover h-48 transition-transform duration-300 transform hover:scale-105"
               />
+              </div>
               <div
                 v-if="currentUser.userID === proj.projectOwnerID"
                 class="absolute bottom-2 right-2"

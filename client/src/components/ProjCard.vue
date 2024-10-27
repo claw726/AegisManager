@@ -3,9 +3,13 @@
     @click="goToProj()"
     class="flex flex-col justify-between p-6 bg-white rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 cursor-pointer"
   >
-    <!-- Image -->
+     <!-- Image -->
     <div class="aspect-video rounded-lg overflow-hidden">
-      <img :src="project.encodedImage" alt="Project Image" class="c" />
+      <img
+        :src="project.encodedImage"
+        alt="Project Image"
+        class="object-cover w-full h-full transition-transform duration-300 transform hover:scale-105"
+      />
     </div>
 
     <div class="h-1 bg-accent my-4 rounded" />
@@ -85,7 +89,6 @@ export default {
         });
       } catch (error) {
         console.error("Failed to navigate to project dashboard:", error);
-        alert("Failed to navigate to project dashboard.");
       }
     },
   },
