@@ -54,7 +54,7 @@ public class TaskController {
     }
 
     @GetMapping("/getAllUserTasks")
-    public ResponseEntity<List<TaskModel>> getAllUserTasks(@RequestParam int userID, @RequestParam(required = false, defaultValue = "-1") int orgID, @RequestParam(required = false, defaultValue = "-1") int projectID) {
+    public ResponseEntity<Set<TaskDTO>> getAllUserTasks(@RequestParam int userID, @RequestParam(required = false, defaultValue = "-1") int orgID, @RequestParam(required = false, defaultValue = "-1") int projectID) {
         logger.info("Received task retrieval request for user ID: {}, org ID: {}, projectID: {} ", userID, orgID, projectID);
         try {
             return ResponseEntity.ok(taskService.getAllUserTasks(userID, orgID, projectID));
