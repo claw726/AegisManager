@@ -2,7 +2,6 @@
   <div v-if="isLoggedIn && proj" class="min-h-screen bg-background">
     <NavBar />
 
-    <!-- Notifications -->
     <NotificationComponent
       v-model:show="notification.show"
       :type="notification.type"
@@ -11,9 +10,39 @@
       {{ notification.message }}
     </NotificationComponent>
 
-    <!-- Project Header Section -->
-    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div v-if="proj" class="bg-white rounded-2xl shadow-lg p-8">
+    <!-- Back Button and Breadcrumb Navigation -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
+      <div class="flex items-center space-x-4">
+        <button
+          @click="goBack"
+          class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+        >
+          <i class="fas fa-arrow-left mr-2"></i>
+          Back to Organization
+        </button>
+        <nav class="flex" aria-label="Breadcrumb">
+          <ol class="flex items-center space-x-2">
+            <li>
+              <router-link
+                :to="{ name: 'OrganizationDashboard' }"
+                class="text-gray-500 hover:text-gray-700"
+              >
+                Organization
+              </router-link>
+            </li>
+            <li class="text-gray-500">/</li>
+            <li class="font-medium text-gray-900">{{ proj.projectName }}</li>
+          </ol>
+        </nav>
+      </div>
+    </div>
+
+    <!-- Project Header Section with enhanced styling -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
+      <div
+        v-if="proj"
+        class="bg-white rounded-2xl shadow-lg p-8 border border-gray-100"
+      >
         <div class="flex flex-col md:flex-row gap-8">
           <!-- Left Column - Logo & Settings -->
           <div class="flex flex-col items-center">
@@ -56,26 +85,34 @@
             </div>
           </div>
 
-          <!-- Right Column - Project Info -->
-          <div class="flex-1 space-y-4">
-            <h1 class="text-4xl font-bold text-gray-900">
-              {{ proj.projectName }}
-            </h1>
-            <p class="text-xl text-gray-600">{{ proj.projectDescription }}</p>
-            <div class="flex items-center space-x-2 text-sm text-gray-500">
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="h-4 w-4"
-                viewBox="0 0 20 20"
-                fill="currentColor"
+          <!-- Right Column - Project Info with enhanced typography -->
+          <div class="flex-1 space-y-6">
+            <div>
+              <h1 class="text-4xl font-bold text-gray-900 mb-2">
+                {{ proj.projectName }}
+              </h1>
+              <div
+                class="flex items-center space-x-2 text-sm text-gray-500 mb-4"
               >
-                <path
-                  d="M9 6a3 3 0 11-6 0 3 3 0 016 0zM17 6a3 3 0 11-6 0 3 3 0 016 0zM12.93 17c.046-.327.07-.66.07-1a6.97 6.97 0 00-1.5-4.33A5 5 0 0119 16v1h-6.07zM6 11a5 5 0 015 5v1H1v-1a5 5 0 015-5z"
-                />
-              </svg>
-              <span v-if="creator.userName"
-                >Created by {{ creator.userName }}</span
+                <i class="fas fa-user-circle"></i>
+                <span v-if="creator.userName"
+                  >Created by {{ creator.userName }}</span
+                >
+              </div>
+            </div>
+            <p class="text-xl text-gray-600 leading-relaxed">
+              {{ proj.projectDescription }}
+            </p>
+            <div class="flex flex-wrap gap-4 pt-4">
+              <div
+                class="flex items-center space-x-2 bg-blue-50 px-4 py-2 rounded-lg"
               >
+                <i class="fas fa-tasks text-blue-600"></i>
+                <span class="text-blue-600 font-medium">
+                  {{ tasks.length }} Tasks
+                </span>
+              </div>
+              <!-- Add more project stats here -->
             </div>
           </div>
         </div>
@@ -83,35 +120,16 @@
       <div v-else class="text-center py-12">
         <div class="animate-pulse flex justify-center items-center">
           <div class="h-8 w-8 mr-2">
-            <svg
-              class="animate-spin h-8 w-8 text-blue-500"
-              xmlns="http://www.w3.org/2000/svg"
-              fill="none"
-              viewBox="0 0 24 24"
-            >
-              <circle
-                class="opacity-25"
-                cx="12"
-                cy="12"
-                r="10"
-                stroke="currentColor"
-                stroke-width="4"
-              ></circle>
-              <path
-                class="opacity-75"
-                fill="currentColor"
-                d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"
-              ></path>
-            </svg>
+            <i class="fas fa-spinner fa-spin text-blue-500 text-2xl"></i>
           </div>
           <span class="text-lg text-gray-600">Loading Project data...</span>
         </div>
       </div>
     </div>
 
-    <!-- Search and Create Section -->
+    <!-- Search and Create Section with improved styling -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
-      <div class="bg-white rounded-xl shadow-md p-6">
+      <div class="bg-white rounded-xl shadow-md p-6 border border-gray-100">
         <div
           class="flex flex-col md:flex-row items-center justify-between gap-4"
         >
@@ -119,45 +137,26 @@
             <div class="relative">
               <input
                 type="text"
-                class="w-full pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
-                placeholder="Search projects..."
+                class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
+                placeholder="Search tasks..."
               />
-              <svg
-                xmlns="http://www.w3.org/2000/svg"
-                class="h-5 w-5 text-gray-400 absolute left-3 top-2.5"
-                viewBox="0 0 20 20"
-                fill="currentColor"
-              >
-                <path
-                  fill-rule="evenodd"
-                  d="M8 4a4 4 0 100 8 4 4 0 000-8zM2 8a6 6 0 1110.89 3.476l4.817 4.817a1 1 0 01-1.414 1.414l-4.816-4.816A6 6 0 012 8z"
-                  clip-rule="evenodd"
-                />
-              </svg>
+              <i
+                class="fas fa-search text-gray-400 absolute left-3 top-3.5"
+              ></i>
             </div>
           </div>
           <button
             @click="goToCreateTask"
-            class="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition duration-200"
+            class="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition duration-200 shadow-sm"
           >
-            <svg
-              xmlns="http://www.w3.org/2000/svg"
-              class="h-5 w-5 mr-2"
-              viewBox="0 0 20 20"
-              fill="currentColor"
-            >
-              <path
-                fill-rule="evenodd"
-                d="M10 3a1 1 0 011 1v5h5a1 1 0 110 2h-5v5a1 1 0 11-2 0v-5H4a1 1 0 110-2h5V4a1 1 0 011-1z"
-                clip-rule="evenodd"
-              />
-            </svg>
+            <i class="fas fa-plus mr-2"></i>
             Create New Task
           </button>
         </div>
       </div>
     </div>
-    <!-- List of Tasks -->
+
+    <!-- List of Tasks with improved empty state -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div
         v-if="tasks && tasks.length > 0"
@@ -170,8 +169,14 @@
           :taskIndex="index"
         />
       </div>
-      <div v-else class="text-center py-12">
-        <p class="text-gray-500">You have no tasks assigned to you! 🎉.</p>
+      <div
+        v-else
+        class="text-center py-12 bg-white rounded-xl shadow-md p-8 border border-gray-100"
+      >
+        <i class="fas fa-tasks text-gray-400 text-4xl mb-4"></i>
+        <p class="text-gray-500 text-lg">
+          No tasks yet! Click 'Create New Task' to get started.
+        </p>
       </div>
     </div>
   </div>
@@ -227,7 +232,6 @@ export default {
     ...mapState("auth", ["isLoggedIn", "currentUser"]),
   },
   methods: {
-
     goToCreateTask() {
       // this.$router.push({ name: 'createTask', params: { orgIndex: this.index }});
       this.$router.push({
@@ -239,7 +243,6 @@ export default {
         },
       });
     },
-
 
     showNotification(type, message, duration = 5000) {
       this.notification = {
@@ -279,6 +282,9 @@ export default {
       } catch (error) {
         this.showNotification("error", "Error getting project owner info");
       }
+    },
+    goBack() {
+      this.$router.push({ name: "OrganizationDashboard" });
     },
     async getAllProjectTasks() {
       try {

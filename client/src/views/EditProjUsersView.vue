@@ -1,41 +1,100 @@
 <template>
-  <div
-    v-if="isLoggedIn"
-    class="relative w-full h-full min-h-screen bg-background"
-  >
+  <div v-if="isLoggedIn" class="min-h-screen bg-background relative">
     <NavBar />
-    <div class="">
-      <div class="flex flex-col justify-center h-screen/2 py-16">
-        <div class="text-4xl font-bold text-primary text-center py-8">
-          Edit Project Users
+
+    <!-- Main Content -->
+    <div class="container mx-auto px-4 py-8">
+      <!-- Back Button -->
+      <button
+        @click="$router.back()"
+        class="mb-6 inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+      >
+        <i class="fas fa-arrow-left mr-2"></i>
+        Back
+      </button>
+
+      <div class="flex flex-col space-y-6">
+        <!-- Header -->
+        <div class="text-center">
+          <h1 class="text-3xl font-bold text-gray-900">
+            Organization Users Management
+          </h1>
+          <p class="mt-2 text-gray-600">
+            Add or remove users from your organization
+          </p>
         </div>
-        <div class="h-1 bg-accent rounded-lg"></div>
-        <div class="py-16">
-          <div
-            class="relative flex flex-col justify-full items-stretch p-16 mx-24 rounded-lg bg-white drop-shadow-lg"
-          >
-            <!-- Button to toggle between Add Users and Remove Users tables It is in a div that is centered, but only 1/3 width of the parent -->
-            <div class="flex justify-center">
-              <button @click="toggleTable" class="px-12 dashboard-button">
-                {{ showAddUsers ? "Add Users" : "Remove Users" }}
-              </button>
+
+        <!-- Main Card -->
+        <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+          <!-- Toggle Tabs -->
+          <div class="flex border-b">
+            <button
+              @click="showAddUsers = true"
+              :class="[
+                'flex-1 px-6 py-4 text-sm font-medium focus:outline-none transition-colors',
+                showAddUsers
+                  ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50'
+                  : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50',
+              ]"
+            >
+              <i class="fas fa-user-plus mr-2"></i>
+              Add Users
+            </button>
+            <button
+              @click="showAddUsers = false"
+              :class="[
+                'flex-1 px-6 py-4 text-sm font-medium focus:outline-none transition-colors',
+                !showAddUsers
+                  ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50'
+                  : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50',
+              ]"
+            >
+              <i class="fas fa-user-minus mr-2"></i>
+              Remove Users
+            </button>
+          </div>
+
+          <!-- Search Bar -->
+          <div class="p-4 border-b">
+            <div class="relative">
+              <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+              <input
+                type="text"
+                v-model="searchQuery"
+                :placeholder="
+                  showAddUsers
+                    ? 'Search available users...'
+                    : 'Search current members...'
+                "
+                class="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              />
             </div>
-            <!-- Add Users Table -->
-            <AvailableUsersTable
-              v-if="showAddUsers"
-              :users="availableUsers"
-              @addUser="addUser"
-            />
-            <!-- Remove Users Table -->
-            <CurrentUsersTable
-              v-else
-              :users="members"
-              @removeUser="removeUser"
-            />
+          </div>
+
+          <!-- User Lists -->
+          <div class="p-4">
+            <div v-if="showAddUsers">
+              <AvailableUsersTable
+                :users="filteredAvailableUsers"
+                @addUser="addUser"
+              />
+            </div>
+            <div v-else>
+              <CurrentUsersTable
+                :users="filteredMembers"
+                @removeUser="removeUser"
+              />
+            </div>
           </div>
         </div>
+      </div>
+
+      <!-- Container for notification -->
+      <div
+        class="fixed inset-x-0 bottom-0 pb-4 sm:pb-6 mx-auto px-4 sm:px-6 md:px-8"
+        style="max-width: 500px"
+      >
         <NotificationComponent
-          class="flex"
           :show="notification.show"
           :type="notification.type"
           @close="closeNotification"
@@ -60,6 +119,7 @@ export default {
       availableUsers: [],
       members: [],
       showAddUsers: true,
+      searchQuery: "",
       notification: {
         show: false,
         type: "info",
@@ -75,6 +135,24 @@ export default {
   },
   computed: {
     ...mapState("auth", ["isLoggedIn", "currentUser"]),
+    filteredAvailableUsers() {
+      if (!this.searchQuery) return this.availableUsers;
+      const query = this.searchQuery.toLowerCase();
+      return this.availableUsers.filter(
+        (user) =>
+          user.userName.toLowerCase().includes(query) ||
+          user.email.toLowerCase().includes(query),
+      );
+    },
+    filteredMembers() {
+      if (!this.searchQuery) return this.members;
+      const query = this.searchQuery.toLowerCase();
+      return this.members.filter(
+        (user) =>
+          user.userName.toLowerCase().includes(query) ||
+          user.email.toLowerCase().includes(query),
+      );
+    },
   },
   mounted() {
     this.fetchProjMembers();
@@ -84,14 +162,14 @@ export default {
       try {
         const projectID = this.$route.params.projIndex;
         console.log(`Adding ${email} to proj ${projectID}`);
-        const message = await this.$store.dispatch(
-          "projects/addUserToProject",
-          {
-            projectID,
-            email,
-          },
+        await this.$store.dispatch("projects/addUserToProject", {
+          projectID,
+          email,
+        });
+        this.showNotification(
+          "success",
+          `Successfully added ${email} to project`,
         );
-        alert(message);
         this.fetchProjMembers();
       } catch (error) {
         this.showNotification(
@@ -104,14 +182,14 @@ export default {
     async removeUser(email) {
       try {
         const projectID = this.$route.params.projIndex;
-        const message = await this.$store.dispatch(
-          "projects/removeUserFromProject",
-          {
-            projectID,
-            email,
-          },
+        await this.$store.dispatch("projects/removeUserFromProject", {
+          projectID,
+          email,
+        });
+        this.showNotification(
+          "success",
+          `Successfully removed ${email} from project`,
         );
-        alert(message);
         this.fetchProjMembers();
       } catch (error) {
         this.showNotification(

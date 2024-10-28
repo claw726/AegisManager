@@ -8,7 +8,7 @@
           class="flex items-center space-x-2 cursor-pointer group"
         >
           <i
-            class="fas fa-shield-alt text-2xl text-blue-400 group-hover:text-blue-300 transition-colors"
+            class="fa-solid fa-check text-2xl text-emerald-400 group-hover:text-blue-300 transition-colors"
           ></i>
           <span
             class="text-white text-xl font-bold tracking-wide group-hover:text-blue-300 transition-colors"

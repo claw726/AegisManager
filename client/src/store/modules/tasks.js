@@ -8,8 +8,8 @@ const state = {
   updateStatus: {
     loading: false,
     error: null,
-    success: false
-  }
+    success: false,
+  },
 };
 
 const mutations = {
@@ -29,15 +29,16 @@ const mutations = {
     state.updateStatus = { ...state.updateStatus, ...status };
   },
   UPDATE_TASK_IN_LIST(state, updatedTask) {
-    const index = state.tasks.findIndex(task => task.taskID === updatedTask.taskID);
+    const index = state.tasks.findIndex(
+      (task) => task.taskID === updatedTask.taskID,
+    );
     if (index !== -1) {
       state.allTasks.splice(index, 1, updatedTask);
     }
-  }
+  },
 };
 
 const actions = {
-
   async fetchTasks({ commit, rootState }) {
     try {
       const userID = rootState.auth.currentUser.userID;
@@ -89,42 +90,40 @@ const actions = {
   },
 
   async fetchTask({ commit, rootState }, taskId) {
-    commit('SET_LOADING', true);
-    commit('SET_ERROR', null);
-    
+    commit("SET_LOADING", true);
+    commit("SET_ERROR", null);
+
     try {
-      const response = await axios.get(`/api/tasks/${taskId}/getTask`,
-        {
-          headers: {
-            Authorization: `Bearer ${rootState.auth.authToken}`,
-          },
+      const response = await axios.get(`/api/tasks/${taskId}/getTask`, {
+        headers: {
+          Authorization: `Bearer ${rootState.auth.authToken}`,
         },
-      );
-      
+      });
+
       if (response.status === 200) {
-        commit('SET_CURRENT_TASK', response.data);
-        console.log("Task fetched!")
+        commit("SET_CURRENT_TASK", response.data);
+        console.log("Task fetched!");
         //console.log(response.data)
         return response.data;
       }
     } catch (error) {
-      let errorMessage = 'An error occurred while fetching the task.';
-      
+      let errorMessage = "An error occurred while fetching the task.";
+
       if (error.response) {
         switch (error.response.status) {
           case 404:
-            errorMessage = 'Task not found.';
+            errorMessage = "Task not found.";
             break;
           case 403:
-            errorMessage = 'You do not have permission to view this task.';
+            errorMessage = "You do not have permission to view this task.";
             break;
           default:
             errorMessage = error.response.data || errorMessage;
         }
       }
+      throw new Error(errorMessage);
     }
   },
-      
 
   async createTask({ commit, rootState }, task) {
     try {
@@ -140,34 +139,33 @@ const actions = {
       };
 
       const response = await axios({
-        method: 'post',
+        method: "post",
         url: `/api/tasks/createTask`,
         params: params,
-          headers: {
-            Authorization: `Bearer ${rootState.auth.authToken}`,
-            'Content-Type': 'application/x-www-form-urlencoded',
-          }
-        });
+        headers: {
+          Authorization: `Bearer ${rootState.auth.authToken}`,
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+      });
 
       if (response.status === 204) {
-        commit('UPDATE_TASK_IN_LIST', { taskId, ...taskData });
+        commit("UPDATE_TASK_IN_LIST", { taskId, ...taskData });
         //commit('SET_UPDATE_STATUS', { success: true });
-        commit('SET_CURRENT_TASK', response.data);
+        commit("SET_CURRENT_TASK", response.data);
         console.log("Task created 204");
         return true;
       }
       console.log("Task created successfully");
     } catch (error) {
-      console.log('An error occurred while updating the task.');
-      console.log('error response: ', error.response);
-      console.log('error status: ', error.response.status);
+      console.log("An error occurred while updating the task.");
+      console.log("error response: ", error.response);
+      console.log("error status: ", error.response.status);
     }
-
-  },  
+  },
 
   async updateTask({ commit, rootState }, { taskId, taskData }) {
-    commit('SET_UPDATE_STATUS', { loading: true, error: null, success: false });
-    
+    commit("SET_UPDATE_STATUS", { loading: true, error: null, success: false });
+
     try {
       const params = {
         taskName: taskData.taskName,
@@ -175,57 +173,57 @@ const actions = {
         assignerID: taskData.assignerID,
         taskPriority: taskData.taskPriority,
         dueDate: taskData.dueDate,
-        isComplete: taskData.isComplete
+        isComplete: taskData.isComplete,
       };
 
       const response = await axios({
-        method: 'post',
+        method: "post",
         url: `/api/tasks/${taskId}/update`,
         params: params,
-          headers: {
-            Authorization: `Bearer ${rootState.auth.authToken}`,
-            'Content-Type': 'application/x-www-form-urlencoded',
-          }
-        });
+        headers: {
+          Authorization: `Bearer ${rootState.auth.authToken}`,
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+      });
 
       if (response.status === 204) {
-        commit('UPDATE_TASK_IN_LIST', { taskId, ...taskData });
-        commit('SET_UPDATE_STATUS', { success: true });
+        commit("UPDATE_TASK_IN_LIST", { taskId, ...taskData });
+        commit("SET_UPDATE_STATUS", { success: true });
         return true;
       }
     } catch (error) {
-      let errorMessage = 'An error occurred while updating the task.';
-      
+      let errorMessage = "An error occurred while updating the task.";
+
       if (error.response) {
         switch (error.response.status) {
           case 404:
-            errorMessage = 'Task or user not found.';
+            errorMessage = "Task or user not found.";
             break;
           case 403:
-            errorMessage = 'You do not have permission to update this task.';
+            errorMessage = "You do not have permission to update this task.";
             break;
           default:
             errorMessage = error.response.data || errorMessage;
         }
       }
-      
-      commit('SET_UPDATE_STATUS', { error: errorMessage });
+
+      commit("SET_UPDATE_STATUS", { error: errorMessage });
       throw new Error(errorMessage);
     } finally {
-      commit('SET_UPDATE_STATUS', { loading: false });
+      commit("SET_UPDATE_STATUS", { loading: false });
     }
-  }
+  },
   // Other task-related actions
 };
 
 const getters = {
-  isLoading: state => state.loading,
-  hasError: state => state.error !== null,
-  errorMessage: state => state.error,
-  currentTask: state => state.currentTask,
-  isUpdateLoading: state => state.updateStatus.loading,
-  updateError: state => state.updateStatus.error,
-  updateSuccess: state => state.updateStatus.success
+  isLoading: (state) => state.loading,
+  hasError: (state) => state.error !== null,
+  errorMessage: (state) => state.error,
+  currentTask: (state) => state.currentTask,
+  isUpdateLoading: (state) => state.updateStatus.loading,
+  updateError: (state) => state.updateStatus.error,
+  updateSuccess: (state) => state.updateStatus.success,
 };
 
 export default {
