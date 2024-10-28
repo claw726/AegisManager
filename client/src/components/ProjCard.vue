@@ -10,9 +10,7 @@
         :alt="project.projectName"
         class="object-cover w-full h-full transition-transform duration-500 group-hover:scale-105"
       />
-      <div
-        class="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"
-      />
+      <div class="absolute inset-0 bg-gradient-to-t from-black/30 to-transparent opacity-0 group-hover:opacity-100 transition-opacity duration-300"/>
     </div>
 
     <div class="flex flex-col flex-grow p-5 space-y-4">
@@ -68,7 +66,7 @@ export default {
   },
   methods: {
     formatTaskCount(count) {
-      return count > 999 ? `${(count / 1000).toFixed(1)}k` : count;
+      return count > 999 ? `${(count/1000).toFixed(1)}k` : count;
     },
     async goToProj() {
       if (this.projIndex === undefined || this.projIndex === null) {

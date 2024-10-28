@@ -152,6 +152,9 @@ public class TaskService {
             throw new RuntimeException("Task with given name already exists in project");
         }
 
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUsername = ((UserDetails) authentication.getPrincipal()).getUsername();
+
         OrgModel parentOrg = orgRepository.findById(parentOrgID)
                 .orElseThrow(() -> new RuntimeException("Org not found with id: " + parentOrgID));
 
@@ -176,6 +179,8 @@ public class TaskService {
         projectTasks.add(task);
         projectRepository.save(parentProject);
 
+        addUser(task.getTaskID(), currentUsername);
+
         return true;
     }
 
@@ -185,7 +190,7 @@ public class TaskService {
         return task.getAssignedUsers();
     }
 
-    public List<TaskModel> getAllUserTasks(int userID, int orgID, int projectID) {
+    public Set<TaskDTO> getAllUserTasks(int userID, int orgID, int projectID) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String currentUsername = ((UserDetails) authentication.getPrincipal()).getUsername();
         UserModel currentUser = userRepository.findByEmail(currentUsername)
@@ -193,7 +198,11 @@ public class TaskService {
         if (currentUser.getUserID() == userID) {
             Set<TaskModel> tasks = taskRepository.getAllUserTasks(userID, orgID, projectID);
             
-            return new ArrayList<>(tasks);
+            return tasks.stream()
+                    .map(task -> new TaskDTO(task.getTaskID(), task.getParentProjectID(), task.getParentOrgID(),
+                            task.getTaskName(), task.getTaskDescription(), task.getAssignerID(), task.getTaskPriority(),
+                            task.getDueDate(), task.isComplete(), task.getAssignedUsers()))
+                    .collect(Collectors.toSet());
 
         } else {
             throw new RuntimeException("User does not have permission to access task list");
