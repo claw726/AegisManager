@@ -99,7 +99,6 @@ export default {
           "Failed to add user to Project: " +
             (error.response?.data || error.message),
         );
-        );
       }
     },
     async removeUser(email) {
@@ -119,7 +118,6 @@ export default {
           "error",
           "Failed to remove member from Project: " +
             (error.response?.data || error.message),
-        );
         );
       }
     },
