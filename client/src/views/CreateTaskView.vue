@@ -123,9 +123,10 @@ export default {
        taskName: this.task.taskName,
        taskDescription: this.task.taskDescription,
        taskPriority: this.task.taskPriority,
+
        assignerID : 9, //NEED TO FIX, FOR NOW HARDCODING USERID this.currentUser.userID
-       parentProjectID : parseInt(this.$route.params.projIndex, 10),
-       parentOrgID : parseInt(this.$route.params.orgIndex, 10),
+       parentProjectID : 6, //this.$route.params.orgId,
+       parentOrgID : 3, //this.$route.params.projId,
      }
 
      console.log(t);

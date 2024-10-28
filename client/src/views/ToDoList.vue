@@ -1,5 +1,6 @@
 <template>
   <NavBar />
+  
   <div class="bg-background flex flex-col items-center min-h-screen h-full">
     <div
       class="flex flex-col items-center w-full max-w-7xl px-4 mx-auto space-y-8 mt-12"

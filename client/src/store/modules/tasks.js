@@ -103,6 +103,8 @@ const actions = {
       
       if (response.status === 200) {
         commit('SET_CURRENT_TASK', response.data);
+        console.log("Task fetched!")
+        //console.log(response.data)
         return response.data;
       }
     } catch (error) {
@@ -148,8 +150,9 @@ const actions = {
         });
 
       if (response.status === 204) {
-        //commit('UPDATE_TASK_IN_LIST', { taskId, ...taskData });
+        commit('UPDATE_TASK_IN_LIST', { taskId, ...taskData });
         //commit('SET_UPDATE_STATUS', { success: true });
+        commit('SET_CURRENT_TASK', response.data);
         console.log("Task created 204");
         return true;
       }

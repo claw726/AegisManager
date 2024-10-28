@@ -227,6 +227,20 @@ export default {
     ...mapState("auth", ["isLoggedIn", "currentUser"]),
   },
   methods: {
+
+    goToCreateTask() {
+      // this.$router.push({ name: 'createTask', params: { orgIndex: this.index }});
+      this.$router.push({
+        name: "createTask",
+        params: {
+          orgId: this.$route.params.orgIndex,
+          projId: this.$route.params.projIndex,
+          userID: this.currentUser.userID,
+        },
+      });
+    },
+
+
     showNotification(type, message, duration = 5000) {
       this.notification = {
         show: true,

@@ -1,34 +1,35 @@
 <template>
   <NavBar />
+  
   <div class="min-h-screen bg-gray-50 p-8">
 
     
     <div class="max-w-4xl mx-auto bg-white rounded-lg shadow-lg p-6">
-      <div v-if="currentTask" class="space-y-6">
+      <div v-if="fetchedTask" class="space-y-6">
         <!-- Task Header -->
           <div class="flex justify-between items-start">
-            <h1 class="text-2xl font-bold text-primary">{{ currentTask.taskName }}</h1>
+            <h1 class="text-2xl font-bold text-primary">{{ fetchedTask.taskName }}</h1>
             <div class="flex space-x-4">
               <!-- Status Badge -->
               <span 
                 class="px-3 py-1 rounded-full text-sm font-semibold"
                 :class="{
-                  'bg-green-100 text-green-800': currentTask.complete,
-                  'bg-red-100 text-red-800': !currentTask.complete
+                  'bg-green-100 text-green-800': fetchedTask.complete,
+                  'bg-red-100 text-red-800': !fetchedTask.complete
                 }"
               >
-                {{ currentTask.complete ? 'Complete' : 'Incomplete' }}
+                {{ fetchedTask.complete ? 'Complete' : 'Incomplete' }}
               </span>
             </div>
           </div>
 
         <!-- Task Details -->
           <div 
-          v-if="currentTask.complete" 
+          v-if="fetchedTask.complete" 
           class="greyed-out space-y-4">
 
             <h2 class="text-lg font-semibold mb-2">Description</h2>
-            <p>{{ currentTask.taskDescription }}</p>
+            <p>{{ fetchedTask.taskDescription }}</p>
 
             <div class="grid grid-cols-2 gap-4">
               <div>
@@ -36,28 +37,28 @@
                 <span 
                   class="px-2 py-1 rounded-md text-sm font-medium"
                   :class="{
-                    'bg-red-100 text-red-800': currentTask.taskPriority === 'High',
-                    'bg-yellow-100 text-yellow-800': currentTask.taskPriority === 'Medium',
-                    'bg-blue-100 text-blue-800': currentTask.taskPriority === 'Low'
+                    'bg-red-100 text-red-800': fetchedTask.taskPriority === 'High',
+                    'bg-yellow-100 text-yellow-800': fetchedTask.taskPriority === 'Medium',
+                    'bg-blue-100 text-blue-800': fetchedTask.taskPriority === 'Low'
                   }"
                 >
-                  {{ currentTask.taskPriority }}
+                  {{ fetchedTask.taskPriority }}
                 </span>
               </div>
 
               <div>
                 <h2 class="text-lg font-semibold mb-2">Due Date</h2>
-                <p>{{ formatDate(currentTask.dueDate) }}</p>
+                <p>{{ formatDate(fetchedTask.dueDate) }}</p>
               </div>
             </div>
           </div>
 
             <div 
-          v-else="currentTask.complete" 
+          v-else="fetchedTask.complete" 
           class="space-y-4">
 
             <h2 class="text-lg font-semibold mb-2">Description</h2>
-            <p>{{ currentTask.taskDescription }}</p>
+            <p>{{ fetchedTask.taskDescription }}</p>
 
             <div class="grid grid-cols-2 gap-4">
               <div>
@@ -65,18 +66,18 @@
                 <span 
                   class="px-2 py-1 rounded-md text-sm font-medium"
                   :class="{
-                    'bg-red-100 text-red-800': currentTask.taskPriority === 'High',
-                    'bg-yellow-100 text-yellow-800': currentTask.taskPriority === 'Medium',
-                    'bg-blue-100 text-blue-800': currentTask.taskPriority === 'Low'
+                    'bg-red-100 text-red-800': fetchedTask.taskPriority === 'High',
+                    'bg-yellow-100 text-yellow-800': fetchedTask.taskPriority === 'Medium',
+                    'bg-blue-100 text-blue-800': fetchedTask.taskPriority === 'Low'
                   }"
                 >
-                  {{ currentTask.taskPriority }}
+                  {{ fetchedTask.taskPriority }}
                 </span>
               </div>
 
               <div>
                 <h2 class="text-lg font-semibold mb-2">Due Date</h2>
-                <p>{{ formatDate(currentTask.dueDate) }}</p>
+                <p>{{ formatDate(fetchedTask.dueDate) }}</p>
               </div>
             </div>
           </div>
@@ -90,7 +91,7 @@
               Back
             </button>
             <button 
-              v-if="!currentTask.complete"
+              v-if="!fetchedTask.complete"
               @click="markAsComplete" 
               class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600"
             >
@@ -104,6 +105,7 @@
 
 <script>
 import { mapState } from "vuex";
+import NavBar from "@/components/NavBar.vue";
 
 export default {
   name: 'TaskDetail',
@@ -111,6 +113,7 @@ export default {
   data() {
     return {
       isGrayedOut: null,
+      fetchedTask: null,
     };
   },
   
@@ -126,10 +129,25 @@ export default {
   },
 
   computed: {
-    ...mapState("tasks", ["allTasks"]),
+    ...mapState("tasks", ["allTasks"], "currentTask", "updateTask"),
+  },
+
+  async mounted() {
+    this.fetchedTask = await this.$store.dispatch("tasks/fetchTask", this.$route.params.taskId);
+    console.log("Client has stored fetched task.");
+    console.log(JSON.stringify(this.fetchedTask, null, 2));
   },
 
   methods: {
+    goBack() {
+     this.$router.go(-1);
+   },
+
+    async getTask() {
+      console.log("Doing async method")
+      //this.$store.dispatch("tasks/fetchTask", this.taskId);
+    },
+
     handleOptionChange() {
       if (this.selectedCompletionValue === "true") {
         this.completeTask();
@@ -163,28 +181,30 @@ export default {
         day: 'numeric'
       });
     },
-     async markAsComplete() {
+
+    async markAsComplete() {
       try {
 
-        const dueDate = `${this.currentTask.dueDate}T15:30:00.000z`;
+        const dueDate = `${this.fetchedTask.dueDate}T15:30:00.000z`;
 
         const taskData = {
-          taskName: this.currentTask.taskName,
-          taskDescription: this.currentTask.taskDescription,
-          assignerID: this.currentTask.assignerID,
-          taskPriority: this.currentTask.taskPriority,
+          taskName: this.fetchedTask.taskName,
+          taskDescription: this.fetchedTask.taskDescription,
+          assignerID: this.fetchedTask.assignerID,
+          taskPriority: this.fetchedTask.taskPriority,
           dueDate: dueDate,
           isComplete: true
         };
 
-        await this.updateTask({
+        await this.$store.dispatch("tasks/updateTask", {
           taskId: this.taskId,
           taskData: taskData,
         });
-
-        // Reload the task to get the updated data
-        await this.loadTask();
+      
+        // Reroute to task to do list as task is now marked complete
+        //await this.loadTask();
         this.isGrayedOut = true;
+        this.$router.push({ name: "TDList" });
       } catch (error) {
         console.error('Failed to mark task as complete:', error);
         // Error will be handled by Vuex store and displayed via updateStatus
