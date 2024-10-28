@@ -74,7 +74,7 @@ export default {
     NotificationComponent,
   },
   computed: {
-    ...mapState('auth', ["isLoggedIn", "currentUser"]),
+    ...mapState("auth", ["isLoggedIn", "currentUser"]),
   },
   mounted() {
     this.fetchProjMembers();
@@ -84,35 +84,41 @@ export default {
       try {
         const projectID = this.$route.params.projIndex;
         console.log(`Adding ${email} to proj ${projectID}`);
-        await this.$store.dispatch("projects/addUserToProject", {
-          projectID,
-          email,
-        });
-
+        const message = await this.$store.dispatch(
+          "projects/addUserToProject",
+          {
+            projectID,
+            email,
+          },
+        );
+        alert(message);
         this.fetchProjMembers();
       } catch (error) {
         this.showNotification(
-            "error",
-            "Failed to add user to Project: " +
+          "error",
+          "Failed to add user to Project: " +
             (error.response?.data || error.message),
-          );
-        
+        );
       }
     },
     async removeUser(email) {
       try {
         const projectID = this.$route.params.projIndex;
-        await this.$store.dispatch("projects/removeUserFromProject", {
-          projectID,
-          email,
-        });
+        const message = await this.$store.dispatch(
+          "projects/removeUserFromProject",
+          {
+            projectID,
+            email,
+          },
+        );
+        alert(message);
         this.fetchProjMembers();
       } catch (error) {
         this.showNotification(
-            "error",
-            "Failed to remove member from Project: " +
+          "error",
+          "Failed to remove member from Project: " +
             (error.response?.data || error.message),
-          );
+        );
       }
     },
     toggleTable() {
@@ -123,10 +129,7 @@ export default {
         const orgID = this.$route.params.orgIndex;
         const projID = this.$route.params.projIndex;
         if (!projID || !orgID) {
-          this.showNotification(
-            "error",
-            "Project or Org does not exist!",
-          );
+          this.showNotification("error", "Project or Org does not exist!");
         }
 
         // Fetch proj members
@@ -137,7 +140,10 @@ export default {
         console.log("Organization Members:", this.members);
 
         // Fetch all org users
-        const allUsers = await this.$store.dispatch("organizations/fetchOrgMembers", orgID);
+        const allUsers = await this.$store.dispatch(
+          "organizations/fetchOrgMembers",
+          orgID,
+        );
         console.log("All org Users:", allUsers);
 
         // Filter out users who are not a member of this project
@@ -147,10 +153,7 @@ export default {
         );
       } catch (error) {
         console.error("Error fetching project members:", error.message);
-        this.showNotification(
-            "error",
-            "Failed to fetch users",
-          );
+        this.showNotification("error", "Failed to fetch users");
       }
     },
     showNotification(type, message) {

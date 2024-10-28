@@ -1,7 +1,7 @@
 <template>
   <div class="min-h-screen bg-gray-50">
     <NavBar />
-    
+
     <NotificationComponent
       v-model:show="notification.show"
       :type="notification.type"
@@ -14,13 +14,17 @@
       <div class="max-w-4xl mx-auto">
         <!-- Header -->
         <div class="text-center mb-12">
-          <h1 class="text-4xl font-bold text-gray-900 mb-4">Your Organizations</h1>
+          <h1 class="text-4xl font-bold text-gray-900 mb-4">
+            Your Organizations
+          </h1>
           <div class="h-1 w-32 bg-accent mx-auto rounded-full"></div>
         </div>
 
         <!-- Loading State -->
         <div v-if="isLoading" class="flex justify-center items-center py-12">
-          <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"></div>
+          <div
+            class="animate-spin rounded-full h-12 w-12 border-b-2 border-indigo-600"
+          ></div>
         </div>
 
         <!-- Organizations List -->
@@ -65,8 +69,12 @@
                 d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5M9 7h1m-1 4h1m4-4h1m-1 4h1m-5 10v-5a1 1 0 011-1h2a1 1 0 011 1v5m-4 0h4"
               />
             </svg>
-            <h3 class="mt-4 text-lg font-medium text-gray-900">No Organizations Found</h3>
-            <p class="mt-2 text-gray-500">Get started by creating your first organization.</p>
+            <h3 class="mt-4 text-lg font-medium text-gray-900">
+              No Organizations Found
+            </h3>
+            <p class="mt-2 text-gray-500">
+              Get started by creating your first organization.
+            </p>
           </div>
 
           <!-- Create Organization Button -->
@@ -109,12 +117,14 @@ export default {
     OrgCard,
     NotificationComponent,
   },
-  
+
   computed: {
     ...mapState("auth", ["isLoggedIn", "currentUser"]),
     filteredOrganizations() {
       return (this.userOrganizations || []).filter((organization) =>
-        organization.users.some((user) => user.userID === this.currentUser.userID)
+        organization.users.some(
+          (user) => user.userID === this.currentUser.userID,
+        ),
       );
     },
   },
@@ -125,8 +135,8 @@ export default {
       isLoading: true,
       notification: {
         show: false,
-        type: 'info',
-        message: '',
+        type: "info",
+        message: "",
       },
     };
   },
@@ -171,22 +181,22 @@ export default {
       try {
         this.isLoading = true;
         this.userOrganizations = await this.$store.dispatch(
-          "organizations/fetchOrganizations"
+          "organizations/fetchOrganizations",
         );
-        
+
         if (this.userOrganizations?.length > 0) {
           this.showNotification(
-            'success',
-            'Organizations loaded successfully',
-            3000
+            "success",
+            "Organizations loaded successfully",
+            3000,
           );
         }
       } catch (error) {
         console.error("Error Loading Organizations:", error.message);
         this.showNotification(
-          'error',
-          'Failed to load organizations. Please try again later.',
-          5000
+          "error",
+          "Failed to load organizations. Please try again later.",
+          5000,
         );
       } finally {
         this.isLoading = false;
@@ -195,7 +205,7 @@ export default {
 
     viewOrganization(organization) {
       this.$router.push({
-        name: 'OrganizationDashboard',
+        name: "OrganizationDashboard",
         params: { orgIndex: organization.orgID },
       });
     },

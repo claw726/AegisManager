@@ -69,7 +69,9 @@
           stroke-linecap="round"
           stroke-linejoin="round"
         >
-          <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z" />
+          <path
+            d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"
+          />
           <line x1="12" y1="9" x2="12" y2="13" />
           <line x1="12" y1="17" x2="12.01" y2="17" />
         </svg>
@@ -105,37 +107,38 @@
 
 <script>
 export default {
-  name: 'NotificationComponent',
+  name: "NotificationComponent",
   props: {
     type: {
       type: String,
-      default: 'info',
-      validator: (value) => ['info', 'success', 'error', 'warning'].includes(value)
+      default: "info",
+      validator: (value) =>
+        ["info", "success", "error", "warning"].includes(value),
     },
     show: {
       type: Boolean,
-      default: false
-    }
+      default: false,
+    },
   },
   computed: {
     notificationStyles() {
       const styles = {
-        info: 'bg-blue-50 text-blue-700 border border-blue-200',
-        success: 'bg-green-50 text-green-700 border border-green-200',
-        error: 'bg-red-50 text-red-700 border border-red-200',
-        warning: 'bg-yellow-50 text-yellow-700 border border-yellow-200'
-      }
-      return styles[this.type]
+        info: "bg-blue-50 text-blue-700 border border-blue-200",
+        success: "bg-green-50 text-green-700 border border-green-200",
+        error: "bg-red-50 text-red-700 border border-red-200",
+        warning: "bg-yellow-50 text-yellow-700 border border-yellow-200",
+      };
+      return styles[this.type];
     },
     closeButtonStyles() {
       const styles = {
-        info: 'hover:bg-blue-100',
-        success: 'hover:bg-green-100',
-        error: 'hover:bg-red-100',
-        warning: 'hover:bg-yellow-100'
-      }
-      return styles[this.type]
-    }
-  }
-}
+        info: "hover:bg-blue-100",
+        success: "hover:bg-green-100",
+        error: "hover:bg-red-100",
+        warning: "hover:bg-yellow-100",
+      };
+      return styles[this.type];
+    },
+  },
+};
 </script>

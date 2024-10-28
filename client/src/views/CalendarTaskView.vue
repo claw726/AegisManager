@@ -122,7 +122,6 @@ export default {
   beforeUnmount() {
     document.removeEventListener("click", this.handleClickOutside);
   },
-
   watch: {
     tasks: {
       handler() {

@@ -4,21 +4,22 @@
     v-if="isLoggedIn"
     class="min-h-screen bg-background py-12 px-4 sm:px-6 lg:px-8"
   >
-    
     <div class="max-w-3xl mx-auto">
       <!-- Header -->
       <div class="text-center mb-8">
         <h1 class="text-4xl font-bold text-primary mb-4">
           Edit Organization: {{ modifiedOrganization.orgName }}
         </h1>
-        <div class="h-1 bg-accent mx-auto rounded-full"/>
+        <div class="h-1 bg-accent mx-auto rounded-full" />
       </div>
 
-        <div class="space-y-8">
-          <!-- Org name -->
-            <div class="space-y-2">
-                <label for="orgName" class="flex items-center text-lg font-medium text-gray-700"
-                  ><svg
+      <div class="space-y-8">
+        <!-- Org name -->
+        <div class="space-y-2">
+          <label
+            for="orgName"
+            class="flex items-center text-lg font-medium text-gray-700"
+            ><svg
               xmlns="http://www.w3.org/2000/svg"
               class="w-4 h-4 mr-2 text-accent"
               viewBox="0 0 24 24"
@@ -31,22 +32,22 @@
               />
             </svg>
             Organization Name:</label
-                >
-                <input
-                  type="text"
-                  id="orgName"
-                  v-model="modifiedOrganization.orgName"
-                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent transition duration-200"
-                />
-              </div>
+          >
+          <input
+            type="text"
+            id="orgName"
+            v-model="modifiedOrganization.orgName"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent transition duration-200"
+          />
+        </div>
 
-              <!-- Org Desc -->
-              <div class="space-y-2">
-                <label
-                  for="orgDescription"
-                  class="flex items-center text-lg font-medium text-gray-700"
-                  >
-                  <svg
+        <!-- Org Desc -->
+        <div class="space-y-2">
+          <label
+            for="orgDescription"
+            class="flex items-center text-lg font-medium text-gray-700"
+          >
+            <svg
               xmlns="http://www.w3.org/2000/svg"
               class="w-4 h-4 mr-2 text-accent"
               viewBox="0 0 24 24"
@@ -60,17 +61,17 @@
               <polyline points="14 2 14 8 20 8"></polyline>
               <line x1="16" y1="13" x2="8" y2="13"></line>
               <line x1="16" y1="17" x2="8" y2="17"></line>
-              <polyline points="10 9 9 9 8 9"></polyline>
-            </svg>Organization Description:</label
-                >
-                <textarea
-                  id="orgDescription"
-                  v-model="modifiedOrganization.orgDescription"
-                  class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent transition duration-200 min-h-[120px]"
-                ></textarea>
-              </div>
+              <polyline points="10 9 9 9 8 9"></polyline></svg
+            >Organization Description:</label
+          >
+          <textarea
+            id="orgDescription"
+            v-model="modifiedOrganization.orgDescription"
+            class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent transition duration-200 min-h-[120px]"
+          ></textarea>
+        </div>
 
-                      <!-- Image Upload -->
+        <!-- Image Upload -->
         <div class="space-y-2">
           <label class="flex items-center text-lg font-medium text-gray-700">
             <svg
@@ -116,7 +117,7 @@
           </button>
         </div>
 
-              <!-- Submit Button -->
+        <!-- Submit Button -->
         <div class="flex justify-center">
           <button
             @click="submitForm()"
@@ -134,8 +135,8 @@
           {{ notification.message }}
         </NotificationComponent>
       </div>
-            </div>
-          </div>
+    </div>
+  </div>
 </template>
 
 <script>
@@ -143,7 +144,6 @@ import NavBar from "@/components/NavBar.vue";
 import { mapState } from "vuex";
 import imageCompression from "browser-image-compression";
 import NotificationComponent from "@/components/NotificationComponent.vue";
-
 
 export default {
   data() {
@@ -169,21 +169,21 @@ export default {
     NotificationComponent,
   },
   computed: {
-    ...mapState('auth', ["isLoggedIn", "currentUser"]),
+    ...mapState("auth", ["isLoggedIn", "currentUser"]),
   },
   async created() {
     try {
-        const orgID = this.$route.params.orgIndex; // Ensure you are getting the correct orgID
-        this.modifiedOrganization = await this.$store.dispatch("organizations/fetchOrganization", orgID);
-        console.log('Fetched Organization:', this.modifiedOrganization); // Log the fetched organization
-      } catch (error) {
-        console.error('Error fetching organization data:', error);
-        this.showNotification(
-          "error",
-          "Failed to load organization data: " + error.message
-        );
-        this.$router.push({ name: "viewOrgs", params: { orgIndex: undefined } });
-      }
+      const orgID = this.$route.params.orgIndex; // Ensure you are getting the correct orgID
+      this.modifiedOrganization = await this.$store.dispatch(
+        "organizations/fetchOrganization",
+        orgID,
+      );
+      console.log("Fetched Organization:", this.modifiedOrganization); // Log the fetched organization
+    } catch (error) {
+      console.error("Error fetching organization data:", error);
+      alert("Failed to load organization data: " + error.message);
+      this.$router.push({ name: "viewOrgs", params: { orgIndex: undefined } });
+    }
   },
   methods: {
     handleImageChange(event) {
@@ -279,7 +279,7 @@ export default {
           reader.readAsDataURL(file);
         } catch (error) {
           console.error("Error compressing image:", error);
-         this.showNotification(
+          this.showNotification(
             "error",
             "An error occurred while compressing the image. Please try again with a new file.",
           );
@@ -307,8 +307,8 @@ export default {
 
       // Modify the project in the organization
 
-      try{
-        await this.$store.dispatch("organizations/modifyOrganization", {
+      try {
+        this.$store.dispatch("organizations/modifyOrganizaiton", {
           orgID: organizationID,
           organization: this.modifiedOrganization,
         });

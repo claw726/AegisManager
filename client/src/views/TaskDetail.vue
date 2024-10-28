@@ -98,18 +98,12 @@
             </button>
           </div>
       </div>
-
-      <!-- Loading State -->
-      <div v-else class="flex justify-center items-center h-64">
-        <p>Loading task details...</p>
-      </div>
     </div>
   </div>
 </template>
 
 <script>
-import { mapGetters, mapActions } from 'vuex';
-import NavBar from '@/components/NavBar.vue'
+import { mapState } from "vuex";
 
 export default {
   name: 'TaskDetail',
@@ -132,41 +126,33 @@ export default {
   },
 
   computed: {
-    ...mapGetters('tasks', [
-      'isLoading',
-      'hasError',
-      'errorMessage',
-      'currentTask',
-      'isUpdateLoading',
-      'updateError',
-      'updateSuccess'
-    ])
+    ...mapState("tasks", ["allTasks"]),
   },
 
   methods: {
-    ...mapActions('tasks', ['fetchTask', 'updateTask']),
-
-    async loadTask() {
-      try {
-        await this.fetchTask(this.$route.params.taskId);
-        console.log("Got new task: ", this.currentTask)
-      } catch (error) {
-        console.error('Failed to load task:', error);
+    handleOptionChange() {
+      if (this.selectedCompletionValue === "true") {
+        this.completeTask();
+      }
+      if (this.selectedCompletionValue === "false") {
+        this.unCompleteTask();
       }
     },
 
-    async retryLoading() {
-      await this.loadTask();
+    handleYes() {
+      console.log("User wants to delete task");
+      this.showPopup = false;
+    },
+    handleNo() {
+      console.log("Nevermind");
+      this.showPopup = false;
     },
 
-    async handleUpdateTask(taskData) {
-      try {
-        await this.updateTask({
-          taskId: this.taskId,
-          taskData
-        });
-      } catch (error) {
-        console.error('Failed to update task:', error);
+    decideFun(event) {
+      if (event.target.checked) {
+        this.completeTask(this);
+      } else {
+        this.unCompleteTask(this);
       }
     },
     formatDate(date) {
@@ -204,14 +190,15 @@ export default {
         // Error will be handled by Vuex store and displayed via updateStatus
       }
     },
-    goBack() {
-      this.$router.go(-1);
-    }
-  },
 
-  created() {
-    this.loadTask();
-  }
+    assignerClick() {
+      this.updateTaskAssigner(this.selectedAssigner);
+    },
+
+    updateTaskAssigner(newAssigner) {
+      this.$store.commit("setNewTaskAssignee", this.taskId, newAssigner);
+    },
+  },
 };
 </script>
 
