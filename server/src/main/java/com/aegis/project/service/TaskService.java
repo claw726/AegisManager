@@ -347,8 +347,9 @@ public class TaskService {
         List<TaskModel> tasks = taskRepository.findAllSorted();
 
         return tasks.stream()
-                .map(task -> new TaskDTO(task.getTaskID(), task.getParentProjectID(), task.getParentOrgID(), task.getTaskName(),
-                task.getTaskDescription(), task.getAssignerID(), task.getTaskPriority(), task.getDueDate(), task.isComplete()))
+                .map(task -> new TaskDTO(task.getTaskID(), task.getParentProjectID(), task.getParentOrgID(),
+                        task.getTaskName(), task.getTaskDescription(), task.getAssignerID(), task.getTaskPriority(),
+                        task.getDueDate(), task.isComplete(), task.getAssignedUsers()))
                 .collect(Collectors.toSet());
     }
 }

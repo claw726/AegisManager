@@ -4,6 +4,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.aegis.project.dto.TaskDTO;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -107,7 +108,7 @@ public class OrgService {
                 project.getProjectDescription(), project.getProjectOwnerID(), project.getEncodedImage(),
                 project.getAssignedUsers().stream().map(user -> new UserDTO(user.getUserID(), user.getUserName(),
                 user.getEmail(), user.getProfilePicture())).collect(Collectors.toSet()),
-                projectService.getProjectTasks(project.getProjectID())))
+                project.getProjectTasks().stream().map(task -> new TaskDTO(task)).collect(Collectors.toSet())))
                 .collect(Collectors.toSet());
     }
 

@@ -1,5 +1,7 @@
 package com.aegis.project.dto;
 
+import com.aegis.project.model.UserModel;
+
 public class UserDTO {
     private int userID;
     private String userName;
@@ -11,6 +13,13 @@ public class UserDTO {
         this.userName = userName;
         this.email = email;
         this.profilePicture = profilePicture;
+    }
+
+    public UserDTO(UserModel user) {
+        this.userID = user.getUserID();
+        this.userName = user.getUserName();
+        this.email = user.getEmail();
+        this.profilePicture = user.getProfilePicture();
     }
 
     public int getUserID() {
