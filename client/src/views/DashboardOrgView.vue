@@ -133,6 +133,9 @@
                 />
               </svg>
             </div>
+            <button @click="viewUsersInOrg" class="dashboard-button mt-4">
+              View Organization Users
+            </button>
           </div>
           <button
             @click="goToCreateProject"

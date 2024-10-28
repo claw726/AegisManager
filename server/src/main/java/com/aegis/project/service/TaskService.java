@@ -167,13 +167,13 @@ public class TaskService {
         task.setTaskPriority(taskPriority);
         task.setComplete(false);
         task.setDueDate(dueDate);
+        task.setParentProject(parentProject);
 
         taskRepository.save(task);
 
         
         Set<TaskModel> projectTasks = parentProject.getProjectTasks();
         projectTasks.add(task);
-        //parentProject.setProjectTasks(projectTasks);
         projectRepository.save(parentProject);
 
         return true;
@@ -237,13 +237,13 @@ public class TaskService {
             throw new RuntimeException("User does not have permission to delete task");
         }
 
-        taskRepository.deleteById(taskID);
-
         ProjectModel parentProject = projectRepository.findById(task.getParentOrgID())
                 .orElseThrow(() -> new RuntimeException("Parent project not found with id: " + task.getParentOrgID()));
         Set<TaskModel> projectTasks = parentProject.getProjectTasks();
         projectTasks.remove(task);
         projectRepository.save(parentProject);
+
+        taskRepository.deleteById(taskID);
     }
 
     public boolean validateAssigner(int taskID, int userID) {

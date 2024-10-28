@@ -103,10 +103,10 @@ public class OrgController {
     }
 
     @PostMapping("/{orgID}/update")
-    public ResponseEntity<String> updateOrg(@PathVariable int orgID, @RequestParam String orgName, @RequestParam String orgDescription, @RequestParam int orgOwnerID) {
+    public ResponseEntity<String> updateOrg(@PathVariable int orgID, @RequestParam String orgName, @RequestParam String orgDescription, @RequestParam int orgOwnerID, @RequestParam String encodedImage) {
         try {
             logger.info("Received request to update org #{}", orgID);
-            orgService.updateOrg(orgID, orgName, orgDescription, orgOwnerID);
+            orgService.updateOrg(orgID, orgName, orgDescription, orgOwnerID, encodedImage);
             logger.info("Successfully updated org {}", orgID);
             return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Org updated successfully");
         } catch (RuntimeException e) {
