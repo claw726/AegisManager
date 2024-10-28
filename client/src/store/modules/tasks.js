@@ -149,7 +149,7 @@ const actions = {
       });
 
       if (response.status === 204) {
-        commit("UPDATE_TASK_IN_LIST", { taskId, ...taskData });
+        commit("UPDATE_TASK_IN_LIST", task);
         //commit('SET_UPDATE_STATUS', { success: true });
         commit("SET_CURRENT_TASK", response.data);
         console.log("Task created 204");
