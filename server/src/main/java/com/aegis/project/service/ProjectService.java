@@ -127,9 +127,10 @@ public class ProjectService {
             throw new RuntimeException("User does not have permission to get project");
         }
 
-        ProjectDTO projectDTO = new ProjectDTO(project.getProjectID(), project.getParentOrgID(), project.getProjectName(), project.getProjectDescription(), project.getProjectOwnerID(), project.getEncodedImage(), getAssignedUsers(projectID), getProjectTasks(projectID));
-
-        return projectDTO;
+        return new ProjectDTO(project.getProjectID(), project.getParentOrgID(),
+            project.getProjectName(), project.getProjectDescription(), project.getProjectOwnerID(),
+            project.getEncodedImage(), project.getAssignedUsers().stream().map(user -> new UserDTO(user)).collect(Collectors.toSet()),
+            project.getProjectTasks().stream().map(task -> new TaskDTO(task)).collect(Collectors.toSet()));
     }
 
     public void updateProject(int projectID, String projectName, String projectDescription, int projectOwnerID, String encodedImage) {
@@ -157,7 +158,9 @@ public class ProjectService {
 
         Set<TaskModel> tasks = project.getProjectTasks();
         return tasks.stream()
-                .map(task -> new TaskDTO(task.getTaskID(), task.getParentProjectID(), task.getParentOrgID(), task.getTaskName(), task.getTaskDescription(), task.getAssignerID(), task.getTaskPriority(), task.getDueDate(), task.isComplete()))
+                .map(task -> new TaskDTO(task.getTaskID(), task.getParentProjectID(), task.getParentOrgID(),
+                        task.getTaskName(), task.getTaskDescription(), task.getAssignerID(), task.getTaskPriority(),
+                        task.getDueDate(), task.isComplete(), task.getAssignedUsers()))
                 .collect(Collectors.toSet());
     }
 
@@ -305,7 +308,7 @@ public class ProjectService {
         return allTasks.stream()
                 .map(task -> new TaskDTO(task.getTaskID(), task.getParentProjectID(), task.getParentOrgID(),
                 task.getTaskName(), task.getTaskDescription(), task.getAssignerID(),
-                task.getTaskPriority(), task.getDueDate(), task.isComplete()))
+                task.getTaskPriority(), task.getDueDate(), task.isComplete(), task.getAssignedUsers()))
                 .collect(Collectors.toSet());
     }
 
@@ -335,7 +338,7 @@ public class ProjectService {
         return allTasks.stream()
                 .map(task -> new TaskDTO(task.getTaskID(), task.getParentProjectID(), task.getParentOrgID(),
                 task.getTaskName(), task.getTaskDescription(), task.getAssignerID(),
-                task.getTaskPriority(), task.getDueDate(), task.isComplete()))
+                task.getTaskPriority(), task.getDueDate(), task.isComplete(), task.getAssignedUsers()))
                 .collect(Collectors.toSet());
     }
 }

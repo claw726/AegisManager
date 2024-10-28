@@ -2,19 +2,20 @@ package com.aegis.project.dto;
 
 import java.util.Set;
 import java.util.Date;
+import java.util.stream.Collectors;
 
 import com.aegis.project.model.UserModel;
 import com.aegis.project.model.TaskModel;
 
 import com.aegis.project.service.TaskService;
 public class TaskDTO {
-    private Integer taskID;
-    private Integer parentProjectID;
-    private Integer parentOrgID;
+    private int taskID;
+    private int parentProjectID;
+    private int parentOrgID;
     private String taskName;
     private String taskDescription;
-    private Integer assignerID;
-    private Set<UserModel> assignedUsers;
+    private int assignerID;
+    private Set<UserDTO> assignedUsers;
     private String taskPriority;
     private Date dueDate;
     private boolean isComplete;
@@ -31,13 +32,12 @@ public class TaskDTO {
         this.taskPriority = task.getTaskPriority();
         this.dueDate = task.getDueDate();
         this.isComplete = task.isComplete();
-        this.assignedUsers = task.getAssignedUsers();
-        // Map other fields
+        this.assignedUsers = task.getAssignedUsers().stream().map(user -> new UserDTO(user)).collect(Collectors.toSet());
     }
 
-    public TaskDTO(Integer taskID, Integer parentProjectID, Integer ParentOrgID, String TaskName,
-                    String TaskDescription, Integer AssignerID, String TaskPriority,
-                    Date DueDate, boolean IsComplete) {
+    public TaskDTO(int taskID, int parentProjectID, int ParentOrgID, String TaskName,
+                    String TaskDescription, int AssignerID, String TaskPriority,
+                    Date DueDate, boolean IsComplete, Set<UserModel> assignedUsers) {
         this.taskID = taskID;
         this.parentProjectID = parentProjectID;
         this.parentOrgID = ParentOrgID;
@@ -48,30 +48,30 @@ public class TaskDTO {
         this.dueDate = DueDate;
         this.isComplete = IsComplete;
 
-        this.assignedUsers = taskService.getAssignedUsers(taskID);
+        this.assignedUsers = assignedUsers.stream().map(user -> new UserDTO(user)).collect(Collectors.toSet());
     }
 
-    public Integer getTaskID() {
+    public int getTaskID() {
         return taskID;
     }
 
-    public void setTaskID(Integer taskID) {
+    public void setTaskID(int taskID) {
         this.taskID = taskID;
     }
 
-    public Integer getParentProjectID() {
+    public int getParentProjectID() {
         return parentProjectID;
     }
 
-    public void setParentProjectID(Integer parentProjectID) {
+    public void setParentProjectID(int parentProjectID) {
         this.parentProjectID = parentProjectID;
     }
 
-    public Integer getParentOrgID() {
+    public int getParentOrgID() {
         return parentOrgID;
     }
 
-    public void setParentOrgID(Integer parentOrgID) {
+    public void setParentOrgID(int parentOrgID) {
         this.parentOrgID = parentOrgID;
     }
 
@@ -91,19 +91,19 @@ public class TaskDTO {
         this.taskDescription = taskDescription;
     }
 
-    public Integer getAssignerID() {
+    public int getAssignerID() {
         return assignerID;
     }
 
-    public void setAssignerID(Integer assignerID) {
+    public void setAssignerID(int assignerID) {
         this.assignerID = assignerID;
     }
 
-    public Set<UserModel> getAssignedUsers() {
+    public Set<UserDTO> getAssignedUsers() {
         return assignedUsers;
     }
 
-    public void setAssignedUsers(Set<UserModel> assignedUsers) {
+    public void setAssignedUsers(Set<UserDTO> assignedUsers) {
         this.assignedUsers = assignedUsers;
     }
 
