@@ -15,7 +15,9 @@
 
     <div class="flex flex-col flex-grow p-5 space-y-4">
       <!-- Title -->
-      <h2 class="text-xl font-bold text-gray-800 group-hover:text-blue-600 transition-colors duration-200">
+      <h2
+        class="text-xl font-bold text-gray-800 group-hover:text-blue-600 transition-colors duration-200"
+      >
         {{ project.projectName }}
       </h2>
 
@@ -24,22 +26,26 @@
         {{ project.projectDescription }}
       </p>
 
-      <div class="flex-grow"/>
+      <div class="flex-grow" />
 
-      <div class="h-px bg-gray-200 w-full"/>
+      <div class="h-px bg-gray-200 w-full" />
 
       <!-- Footer -->
       <div class="flex items-center justify-between pt-2">
         <!-- Owner info -->
         <div class="flex items-center space-x-2">
-          <i class="fas fa-user-circle text-gray-400"/>
-          <span class="text-sm text-gray-600">{{ project.projectOwnerID }}</span>
+          <i class="fas fa-user-circle text-gray-400" />
+          <span class="text-sm text-gray-600">{{
+            project.projectOwnerID
+          }}</span>
         </div>
 
         <!-- Task counter -->
         <div class="flex items-center space-x-2">
-          <i class="fas fa-tasks text-gray-400"/>
-          <span class="text-sm font-medium text-gray-600">{{ formatTaskCount(9000) }}</span>
+          <i class="fas fa-tasks text-gray-400" />
+          <span class="text-sm font-medium text-gray-600">{{
+            formatTaskCount(9000)
+          }}</span>
         </div>
       </div>
     </div>

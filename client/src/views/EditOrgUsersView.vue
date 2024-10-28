@@ -1,45 +1,107 @@
 <template>
-  <div v-if="isLoggedIn" class="relative w-full h-full min-h-screen bg-gray-100">
+  <div v-if="isLoggedIn" class="min-h-screen bg-background relative">
     <NavBar />
-    <div class="flex flex-col items-center py-16">
-      <h1 class="text-4xl font-bold text-primary text-center py-8">
-        Edit Organization Users
-      </h1>
-      <div class="h-1 bg-accent rounded-lg w-1/4 mx-auto mb-8"></div>
-      <div class="py-8 w-full max-w-4xl">
-        <div class="relative flex flex-col p-8 mx-auto rounded-lg bg-white shadow-lg">
-          <!-- Button to toggle between Add Users and Remove Users tables -->
-          <div class="flex justify-center mb-6">
+
+    <!-- Main Content -->
+    <div class="container mx-auto px-4 py-8">
+      <!-- Back Button -->
+      <button
+        @click="$router.back()"
+        class="mb-6 inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+      >
+        <i class="fas fa-arrow-left mr-2"></i>
+        Back
+      </button>
+
+      <div class="flex flex-col space-y-6">
+        <!-- Header -->
+        <div class="text-center">
+          <h1 class="text-3xl font-bold text-gray-900">
+            Organization Users Management
+          </h1>
+          <p class="mt-2 text-gray-600">
+            Add or remove users from your organization
+          </p>
+        </div>
+
+        <!-- Main Card -->
+        <div class="bg-white rounded-xl shadow-lg overflow-hidden">
+          <!-- Toggle Tabs -->
+          <div class="flex border-b">
             <button
-              @click="toggleTable"
-              class="px-6 py-3 text-white bg-primary rounded-lg hover:bg-primary-dark transition duration-200 flex items-center"
+              @click="showAddUsers = true"
+              :class="[
+                'flex-1 px-6 py-4 text-sm font-medium focus:outline-none transition-colors',
+                showAddUsers
+                  ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50'
+                  : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50',
+              ]"
             >
-              <i :class="showAddUsers ? 'fas fa-user-plus' : 'fas fa-user-minus'"></i>
-              <span class="ml-2">{{ showAddUsers ? "Add Users" : "Remove Users" }}</span>
+              <i class="fas fa-user-plus mr-2"></i>
+              Add Users
+            </button>
+            <button
+              @click="showAddUsers = false"
+              :class="[
+                'flex-1 px-6 py-4 text-sm font-medium focus:outline-none transition-colors',
+                !showAddUsers
+                  ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50'
+                  : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50',
+              ]"
+            >
+              <i class="fas fa-user-minus mr-2"></i>
+              Remove Users
             </button>
           </div>
-          <!-- Add Users Table -->
-          <AvailableUsersTable
-            v-if="showAddUsers"
-            :users="availableUsers"
-            @addUser="addUser"
-          />
-          <!-- Remove Users Table -->
-          <CurrentUsersTable
-            v-else
-            :users="members"
-            @removeUser="removeUser"
-          />
+
+          <!-- Search Bar -->
+          <div class="p-4 border-b">
+            <div class="relative">
+              <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
+              <input
+                type="text"
+                v-model="searchQuery"
+                :placeholder="
+                  showAddUsers
+                    ? 'Search available users...'
+                    : 'Search current members...'
+                "
+                class="w-full pl-10 pr-4 py-2 border rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+              />
+            </div>
+          </div>
+
+          <!-- User Lists -->
+          <div class="p-4">
+            <div v-if="showAddUsers">
+              <AvailableUsersTable
+                :users="filteredAvailableUsers"
+                @addUser="addUser"
+              />
+            </div>
+            <div v-else>
+              <CurrentUsersTable
+                :users="filteredMembers"
+                @removeUser="removeUser"
+              />
+            </div>
+          </div>
         </div>
       </div>
-      <NotificationComponent
-        class="flex"
-        :show="notification.show"
-        :type="notification.type"
-        @close="closeNotification"
+
+      <!-- Container for notification -->
+      <div
+        class="fixed inset-x-0 bottom-0 pb-4 sm:pb-6 mx-auto px-4 sm:px-6 md:px-8"
+        style="max-width: 500px"
       >
-        {{ notification.message }}
-      </NotificationComponent>
+        <NotificationComponent
+          :show="notification.show"
+          :type="notification.type"
+          @close="closeNotification"
+        >
+          {{ notification.message }}
+        </NotificationComponent>
+      </div>
     </div>
   </div>
 </template>
@@ -57,6 +119,7 @@ export default {
       availableUsers: [],
       members: [],
       showAddUsers: true,
+      searchQuery: "",
       notification: {
         show: false,
         type: "info",
@@ -72,52 +135,74 @@ export default {
   },
   computed: {
     ...mapState("auth", ["isLoggedIn", "currentUser"]),
-  },
-  mounted() {
-    this.fetchOrgMembers();
+    filteredAvailableUsers() {
+      if (!this.searchQuery) return this.availableUsers;
+      const query = this.searchQuery.toLowerCase();
+      return this.availableUsers.filter(
+        (user) =>
+          user.userName.toLowerCase().includes(query) ||
+          user.email.toLowerCase().includes(query),
+      );
+    },
+    filteredMembers() {
+      if (!this.searchQuery) return this.members;
+      const query = this.searchQuery.toLowerCase();
+      return this.members.filter(
+        (user) =>
+          user.userName.toLowerCase().includes(query) ||
+          user.email.toLowerCase().includes(query),
+      );
+    },
   },
   methods: {
     async addUser(email) {
       try {
         const orgID = this.$route.params.orgIndex;
-        console.log(`Adding ${email} to org ${orgID}`);
-        const message = await this.$store.dispatch(
-          "organizations/addUserToOrganization",
-          {
-            orgID,
-            email,
-          },
+        await this.$store.dispatch("organizations/addUserToOrganization", {
+          orgID,
+          email,
+        });
+        this.showNotification(
+          "success",
+          `Successfully added ${email} to organization`,
         );
-        alert(message);
-        this.fetchOrgMembers();
+        await this.fetchOrgMembers();
       } catch (error) {
-        alert(
-          "Failed to add user to organization:" +
-            (error.response?.data || error.message),
+        this.showNotification(
+          "error",
+          `Failed to add user: ${error.response?.data || error.message}`,
         );
       }
     },
     async removeUser(email) {
       try {
         const orgID = this.$route.params.orgIndex;
-        const message = await this.$store.dispatch(
-          "organizations/removeUserFromOrganization",
-          {
-            orgID,
-            email,
-          },
+        await this.$store.dispatch("organizations/removeUserFromOrganization", {
+          orgID,
+          email,
+        });
+        this.showNotification(
+          "success",
+          `Successfully removed ${email} from organization`,
         );
-        alert(message);
-        this.fetchOrgMembers();
+        await this.fetchOrgMembers();
       } catch (error) {
-        alert(
-          "Failed to remove member from organization: " +
-            (error.response?.data || error.message),
+        this.showNotification(
+          "error",
+          `Failed to remove user: ${error.response?.data || error.message}`,
         );
       }
     },
-    toggleTable() {
-      this.showAddUsers = !this.showAddUsers;
+    showNotification(type, message) {
+      this.notification = {
+        show: true,
+        type,
+        message,
+      };
+      setTimeout(this.closeNotification, 5000);
+    },
+    closeNotification() {
+      this.notification.show = false;
     },
     async fetchOrgMembers() {
       try {
@@ -126,32 +211,26 @@ export default {
           throw new Error("Organization ID is not available!");
         }
 
-        // Fetch org members
         this.members = await this.$store.dispatch(
           "organizations/fetchOrgMembers",
           orgID,
         );
-        console.log("Organization Members:", this.members);
-
-        // Fetch all users
         const allUsers = await this.$store.dispatch("users/fetchAllUsers");
-        console.log("All Users:", allUsers);
 
-        // Filter out users who are not a member of this org
         const memberIDs = this.members.map((member) => member.userID);
         this.availableUsers = allUsers.filter(
           (user) => !memberIDs.includes(user.userID),
         );
       } catch (error) {
-        console.error(
-          "Error fetching organization members or users:",
-          error.message,
-        );
-        alert(
-          "Failed to load organization members or available users. Please Try again later",
+        this.showNotification(
+          "error",
+          "Failed to load users. Please try again later.",
         );
       }
     },
+  },
+  mounted() {
+    this.fetchOrgMembers();
   },
 };
 </script>

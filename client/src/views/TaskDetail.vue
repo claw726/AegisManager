@@ -1,143 +1,103 @@
 <template>
-  <div
-    class="flex flex-col items-center min-h-screen h-full w-full space-y-4 p-4"
-  >
-    <div
-      class="task-card cursor-pointerbg-white border border-gray-300 rounded-lg p-4 shadow-md cursor-pointer"
-    >
-      <div class="flex">
-        <input
-          v-on:click="decideFun($event)"
-          type="checkbox"
-          class="checkbox"
-          v-model="isChecked"
-        />
-        <h3 class="font-bold text-3xl text-hunter-green mb-6">
-          {{ task.title }}
-        </h3>
-        <button class="edit-btn rounded top-right-button">Edit Task</button>
-        <button
-          @click="showPopup = true"
-          class="delete-btn rounded top-right-button"
-        >
-          Delete Task
-        </button>
-      </div>
+  <NavBar />
+  
+  <div class="min-h-screen bg-gray-50 p-8">
 
-      <div v-if="showPopup" class="popup">
-        <div class="popup-content">
-          <p>Are you sure you want to delete this task?</p>
-          <button @click="handleYes" class="remove-btn">Yes</button>
-          <button @click="handleNo" class="remove-btn">No</button>
-        </div>
-      </div>
-
-      <div class="h-1 bg-accent drop-shadow-lg my-4 rounded" />
-      <div style="margin-inline-start: 20px">
-        <div class="flex items-center mb-4 infobar text-hunter-green text-xl">
-          <p>
-            Assigner:
-            <select v-model="selectedValue">
-              <option value="">{{ task.task_assigner }}</option>
-              <option
-                v-for="option in options"
-                :key="option.value"
-                :value="option.value"
+    
+    <div class="max-w-4xl mx-auto bg-white rounded-lg shadow-lg p-6">
+      <div v-if="fetchedTask" class="space-y-6">
+        <!-- Task Header -->
+          <div class="flex justify-between items-start">
+            <h1 class="text-2xl font-bold text-primary">{{ fetchedTask.taskName }}</h1>
+            <div class="flex space-x-4">
+              <!-- Status Badge -->
+              <span 
+                class="px-3 py-1 rounded-full text-sm font-semibold"
+                :class="{
+                  'bg-green-100 text-green-800': fetchedTask.complete,
+                  'bg-red-100 text-red-800': !fetchedTask.complete
+                }"
               >
-                {{ option.text }}
-              </option>
-            </select>
-          </p>
-          <!-- <p>Selected: {{ selectedValue }}</p> -->
+                {{ fetchedTask.complete ? 'Complete' : 'Incomplete' }}
+              </span>
+            </div>
+          </div>
 
-          <p>
-            Completed:
-            <select
-              v-model="selectedCompletionValue"
-              @change="handleOptionChange"
+        <!-- Task Details -->
+          <div 
+          v-if="fetchedTask.complete" 
+          class="greyed-out space-y-4">
+
+            <h2 class="text-lg font-semibold mb-2">Description</h2>
+            <p>{{ fetchedTask.taskDescription }}</p>
+
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <h2 class="text-lg font-semibold mb-2">Priority</h2>
+                <span 
+                  class="px-2 py-1 rounded-md text-sm font-medium"
+                  :class="{
+                    'bg-red-100 text-red-800': fetchedTask.taskPriority === 'High',
+                    'bg-yellow-100 text-yellow-800': fetchedTask.taskPriority === 'Medium',
+                    'bg-blue-100 text-blue-800': fetchedTask.taskPriority === 'Low'
+                  }"
+                >
+                  {{ fetchedTask.taskPriority }}
+                </span>
+              </div>
+
+              <div>
+                <h2 class="text-lg font-semibold mb-2">Due Date</h2>
+                <p>{{ formatDate(fetchedTask.dueDate) }}</p>
+              </div>
+            </div>
+          </div>
+
+            <div 
+          v-else="fetchedTask.complete" 
+          class="space-y-4">
+
+            <h2 class="text-lg font-semibold mb-2">Description</h2>
+            <p>{{ fetchedTask.taskDescription }}</p>
+
+            <div class="grid grid-cols-2 gap-4">
+              <div>
+                <h2 class="text-lg font-semibold mb-2">Priority</h2>
+                <span 
+                  class="px-2 py-1 rounded-md text-sm font-medium"
+                  :class="{
+                    'bg-red-100 text-red-800': fetchedTask.taskPriority === 'High',
+                    'bg-yellow-100 text-yellow-800': fetchedTask.taskPriority === 'Medium',
+                    'bg-blue-100 text-blue-800': fetchedTask.taskPriority === 'Low'
+                  }"
+                >
+                  {{ fetchedTask.taskPriority }}
+                </span>
+              </div>
+
+              <div>
+                <h2 class="text-lg font-semibold mb-2">Due Date</h2>
+                <p>{{ formatDate(fetchedTask.dueDate) }}</p>
+              </div>
+            </div>
+          </div>
+
+          <!-- Task Actions -->
+          <div class="flex justify-end space-x-4 mt-6">
+            <button 
+              @click="goBack" 
+              class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300"
             >
-              <option value="">{{ task.completed }}</option>
-              <option
-                v-for="option in completedOptions"
-                :key="option.value"
-                :value="option.value"
-              >
-                {{ option.text }}
-              </option>
-            </select>
-          </p>
-
-          <p>
-            Due Date:
-            <select v-model="selectedValue">
-              <option value="">{{ task.dueDate }}</option>
-              <option
-                v-for="option in options"
-                :key="option.value"
-                :value="option.value"
-              >
-                {{ task.dueDate }}
-              </option>
-            </select>
-          </p>
-
-          <p>
-            Priority:
-            <select v-model="selectedValue">
-              <option value="">{{ task.priority }}</option>
-              <option
-                v-for="option in priorityOptions"
-                :key="option.value"
-                :value="option.value"
-              >
-                {{ option.text }}
-              </option>
-            </select>
-          </p>
-        </div>
-
-        <h4 class="text-hunter-green text-xl infobar">
-          Description: {{ task.description }}
-        </h4>
-
-        <!-- Dropdown for Assignees -->
-        <div class="text-lg">
-          <label for="assignees-dropdown" class="text-hunter-green text-xl"
-            >Assignees:</label
-          >
-
-          <!-- List of Assignees with Remove Button -->
-          <ul class="text-hunter-green text-xl">
-            <li
-              v-for="(assignee, index) in task.assignees"
-              :key="index"
-              class="flex items-center space-x-2"
+              Back
+            </button>
+            <button 
+              v-if="!fetchedTask.complete"
+              @click="markAsComplete" 
+              class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600"
             >
-              <span>{{ assignee }}</span>
-              <button
-                @click="removeAssignee(index)"
-                class="remove-btn rounded text-red-600"
-              >
-                Remove
-              </button>
-            </li>
-          </ul>
-        </div>
-
-        <!-- Button to add new assignees -->
-        <div class="add-assignee mt-4 flex items-center space-x-2">
-          <input
-            v-model="newAssignee"
-            placeholder="Enter new assignee name"
-            class="border rounded p-2"
-          />
-          <button
-            @click="addAssignee"
-            class="bg-green-500 card:hover bg-light-blue text-white p-2 rounded"
-          >
-            Add Assignee
-          </button>
-        </div>
+              Mark Complete
+            </button>
+          </div>
       </div>
     </div>
   </div>
@@ -145,51 +105,49 @@
 
 <script>
 import { mapState } from "vuex";
+import NavBar from "@/components/NavBar.vue";
 
 export default {
+  name: 'TaskDetail',
+
   data() {
     return {
-      showPopup: false,
-      taskId: "",
-      task: "",
-      selectedAssignee: null, // For the dropdown
-      newAssignee: "", // For adding a new assignee
-      selectedAssigner: null,
-      newAssigner: "",
-
-      selectedValue: "",
-      options: [
-        { value: "option1", text: "Option 1" },
-        { value: "option2", text: "Option 2" },
-        { value: "option3", text: "Option 3" },
-      ],
-
-      priorityOptions: [
-        { value: "option1", text: "High" },
-        { value: "option2", text: "Medium" },
-        { value: "option3", text: "Low" },
-      ],
-      completedOptions: [
-        { value: "true", text: "true" },
-        { value: "false", text: "false" },
-      ],
+      isGrayedOut: null,
+      fetchedTask: null,
     };
   },
-
-  created() {
-    this.taskId = this.$route.query.taskId;
+  
+  components: {
+    NavBar,
   },
 
-  mounted() {
-    this.taskId = this.$route.query.taskId;
-    this.task = this.getTaskfromStorage(this.taskId);
+  props: {
+    taskId: {
+      type: [String, Number],
+      required: true
+    }
   },
 
   computed: {
-    ...mapState("tasks", ["allTasks"]),
+    ...mapState("tasks", ["allTasks"], "currentTask", "updateTask"),
+  },
+
+  async mounted() {
+    this.fetchedTask = await this.$store.dispatch("tasks/fetchTask", this.$route.params.taskId);
+    console.log("Client has stored fetched task.");
+    console.log(JSON.stringify(this.fetchedTask, null, 2));
   },
 
   methods: {
+    goBack() {
+     this.$router.go(-1);
+   },
+
+    async getTask() {
+      console.log("Doing async method")
+      //this.$store.dispatch("tasks/fetchTask", this.taskId);
+    },
+
     handleOptionChange() {
       if (this.selectedCompletionValue === "true") {
         this.completeTask();
@@ -215,41 +173,41 @@ export default {
         this.unCompleteTask(this);
       }
     },
-
-    completeTask() {
-      this.task.completed = true;
-      this.selectedAssigner = true;
-      this.isChecked = true;
-
-      //this.allTasks.id.completed = true;
-      //localStorage.setItem("allTasks", JSON.stringify(all));
-    },
-    unCompleteTask() {
-      this.task.completed = false;
-      this.selectedAssigner = false;
-      this.isChecked = false;
-
-      //this.allTasks.id.completed = true;
-      //localStorage.setItem("allTasks", JSON.stringify(all));
+    formatDate(date) {
+      if (!date) return 'No due date';
+      return new Date(date).toLocaleDateString('en-US', {
+        year: 'numeric',
+        month: 'short',
+        day: 'numeric'
+      });
     },
 
-    getTaskfromStorage(taskId) {
-      const task = JSON.parse(JSON.stringify(this.allTasks))[
-        String(this.taskId)
-      ];
-      return task;
-    },
+    async markAsComplete() {
+      try {
 
-    removeAssignee(index) {
-      // Remove the selected assignee from the task
-      this.task.assignees.splice(index, 1);
-    },
+        const dueDate = `${this.fetchedTask.dueDate}T15:30:00.000z`;
 
-    addAssignee() {
-      if (this.newAssignee.trim()) {
-        // Add new assignee if input is not empty
-        this.task.assignees.push(this.newAssignee.trim());
-        this.newAssignee = ""; // Clear input after adding
+        const taskData = {
+          taskName: this.fetchedTask.taskName,
+          taskDescription: this.fetchedTask.taskDescription,
+          assignerID: this.fetchedTask.assignerID,
+          taskPriority: this.fetchedTask.taskPriority,
+          dueDate: dueDate,
+          isComplete: true
+        };
+
+        await this.$store.dispatch("tasks/updateTask", {
+          taskId: this.taskId,
+          taskData: taskData,
+        });
+      
+        // Reroute to task to do list as task is now marked complete
+        //await this.loadTask();
+        this.isGrayedOut = true;
+        this.$router.push({ name: "TDList" });
+      } catch (error) {
+        console.error('Failed to mark task as complete:', error);
+        // Error will be handled by Vuex store and displayed via updateStatus
       }
     },
 
@@ -265,85 +223,10 @@ export default {
 </script>
 
 <style scoped>
-select {
-  padding: 10px;
-  border: 1px solid #ccc;
-  border-radius: 5px;
-  appearance: none; /* Customize the appearance */
-  /*background: url("path/to/dropdown-arrow.svg") no-repeat right 10px center; /* Add a custom dropdown arrow */
+
+.greyed-out {
+  opacity: 0.3; /* Adjust the opacity as needed */
 }
 
-.popup {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.popup-content {
-  background-color: white;
-  padding: 20px;
-  border-radius: 5px;
-}
-
-.infobar {
-  margin-right: 600px;
-  gap: 20px;
-  font-size: "text-lg";
-  margin-bottom: 20px;
-}
-.task-card {
-  transition: transform 0.2s;
-}
-.task-card:hover {
-  transform: scale(1.02);
-}
-
-.remove-btn {
-  cursor: pointer;
-  background-color: rgb(2, 2, 58);
-  color: white;
-  border: none;
-  padding: 5px 10px;
-  margin-left: 63px;
-}
-
-.edit-btn {
-  cursor: pointer;
-  background-color: rgb(2, 2, 58);
-  color: white;
-  border: none;
-  padding: 5px 10px;
-  position: absolute;
-  top: 25px;
-  right: 25px;
-}
-
-.delete-btn {
-  cursor: pointer;
-  background-color: rgb(77, 12, 23);
-  color: white;
-  border: none;
-  padding: 5px 10px;
-  position: absolute;
-  top: 60px;
-  right: 25px;
-}
-
-.add-assignee input {
-  padding: 5px;
-  margin-right: 10px;
-}
-
-.add-assignee button {
-  padding: 5px 10px;
-  color: white;
-  border: none;
-  cursor: pointer;
-}
 </style>
+

@@ -1,63 +1,214 @@
 <template>
-  <div class="relative w-full h-full min-h-screen bg-background">
+  <div class="relative w-full h-full min-h-screen bg-gray-50">
     <NavBar />
 
     <div v-if="isLoggedIn">
-      <div class="text-4xl font-semibold text-secondary text-center mt-8">
-        Account Settings
-      </div>
-      <div v-if="currentUser" class="relative flex flex-col items-center py-12">
-        <div class="text-2xl font-semibold text-secondary mb-8">
-          Manage your account here:
-        </div>
-        <div class="h-1 bg-accent drop-shadow-lg w-screen"></div>
-        <div
-          class="flex flex-col mx-auto my-8 bg-white rounded-lg border drop-shadow-lg justify-items-center py-8 px-24"
-        >
-          <!-- Profile Section -->
+      <div class="container mx-auto px-4 py-8">
+        <h1 class="text-4xl font-bold text-gray-800 text-center mb-8">
+          <font-awesome-icon icon="fa-solid fa-gear" class="mr-2" />
+          Account Settings
+        </h1>
 
-          <div class="flex flex-row items-center">
-            <img
-              :src="
-                currentUser.profilePicture ||
-                'https://toppng.com/public/uploads/preview/instagram-default-profile-picture-11562973083brycehrmyv.png'
-              "
-              alt="Profile Picture"
-              class="w-48 h-48 rounded-full drop-shadow-xl col-span-1"
-            />
-            <div class="ml-8 flex flex-col justify-center">
-              <div class="text-4xl font-bold text-primary text-center">
-                Name: {{ currentUser.userName }}
+        <div v-if="currentUser" class="max-w-4xl mx-auto">
+          <!-- Profile Card -->
+          <div class="bg-white rounded-xl shadow-lg p-8 mb-8">
+            <div class="flex flex-col md:flex-row items-center gap-8">
+              <div class="relative group">
+                <img
+                  :src="currentUser.profilePicture || '/default-avatar.png'"
+                  alt="Profile Picture"
+                  class="w-48 h-48 rounded-full object-cover border-4 border-gray-200"
+                />
+                <button
+                  class="absolute bottom-2 right-2 bg-gray-800 text-white p-2 rounded-full opacity-0 group-hover:opacity-100 transition-opacity"
+                  @click="uploadNewPhoto"
+                >
+                  <font-awesome-icon icon="fa-solid fa-camera" />
+                </button>
               </div>
-              <div class="text-2xl font-semibold text-secondary text-center">
-                Email: {{ currentUser.email }}
+
+              <div class="flex-1 space-y-4 text-center md:text-left">
+                <div>
+                  <h2 class="text-3xl font-bold text-gray-800">
+                    {{ currentUser.userName }}
+                  </h2>
+                  <p class="text-gray-600">
+                    <font-awesome-icon
+                      icon="fa-solid fa-envelope"
+                      class="mr-2"
+                    />
+                    {{ currentUser.email }}
+                  </p>
+                </div>
+                <button
+                  class="inline-flex items-center px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors"
+                  @click="goToEditProfile"
+                >
+                  <font-awesome-icon icon="fa-solid fa-pen" class="mr-2" />
+                  Edit Profile
+                </button>
               </div>
-              <button class="dashboard-button mt-4" @click="goToEditProfile">
-                Edit Profile Details
+            </div>
+          </div>
+
+          <!-- Settings Sections -->
+          <div class="space-y-6">
+            <!-- Security Settings -->
+            <div class="bg-white rounded-xl shadow-lg p-6">
+              <h3
+                class="text-xl font-semibold text-gray-800 mb-4 flex items-center"
+              >
+                <font-awesome-icon
+                  icon="fa-solid fa-shield-halved"
+                  class="mr-2"
+                />
+                Security Settings
+              </h3>
+              <div class="space-y-4">
+                <button
+                  class="w-full text-left px-4 py-3 rounded-lg hover:bg-gray-50 flex items-center justify-between"
+                  @click="resetPassword"
+                >
+                  <div>
+                    <span class="font-medium">Change Password</span>
+                    <p class="text-sm text-gray-600">
+                      Update your password to keep your account secure
+                    </p>
+                  </div>
+                  <font-awesome-icon
+                    icon="fa-solid fa-chevron-right"
+                    class="text-gray-400"
+                  />
+                </button>
+
+                <div class="flex items-center justify-between px-4 py-3">
+                  <div>
+                    <span class="font-medium">Two-Factor Authentication</span>
+                    <p class="text-sm text-gray-600">
+                      Add an extra layer of security to your account
+                    </p>
+                  </div>
+                  <label
+                    class="relative inline-flex items-center cursor-pointer"
+                  >
+                    <input
+                      type="checkbox"
+                      v-model="settings.twoFactorEnabled"
+                      class="sr-only peer"
+                    />
+                    <div
+                      class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"
+                    ></div>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Notification Preferences -->
+            <div class="bg-white rounded-xl shadow-lg p-6">
+              <h3
+                class="text-xl font-semibold text-gray-800 mb-4 flex items-center"
+              >
+                <font-awesome-icon icon="fa-solid fa-bell" class="mr-2" />
+                Notification Settings
+              </h3>
+              <div class="space-y-4">
+                <div
+                  v-for="(pref, key) in settings.notifications"
+                  :key="key"
+                  class="flex items-center justify-between px-4 py-3"
+                >
+                  <div>
+                    <span class="font-medium">{{ pref.label }}</span>
+                    <p class="text-sm text-gray-600">{{ pref.description }}</p>
+                  </div>
+                  <label
+                    class="relative inline-flex items-center cursor-pointer"
+                  >
+                    <input
+                      type="checkbox"
+                      v-model="settings.notifications[key].enabled"
+                      class="sr-only peer"
+                    />
+                    <div
+                      class="w-11 h-6 bg-gray-200 peer-focus:outline-none peer-focus:ring-4 peer-focus:ring-blue-300 rounded-full peer peer-checked:after:translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-[2px] after:left-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all peer-checked:bg-blue-600"
+                    ></div>
+                  </label>
+                </div>
+              </div>
+            </div>
+
+            <!-- Privacy Settings -->
+            <div class="bg-white rounded-xl shadow-lg p-6">
+              <h3
+                class="text-xl font-semibold text-gray-800 mb-4 flex items-center"
+              >
+                <font-awesome-icon
+                  icon="fa-solid fa-user-shield"
+                  class="mr-2"
+                />
+                Privacy Settings
+              </h3>
+              <div class="space-y-4">
+                <div class="px-4 py-3">
+                  <span class="font-medium">Profile Visibility</span>
+                  <select
+                    v-model="settings.profileVisibility"
+                    class="mt-2 block w-full rounded-md border-gray-300 shadow-sm focus:border-blue-500 focus:ring-blue-500"
+                  >
+                    <option value="public">Public</option>
+                    <option value="friends">Friends Only</option>
+                    <option value="private">Private</option>
+                  </select>
+                </div>
+              </div>
+            </div>
+
+            <!-- Danger Zone -->
+            <div
+              class="bg-white rounded-xl shadow-lg p-6 border-2 border-red-200"
+            >
+              <h3
+                class="text-xl font-semibold text-red-600 mb-4 flex items-center"
+              >
+                <font-awesome-icon
+                  icon="fa-solid fa-triangle-exclamation"
+                  class="mr-2"
+                />
+                Danger Zone
+              </h3>
+              <button
+                class="w-full text-left px-4 py-3 rounded-lg hover:bg-red-50 flex items-center justify-between text-red-600"
+                @click="confirmDeleteAccount"
+              >
+                <div>
+                  <span class="font-medium">Delete Account</span>
+                  <p class="text-sm text-red-500">
+                    Permanently delete your account and all associated data
+                  </p>
+                </div>
+                <font-awesome-icon icon="fa-solid fa-trash" />
               </button>
             </div>
           </div>
-          <div class="h-1 bg-accent drop-shadow-lg my-8 rounded" />
-          <div class="p-4">
-            <div class="text-lg underline text-left my-4 font-semibold">
-              Account Settings:
-            </div>
-            <div class="mx-8">
-              <Button class="dashboard-button" @click="resetPassword"
-                >Reset Password</Button
-              >
-            </div>
-          </div>
-          <NotificationComponent
-            class="flex"
-            :show="notification.show"
-            :type="notification.type"
-            @close="closeNotification"
-          >
-            {{ notification.message }}
-          </NotificationComponent>
         </div>
       </div>
+    </div>
+
+    <!-- Notification Component - Repositioned -->
+    <div class="fixed bottom-4 right-4 max-w-md z-50">
+      <!-- Added max-width and z-index -->
+      <NotificationComponent
+        :show="notification.show"
+        :type="notification.type"
+        @close="closeNotification"
+        class="w-full shadow-lg rounded-lg overflow-hidden"
+      >
+        <div class="p-4 break-words">
+          <!-- Added padding and word breaking -->
+          {{ notification.message }}
+        </div>
+      </NotificationComponent>
     </div>
   </div>
 </template>
@@ -66,11 +217,39 @@
 import NavBar from "@/components/NavBar.vue";
 import { mapState } from "vuex";
 import NotificationComponent from "@/components/NotificationComponent.vue";
+import { library } from "@fortawesome/fontawesome-svg-core";
+import {
+  faGear,
+  faEnvelope,
+  faPen,
+  faCamera,
+  faShieldHalved,
+  faBell,
+  faUserShield,
+  faChevronRight,
+  faTriangleExclamation,
+  faTrash,
+} from "@fortawesome/free-solid-svg-icons";
+import { FontAwesomeIcon } from "@fortawesome/vue-fontawesome";
+
+library.add(
+  faGear,
+  faEnvelope,
+  faPen,
+  faCamera,
+  faShieldHalved,
+  faBell,
+  faUserShield,
+  faChevronRight,
+  faTriangleExclamation,
+  faTrash,
+);
 
 export default {
   components: {
     NavBar,
     NotificationComponent,
+    FontAwesomeIcon,
   },
   data() {
     return {
@@ -78,6 +257,27 @@ export default {
         show: false,
         type: "info",
         message: "",
+      },
+      settings: {
+        twoFactorEnabled: false,
+        profileVisibility: "public",
+        notifications: {
+          emailUpdates: {
+            label: "Email Updates",
+            description: "Receive updates about your account via email",
+            enabled: true,
+          },
+          pushNotifications: {
+            label: "Push Notifications",
+            description: "Receive notifications on your device",
+            enabled: true,
+          },
+          marketingEmails: {
+            label: "Marketing Emails",
+            description: "Receive promotional offers and updates",
+            enabled: false,
+          },
+        },
       },
     };
   },
@@ -96,15 +296,26 @@ export default {
         );
         this.showNotification(
           "success",
-          "Sent a password request to " + this.currentUser.email,
+          "Password reset email sent to " + this.currentUser.email,
         );
       } catch (error) {
         this.showNotification(
           "error",
-          "Failed to update password: " +
+          "Failed to send reset email: " +
             (error.response?.data || error.message),
         );
       }
+    },
+    uploadNewPhoto() {
+      // Implement photo upload logic
+      this.showNotification("info", "Photo upload feature coming soon");
+    },
+    confirmDeleteAccount() {
+      // Implement account deletion confirmation dialog
+      this.showNotification(
+        "warning",
+        "Account deletion requires confirmation",
+      );
     },
     showNotification(type, message) {
       this.notification = {
@@ -113,7 +324,7 @@ export default {
         message,
       };
 
-      if (type == "success") {
+      if (type === "success") {
         setTimeout(this.closeNotification, 5000);
       }
     },
