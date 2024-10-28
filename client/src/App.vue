@@ -5,13 +5,11 @@
 
 <script>
 export default {
-  name: 'App',
-
-}
+  name: "App",
+};
 </script>
 
 <style>
-
 * {
   margin: 0;
   padding: 0;
@@ -19,7 +17,6 @@ export default {
 }
 
 body {
-  font-family: 'montserrat', sans-serif;
+  font-family: "montserrat", sans-serif;
 }
-
 </style>

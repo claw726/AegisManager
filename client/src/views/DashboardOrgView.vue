@@ -2,7 +2,6 @@
   <div v-if="isLoggedIn" class="min-h-screen bg-background">
     <NavBar />
 
-    
     <!-- Notifications -->
     <NotificationComponent
       v-model:show="notification.show"
@@ -218,8 +217,8 @@ export default {
       creator: {},
       notification: {
         show: false,
-        type: 'info',
-        message: '',
+        type: "info",
+        message: "",
       },
       deleteConfirmation: false,
     };
@@ -254,7 +253,10 @@ export default {
         );
       } catch (error) {
         console.error("Error fetching organization data:", error);
-        this.showNotification('error', `Failed to load organization data: ${error.message}`);
+        this.showNotification(
+          "error",
+          `Failed to load organization data: ${error.message}`,
+        );
       }
     },
     async getAllOrgProjects() {
@@ -276,7 +278,10 @@ export default {
         this.projects = filteredProjects;
       } catch (error) {
         console.error("Error fetching projects:", error);
-        this.showNotification('error', `Failed to load projects: ${error.message}`);
+        this.showNotification(
+          "error",
+          `Failed to load projects: ${error.message}`,
+        );
       }
     },
     async getCreatorData() {
@@ -287,7 +292,10 @@ export default {
         );
       } catch (error) {
         console.error("Error getting org owner info");
-        this.showNotification('error', 'Failed to load organization owner information');
+        this.showNotification(
+          "error",
+          "Failed to load organization owner information",
+        );
       }
     },
     goToCreateProject() {
@@ -299,10 +307,13 @@ export default {
     editOrg() {
       // Check if user has permission
       if (this.org.orgOwnerID !== this.currentUser.userID) {
-        this.showNotification('error', 'You do not have permission to edit this organization');
+        this.showNotification(
+          "error",
+          "You do not have permission to edit this organization",
+        );
         return;
       }
-      
+
       this.$router.push({
         name: "EditOrg",
         params: { orgIndex: this.$route.params.orgIndex },
@@ -311,13 +322,20 @@ export default {
     async deleteOrg() {
       // Check if user has permission
       if (this.org.orgOwnerID !== this.currentUser.userID) {
-        this.showNotification('error', 'You do not have permission to delete this organization');
+        this.showNotification(
+          "error",
+          "You do not have permission to delete this organization",
+        );
         return;
       }
 
       // Show confirmation notification
       if (!this.deleteConfirmation) {
-        this.showNotification('warning', 'Are you sure you want to delete this organization? Click delete again to confirm.', 5000);
+        this.showNotification(
+          "warning",
+          "Are you sure you want to delete this organization? Click delete again to confirm.",
+          5000,
+        );
         this.deleteConfirmation = true;
         setTimeout(() => {
           this.deleteConfirmation = false;
@@ -330,8 +348,8 @@ export default {
           "organizations/deleteOrganization",
           this.$route.params.orgIndex,
         );
-        
-        this.showNotification('success', 'Organization deleted successfully!');
+
+        this.showNotification("success", "Organization deleted successfully!");
         setTimeout(() => {
           this.$router.push({
             name: "viewOrgs",
@@ -339,18 +357,24 @@ export default {
           });
         }, 1500);
       } catch (err) {
-        this.showNotification('error', `Failed to delete organization: ${err.message}`);
+        this.showNotification(
+          "error",
+          `Failed to delete organization: ${err.message}`,
+        );
       }
-      
+
       this.deleteConfirmation = false;
     },
     editOrgUsers() {
       // Check if user has permission
       if (this.org.orgOwnerID !== this.currentUser.userID) {
-        this.showNotification('error', 'You do not have permission to edit organization users');
+        this.showNotification(
+          "error",
+          "You do not have permission to edit organization users",
+        );
         return;
       }
-      
+
       this.$router.push({
         name: "EditOrgUsers",
         params: { orgIndex: this.$route.params.orgIndex },
