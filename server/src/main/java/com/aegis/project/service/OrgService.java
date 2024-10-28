@@ -1,5 +1,6 @@
 package com.aegis.project.service;
 
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -103,13 +104,7 @@ public class OrgService {
         }
 
         List<ProjectModel> allProjects = projectRepository.findByParentOrgID(orgID);
-        return allProjects.stream()
-                .map(project -> new ProjectDTO(project.getProjectID(), project.getParentOrgID(), project.getProjectName(),
-                project.getProjectDescription(), project.getProjectOwnerID(), project.getEncodedImage(),
-                project.getAssignedUsers().stream().map(user -> new UserDTO(user.getUserID(), user.getUserName(),
-                user.getEmail(), user.getProfilePicture())).collect(Collectors.toSet()),
-                project.getProjectTasks().stream().map(task -> new TaskDTO(task)).collect(Collectors.toSet())))
-                .collect(Collectors.toSet());
+        return allProjects.stream().map(project -> new ProjectDTO(project)).collect(Collectors.toSet());
     }
 
     public void updateOrg(int orgID, String orgName, String orgDescription, int orgOwnerID, String encodedImage) {
@@ -213,6 +208,37 @@ public class OrgService {
 
         userToRemove.getOrgs().remove(org);
         userRepository.save(userToRemove);
+    }
+
+    public Set<ProjectDTO> getArchivedProjects(int ordID) {
+        OrgModel org = orgRepository.findById(ordID)
+                .orElseThrow(() -> new RuntimeException("Org not found with id: " + ordID));
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUsername = ((UserDetails) authentication.getPrincipal()).getUsername();
+
+        UserModel currentUser = userRepository.findByEmail(currentUsername)
+                .orElseThrow(() -> new RuntimeException("User not found with email: " + currentUsername));
+
+        List<ProjectModel> allProjects = projectRepository.findByParentOrgID(ordID);
+
+        List<ProjectModel> accessibleProjects = new ArrayList<>();
+        for (ProjectModel project : allProjects) {
+            if (project.getProjectOwnerID() == currentUser.getUserID() /*|| org.getOrgOwnerID() == currentUser.getUserID()*/) {
+                if (project.isArchived()) {
+                    accessibleProjects.add(project);
+                }
+            }
+        }
+
+        if (accessibleProjects.isEmpty()) {
+            throw new RuntimeException("There are no archived projects accessible by this user");
+        }
+
+        return accessibleProjects.stream()
+                .filter(ProjectModel::isArchived)
+                .map(project -> new ProjectDTO(project))
+                .collect(Collectors.toSet());
     }
 
     public String createOrgJson(OrgModel org) {

@@ -58,6 +58,9 @@ public class ProjectModel {
     @Column(name = "encoded_image")
     private String encodedImage;
 
+    @Column(name = "is_archived")
+    private boolean isArchived;
+
     public int getProjectID() {
         return projectID;
     }
@@ -128,5 +131,13 @@ public class ProjectModel {
 
     public void setParentOrg(OrgModel parentOrg) {
         this.parentOrg = parentOrg;
+    }
+
+    public boolean isArchived() {
+        return isArchived;
+    }
+
+    public void setArchived(boolean isArchived) {
+        this.isArchived = isArchived;
     }
 }

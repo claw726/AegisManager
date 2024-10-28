@@ -198,4 +198,26 @@ public class OrgController {
             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
         }
     }
+
+    @GetMapping("/{orgID}/archivedProjects")
+    public ResponseEntity<Set<ProjectDTO>> getArchivedProjects(@PathVariable int orgID) {
+        logger.info("Received request to get archived projects from org with ID: {}", orgID);
+        try {
+            return ResponseEntity.ok(orgService.getArchivedProjects(orgID));
+        } catch (RuntimeException e) {
+            if (e.getMessage().contains("Org not found with id:")) {
+                logger.error(e.getMessage());
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            } else if (e.getMessage().contains("User not found with email:")) {
+                logger.error(e.getMessage());
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            } else if (e.getMessage().contains("There are no archived projects accessible by this user")) {
+                logger.error(e.getMessage());
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            } else {
+                logger.error(e.getMessage());
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+            }
+        }
+    }
 }

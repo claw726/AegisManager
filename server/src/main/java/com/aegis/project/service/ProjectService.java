@@ -88,6 +88,7 @@ public class ProjectService {
         project.setProjectOwnerID(projectOwnerID);
         project.setEncodedImage(encodedImage);
         project.setParentOrgID(parentOrgID);
+        project.setArchived(false);
         projectRepository.save(project);
 
         try {
@@ -127,10 +128,7 @@ public class ProjectService {
             throw new RuntimeException("User does not have permission to get project");
         }
 
-        return new ProjectDTO(project.getProjectID(), project.getParentOrgID(),
-            project.getProjectName(), project.getProjectDescription(), project.getProjectOwnerID(),
-            project.getEncodedImage(), project.getAssignedUsers().stream().map(user -> new UserDTO(user)).collect(Collectors.toSet()),
-            project.getProjectTasks().stream().map(task -> new TaskDTO(task)).collect(Collectors.toSet()));
+        return new ProjectDTO(project);
     }
 
     public void updateProject(int projectID, String projectName, String projectDescription, int projectOwnerID, String encodedImage) {
@@ -340,5 +338,23 @@ public class ProjectService {
                 task.getTaskName(), task.getTaskDescription(), task.getAssignerID(),
                 task.getTaskPriority(), task.getDueDate(), task.isComplete(), task.getAssignedUsers()))
                 .collect(Collectors.toSet());
+    }
+
+    public void changeArchivedStatus(int projectID, boolean isArchived) {
+        ProjectModel project = projectRepository.findById(projectID)
+                .orElseThrow(() -> new RuntimeException("Project not found with id: " + projectID));
+
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUsername = ((UserDetails) authentication.getPrincipal()).getUsername();
+
+        UserModel currentUser = userRepository.findByEmail(currentUsername)
+                .orElseThrow(() -> new RuntimeException("User not found with email: " + currentUsername));
+
+        if (project.getProjectOwnerID() != currentUser.getUserID()) {
+            throw new RuntimeException("User does not have permission to change project archived status");
+        }
+
+        project.setArchived(isArchived);
+        projectRepository.save(project);
     }
 }
