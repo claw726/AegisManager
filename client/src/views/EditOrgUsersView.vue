@@ -1,48 +1,45 @@
 <template>
-  <div
-    v-if="isLoggedIn"
-    class="relative w-full h-full min-h-screen bg-background"
-  >
+  <div v-if="isLoggedIn" class="relative w-full h-full min-h-screen bg-gray-100">
     <NavBar />
-    <div class="">
-      <div class="flex flex-col justify-center py-16">
-        <div class="text-4xl font-bold text-primary text-center py-8">
-          Edit Organization Users
-        </div>
-        <div class="h-1 bg-accent rounded-lg"></div>
-        <div class="py-16">
-          <div
-            class="relative flex flex-col justify-items-center p-16 mx-24 rounded-lg bg-white drop-shadow-lg"
-          >
-            <!-- Button to toggle between Add Users and Remove Users tables It is in a div that is centered, but only 1/3 width of the parent -->
-            <div class="flex justify-center">
-              <button @click="toggleTable" class="px-12 dashboard-button">
-                {{ showAddUsers ? "Add Users" : "Remove Users" }}
-              </button>
-            </div>
-            <!-- Add Users Table -->
-            <AvailableUsersTable
-              v-if="showAddUsers"
-              :users="availableUsers"
-              @addUser="addUser"
-            />
-            <!-- Remove Users Table -->
-            <CurrentUsersTable
-              v-else
-              :users="members"
-              @removeUser="removeUser"
-            />
+    <div class="flex flex-col items-center py-16">
+      <h1 class="text-4xl font-bold text-primary text-center py-8">
+        Edit Organization Users
+      </h1>
+      <div class="h-1 bg-accent rounded-lg w-1/4 mx-auto mb-8"></div>
+      <div class="py-8 w-full max-w-4xl">
+        <div class="relative flex flex-col p-8 mx-auto rounded-lg bg-white shadow-lg">
+          <!-- Button to toggle between Add Users and Remove Users tables -->
+          <div class="flex justify-center mb-6">
+            <button
+              @click="toggleTable"
+              class="px-6 py-3 text-white bg-primary rounded-lg hover:bg-primary-dark transition duration-200 flex items-center"
+            >
+              <i :class="showAddUsers ? 'fas fa-user-plus' : 'fas fa-user-minus'"></i>
+              <span class="ml-2">{{ showAddUsers ? "Add Users" : "Remove Users" }}</span>
+            </button>
           </div>
+          <!-- Add Users Table -->
+          <AvailableUsersTable
+            v-if="showAddUsers"
+            :users="availableUsers"
+            @addUser="addUser"
+          />
+          <!-- Remove Users Table -->
+          <CurrentUsersTable
+            v-else
+            :users="members"
+            @removeUser="removeUser"
+          />
         </div>
-        <NotificationComponent
-          class="flex"
-          :show="notification.show"
-          :type="notification.type"
-          @close="closeNotification"
-        >
-          {{ notification.message }}
-        </NotificationComponent>
       </div>
+      <NotificationComponent
+        class="flex"
+        :show="notification.show"
+        :type="notification.type"
+        @close="closeNotification"
+      >
+        {{ notification.message }}
+      </NotificationComponent>
     </div>
   </div>
 </template>
