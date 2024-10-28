@@ -188,7 +188,7 @@ const actions = {
           }
         });
 
-      if (response.status === 204) {
+      if (response.status === 200) {
         commit('UPDATE_TASK_IN_LIST', { taskId, ...taskData });
         commit('SET_UPDATE_STATUS', { success: true });
         return true;
@@ -214,8 +214,50 @@ const actions = {
     } finally {
       commit('SET_UPDATE_STATUS', { loading: false });
     }
-  }
-  // Other task-related actions
+  },
+  
+  async deleteTask({ commit, rootState }, task) {
+    const id = Number(task.taskID);
+    console.log(id);
+    console.log(typeof id);
+    try {
+      const response = await axios({
+        method: 'delete',
+        url: `/api/tasks/${id}/deleteTask`,
+          headers: {
+            Authorization: `Bearer ${rootState.auth.authToken}`,
+            'Content-Type': 'application/x-www-form-urlencoded',
+          }
+        });
+
+      if (response.status === 200) {
+        commit('SET_UPDATE_STATUS', { success: true });
+        console.log("Task deleted");
+        return true;
+      }
+      console.log("Task deleted successfully");
+    } catch (error) {
+      console.log('An error occurred while deleting the task.');
+
+      if (error.response) {
+        switch (error.response.status) {
+          case 404:
+            errorMessage = 'Task or user not found.';
+            break;
+          case 403:
+            errorMessage = 'You do not have permission to delete this task.';
+            break;
+          default:
+            errorMessage = error.response.data || errorMessage;
+        }
+      }
+      console.log('error response: ', error.response);
+      console.log('error status: ', error.response.status);
+    }
+
+  }, 
+
+
 };
 
 const getters = {
