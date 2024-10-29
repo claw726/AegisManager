@@ -243,7 +243,11 @@ public class ProjectController {
         try {
             return ResponseEntity.ok(projectService.getAllUserProjects(email));
         } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+            if (e.getMessage().contains("User not found with email:")) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            } else {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+            }
         }
     }
 }
