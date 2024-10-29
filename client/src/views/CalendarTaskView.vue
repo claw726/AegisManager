@@ -72,15 +72,6 @@
           <div class="border-b border-gray-200 p-4">
             <div class="flex items-center justify-between">
               <h1 class="text-2xl font-bold text-gray-900">Calendar</h1>
-              <div class="flex items-center space-x-2">
-                <button
-                  class="px-4 py-2 bg-blue-600 text-white rounded-lg hover:bg-blue-700 transition-colors duration-200 flex items-center"
-                  @click="$router.push('/tasks/create')"
-                >
-                  <i class="fas fa-plus mr-2"></i>
-                  Add Task
-                </button>
-              </div>
             </div>
           </div>
 
@@ -140,7 +131,7 @@ export default {
         height: "auto",
         // Custom calendar styling
         dayMaxEvents: true,
-        eventColor: "#3B82F6",
+        eventColor: "#0D203B",
         eventTextColor: "#FFFFFF",
         eventBorderColor: "#2563EB",
         eventClassNames: ["rounded-md", "px-2", "py-1", "text-sm"],
@@ -249,12 +240,12 @@ export default {
 }
 
 .fc .fc-button-primary {
-  @apply bg-blue-600 text-white border-blue-600 hover:bg-blue-700 hover:border-blue-700;
+  @apply bg-secondary text-white border-secondary hover:bg-blue-700 hover:border-blue-700;
 }
 
 .fc .fc-button-primary:not(:disabled).fc-button-active,
 .fc .fc-button-primary:not(:disabled):active {
-  @apply bg-blue-800 border-blue-800;
+  @apply bg-primary border-primary;
 }
 
 .fc .fc-daygrid-day-number {

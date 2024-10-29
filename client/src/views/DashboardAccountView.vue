@@ -33,42 +33,22 @@
       <!-- Navigation Grid -->
       <div class="grid grid-cols-1 md:grid-cols-3 gap-6">
         <button
-          @click="goToTDList"
+          v-for="(button, index) in buttons"
+          :key="index"
+          @click="button.action"
           class="flex flex-col items-center p-6 bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow group"
         >
           <div
-            class="w-16 h-16 flex items-center justify-center bg-blue-100 rounded-full mb-4 group-hover:bg-blue-200 transition-colors"
+            :class="`w-16 h-16 flex items-center justify-center bg-${button.color}-100 rounded-full mb-4 group-hover:bg-${button.color}-200 transition-colors`"
           >
-            <i class="fas fa-tasks text-2xl text-blue-600"></i>
+            <i
+              :class="`fas fa-${button.icon} text-2xl text-${button.color}-600`"
+            ></i>
           </div>
-          <h3 class="text-lg font-semibold text-gray-800">View Tasks</h3>
-          <p class="text-sm text-gray-500 mt-2">Manage your daily tasks</p>
-        </button>
-
-        <button
-          @click="goToSettings"
-          class="flex flex-col items-center p-6 bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow group"
-        >
-          <div
-            class="w-16 h-16 flex items-center justify-center bg-green-100 rounded-full mb-4 group-hover:bg-green-200 transition-colors"
-          >
-            <i class="fas fa-cog text-2xl text-green-600"></i>
-          </div>
-          <h3 class="text-lg font-semibold text-gray-800">Account Settings</h3>
-          <p class="text-sm text-gray-500 mt-2">Customize your preferences</p>
-        </button>
-
-        <button
-          @click="goToCalendar"
-          class="flex flex-col items-center p-6 bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow group"
-        >
-          <div
-            class="w-16 h-16 flex items-center justify-center bg-purple-100 rounded-full mb-4 group-hover:bg-purple-200 transition-colors"
-          >
-            <i class="fas fa-calendar-alt text-2xl text-purple-600"></i>
-          </div>
-          <h3 class="text-lg font-semibold text-gray-800">Calendar</h3>
-          <p class="text-sm text-gray-500 mt-2">View your schedule</p>
+          <h3 class="text-lg font-semibold text-gray-800">
+            {{ button.label }}
+          </h3>
+          <p class="text-sm text-gray-500 mt-2">{{ button.description }}</p>
         </button>
       </div>
     </div>
@@ -80,6 +60,40 @@ import NavBar from "@/components/NavBar.vue";
 import { mapState } from "vuex";
 
 export default {
+  data() {
+    return {
+      buttons: [
+        {
+          label: "View Tasks",
+          description: "Manage your daily tasks",
+          icon: "tasks",
+          color: "blue",
+          action: this.goToTDList,
+        },
+        {
+          label: "Account Settings",
+          description: "Customize your preferences",
+          icon: "cog",
+          color: "green",
+          action: this.goToSettings,
+        },
+        {
+          label: "Calendar",
+          description: "View your schedule",
+          icon: "calendar-alt",
+          color: "purple",
+          action: this.goToCalendar,
+        },
+        {
+          label: "Kanban Board",
+          description: "Manage your projects visually",
+          icon: "columns",
+          color: "yellow",
+          action: this.goToKanban,
+        },
+      ],
+    };
+  },
   name: "DashboardMenu",
   components: {
     NavBar,

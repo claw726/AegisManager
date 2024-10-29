@@ -308,7 +308,7 @@ export default {
       // Modify the project in the organization
 
       try {
-        this.$store.dispatch("organizations/modifyOrganizaiton", {
+        this.$store.dispatch("organizations/modifyOrganization", {
           orgID: organizationID,
           organization: this.modifiedOrganization,
         });

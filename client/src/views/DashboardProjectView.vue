@@ -207,6 +207,10 @@ export default {
           title: "Edit Project Members 🤵",
           command: this.editProjUsers,
         },
+        {
+          title: "Archive Projects 📁",
+          command: this.archiveProject,
+        },
       ],
       tasks: [],
       creator: {},
@@ -312,6 +316,29 @@ export default {
           projIndex: this.$route.params.projIndex,
         },
       });
+    },
+    async archiveProject() {
+      if (this.proj.projectOwnerID !== this.currentUser.userID) {
+        this.showNotification(
+          "error",
+          "You are not authorized to archive this project.",
+        );
+        return;
+      }
+
+      try {
+        await this.$store.dispatch("projects/archiveProject", {
+          projectID: this.$route.params.projIndex,
+        });
+
+        this.showNotification("success", "Project archived successfully!");
+        setTimeout(() => {
+          this.$router.push({ name: "OrganizationDashboard" });
+        }, 1500);
+      } catch (err) {
+        this.showNotification("error", "Failed to archive project");
+        console.error(err);
+      }
     },
     async deleteProject() {
       if (this.proj.projectOwnerID !== this.currentUser.userID) {
