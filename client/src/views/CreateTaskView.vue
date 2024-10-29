@@ -111,14 +111,20 @@ export default {
         parentOrgID: this.$route.params.orgIndex, //this.$route.params.projId,
       };
 
-      console.log(t);
-      const r = this.$store.dispatch("tasks/createTask", t);
+      try {
+        console.log(t);
+        const r = this.$store.dispatch("tasks/createTask", t);
+        console.log("Resulting Promise", r);
 
-      if (r === 200) {
         //ADD NOTIFICATION HERE FOR TASK SUCCESSFULLY CREATED
         console.log("About to show notif");
         this.showTaskCreatedNotifBool = true;
+        this.$router.push({ name: "TDList" });
+      
+      } catch(error) {
+        console.log("Task cannot be created.");
       }
+      
     },
 
     //CALL THIS METHOD WHEN TASK CREATED NOTIFICATION IS CLOSED
