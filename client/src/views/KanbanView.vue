@@ -9,6 +9,8 @@
       </div>
       <div class="h-1 bg-accent drop-shadow-lg rounded mx-16 flex w-screen" />
 
+      <SearchComponent v-model:searchQuery="searchQuery" size="70%" />
+
       <!-- Controls Panel -->
       <div class="w-full max-w-4xl bg-white shadow-lg rounded-lg overflow-hidden">
         <!-- Main Controls Header -->
@@ -176,6 +178,7 @@
 
 <script>
 import NavBar from "@/components/NavBar.vue";
+import SearchComponent from "@/components/SearchComponent.vue";
 import { mapState, mapActions } from "vuex";
 import TaskCard from "@/components/TaskCard.vue";
 
@@ -183,6 +186,7 @@ export default {
   components: {
     NavBar,
     TaskCard,
+    SearchComponent
   },
 
   data() {
@@ -196,6 +200,7 @@ export default {
       sortField: 'dueDate',
       sortOrder: 'asc',
       uniqueAssigners: {},
+      searchQuery: '',
     };
   },
 
@@ -280,6 +285,11 @@ export default {
       }
       else {
         tasks = tasks.filter(task => !task.complete);
+      }
+      if (this.searchQuery) {
+        tasks = tasks.filter(task =>
+            task.taskName.toLowerCase().includes(this.searchQuery.toLowerCase())
+        );
       }
       // Apply filters
       if (this.selectedPriority) {
