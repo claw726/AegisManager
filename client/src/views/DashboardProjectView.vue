@@ -88,8 +88,21 @@
           <!-- Right Column - Project Info with enhanced typography -->
           <div class="flex-1 space-y-6">
             <div>
-              <h1 class="text-4xl font-bold text-gray-900 mb-2">
-                {{ proj.projectName }}
+              <h1 class="text-4xl font-bold mb-2 flex items-center">
+                <span
+                  :class="{
+                    'text-gray-900': !proj.isArchived,
+                    'text-gray-400 line-through': proj.isArchived,
+                  }"
+                >
+                  {{ proj.projectName }}
+                </span>
+                <span
+                  v-if="proj.isArchived"
+                  class="bg-gray-200 text-gray-600 px-3 py-1 rounded-lg text-sm font-medium ml-4"
+                >
+                  <i class="fas fa-archive mr-2"></i> Archived
+                </span>
               </h1>
               <div
                 class="flex items-center space-x-2 text-sm text-gray-500 mb-4"
@@ -209,7 +222,7 @@ export default {
         },
         {
           title: "Archive Projects 📁",
-          command: this.archiveProject,
+          command: this.toggleArchived,
         },
       ],
       tasks: [],
@@ -317,7 +330,7 @@ export default {
         },
       });
     },
-    async archiveProject() {
+    async toggleArchived() {
       if (this.proj.projectOwnerID !== this.currentUser.userID) {
         this.showNotification(
           "error",
@@ -327,10 +340,11 @@ export default {
       }
 
       try {
-        await this.$store.dispatch("projects/archiveProject", {
+        await this.$store.dispatch("projects/changeArchivedStatus", {
           projectID: this.$route.params.projIndex,
+          isArchived: !this.proj.isArchived,
         });
-
+        this.proj.isArchived = !this.proj.isArchived;
         this.showNotification("success", "Project archived successfully!");
         setTimeout(() => {
           this.$router.push({ name: "OrganizationDashboard" });
@@ -376,7 +390,10 @@ export default {
           this.$router.push({ name: "OrganizationDashboard" });
         }, 1500);
       } catch (err) {
-        this.showNotification("error", "Failed to delete project");
+        this.showNotification(
+          "error",
+          "Failed to change project archival status: " + err,
+        );
         console.error(err);
       }
 

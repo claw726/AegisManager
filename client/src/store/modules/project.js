@@ -1,5 +1,25 @@
 import axios from "@/utils/axios.js";
 
+const state = {
+  projects: [],
+  currentProject: null,
+  error: null,
+};
+
+const mutations = {
+  SET_PROJECTS(state, projects) {
+    state.projects = projects;
+  },
+
+  SET_CURRENT_PROJECT(state, project) {
+    state.currentProject = project;
+  },
+
+  SET_ERROR(state, error) {
+    state.error = error;
+  },
+};
+
 const actions = {
   async fetchOrgProjects({ rootState }, orgID) {
     try {
@@ -203,10 +223,53 @@ const actions = {
       throw new Error(errorMessage);
     }
   },
+  async changeArchivedStatus({ commit, rootState }, { projectID, isArchived }) {
+    try {
+      const params = new URLSearchParams();
+      params.append("isArchived", isArchived);
+      const response = await axios.post(
+        `/api/projects/${projectID}/changeArchivedStatus`,
+        params,
+        {
+          headers: {
+            Authorization: `Bearer ${rootState.auth.authToken}`,
+          },
+        },
+      );
+      return response.data;
+    } catch (error) {
+      console.error(
+        "Error changing archived status: ",
+        error.response?.data || error.message,
+      );
+      var errorMessage = "An error occurred while changing archived status.";
+      if (error.response) {
+        switch (error.response.status) {
+          case 404:
+            errorMessage = "Project not found.";
+            break;
+          case 403:
+            errorMessage = "Unauthorized to change archived status.";
+            break;
+          default:
+            errorMessage = `Unexpected error: ${error.response.status}`;
+            break;
+        }
+      } else if (error.request) {
+        errorMessage = "No response from server. Please check your connection.";
+      } else {
+        errorMessage = `Error: ${error.message}`;
+      }
+      commit("SET_ERROR", errorMessage);
+      throw new Error(errorMessage);
+    }
+  },
   // Other project-related actions
 };
 
 export default {
   namespaced: true,
+  state,
+  mutations,
   actions,
 };
