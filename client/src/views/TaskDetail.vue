@@ -113,7 +113,7 @@
             </button>
 
             <button
-              v-if="!fetchedTask.complete"
+              v-if="!fetchedTask.complete && showLeftButton"
               @click="goToEditTask"
               class="px-4 py-2 edit-btn text-white rounded-lg hover:bg-green-600"
             >
@@ -122,6 +122,7 @@
 
 
             <button
+             v-if="showLeftButton"
              @click="showPopup = true"
              class="px-4 py-2 remove-btn text-gray-700 rounded-lg hover:bg-gray-300"
            >
