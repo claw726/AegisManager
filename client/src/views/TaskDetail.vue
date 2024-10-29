@@ -135,7 +135,7 @@ export default {
   async mounted() {
     this.fetchedTask = await this.$store.dispatch("tasks/fetchTask", this.$route.params.taskId);
     console.log("Client has stored fetched task.");
-    console.log(JSON.stringify(this.fetchedTask, null, 2));
+    //console.log(JSON.stringify(this.fetchedTask, null, 2));
   },
 
   methods: {

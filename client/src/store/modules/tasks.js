@@ -148,7 +148,7 @@ const actions = {
         },
       });
 
-      if (response.status === 204) {
+      if (response.status === 200) {
         commit("UPDATE_TASK_IN_LIST", task);
         //commit('SET_UPDATE_STATUS', { success: true });
         commit("SET_CURRENT_TASK", response.data);
@@ -156,6 +156,7 @@ const actions = {
         return true;
       }
       console.log("Task created successfully");
+      return response.status;
     } catch (error) {
       console.log("An error occurred while updating the task.");
       console.log("error response: ", error.response);
