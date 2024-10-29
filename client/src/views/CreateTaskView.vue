@@ -77,7 +77,7 @@ export default {
   },
 
   computed: {
-    ...mapState(["isLoggedIn", "currentUser"]),
+    ...mapState("auth", ["isLoggedIn", "currentUser"]),
   },
   data() {
     return {
@@ -96,7 +96,7 @@ export default {
   },
   watch: {},
   methods: {
-    ...mapActions(["user", "isLoggedIn", "currentUser"]),
+    ...mapActions("auth", ["user", "isLoggedIn", "currentUser"]),
     showTaskCreatedNotif() {
       this.showTaskCreatedNotifBool = true;
       this.callCreateTask();
@@ -109,7 +109,7 @@ export default {
         taskDescription: this.task.taskDescription,
         taskPriority: this.task.taskPriority,
 
-        assignerID: 1, //NEED TO FIX, FOR NOW HARDCODING USERID this.currentUser.userID
+        assignerID: this.currentUser.userID, //NEED TO FIX, FOR NOW HARDCODING USERID this.currentUser.userID
         parentProjectID: 1, //this.$route.params.orgId,
         parentOrgID: 1, //this.$route.params.projId,
       };
