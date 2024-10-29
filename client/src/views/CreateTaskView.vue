@@ -77,7 +77,7 @@ export default {
   },
 
   computed: {
-    ...mapState(["isLoggedIn", "currentUser"]),
+    ...mapState("auth", ["isLoggedIn", "currentUser"]),
   },
   data() {
     return {
@@ -97,7 +97,7 @@ export default {
   },
   watch: {},
   methods: {
-    ...mapActions(["user", "isLoggedIn", "currentUser"]),
+    ...mapActions("auth", ["user", "isLoggedIn", "currentUser"]),
     
     callCreateTask() {
       const t = {
@@ -106,9 +106,9 @@ export default {
         taskDescription: this.task.taskDescription,
         taskPriority: this.task.taskPriority,
 
-        assignerID: 2, //NEED TO FIX, FOR NOW HARDCODING USERID this.currentUser.userID
-        parentProjectID: this.$route.params.projIndex,
-        parentOrgID: this.$route.params.orgIndex,
+        assignerID: this.currentUser.userID, //NEED TO FIX, FOR NOW HARDCODING USERID this.currentUser.userID
+        parentProjectID: this.$route.params.projIndex, //this.$route.params.orgId,
+        parentOrgID: this.$route.params.orgIndex, //this.$route.params.projId,
       };
 
       console.log(t);

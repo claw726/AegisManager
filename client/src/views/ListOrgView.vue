@@ -145,15 +145,6 @@ export default {
     await this.fetchOrganizations();
   },
 
-  watch: {
-    organizations: {
-      handler(newVal) {
-        this.userOrganizations = newVal;
-      },
-      immediate: true,
-    },
-  },
-
   methods: {
     showNotification(type, message, duration = 5000) {
       this.notification = {
@@ -180,9 +171,10 @@ export default {
     async fetchOrganizations() {
       try {
         this.isLoading = true;
-        this.userOrganizations = await this.$store.dispatch(
+        const organizations = await this.$store.dispatch(
           "organizations/fetchOrganizations",
         );
+        this.userOrganizations = organizations;
 
         if (this.userOrganizations?.length > 0) {
           this.showNotification(
