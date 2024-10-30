@@ -3,10 +3,20 @@
 
   <div class="min-h-screen bg-gray-50 p-8">
 
+    <!-- Moving buttons up to clear up space -->
     <div class="max-w-4xl mx-auto bg-white rounded-lg p-6">
-      <button @click="goBack" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">
-              Back
-            </button>
+      <button @click="goBack" 
+      class="px-4 py-2 text-white rounded-lg hover:bg-gray-300"
+      style="background-color: #555;">
+        Back
+      </button>
+
+      <button 
+        v-if="!fetchedTask.complete" @click="markAsComplete"
+        class="px-4 py-2 complete-btn text-white rounded-lg hover:bg-green-600">
+        Mark Complete
+      </button>
+
     <div class="max-w-4xl mx-auto bg-white rounded-lg shadow-lg p-6">
       
       
@@ -128,10 +138,7 @@
 
           <!-- Right-aligned buttons -->
           <div class="flex space-x-4"> <!-- Align buttons to the right -->
-            <button v-if="!fetchedTask.complete" @click="markAsComplete"
-              class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600">
-              Mark Complete
-            </button>
+            
 
             <button
               v-if="!fetchedTask.complete && showLeftButton"
@@ -141,6 +148,13 @@
               Edit Task
            </button>
 
+           <button
+              v-if="!fetchedTask.complete && showLeftButton"
+              @click="goToEditTask"
+              class="px-4 py-2 add-btn text-white rounded-lg hover:bg-green-600"
+            >
+              Add Users
+           </button>
 
             <button
              v-if="showLeftButton"
@@ -179,6 +193,7 @@ export default {
     return {
       isGrayedOut: null,
       fetchedTask: null,
+      completed: null,
       taskUsers: [],
       selectedAssigner: '',
       selectedUserID: -1,
@@ -221,12 +236,18 @@ export default {
       return this.IsAssigner();
     }
   },
+
   async mounted() {
     this.fetchedTask = await this.$store.dispatch("tasks/fetchTask", this.$route.params.taskId);
     console.log("Client has stored fetched task.");
     //console.log(JSON.stringify(this.fetchedTask.assignedUsers, null, 2));
     this.makeListOfAssignees();
     await this.populateAssignerDropdown(this.fetchedTask.assignerID);
+  },
+
+  async created() {
+    this.fetchedTask = await this.$store.dispatch("tasks/fetchTask", this.$route.params.taskId);
+    this.completed = this.fetchedTask.isComplete;
   },
 
   methods: {
@@ -513,6 +534,22 @@ export default {
  color: white;
  border: none;
  padding: 5px 10px;
+}
+
+.add-btn {
+ cursor: pointer;
+ background-color: rgb(73, 116, 99);
+ color: white;
+ border: none;
+ padding: 5px 10px;
+}
+
+.complete-btn {
+ cursor: pointer;
+ background-color: rgb(15, 54, 38);
+ margin-left: 10px;
+ padding-left: 20px
+ 
 }
 
 </style>
