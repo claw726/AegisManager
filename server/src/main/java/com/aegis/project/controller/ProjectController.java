@@ -3,8 +3,7 @@ package com.aegis.project.controller;
 import java.util.List;
 import java.util.Set;
 
-import org.aegis.project.exception.ProjectFetchException;
-import org.aegis.project.exception.UserNotFoundException;
+import com.aegis.project.exception.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,7 +22,6 @@ import com.aegis.project.dto.ProjectDTO;
 import com.aegis.project.dto.TaskDTO;
 import com.aegis.project.dto.UserDTO;
 import com.aegis.project.service.ProjectService;
-import org.aegis.project.exception.*;
 
 @RestController
 @RequestMapping("api/projects")

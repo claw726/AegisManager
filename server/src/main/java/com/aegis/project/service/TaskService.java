@@ -16,7 +16,6 @@ import org.springframework.stereotype.Service;
 
 import com.aegis.project.dto.TaskDTO;
 import com.aegis.project.exception.TaskNotFoundException;
-import com.aegis.project.model.OrgModel;
 import com.aegis.project.model.ProjectModel;
 import com.aegis.project.model.TaskModel;
 import com.aegis.project.model.UserModel;
@@ -158,7 +157,7 @@ public class TaskService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String currentUsername = ((UserDetails) authentication.getPrincipal()).getUsername();
 
-        OrgModel parentOrg = orgRepository.findById(parentOrgID)
+        orgRepository.findById(parentOrgID)
                 .orElseThrow(() -> new RuntimeException("Org not found with id: " + parentOrgID));
 
         ProjectModel parentProject = projectRepository.findById(parentProjectID)
