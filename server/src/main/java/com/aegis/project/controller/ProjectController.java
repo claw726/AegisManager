@@ -3,6 +3,8 @@ package com.aegis.project.controller;
 import java.util.List;
 import java.util.Set;
 
+import org.aegis.project.exception.ProjectFetchException;
+import org.aegis.project.exception.UserNotFoundException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +23,7 @@ import com.aegis.project.dto.ProjectDTO;
 import com.aegis.project.dto.TaskDTO;
 import com.aegis.project.dto.UserDTO;
 import com.aegis.project.service.ProjectService;
+import org.aegis.project.exception.*;
 
 @RestController
 @RequestMapping("api/projects")
@@ -239,11 +242,25 @@ public class ProjectController {
     }
 
     @GetMapping("/getAllUserProjects")
-    public ResponseEntity<Set<ProjectDTO>> getAllUserProjects(@RequestParam String email) {
+    public ResponseEntity<?> getAllUserProjects(@RequestParam String email) {
         try {
-            return ResponseEntity.ok(projectService.getAllUserProjects(email));
-        } catch (RuntimeException e) {
-            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+            Set<ProjectDTO> projects = projectService.getAllUserProjects(email);
+            return ResponseEntity.ok(projects);
+        } catch (UserNotFoundException e) {
+            logger.error("User not found: {}", e.getMessage());
+            return ResponseEntity
+                .status(HttpStatus.NOT_FOUND)
+                .body("Error fetching Projects");
+        } catch (ProjectFetchException e) {
+            logger.error("Error fetching projects: {}", e.getMessage());
+            return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("Error fetching projects");
+        } catch (Exception e) {
+            logger.error("Unexpected Error: {}", e.getMessage());
+            return ResponseEntity
+                .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                .body("An unexpected error occured");
         }
     }
 }

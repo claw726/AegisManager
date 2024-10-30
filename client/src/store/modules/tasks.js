@@ -156,6 +156,7 @@ const actions = {
         return true;
       }
       console.log("Task created successfully");
+      commit("SET_TASKS", tasks);
       return response.status;
     } catch (error) {
       console.log("An error occurred while updating the task.");
@@ -192,6 +193,8 @@ const actions = {
         commit("SET_UPDATE_STATUS", { success: true });
         return true;
       }
+      commit("SET_TASKS", tasks);
+      return true;
     } catch (error) {
       let errorMessage = "An error occurred while updating the task.";
 
@@ -234,6 +237,7 @@ const actions = {
         console.log("Task deleted");
         return true;
       }
+      commit("SET_TASKS", tasks);
       console.log("Task deleted successfully");
     } catch (error) {
       console.log('An error occurred while deleting the task.');
@@ -256,6 +260,54 @@ const actions = {
 
   }, 
 
+  async addUserToTask({ commit, rootState }, { taskId, email }) {
+    commit("SET_UPDATE_STATUS", { loading: true, error: null, success: false });
+
+    try {
+      const params = {
+        email: email,
+      };
+
+      const response = await axios({
+        method: "post",
+        url: `/api/tasks/${taskId}/addUser`,
+        params: params,
+        headers: {
+          Authorization: `Bearer ${rootState.auth.authToken}`,
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+      });
+
+      if (response.status === 200) {
+        commit("UPDATE_TASK_IN_LIST", { taskId, ...taskData });
+        commit("SET_UPDATE_STATUS", { success: true });
+        return true;
+      }
+      commit("SET_TASKS", tasks);
+      return true;
+    } catch (error) {
+      let errorMessage = "An error occurred while adding user to the task.";
+
+      if (error.response) {
+        switch (error.response.status) {
+          case 404:
+            errorMessage = "Task or user not found.";
+            break;
+          case 403:
+            errorMessage = "You do not have permission to add a user this task.";
+            break;
+          default:
+            errorMessage = error.response.data || errorMessage;
+        }
+      }
+
+      commit("SET_UPDATE_STATUS", { error: errorMessage });
+      throw new Error(errorMessage);
+    } finally {
+      commit("SET_UPDATE_STATUS", { loading: false });
+    }
+  },
+
 
 };
 
@@ -267,7 +319,10 @@ const getters = {
   isUpdateLoading: (state) => state.updateStatus.loading,
   updateError: (state) => state.updateStatus.error,
   updateSuccess: (state) => state.updateStatus.success,
+  fullTasks: (state) => state.tasks,
 };
+
+
 
 export default {
   state,
