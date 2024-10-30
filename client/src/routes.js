@@ -143,6 +143,18 @@ const router = createRouter({
       component: () => import("./views/CalendarTaskView.vue"),
       meta: { requiresAuth: true },
     },
+    {
+      path: "/enable2FA",
+      name: "Enable2FA",
+      component: () => import("./views/Enable2FAView.vue"),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: "/disable2FA",
+      name: "Disable2FA",
+      component: () => import("./views/Disable2FAView.vue"),
+      meta: { requiresAuth: true },
+    },
   ],
 });
 

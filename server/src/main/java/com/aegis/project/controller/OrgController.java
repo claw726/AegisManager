@@ -63,7 +63,7 @@ public class OrgController {
                     //org.getEncodedImage()
                     org.getEncodedImage(), // Ensure this is set correctly
                     org.getUsers().stream()
-                            .map(user -> new UserDTO(user.getUserID(), user.getUserName(), user.getEmail(), user.getProfilePicture())) // Convert UserModel to UserDTO
+                            .map(user -> new UserDTO(user)) // Convert UserModel to UserDTO
                             .collect(Collectors.toSet())
             );
 

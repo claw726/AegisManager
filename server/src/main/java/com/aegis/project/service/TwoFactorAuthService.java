@@ -23,9 +23,9 @@ public class TwoFactorAuthService {
         return googleAuthenticator.authorize(secretKey, code);
     }
 
-    public String getQRBarcodeURL(String user, String secret) {
+    public String getQRBarcodeURL(int userID, String secret) {
         String serviceName = "Aegis";
-        return String.format("otpauth://totp/%s:%s?secret=%s&issuer=%s", serviceName, user, secret, serviceName);
+        return String.format("otpauth://totp/%s:%d?secret=%s&issuer=%s", serviceName, userID, secret, serviceName);
     }
 
     public byte[] generateQRCodeImage(String barcodeURL) throws WriterException, IOException {

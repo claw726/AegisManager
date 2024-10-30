@@ -186,7 +186,7 @@ public class ProjectService {
         }
 
         return members.stream()
-                .map(user -> new UserDTO(user.getUserID(), user.getUserName(), user.getEmail(), user.getProfilePicture()))
+                .map(user -> new UserDTO(user))
                 .collect(Collectors.toSet());
     }
 
