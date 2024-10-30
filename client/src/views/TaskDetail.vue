@@ -96,7 +96,7 @@
             </select>
 
             <!-- Button, visible only if showLeftButton is true -->
-            <button v-if="!fetchedTask.complete && showLeftButton && taskUsers.length > 0" @click="updateTaskAssigner"
+            <button v-if="!fetchedTask.complete && showLeftButton && taskUsers.length > 0" @click="sendAssignerInvite"
               class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600">
               Confirm Reassignment
             </button>
@@ -112,29 +112,23 @@
               Mark Complete
             </button>
 
-            <button
-              v-if="!fetchedTask.complete"
-              @click="goToEditTask"
-              class="px-4 py-2 edit-btn text-white rounded-lg hover:bg-green-600"
-            >
+            <button v-if="!fetchedTask.complete" @click="goToEditTask"
+              class="px-4 py-2 edit-btn text-white rounded-lg hover:bg-green-600">
               Edit Task
-           </button>
+            </button>
 
 
-            <button
-             @click="showPopup = true"
-             class="px-4 py-2 remove-btn text-gray-700 rounded-lg hover:bg-gray-300"
-           >
-             Delete Task
-           </button>
+            <button @click="showPopup = true" class="px-4 py-2 remove-btn text-gray-700 rounded-lg hover:bg-gray-300">
+              Delete Task
+            </button>
 
-           <div v-if="showPopup" class="popup">
-             <div class="popup-content">
-               <p>Are you sure you want to delete this task?</p>
-               <button @click="handleYes" class="remove-btn">Yes</button>
-               <button @click="handleNo" class="remove-btn">No</button>
-             </div>
-           </div>
+            <div v-if="showPopup" class="popup">
+              <div class="popup-content">
+                <p>Are you sure you want to delete this task?</p>
+                <button @click="handleYes" class="remove-btn">Yes</button>
+                <button @click="handleNo" class="remove-btn">No</button>
+              </div>
+            </div>
 
 
           </div>
@@ -213,25 +207,23 @@ export default {
           email: user.email,
           ID: user.userID
         }));
-      console.log(this.taskUsers);
-      console.log(this.fetchedTask.complete)
     },
 
     goBack() {
       this.$router.go(-1);
     },
 
-    goToEditTask(){
-     console.log("Edit task actions");
-     this.$router.push({
-       name: "",
-       params: {
-         task: this.fetchedTask,
-         projId: this.$route.params.projIndex,
-         userID: this.currentUser.userID,
-       },
-     });
-   },
+    goToEditTask() {
+      console.log("Edit task actions");
+      this.$router.push({
+        name: "",
+        params: {
+          task: this.fetchedTask,
+          projId: this.$route.params.projIndex,
+          userID: this.currentUser.userID,
+        },
+      });
+    },
 
 
     async getTask() {
@@ -273,17 +265,17 @@ export default {
       });
     },
     async makeTaskDeleted() {
-     try {
-       await this.$store.dispatch("tasks/deleteTask", {
-         taskID: this.taskId,
-       });
-       //ADD NOTIFICATION FOR TASK DELETED HERE, BEFORE ROUTING TO TDLIST
-       this.$router.push({ name: "TDList" });
-     } catch (error) {
-       console.error('Failed to delete task:');
-     }
-    
-   },
+      try {
+        await this.$store.dispatch("tasks/deleteTask", {
+          taskID: this.taskId,
+        });
+        //ADD NOTIFICATION FOR TASK DELETED HERE, BEFORE ROUTING TO TDLIST
+        this.$router.push({ name: "TDList" });
+      } catch (error) {
+        console.error('Failed to delete task:');
+      }
+
+    },
 
     async markAsComplete() {
       try {
@@ -314,8 +306,29 @@ export default {
       }
     },
 
+    async sendAssignerInvite() {
+      if (this.selectedAssigner === "" || this.selectedAssigner === "Select New Assigner") {
+        this.showNotification("error", "Select a task assigner.");
+        return;
+      }
+      try {
+        const data = {
+          senderEmail: this.currentUser.email,
+          recipientEmail: this.selectedAssigner,
+          invitationType: 1,
+          message: this.fetchedTask.taskID + ": Task Assigner Request - " + this.fetchedTask.taskName
+        }
+        console.log("DATA")
+        console.log(data);
+        await this.$store.dispatch("invitations/createInvitation", data);
+        this.showNotification("success", "Successfully sent assigner invite!");
+      }
+      catch (error) {
+        this.showNotification("error", "Unexpected error with task delegation.");
+      }
+    },
+
     async updateTaskAssigner() {
-      console.log(this.selectedAssigner);
       //this.$store.commit("setNewTaskAssignee", this.taskId, newAssigner);
       if (this.selectedAssigner === "" || this.selectedAssigner === "Select New Assigner") {
         this.showNotification("error", "Select a task assigner.");
@@ -335,7 +348,6 @@ export default {
             dueDate: dueDate,
             isComplete: this.fetchedTask.complete
           };
-          console.log(taskData.isComplete);
           await this.$store.dispatch("tasks/updateTask", {
             taskId: this.taskId,
             taskData: taskData,
@@ -375,7 +387,6 @@ export default {
     selectedAssigner(newEmail) {
       const selectedUser = this.taskUsers.find(user => user.email === newEmail);
       this.selectedUserID = selectedUser ? selectedUser.ID : null;
-      console.log(this.selectedUserID);
     },
   },
 };
@@ -388,39 +399,38 @@ export default {
 }
 
 .remove-btn {
- cursor: pointer;
- background-color: rgb(2, 2, 58);
- color: white;
- border: none;
- padding: 5px 10px;
- margin-left: 63px;
+  cursor: pointer;
+  background-color: rgb(2, 2, 58);
+  color: white;
+  border: none;
+  padding: 5px 10px;
+  margin-left: 63px;
 }
 
 .popup {
- position: fixed;
- top: 0;
- left: 0;
- width: 100%;
- height: 100%;
- background-color: rgba(0, 0, 0, 0.5);
- display: flex;
- justify-content: center;
- align-items: center;
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 100%;
+  height: 100%;
+  background-color: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
 }
 
 .popup-content {
- background-color: white;
- padding: 20px;
- border-radius: 5px;
+  background-color: white;
+  padding: 20px;
+  border-radius: 5px;
 }
 
 
 .edit-btn {
- cursor: pointer;
- background-color: rgb(77, 12, 23);
- color: white;
- border: none;
- padding: 5px 10px;
+  cursor: pointer;
+  background-color: rgb(77, 12, 23);
+  color: white;
+  border: none;
+  padding: 5px 10px;
 }
-
 </style>
