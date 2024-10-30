@@ -61,7 +61,7 @@
                 v-if="currentUser.userID === org.orgOwnerID"
                 class="absolute bottom-2 right-2"
               >
-                <DropdownMenu :items="dropdownOpts">
+                <DropdownMenu :items="dropdownOpts" symbol="fas fa-cog">
                   <template #trigger>
                     <button
                       class="p-2 bg-white rounded-full shadow-lg hover:bg-gray-50 transition-colors duration-200"
@@ -143,6 +143,19 @@
               View Organization Users
             </button>
           </div>
+          <div v-if="org && currentUser.userID === org.orgOwnerID">
+            <DropdownMenu :items="projectToggleOpts" symbol="fas fa-archive">
+              <template #trigger>
+                <button
+                  class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200"
+                >
+                  <i class="fas fa-filter mr-2"></i>
+                  Filter Projects
+                  <i class="fas fa-caret-down ml-2"></i>
+                </button>
+              </template>
+            </DropdownMenu>
+          </div>
           <button
             @click="goToCreateProject"
             class="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition duration-200 shadow-sm"
@@ -157,11 +170,11 @@
     <!-- Projects Grid -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div
-        v-if="org && projects && projects.length > 0"
+        v-if="org && projects && filteredProjects.length > 0"
         class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
       >
         <ProjCard
-          v-for="project in projects"
+          v-for="project in filteredProjects"
           :key="project.projectID"
           :project="project"
           :projIndex="project.projectID"
@@ -169,12 +182,20 @@
         />
       </div>
       <div
-        v-else
+        v-if="org && projects.length >= 1 && filteredProjects.length === 0"
+        class="text-center py-12 bg-white rounded-xl shadow-md p-8 border border-gray-100"
+      >
+        <i class="fas fa-project-diagram text-gray-400 text-4xl mb-4"></i>
+        <p class="text-gray-500 text-lg">No projects in this current filter.</p>
+      </div>
+      <div
+        v-if="org && projects.length === 0"
         class="text-center py-12 bg-white rounded-xl shadow-md p-8 border border-gray-100"
       >
         <i class="fas fa-project-diagram text-gray-400 text-4xl mb-4"></i>
         <p class="text-gray-500 text-lg">
-          No projects yet! Click 'Create New Project' to get started.
+          No projects have been created for this org yet. Hit "create new
+          project" to get started!
         </p>
       </div>
     </div>
@@ -197,6 +218,30 @@ export default {
   },
   computed: {
     ...mapState("auth", ["isLoggedIn", "currentUser"]),
+    projectToggleLabel() {
+      switch (this.projectToggle) {
+        case "unarchived":
+          return "Unarchived Projects";
+        case "archived":
+          return "Archived Projects";
+        case "all":
+          return "All Projects";
+        default:
+          return "";
+      }
+    },
+    filteredProjects() {
+      switch (this.projectToggle) {
+        case "unarchived":
+          return this.projects.filter((project) => !project.isArchived);
+        case "archived":
+          return this.projects.filter((project) => project.isArchived);
+        case "all":
+          return this.projects;
+        default:
+          return [];
+      }
+    },
   },
   data() {
     return {
@@ -204,16 +249,37 @@ export default {
       projects: null,
       dropdownOpts: [
         {
-          title: "Edit Organization Details ✏️",
+          title: "Edit Organization Details",
+          symbol: "fas fa-edit",
           command: this.editOrg,
         },
         {
-          title: "Delete This Organization 🗑️",
+          title: "Delete This Organization",
+          symbol: "fas fa-trash",
           command: this.deleteOrg,
         },
         {
-          title: "Edit Organization Users 🤵",
+          title: "Edit Organization Users",
+          symbol: "fas fa-users",
           command: this.editOrgUsers,
+        },
+      ],
+      projectToggle: "unarchived",
+      projectToggleOpts: [
+        {
+          title: "Unarchived Projects",
+          symbol: "fas fa-folder-open",
+          command: () => (this.projectToggle = "unarchived"),
+        },
+        {
+          title: "Archived Projects",
+          symbol: "fas fa-archive",
+          command: () => (this.projectToggle = "archived"),
+        },
+        {
+          title: "All Projects",
+          symbol: "fas fa-ellipsis-h",
+          command: () => (this.projectToggle = "all"),
         },
       ],
       creator: {},

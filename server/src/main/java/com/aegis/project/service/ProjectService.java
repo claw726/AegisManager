@@ -25,6 +25,8 @@ import com.aegis.project.repository.ProjectRepository;
 import com.aegis.project.repository.TaskRepository;
 import com.aegis.project.repository.UserRepository;
 
+import org.aegis.project.exception.*;
+
 @Service
 public class ProjectService {
 
@@ -359,12 +361,21 @@ public class ProjectService {
     }
 
     public Set<ProjectDTO> getAllUserProjects(String email) {
-        UserModel user = userService.findUserByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
-        ;
-        List<ProjectModel> projects = projectRepository.findAllUserProjects(user.getUserID());
+        try {
+            UserModel user = userService.findUserByEmail(email)
+                .orElseThrow(() -> new UserNotFoundException(email));
 
-        return projects.stream().map(project -> new ProjectDTO(project)).collect(Collectors.toSet());
-
+            List<ProjectModel> projects = projectRepository.findAllUserProjects(user.getUserID());
+            
+            return projects.stream()
+                .map(ProjectDTO::new)
+                .collect(Collectors.toSet());
+                
+        } catch (UserNotFoundException e) {
+            throw e;
+        } catch (Exception e) {
+            LOGGER.error("Error fetching projects for user {}: {}", email, e.getMessage(), e);
+            throw new ProjectFetchException("Error fetching projects for user: " + email, e);
+        }
     }
 }
