@@ -343,6 +343,12 @@ export default {
     searchQuery() {
       this.filterTasks();
     },
+
+    '$route'(to, from) {
+      if (to.path === from.path) {
+        this.$nextTick(() => {this.$forceUpdate()});
+      }
+    },
   },
 
   methods: {

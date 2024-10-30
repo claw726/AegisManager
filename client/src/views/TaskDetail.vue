@@ -3,7 +3,6 @@
 
   <div class="min-h-screen bg-gray-50 p-8">
 
-
     <div class="max-w-4xl mx-auto bg-white rounded-lg shadow-lg p-6">
       <div v-if="fetchedTask" class="space-y-6">
         <!-- Task Header -->
@@ -219,21 +218,18 @@ export default {
     },
 
     goBack() {
-      this.$router.go(-1);
+      this.$router.push({ name: "TDList" });
     },
 
     goToEditTask(){
      console.log("Edit task actions");
      this.$router.push({
-       name: "",
+       name: "editTask",
        params: {
-         task: this.fetchedTask,
-         projId: this.$route.params.projIndex,
-         userID: this.currentUser.userID,
+         taskId: this.fetchedTask.taskID,
        },
      });
    },
-
 
     async getTask() {
       console.log("Doing async method")
@@ -273,12 +269,14 @@ export default {
         day: 'numeric'
       });
     },
+
     async makeTaskDeleted() {
      try {
        await this.$store.dispatch("tasks/deleteTask", {
          taskID: this.taskId,
        });
-       //ADD NOTIFICATION FOR TASK DELETED HERE, BEFORE ROUTING TO TDLIST
+
+       //TODO:  NOTIFICATION FOR TASK DELETED HERE, BEFORE ROUTING TO TDLIST
        this.$router.push({ name: "TDList" });
      } catch (error) {
        console.error('Failed to delete task:');
@@ -371,7 +369,40 @@ export default {
     closeNotification() {
       this.notification.show = false;
     },
+
+    async editTask() {
+      try {
+
+        const dueDate = `${this.fetchedTask.dueDate}T15:30:00.000z`;
+
+        const taskData = {
+          taskName: this.fetchedTask.taskName,
+          taskDescription: this.fetchedTask.taskDescription,
+          assignerID: this.fetchedTask.assignerID,
+          taskPriority: this.fetchedTask.taskPriority,
+          dueDate: dueDate,
+          isComplete: true
+        };
+
+        const s = await this.$store.dispatch("tasks/updateTask", {
+          taskId: this.taskId,
+          taskData: taskData,
+        });
+
+        if (s == true) {
+          this.goBack();
+
+          //TODO: show notification that task has been updated
+        }
+        
+      } catch (error) {
+        console.error('Failed to edit task', error);
+        // Error will be handled by Vuex store and displayed via updateStatus
+      }
+    },
+
   },
+
   watch: {
     selectedAssigner(newEmail) {
       const selectedUser = this.taskUsers.find(user => user.email === newEmail);

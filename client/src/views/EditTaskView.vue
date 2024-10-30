@@ -4,7 +4,9 @@
     <NavBar />
 
     <!-- Main Content -->
-    <div class="cc text-4xl font-bold text-hunter-green mb-6">Create Task</div>
+    <div 
+    v-if="fetchedTask"
+    class="cc text-4xl font-bold text-hunter-green mb-6">Edit Task</div>
 
     <!-- Form Container -->
     <form @submit.prevent="handleSubmit">
@@ -15,7 +17,7 @@
           >
           <input
             type="text"
-            v-model="task.taskName"
+            v-model="fetchedTask.taskName"
             class="w-full border border-highlight rounded-lg p-3"
           />
         </div>
@@ -26,7 +28,7 @@
           >
           <input
             type="text"
-            v-model="task.taskDescription"
+            v-model="fetchedTask.taskDescription"
             class="w-full border border-highlight rounded-lg p-3"
           />
         </div>
@@ -37,7 +39,7 @@
           >
           <input
             type="date"
-            v-model="task.dueDate"
+            v-model="fetchedTask.dueDate"
             class="w-full border border-highlight rounded-lg p-3"
           />
         </div>
@@ -46,7 +48,7 @@
           <label class="block text-sm font-semibold text-gray-800 mb-2"
             >Priority</label
           >
-          <select v-model="task.taskPriority">
+          <select v-model="fetchedTask.taskPriority">
             <option value="Low">Low</option>
             <option value="Medium">Medium</option>
             <option value="High">High</option>
@@ -55,7 +57,7 @@
 
         <!-- Submit Button -->
         <button
-          @click="callCreateTask"
+          @click="handleEditTask"
           type="submit"
           data-testid="submit-button"
           class="w-full mt-4 bg-primary text-white font-semibold py-3 rounded-lg"
@@ -81,6 +83,7 @@ export default {
   },
   data() {
     return {
+      fetchedTask: this.getTask(),
       task: {
         taskName: "",
         taskDescription: "",
@@ -91,48 +94,73 @@ export default {
         assignerID: null,
       },
 
-      //THIS BOOL CONTROLS WHETHER 'TASK CREATED SUCCESSFULLY' NOTIFICATION SHOULD SHOW
-      showTaskCreatedNotifBool: false,
     };
   },
-  watch: {},
+  props: {
+    taskId: {
+      type: [String, Number],
+      required: true
+    }
+  },
+
+  async mounted() {
+    this.fetchedTask = await this.$store.dispatch("tasks/fetchTask", this.$route.params.taskId);
+    console.log("Client has stored fetched task.");
+  },
+
   methods: {
     ...mapActions("auth", ["user", "isLoggedIn", "currentUser"]),
-    
-    callCreateTask() {
-      const t = {
-        dueDate: this.task.dueDate.toString().concat("T11:00:11.000Z"),
-        taskName: this.task.taskName,
-        taskDescription: this.task.taskDescription,
-        taskPriority: this.task.taskPriority,
 
-        assignerID: this.currentUser.userID, //NEED TO FIX, FOR NOW HARDCODING USERID this.currentUser.userID
-        parentProjectID: this.$route.params.projIndex, //this.$route.params.orgId,
-        parentOrgID: this.$route.params.orgIndex, //this.$route.params.projId,
-      };
+    handleEditTask() {
+        console.log("Inside handling edit task");
+        this.editTask();
 
-      try {
-        console.log(t);
-        const r = this.$store.dispatch("tasks/createTask", t);
-        console.log("Resulting Promise", r);
+        //TODO: show notification that task has been updated
+        console.log("Task has been edited.");
 
-        //ADD NOTIFICATION HERE FOR TASK SUCCESSFULLY CREATED
-        console.log("About to show notif");
-        this.showTaskCreatedNotifBool = true;
-      
-      } catch(error) {
-        console.log("Task cannot be created.");
-      }
-      //will remove this afrer notifiction is implemented
-      this.$router.push({ name: "TDList" });
-      
+        //TODO: Close notification
+
+        //Show task again but refreshed with edits, random query to refres h
+        this.$router.push({ name: "TDList"});
+        this.$forceUpdate();
+
+        
     },
 
-    //CALL THIS METHOD WHEN TASK CREATED NOTIFICATION IS CLOSED
-    closeTaskCreatedNotif() {
-      this.showTaskCreatedNotifBool = false;
-      // Redirect to the viewOrgs page
-      this.$router.push({ name: "TDList" });
+    async editTask() {
+      try {
+
+        const dueDate = `${this.fetchedTask.dueDate}T15:30:00.000z`;
+
+        const taskData = {
+          taskName: this.fetchedTask.taskName,
+          taskDescription: this.fetchedTask.taskDescription,
+          assignerID: this.fetchedTask.assignerID,
+          taskPriority: this.fetchedTask.taskPriority,
+          dueDate: dueDate,
+          isComplete: false, //shouldn't be on this page if task is completed
+        };
+
+        console.log("Here is the task with updated details:");
+        console.log(taskData);
+
+        const s = await this.$store.dispatch("tasks/updateTask", {
+          taskId: this.taskId,
+          taskData: taskData,
+        });
+
+      } catch (error) {
+        console.error('Failed to edit task', error);
+        // Error will be handled by Vuex store and displayed via updateStatus
+      }
+    },
+
+    async getTask() {
+      console.log("Doing async method")
+      return this.$store.dispatch("tasks/fetchTask", this.taskId);
+    },
+    goBack() {
+      this.$router.go(-1);
     },
 
     createUserJson() {

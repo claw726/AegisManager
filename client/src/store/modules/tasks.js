@@ -156,6 +156,7 @@ const actions = {
         return true;
       }
       console.log("Task created successfully");
+      commit("SET_TASKS", tasks);
       return response.status;
     } catch (error) {
       console.log("An error occurred while updating the task.");
@@ -192,6 +193,8 @@ const actions = {
         commit("SET_UPDATE_STATUS", { success: true });
         return true;
       }
+      commit("SET_TASKS", tasks);
+      return true;
     } catch (error) {
       let errorMessage = "An error occurred while updating the task.";
 
@@ -234,6 +237,7 @@ const actions = {
         console.log("Task deleted");
         return true;
       }
+      commit("SET_TASKS", tasks);
       console.log("Task deleted successfully");
     } catch (error) {
       console.log('An error occurred while deleting the task.');
