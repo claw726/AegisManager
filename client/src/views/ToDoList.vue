@@ -248,7 +248,7 @@ export default {
   },
 
   async mounted() {
-    this.fetchTasks();
+    await this.fetchTasks();
     await this.fetchUniqueAssigners();
   },
 
@@ -271,6 +271,8 @@ export default {
 
     filteredTasks() {
       let tasks = this.tasks;
+
+      
 
       if (this.searchQuery) {
         tasks = tasks.filter((task) =>
