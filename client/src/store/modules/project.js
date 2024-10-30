@@ -4,6 +4,14 @@ const state = {
   projects: [],
   currentProject: null,
   error: null,
+  loading: false,
+};
+
+const getters = {
+  projects: (state) => state.projects,
+  isLoading: (state) => state.loading,
+  hasError: (state) => !!state.error,
+  errorMessage: (state) => state.error,
 };
 
 const mutations = {
@@ -18,6 +26,10 @@ const mutations = {
   SET_ERROR(state, error) {
     state.error = error;
   },
+
+  SET_LOADING(state, status) {
+    state.loading = status;
+  },
 };
 
 const actions = {
@@ -29,13 +41,13 @@ const actions = {
           headers: {
             Authorization: `Bearer ${rootState.auth.authToken}`,
           },
-        },
+        }
       );
       return response.data;
     } catch (error) {
       console.error(
         `Failed to fetch projects for org ${orgID}:`,
-        error.response ? error.response.data : error.message,
+        error.response ? error.response.data : error.message
       );
       throw new Error("Failed to fetch projects");
     }
@@ -57,7 +69,7 @@ const actions = {
     } catch (error) {
       console.error(
         "Error creating project:",
-        error.response ? error.response.data : error.message,
+        error.response ? error.response.data : error.message
       );
       throw new Error("Failed to Create Project");
     }
@@ -72,7 +84,7 @@ const actions = {
     } catch (error) {
       console.error(
         "Failed to delete project:",
-        error.response ? error.response.data : error.message,
+        error.response ? error.response.data : error.message
       );
       if (error.response) {
         switch (error.response.status) {
@@ -105,7 +117,7 @@ const actions = {
     } catch (error) {
       console.error(
         "Failed to modify project:",
-        error.response ? error.response.data : error.message,
+        error.response ? error.response.data : error.message
       );
       throw new Error("Failed to modify project");
     }
@@ -121,7 +133,7 @@ const actions = {
     } catch (error) {
       console.error(
         `Failed to fetch project ${projID}`,
-        error.response ? error.response.data : error.message,
+        error.response ? error.response.data : error.message
       );
       throw new Error("Failed to fetch project");
     }
@@ -137,7 +149,7 @@ const actions = {
     } catch (error) {
       console.error(
         "Error fetching project members: ",
-        error.response?.data || error.message,
+        error.response?.data || error.message
       );
       throw error;
     }
@@ -154,13 +166,13 @@ const actions = {
           headers: {
             Authorization: `Bearer ${rootState.auth.authToken}`,
           },
-        },
+        }
       );
       return response.data;
     } catch (error) {
       console.error(
         "Error removing user from project: ",
-        error.response?.data || error.message,
+        error.response?.data || error.message
       );
       throw error;
     }
@@ -176,13 +188,13 @@ const actions = {
           headers: {
             Authorization: `Bearer ${rootState.auth.authToken}`,
           },
-        },
+        }
       );
       return response.data;
     } catch (error) {
       console.error(
         "Error adding user to project: ",
-        error.response?.data || error.message,
+        error.response?.data || error.message
       );
       throw error;
     }
@@ -195,7 +207,7 @@ const actions = {
           headers: {
             Authorization: `Bearer ${rootState.auth.authToken}`,
           },
-        },
+        }
       );
       return response.data;
     } catch (error) {
@@ -234,13 +246,13 @@ const actions = {
           headers: {
             Authorization: `Bearer ${rootState.auth.authToken}`,
           },
-        },
+        }
       );
       return response.data;
     } catch (error) {
       console.error(
         "Error changing archived status: ",
-        error.response?.data || error.message,
+        error.response?.data || error.message
       );
       var errorMessage = "An error occurred while changing archived status.";
       if (error.response) {
@@ -264,6 +276,30 @@ const actions = {
       throw new Error(errorMessage);
     }
   },
+  async fetchUserProjects({ commit, rootState }, email) {
+    commit("SET_ERROR", null);
+    commit("SET_LOADING", true);
+    try {
+      const params = new URLSearchParams();
+      params.append("email", email);
+      const response = await axios.get("/api/projects/getAllUserProjects", {
+        params: { email },
+        headers: {
+          Authorization: `Bearer ${rootState.auth.authToken}`,
+        },
+      });
+
+      commit("SET_PROJECTS", response.data);
+      return response.data;
+    } catch (error) {
+      const errorMessage =
+        error.response?.data || error.message || "Failed to fetch projects";
+      commit("SET_ERROR", errorMessage);
+      throw error;
+    } finally {
+      commit("SET_LOADING", false);
+    }
+  },
   // Other project-related actions
 };
 
@@ -272,4 +308,5 @@ export default {
   state,
   mutations,
   actions,
+  getters,
 };
