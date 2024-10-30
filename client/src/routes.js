@@ -58,6 +58,13 @@ const router = createRouter({
       component: () => import("./views/TaskDetail.vue"),
       meta: { requiresAuth: true },
       props: true, // Allow passing route params as props
+    }, 
+    {
+      path: "/tasks/:taskId/editTask",
+      name: "editTask",
+      component: () => import("./views/EditTaskView.vue"),
+      meta: { requiresAuth: true },
+      props: true, // Allow passing route params as props
     },
     {
       path: "/organization/:orgIndex/project/:projIndex/createTask",
