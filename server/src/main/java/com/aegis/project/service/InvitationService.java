@@ -26,6 +26,10 @@ public class InvitationService {
     private UserRepository userRepository;
 
     public boolean createInvitation(String senderEmail, String recipientEmail, int invitationType, String message) {
+
+        if (invitationRepository.existsInvitationByMessage(message)) {
+            throw new RuntimeException("Invitation with given message has already been sent");
+        }
         InvitationModel invite = new InvitationModel();
 
         UserModel sender = userService.findUserByEmail(senderEmail)

@@ -15,10 +15,12 @@
       <div class="w-full max-w-4xl bg-white shadow-lg rounded-lg overflow-hidden">
         <!-- Main Controls Header -->
         <div class="flex justify-between items-center p-4 bg-gray-50">
+          <!----
           <button class="bg-blue-600 text-white rounded-md px-4 py-2 hover:bg-blue-700 transition"
             @click="goToCreateTask">
             <i class="fas fa-plus mr-2"></i>Create Task
           </button>
+        -->
 
           <button @click="isFilterMenuOpen = !isFilterMenuOpen" class="flex items-center px-4 py-2 rounded-md 
           hover:bg-blue-50 transition-all duration-200 
@@ -200,13 +202,17 @@ export default {
       sortField: 'dueDate',
       sortOrder: 'asc',
       uniqueAssigners: {},
+      uniqueProjects: {},
+      uniqueOrgs: {},
       searchQuery: '',
     };
   },
 
   async mounted() {
-    this.fetchTasks();
+    await this.fetchTasks();
     await this.fetchUniqueAssigners();
+    await this.fetchUniqueProjects();
+    await this.fetchUniqueOrgs();
   },
 
   computed: {
@@ -223,20 +229,6 @@ export default {
     },
     filteredCompleteTasks() {
       return this.filteredTasks(1);
-    },
-
-    uniqueProjects() {
-      return [...new Set(this.tasks.map(task => ({
-        id: task.parentProjectID,
-        name: task.parentProject
-      })))];
-    },
-
-    uniqueOrgs() {
-      return [...new Set(this.tasks.map(task => ({
-        id: task.parentOrgID,
-        name: task.parentOrg
-      })))];
     },
   },
 
@@ -257,10 +249,60 @@ export default {
       }));
       this.uniqueAssigners = assigners;
     },
+    async fetchUniqueProjects() {
+      const projectIDs = [
+        ...new Set(this.tasks.map((task) => task.parentProjectID)),
+      ];
+      const projects = await Promise.all(
+        projectIDs.map(async (id) => {
+          const project = await this.$store.dispatch(
+            "projects/fetchProject",
+            id,
+          );
+          return {
+            id,
+            name: project ? project.projectName : "Unknown Project", // Adjust based on your user object structure
+          };
+        }),
+      );
+      this.uniqueProjects = projects;
+    },
+
+    async fetchUniqueOrgs() {
+      const orgIDs = [
+        ...new Set(this.tasks.map((task) => task.parentOrgID)),
+      ];
+      const orgs = await Promise.all(
+        orgIDs.map(async (id) => {
+          const org = await this.$store.dispatch(
+            "organizations/fetchOrganization",
+            id,
+          );
+          return {
+            id,
+            name: org ? org.orgName : "Unknown Org", // Adjust based on your user object structure
+          };
+        }),
+      );
+      this.uniqueOrgs = orgs;
+    },
 
     getAssignerName(assignerID) {
       const assigner = this.uniqueAssigners.find(assigner => assigner.id === assignerID);
       return assigner ? assigner.name : 'Unknown User';
+    },
+    getProjectName(projectID) {
+      const project = this.uniqueProjects.find(
+        (project) => project.id === projectID,
+      );
+      return project ? project.name : "Unknown Project";
+    },
+
+    getOrgName(orgID) {
+      const org = this.uniqueOrgs.find(
+        (org) => org.id === orgID,
+      );
+      return org ? org.name : "Unknown Organization";
     },
 
     filterTasks() {
@@ -288,7 +330,7 @@ export default {
       }
       if (this.searchQuery) {
         tasks = tasks.filter(task =>
-            task.taskName.toLowerCase().includes(this.searchQuery.toLowerCase())
+          task.taskName.toLowerCase().includes(this.searchQuery.toLowerCase())
         );
       }
       // Apply filters

@@ -16,6 +16,8 @@ import org.springframework.stereotype.Service;
 import com.aegis.project.dto.ProjectDTO;
 import com.aegis.project.dto.TaskDTO;
 import com.aegis.project.dto.UserDTO;
+import com.aegis.project.exception.ProjectFetchException;
+import com.aegis.project.exception.UserNotFoundException;
 import com.aegis.project.model.OrgModel;
 import com.aegis.project.model.ProjectModel;
 import com.aegis.project.model.TaskModel;
@@ -24,8 +26,6 @@ import com.aegis.project.repository.OrgRepository;
 import com.aegis.project.repository.ProjectRepository;
 import com.aegis.project.repository.TaskRepository;
 import com.aegis.project.repository.UserRepository;
-
-import com.aegis.project.exception.*;
 
 @Service
 public class ProjectService {
@@ -134,6 +134,7 @@ public class ProjectService {
     }
 
     public void updateProject(int projectID, String projectName, String projectDescription, int projectOwnerID, String encodedImage) {
+
         ProjectModel project = projectRepository.findById(projectID)
                 .orElseThrow(() -> new RuntimeException("Project not found with id: " + projectID));
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
@@ -145,6 +146,11 @@ public class ProjectService {
         if (project.getProjectOwnerID() != currentUser.getUserID()) {
             throw new RuntimeException("User does not have permission to update project");
         }
+
+        if (!projectName.equals(project.getProjectName()) && projectRepository.existsProjectByOrgAndName(project.getParentOrgID(), projectName)) {
+            throw new RuntimeException("Project with given name already exists in org");
+        }
+
         project.setProjectName(projectName);
         project.setProjectDescription(projectDescription);
         project.setProjectOwnerID(projectOwnerID);
@@ -363,14 +369,14 @@ public class ProjectService {
     public Set<ProjectDTO> getAllUserProjects(String email) {
         try {
             UserModel user = userService.findUserByEmail(email)
-                .orElseThrow(() -> new UserNotFoundException(email));
+                    .orElseThrow(() -> new UserNotFoundException(email));
 
             List<ProjectModel> projects = projectRepository.findAllUserProjects(user.getUserID());
-            
+
             return projects.stream()
-                .map(ProjectDTO::new)
-                .collect(Collectors.toSet());
-                
+                    .map(ProjectDTO::new)
+                    .collect(Collectors.toSet());
+
         } catch (UserNotFoundException e) {
             throw e;
         } catch (Exception e) {

@@ -124,7 +124,7 @@ public class TaskController {
             taskService.updateTask(taskID, taskName, taskDescription, assignerID, taskPriority, parsedDueDate, isComplete);
             return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Task updated successfully");
         } catch (ParseException e) {
-            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid date format", e); 
+            throw new ResponseStatusException(HttpStatus.BAD_REQUEST, "Invalid date format", e);
         } catch (RuntimeException e) {
             if (e.getMessage().contains("Task not found with id:")) {
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
@@ -132,10 +132,12 @@ public class TaskController {
                 throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
             } else if (e.getMessage().contains("User does not have permission")) {
                 throw new ResponseStatusException(HttpStatus.FORBIDDEN, e.getMessage());
+            } else if (e.getMessage().contains("Task with given name already exists in project")) {
+                throw new ResponseStatusException(HttpStatus.CONFLICT, e.getMessage());
             } else {
                 throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
             }
-        } 
+        }
     }
 
     @DeleteMapping("/{taskID}/deleteTask")
