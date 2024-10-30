@@ -223,6 +223,10 @@ public class TaskService {
             throw new RuntimeException("User does not have permission to update task");
         }
 
+        if (!taskName.equals(task.getTaskName()) && taskRepository.existsTaskByProjectAndName(task.getParentProjectID(), taskName)) {
+            throw new RuntimeException("Task with given name already exists in project");
+        }
+
         task.setTaskName(taskName);
         task.setTaskDescription(taskDescription);
         task.setAssignerID(assignerID);
