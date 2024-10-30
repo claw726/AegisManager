@@ -237,4 +237,13 @@ public class ProjectController {
             }
         }
     }
+
+    @GetMapping("/getAllUserProjects")
+    public ResponseEntity<Set<ProjectDTO>> getAllUserProjects(@RequestParam String email) {
+        try {
+            return ResponseEntity.ok(projectService.getAllUserProjects(email));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
 }

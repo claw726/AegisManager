@@ -157,8 +157,8 @@ public class ProjectService {
         Set<TaskModel> tasks = project.getProjectTasks();
         return tasks.stream()
                 .map(task -> new TaskDTO(task.getTaskID(), task.getParentProjectID(), task.getParentOrgID(),
-                        task.getTaskName(), task.getTaskDescription(), task.getAssignerID(), task.getTaskPriority(),
-                        task.getDueDate(), task.isComplete(), task.getAssignedUsers()))
+                task.getTaskName(), task.getTaskDescription(), task.getAssignerID(), task.getTaskPriority(),
+                task.getDueDate(), task.isComplete(), task.getAssignedUsers()))
                 .collect(Collectors.toSet());
     }
 
@@ -356,5 +356,15 @@ public class ProjectService {
 
         project.setArchived(isArchived);
         projectRepository.save(project);
+    }
+
+    public Set<ProjectDTO> getAllUserProjects(String email) {
+        UserModel user = userService.findUserByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
+        ;
+        List<ProjectModel> projects = projectRepository.findAllUserProjects(user.getUserID());
+
+        return projects.stream().map(project -> new ProjectDTO(project)).collect(Collectors.toSet());
+
     }
 }

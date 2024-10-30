@@ -60,7 +60,7 @@ const router = createRouter({
       props: true, // Allow passing route params as props
     },
     {
-      path: "/createTask",
+      path: "/organization/:orgIndex/project/:projIndex/createTask",
       name: "createTask",
       component: () => import("./views/CreateTaskView.vue"),
       meta: { requiresAuth: true },
