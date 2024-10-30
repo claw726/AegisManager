@@ -252,6 +252,10 @@ export default {
     await this.fetchUniqueAssigners();
   },
 
+  async created() {
+    this.fetchTasks();
+  },
+
   computed: {
     ...mapState("tasks", ["tasks"]),
     ...mapState("auth", ["currentUser"]),

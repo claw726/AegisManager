@@ -271,7 +271,10 @@ const getters = {
   isUpdateLoading: (state) => state.updateStatus.loading,
   updateError: (state) => state.updateStatus.error,
   updateSuccess: (state) => state.updateStatus.success,
+  fullTasks: (state) => state.tasks,
 };
+
+
 
 export default {
   state,

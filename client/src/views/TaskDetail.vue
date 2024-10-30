@@ -277,11 +277,11 @@ export default {
        });
 
        //TODO:  NOTIFICATION FOR TASK DELETED HERE, BEFORE ROUTING TO TDLIST
-       this.$router.push({ name: "TDList" });
      } catch (error) {
+      //TODO:  NOTIFICATION FOR TASK failed to delete HERE
        console.error('Failed to delete task:');
      }
-    
+    this.$router.push({ name: "TDList" });
    },
 
     async markAsComplete() {
