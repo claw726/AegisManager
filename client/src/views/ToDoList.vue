@@ -21,13 +21,6 @@
         <!-- Main Controls Header -->
         <div class="flex justify-between items-center p-4 bg-gray-50">
           <button
-            class="bg-blue-600 text-white rounded-md px-4 py-2 hover:bg-blue-700 transition"
-            @click="goToCreateTask"
-          >
-            <i class="fas fa-plus mr-2"></i>Create Task
-          </button>
-
-          <button
             @click="isFilterMenuOpen = !isFilterMenuOpen"
             class="flex items-center px-4 py-2 rounded-md hover:bg-blue-50 transition-all duration-200 border border-gray-200 hover:border-blue-300 hover:shadow-md group"
           >

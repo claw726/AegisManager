@@ -14,7 +14,7 @@
       </button>
 
       <button 
-        v-if="!fetchedTask.complete" @click="markAsComplete"
+        v-if="!fetchedTask.complete && showLeftButton" @click="markAsComplete"
         class="px-4 py-2 complete-btn text-white rounded-lg hover:bg-green-600">
         Mark Complete
       </button>
@@ -29,8 +29,8 @@
           <div class="flex space-x-4">
             <!-- Status Badge -->
             <span class="px-3 py-1 rounded-full text-sm font-semibold" :class="{
-              'bg-green-100 text-green-800': fetchedTask.complete,
-              'bg-red-100 text-red-800': !fetchedTask.complete
+              'bg-green-800 text-white': fetchedTask.complete,
+              'bg-orange-800 text-white': !fetchedTask.complete
             }">
               {{ fetchedTask.complete ? 'Complete' : 'Incomplete' }}
             </span>
@@ -132,8 +132,8 @@
             </select>
 
             <!-- Button, visible only if showLeftButton is true -->
-            <button v-if="!fetchedTask.complete && showLeftButton && taskUsers.length > 0" @click="sendAssignerInvite"
-              class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600">
+            <button v-if="!fetchedTask.complete && showLeftButton && taskUsers.length > 0" @click="updateTaskAssigner"
+              class="px-4 py-2 complete-btn text-white rounded-lg hover:bg-green-600">
               Confirm Reassignment
             </button>
           </div>
@@ -352,14 +352,16 @@ export default {
          taskID: this.taskId,
        });
 
-       //TODO:  NOTIFICATION FOR TASK DELETED HERE, BEFORE ROUTING TO TDLIST
-       this.showNotification("info", "Task has been successfully deleted.");
+      this.showNotification("success", "Task successfully deleted!");
+      await new Promise(resolve => setTimeout(resolve, 2500));
 
      } catch (error) {
-      //TODO:  NOTIFICATION FOR TASK failed to delete HERE
-       console.error('Failed to delete task:');
+      //TODO: make sure notification only shows if error shows right status code
+      //this.showNotification("error", "Task failed to delete.");
+     console.error('Failed to delete task:');
+     //await new Promise(resolve => setTimeout(resolve, 2000));
      }
-    this.$router.push({ name: "TDList" });
+     this.$router.push({ name: "TDList" });
    },
 
     async markAsComplete() {
@@ -381,8 +383,10 @@ export default {
           taskData: taskData,
         });
 
+        this.showNotification("success", "Task successfully completed!");
+        await new Promise(resolve => setTimeout(resolve, 2500));
+
         // Reroute to task to do list as task is now marked complete
-        //await this.loadTask();
         this.isGrayedOut = true;
         this.$router.push({ name: "TDList" });
       } catch (error) {
@@ -487,16 +491,19 @@ export default {
           taskData: taskData,
         });
 
-        if (s == true) {
-          this.goBack();
-
-          //TODO: show notification that task has been updated
+        if (s==true) {
+          this.showNotification("success", "Task successfully updated!");
+          await new Promise(resolve => setTimeout(resolve, 2500));
         }
+        
+        this.goBack();
         
       } catch (error) {
         console.error('Failed to edit task', error);
-        // Error will be handled by Vuex store and displayed via updateStatus
+        this.showNotification("error", "Task failed to edit.");
+        await new Promise(resolve => setTimeout(resolve, 2500));      
       }
+      
     },
 
 

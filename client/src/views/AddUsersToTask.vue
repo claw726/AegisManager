@@ -6,14 +6,14 @@
     <!-- Main Content -->
     <div 
     v-if="fetchedTask"
-    class="cc text-4xl font-bold text-hunter-green mb-6">Edit Task</div>
+    class="cc text-4xl font-bold text-hunter-green mb-6">Add Users to Task</div>
 
     <!-- Form Container -->
     <form @submit.prevent="handleSubmit">
       <div class="flex flex-wrap cc -mx-4 bg-grey shadow-lg rounded-lg p-8">
         <div class="w-full md:w-1/2 px-4 mb-4">
           <label class="block text-sm font-semibold text-gray-800 mb-2">
-            Please enter the Assignee's Email</label
+            Please Enter the Assignee's Email</label
           >
           <input
             type="text"
@@ -21,6 +21,11 @@
             class="w-full border border-highlight rounded-lg p-3"
           />
         </div>
+
+        <NotificationComponent class="flex" :show="notification.show" :type="notification.type"
+            @close="closeNotification">
+            {{ notification.message }}
+        </NotificationComponent>
 
         <!-- Submit Button -->
         <button
@@ -40,10 +45,13 @@
 <script>
 import { mapState, mapActions } from "vuex";
 import NavBar from "@/components/NavBar.vue";
+import NotificationComponent from "@/components/NotificationComponent.vue";
+
 
 export default {
   components: {
     NavBar,
+    NotificationComponent,
   },
 
   computed: {
@@ -53,6 +61,18 @@ export default {
     return {
       fetchedTask: null,
       email: "",
+
+      notification: {
+        show: false,
+        type: "error",
+        message: "",
+      },
+
+      notification: {
+        show: false,
+        type: "info",
+        message: "",
+      },
     };
   },
   props: {
@@ -70,16 +90,21 @@ export default {
   methods: {
     ...mapActions("auth", ["user", "isLoggedIn", "currentUser"]),
 
-    handleAddUser() {
+    async handleAddUser() {
         try {
             const s = this.addUser(this.email)
             if (s == true) {
                 //TODO: THROW NOTIFICATION that add is successful
                 console.log("Added user successfully inside handle.")
             }
+            this.showNotification("success", "Successfully added user to task!");
+            await new Promise(resolve => setTimeout(resolve, 2500));
             this.$router.push({ name: "TDList"});
+            
         } catch (error) {
             console.error('Failed to add user to task', error);
+            //await new Promise(resolve => setTimeout(resolve, 2000));
+            this.showNotification("error", "Unexpected error with task delegation.");
             //TODO: THROW NOTIFICATION AND DON'T LEAVE
         }
     },
@@ -99,6 +124,7 @@ export default {
         return true;
       } catch (error) {
         console.error('Failed to add user to task', error);
+
       }
       this.$router.push({ name: "TDList"});
     },
@@ -110,6 +136,21 @@ export default {
 
     goBack() {
       this.$router.go(-1);
+    },
+
+    showNotification(type, message) {
+      this.notification = {
+        show: true,
+        type,
+        message,
+      };
+
+      if (type == "success") {
+        setTimeout(this.closeNotification, 5000);
+      }
+    },
+    closeNotification() {
+      this.notification.show = false;
     },
 
     createUserJson() {
