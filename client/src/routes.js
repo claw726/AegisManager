@@ -143,6 +143,12 @@ const router = createRouter({
       component: () => import("./views/CalendarTaskView.vue"),
       meta: { requiresAuth: true },
     },
+    {
+      path: "/archived-projects",
+      name: "ArchivedProjects",
+      component: () => import("./views/ArchivedProjectsView.vue"),
+      meta: { requiresAuth: true },
+    },
   ],
 });
 

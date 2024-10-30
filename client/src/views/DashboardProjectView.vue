@@ -61,7 +61,7 @@
                 v-if="currentUser.userID === proj.projectOwnerID"
                 class="absolute bottom-2 right-2"
               >
-                <DropdownMenu :items="dropdownOpts">
+                <DropdownMenu :items="dropdownOpts" symbol="fas fa-cog">
                   <template #trigger>
                     <button
                       class="p-2 bg-white rounded-full shadow-lg hover:bg-gray-50"
@@ -209,19 +209,23 @@ export default {
       projects: [],
       dropdownOpts: [
         {
-          title: "Edit Project Details ✏️",
+          title: "Edit Project Details",
+          symbol: "fas fa-edit",
           command: this.editProject,
         },
         {
-          title: "Delete This Project 🗑️",
+          title: "Delete This Project",
+          symbol: "fas fa-trash",
           command: this.deleteProject,
         },
         {
-          title: "Edit Project Members 🤵",
+          title: "Edit Project Members",
+          symbol: "fas fa-users",
           command: this.editProjUsers,
         },
         {
-          title: "Archive Projects 📁",
+          title: "Archive Projects",
+          symbol: "fas fa-archive",
           command: this.toggleArchived,
         },
       ],

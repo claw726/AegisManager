@@ -91,6 +91,13 @@ export default {
           color: "yellow",
           action: this.goToKanban,
         },
+        {
+          label: "Archived Projects",
+          description: "View your archived projects",
+          icon: "archive",
+          color: "red",
+          action: this.goToArchivedProjects,
+        },
       ],
     };
   },
@@ -119,6 +126,9 @@ export default {
     },
     goToCalendar() {
       this.$router.push({ name: "Calendar" });
+    },
+    goToArchivedProjects() {
+      this.$router.push({ name: "ArchivedProjects" });
     },
   },
 };
