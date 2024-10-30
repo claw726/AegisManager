@@ -7,6 +7,8 @@ import organizations from "@/store/modules/organizations.js";
 import projects from "@/store/modules/project.js";
 import tasks from "@/store/modules/tasks.js";
 import users from "@/store/modules/users.js";
+import invitations from "@/store/modules/invitations.js";
+
 
 export default new Vuex.Store({
   modules: {
@@ -15,5 +17,6 @@ export default new Vuex.Store({
     organizations,
     projects,
     users,
+    invitations,
   },
 });
