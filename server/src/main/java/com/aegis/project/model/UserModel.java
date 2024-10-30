@@ -47,6 +47,9 @@ public class UserModel {
     @Column(name = "profile_picture")
     private String profilePicture;
 
+    @Column(name = "has_2fa")
+    private boolean has2fa;
+
     public UserModel(String userName, String email, String PWHash, String profilePicture) {
         this.userName = userName;
         this.email = email;
@@ -57,6 +60,7 @@ public class UserModel {
         IsLoggedIn = false;
         this.failedLoginAttempts = 0;
         this.isLocked = false;
+        this.has2fa = false;
     }
 
     public UserModel() {
@@ -148,6 +152,14 @@ public class UserModel {
 
     public void setProfilePicture(String profilePicture) {
         this.profilePicture = profilePicture;
+    }
+
+    public boolean isHas2fa() {
+        return has2fa;
+    }
+
+    public void setHas2fa(boolean has2fa) {
+        this.has2fa = has2fa;
     }
 }
 
