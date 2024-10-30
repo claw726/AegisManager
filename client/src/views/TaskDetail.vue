@@ -111,6 +111,33 @@
               class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600">
               Mark Complete
             </button>
+
+            <button
+              v-if="!fetchedTask.complete && showLeftButton"
+              @click="goToEditTask"
+              class="px-4 py-2 edit-btn text-white rounded-lg hover:bg-green-600"
+            >
+              Edit Task
+           </button>
+
+
+            <button
+             v-if="showLeftButton"
+             @click="showPopup = true"
+             class="px-4 py-2 remove-btn text-gray-700 rounded-lg hover:bg-gray-300"
+           >
+             Delete Task
+           </button>
+
+           <div v-if="showPopup" class="popup">
+             <div class="popup-content">
+               <p>Are you sure you want to delete this task?</p>
+               <button @click="handleYes" class="remove-btn">Yes</button>
+               <button @click="handleNo" class="remove-btn">No</button>
+             </div>
+           </div>
+
+
           </div>
         </div>
       </div>
@@ -143,6 +170,7 @@ export default {
         type: "success",
         message: "",
       },
+      showPopup: false,
     };
   },
 
@@ -173,6 +201,7 @@ export default {
   },
   async mounted() {
     this.fetchedTask = await this.$store.dispatch("tasks/fetchTask", this.$route.params.taskId);
+    console.log("Client has stored fetched task.");
     await this.populateAssignerDropdown(this.fetchedTask.assignerID);
   },
 
@@ -193,9 +222,22 @@ export default {
       this.$router.go(-1);
     },
 
+    goToEditTask(){
+     console.log("Edit task actions");
+     this.$router.push({
+       name: "",
+       params: {
+         task: this.fetchedTask,
+         projId: this.$route.params.projIndex,
+         userID: this.currentUser.userID,
+       },
+     });
+   },
+
+
     async getTask() {
       console.log("Doing async method")
-      this.$store.dispatch("tasks/fetchTask", this.taskId);
+      return this.$store.dispatch("tasks/fetchTask", this.taskId);
     },
 
     handleOptionChange() {
@@ -210,6 +252,7 @@ export default {
     handleYes() {
       console.log("User wants to delete task");
       this.showPopup = false;
+      this.makeTaskDeleted();
     },
     handleNo() {
       console.log("Nevermind");
@@ -230,6 +273,18 @@ export default {
         day: 'numeric'
       });
     },
+    async makeTaskDeleted() {
+     try {
+       await this.$store.dispatch("tasks/deleteTask", {
+         taskID: this.taskId,
+       });
+       //ADD NOTIFICATION FOR TASK DELETED HERE, BEFORE ROUTING TO TDLIST
+       this.$router.push({ name: "TDList" });
+     } catch (error) {
+       console.error('Failed to delete task:');
+     }
+    
+   },
 
     async markAsComplete() {
       try {
@@ -332,4 +387,41 @@ export default {
   opacity: 0.3;
   /* Adjust the opacity as needed */
 }
+
+.remove-btn {
+ cursor: pointer;
+ background-color: rgb(2, 2, 58);
+ color: white;
+ border: none;
+ padding: 5px 10px;
+ margin-left: 63px;
+}
+
+.popup {
+ position: fixed;
+ top: 0;
+ left: 0;
+ width: 100%;
+ height: 100%;
+ background-color: rgba(0, 0, 0, 0.5);
+ display: flex;
+ justify-content: center;
+ align-items: center;
+}
+
+.popup-content {
+ background-color: white;
+ padding: 20px;
+ border-radius: 5px;
+}
+
+
+.edit-btn {
+ cursor: pointer;
+ background-color: rgb(77, 12, 23);
+ color: white;
+ border: none;
+ padding: 5px 10px;
+}
+
 </style>

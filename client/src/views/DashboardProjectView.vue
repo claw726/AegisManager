@@ -259,6 +259,7 @@ export default {
           userID: this.currentUser.userID,
         },
       });
+      console.log(this.currentUser.userID);
     },
 
     showNotification(type, message, duration = 5000) {

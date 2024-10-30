@@ -55,7 +55,7 @@
 
         <!-- Submit Button -->
         <button
-          @click="showTaskCreatedNotif"
+          @click="callCreateTask"
           type="submit"
           data-testid="submit-button"
           class="w-full mt-4 bg-primary text-white font-semibold py-3 rounded-lg"
@@ -91,17 +91,14 @@ export default {
         assignerID: null,
       },
 
+      //THIS BOOL CONTROLS WHETHER 'TASK CREATED SUCCESSFULLY' NOTIFICATION SHOULD SHOW
       showTaskCreatedNotifBool: false,
     };
   },
   watch: {},
   methods: {
     ...mapActions("auth", ["user", "isLoggedIn", "currentUser"]),
-    showTaskCreatedNotif() {
-      this.showTaskCreatedNotifBool = true;
-      this.callCreateTask();
-    },
-
+    
     callCreateTask() {
       const t = {
         dueDate: this.task.dueDate.toString().concat("T11:00:11.000Z"),
@@ -110,14 +107,27 @@ export default {
         taskPriority: this.task.taskPriority,
 
         assignerID: this.currentUser.userID, //NEED TO FIX, FOR NOW HARDCODING USERID this.currentUser.userID
-        parentProjectID: 1, //this.$route.params.orgId,
-        parentOrgID: 1, //this.$route.params.projId,
+        parentProjectID: this.$route.params.projIndex, //this.$route.params.orgId,
+        parentOrgID: this.$route.params.orgIndex, //this.$route.params.projId,
       };
 
-      console.log(t);
-      this.$store.dispatch("tasks/createTask", t);
+      try {
+        console.log(t);
+        const r = this.$store.dispatch("tasks/createTask", t);
+        console.log("Resulting Promise", r);
+
+        //ADD NOTIFICATION HERE FOR TASK SUCCESSFULLY CREATED
+        console.log("About to show notif");
+        this.showTaskCreatedNotifBool = true;
+        this.$router.push({ name: "TDList" });
+      
+      } catch(error) {
+        console.log("Task cannot be created.");
+      }
+      
     },
 
+    //CALL THIS METHOD WHEN TASK CREATED NOTIFICATION IS CLOSED
     closeTaskCreatedNotif() {
       this.showTaskCreatedNotifBool = false;
       // Redirect to the viewOrgs page
