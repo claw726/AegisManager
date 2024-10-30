@@ -5,7 +5,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import com.aegis.project.dto.TaskDTO;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -210,9 +209,9 @@ public class OrgService {
         userRepository.save(userToRemove);
     }
 
-    public Set<ProjectDTO> getArchivedProjects(int ordID) {
-        OrgModel org = orgRepository.findById(ordID)
-                .orElseThrow(() -> new RuntimeException("Org not found with id: " + ordID));
+    public Set<ProjectDTO> getArchivedProjects(int orgID) {
+        orgRepository.findById(orgID)
+            .orElseThrow(() -> new RuntimeException("Org not found with id: " + orgID));
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String currentUsername = ((UserDetails) authentication.getPrincipal()).getUsername();
@@ -220,7 +219,7 @@ public class OrgService {
         UserModel currentUser = userRepository.findByEmail(currentUsername)
                 .orElseThrow(() -> new RuntimeException("User not found with email: " + currentUsername));
 
-        List<ProjectModel> allProjects = projectRepository.findByParentOrgID(ordID);
+        List<ProjectModel> allProjects = projectRepository.findByParentOrgID(orgID);
 
         List<ProjectModel> accessibleProjects = new ArrayList<>();
         for (ProjectModel project : allProjects) {

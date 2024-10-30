@@ -1,7 +1,6 @@
 <template>
   <NavBar />
   <div
-    v-if="isLoggedIn"
     class="min-h-screen bg-background py-12 px-4 sm:px-6 lg:px-8"
   >
     <div class="max-w-3xl mx-auto">
@@ -145,7 +144,13 @@ import NotificationComponent from "@/components/NotificationComponent.vue";
 export default {
   data() {
     return {
-      modifiedProject: {},
+      modifiedProject: {
+        projectName: "",
+        projectDescription: "",
+        projectOwnerID: "",
+        projectID: "",
+        encodedImage: "",
+      },
       imageUploaded: false,
       notification: {
         show: false,
@@ -278,6 +283,18 @@ export default {
     },
     async submitForm() {
       // Add the new org to localstorage
+
+      // Ensure that the project name and description are not empty
+      if (
+        this.modifiedProject.projectName.trim() === "" ||
+        this.modifiedProject.projectDescription.trim() === ""
+      ) {
+        this.showNotification(
+          "error",
+          "Please ensure that the project name and description are not empty.",
+        );
+        return;
+      }
 
       // Check if the current user is the creator of the project. If not, they may not edit it.
       if (this.modifiedProject.projectOwnerID !== this.currentUser.userID) {

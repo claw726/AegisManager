@@ -82,23 +82,29 @@ const actions = {
         },
       });
     } catch (error) {
-      console.error(
-        "Failed to delete project:",
-        error.response ? error.response.data : error.message
-      );
+      let errorMessage = "Failed to delete project";
       if (error.response) {
         switch (error.response.status) {
           case 404:
             console.error("Project not found with ID:", projectID);
+            errorMessage = "Project not found";
             break;
           case 403:
             console.error("Unauthorized to delete project with ID:", projectID);
+            errorMessage = "Unauthorized to delete project";
             break;
           default:
             console.error("Failed to delete project with ID:", projectID);
+            errorMessage = "Failed to delete project";
             break;
         }
-      }
+      } else if (error.request) {
+        console.error("No response from server. Please check your connection.");
+        errorMessage = "No response from server. Please check your connection.";
+      } else {
+        console.error("Error deleting project:", error.message);
+        errorMessage = `Error: ${error.message}`;
+      } throw new Error(errorMessage);
     }
   },
   async modifyProject({ rootState }, { project, projectID }) {

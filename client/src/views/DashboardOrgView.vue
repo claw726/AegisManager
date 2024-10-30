@@ -158,7 +158,7 @@
           </div>
           <button
             @click="goToCreateProject"
-            class="inline-flex items-center px-6 py-3 bg-blue-600 text-white font-medium rounded-lg hover:bg-blue-700 transition duration-200 shadow-sm"
+            class="inline-flex items-center px-6 py-3   bg-primary   text-white font-medium rounded-lg hover:bg-green-700 transition duration-200 shadow-sm"
           >
             <i class="fas fa-plus mr-2"></i>
             Create New Project

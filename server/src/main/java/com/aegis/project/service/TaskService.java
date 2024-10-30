@@ -1,8 +1,5 @@
 package com.aegis.project.service;
 
-import java.time.LocalDate;
-import java.time.ZoneId;
-import java.util.ArrayList;
 import java.util.Date;
 import java.util.List;
 import java.util.Set;
@@ -10,9 +7,6 @@ import java.util.stream.Collectors;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
-
-import jakarta.persistence.EntityNotFoundException;
-
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.Authentication;
@@ -21,7 +15,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import com.aegis.project.dto.TaskDTO;
-import com.aegis.project.model.OrgModel;
+import com.aegis.project.exception.TaskNotFoundException;
 import com.aegis.project.model.ProjectModel;
 import com.aegis.project.model.TaskModel;
 import com.aegis.project.model.UserModel;
@@ -29,8 +23,6 @@ import com.aegis.project.repository.OrgRepository;
 import com.aegis.project.repository.ProjectRepository;
 import com.aegis.project.repository.TaskRepository;
 import com.aegis.project.repository.UserRepository;
-
-import com.aegis.project.exception.TaskNotFoundException;
 
 @Service
 public class TaskService {
@@ -74,6 +66,16 @@ public class TaskService {
         return "Assigner invite sent successfully";
     }
 
+    public String directlySwitchTaskAssigner(int taskID, String newAssignerEmail) {
+        TaskModel task = taskRepository.findById(taskID)
+                .orElseThrow(() -> new RuntimeException("Task not found with id: " + taskID));
+
+        task.setAssignerID(userRepository.findByEmail(newAssignerEmail).get().getUserID());
+        taskRepository.save(task);
+
+        return "Assigner switched successfully";
+    }
+
     public String assignerDecision(int taskID, boolean accepted) {
         TaskModel task = taskRepository.findById(taskID)
                 .orElseThrow(() -> new RuntimeException("Task not found with id: " + taskID));
@@ -105,16 +107,16 @@ public class TaskService {
     public TaskDTO getTask(int taskId) {
         try {
             TaskModel task = taskRepository.findById(taskId)
-                .orElseThrow(() -> new TaskNotFoundException("Task not found with id: " + taskId));
-            
+                    .orElseThrow(() -> new TaskNotFoundException("Task not found with id: " + taskId));
+
             // Add null check before creating DTO
             if (task == null) {
                 throw new TaskNotFoundException("Task is null for id: " + taskId);
             }
-            
+
             TaskDTO taskDTO = new TaskDTO(task);
             logger.debug("Created TaskDTO for task ID {}: {}", taskId, taskDTO);
-            
+
             return taskDTO;
         } catch (TaskNotFoundException e) {
             logger.error("Task not found: {}", e.getMessage());
@@ -155,7 +157,7 @@ public class TaskService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String currentUsername = ((UserDetails) authentication.getPrincipal()).getUsername();
 
-        OrgModel parentOrg = orgRepository.findById(parentOrgID)
+        orgRepository.findById(parentOrgID)
                 .orElseThrow(() -> new RuntimeException("Org not found with id: " + parentOrgID));
 
         ProjectModel parentProject = projectRepository.findById(parentProjectID)
@@ -174,7 +176,6 @@ public class TaskService {
 
         taskRepository.save(task);
 
-        
         Set<TaskModel> projectTasks = parentProject.getProjectTasks();
         projectTasks.add(task);
         projectRepository.save(parentProject);
@@ -197,11 +198,11 @@ public class TaskService {
                 .orElseThrow(() -> new RuntimeException("User not found with email: " + currentUsername));
         if (currentUser.getUserID() == userID) {
             Set<TaskModel> tasks = taskRepository.getAllUserTasks(userID, orgID, projectID);
-            
+
             return tasks.stream()
                     .map(task -> new TaskDTO(task.getTaskID(), task.getParentProjectID(), task.getParentOrgID(),
-                            task.getTaskName(), task.getTaskDescription(), task.getAssignerID(), task.getTaskPriority(),
-                            task.getDueDate(), task.isComplete(), task.getAssignedUsers()))
+                    task.getTaskName(), task.getTaskDescription(), task.getAssignerID(), task.getTaskPriority(),
+                    task.getDueDate(), task.isComplete(), task.getAssignedUsers()))
                     .collect(Collectors.toSet());
 
         } else {
@@ -357,8 +358,8 @@ public class TaskService {
 
         return tasks.stream()
                 .map(task -> new TaskDTO(task.getTaskID(), task.getParentProjectID(), task.getParentOrgID(),
-                        task.getTaskName(), task.getTaskDescription(), task.getAssignerID(), task.getTaskPriority(),
-                        task.getDueDate(), task.isComplete(), task.getAssignedUsers()))
+                task.getTaskName(), task.getTaskDescription(), task.getAssignerID(), task.getTaskPriority(),
+                task.getDueDate(), task.isComplete(), task.getAssignedUsers()))
                 .collect(Collectors.toSet());
     }
 }

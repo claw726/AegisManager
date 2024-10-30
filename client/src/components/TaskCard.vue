@@ -11,8 +11,8 @@
       <span
         class="px-3 py-1 rounded-full text-sm font-semibold"
         :class="{
-          'bg-green-100 text-green-800': task.complete,
-          'bg-red-100 text-red-800': !task.complete,
+          'bg-green-800 text-white': task.complete,
+          'bg-orange-800 text-white': !task.complete,
         }"
       >
         {{ task.complete ? "Complete" : "Incomplete" }}
