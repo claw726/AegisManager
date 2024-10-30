@@ -3,7 +3,13 @@
 
   <div class="min-h-screen bg-gray-50 p-8">
 
+    <div class="max-w-4xl mx-auto bg-white rounded-lg p-6">
+      <button @click="goBack" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">
+              Back
+            </button>
     <div class="max-w-4xl mx-auto bg-white rounded-lg shadow-lg p-6">
+      
+      
       <div v-if="fetchedTask" class="space-y-6">
         <!-- Task Header -->
         <div class="flex justify-between items-start">
@@ -21,10 +27,13 @@
 
         <!-- Task Details -->
         <div v-if="fetchedTask.complete" class="greyed-out space-y-4">
-          <h2 class="text-lg font-semibold mb-2">Description</h2>
-          <p>{{ fetchedTask.taskDescription }}</p>
-
           <div class="grid grid-cols-2 gap-4">
+
+            <div>
+              <h2 class="text-lg font-semibold mb-2">Description</h2>
+              <p>{{ fetchedTask.taskDescription }}</p>
+            </div>
+
             <div>
               <h2 class="text-lg font-semibold mb-2">Priority</h2>
               <span class="px-2 py-1 rounded-md text-sm font-medium" :class="{
@@ -40,14 +49,23 @@
               <h2 class="text-lg font-semibold mb-2">Due Date</h2>
               <p>{{ formatDate(fetchedTask.dueDate) }}</p>
             </div>
+
+            <div>
+              <h2 class="text-lg font-semibold mb-2">Assignees:</h2>
+              <p>{{ (fetchedTask.assignedUsers.toString()) }}</p>
+            </div>
+
           </div>
         </div>
 
         <div v-else="fetchedTask.complete" class="space-y-4">
-          <h2 class="text-lg font-semibold mb-2">Description</h2>
-          <p>{{ fetchedTask.taskDescription }}</p>
-
           <div class="grid grid-cols-2 gap-4">
+
+            <div>
+              <h2 class="text-lg font-semibold mb-2">Description</h2>
+              <p>{{ fetchedTask.taskDescription }}</p>
+            </div>
+
             <div>
               <h2 class="text-lg font-semibold mb-2">Priority</h2>
               <span class="px-2 py-1 rounded-md text-sm font-medium" :class="{
@@ -63,7 +81,14 @@
               <h2 class="text-lg font-semibold mb-2">Due Date</h2>
               <p>{{ formatDate(fetchedTask.dueDate) }}</p>
             </div>
+
+            <div>
+              <h2 class="text-lg font-semibold mb-2">Assignees:</h2>
+              <p>{{ (fetchedTask.assignedUsers.toString()) }}</p>
+            </div>
+
           </div>
+
         </div>
 
         <div class="flex justify-between mt-6">
@@ -103,9 +128,6 @@
 
           <!-- Right-aligned buttons -->
           <div class="flex space-x-4"> <!-- Align buttons to the right -->
-            <button @click="goBack" class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">
-              Back
-            </button>
             <button v-if="!fetchedTask.complete" @click="markAsComplete"
               class="px-4 py-2 bg-green-500 text-white rounded-lg hover:bg-green-600">
               Mark Complete
@@ -140,6 +162,7 @@
           </div>
         </div>
       </div>
+    </div>
     </div>
   </div>
 </template>
@@ -201,6 +224,8 @@ export default {
   async mounted() {
     this.fetchedTask = await this.$store.dispatch("tasks/fetchTask", this.$route.params.taskId);
     console.log("Client has stored fetched task.");
+    //console.log(JSON.stringify(this.fetchedTask.assignedUsers, null, 2));
+    this.makeListOfAssignees();
     await this.populateAssignerDropdown(this.fetchedTask.assignerID);
   },
 
@@ -216,6 +241,20 @@ export default {
       console.log(this.taskUsers);
       console.log(this.fetchedTask.complete)
     },
+
+
+    makeListOfAssignees() {
+      const emailList = this.getEmails(this.fetchedTask.assignedUsers);
+      console.log(emailList);
+      return emailList;
+    },
+
+    getEmails(data) {
+      if (!Array.isArray(data)) {
+        throw new Error("Input data must be an array.");
+      }
+      return data.map(user => user.email).join(", ");
+    },  
 
     goBack() {
       this.$router.push({ name: "TDList" });
@@ -277,6 +316,8 @@ export default {
        });
 
        //TODO:  NOTIFICATION FOR TASK DELETED HERE, BEFORE ROUTING TO TDLIST
+       this.showNotification("info", "Task has been successfully deleted.");
+
      } catch (error) {
       //TODO:  NOTIFICATION FOR TASK failed to delete HERE
        console.error('Failed to delete task:');
@@ -397,6 +438,25 @@ export default {
         
       } catch (error) {
         console.error('Failed to edit task', error);
+        // Error will be handled by Vuex store and displayed via updateStatus
+      }
+    },
+
+    async addUser(email) {
+      try {
+
+        const s = await this.$store.dispatch("tasks/updateTask", {
+          email: email,
+          taskId: this.fetchedTask.taskID,
+        });
+
+        if (s == true) {
+          //TODO: show notification that task has been updated
+          this.goBack();
+        }
+        
+      } catch (error) {
+        console.error('Failed to add user to task task', error);
         // Error will be handled by Vuex store and displayed via updateStatus
       }
     },
