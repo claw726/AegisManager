@@ -112,19 +112,18 @@ export default {
     ...mapActions("auth", ["user", "isLoggedIn", "currentUser"]),
 
     handleEditTask() {
-        console.log("Inside handling edit task");
+        try {
+            console.log("Inside handling edit task");
         this.editTask();
-
         //TODO: show notification that task has been updated
-        console.log("Task has been edited.");
-
-        //TODO: Close notification
-
+        ///console.log("Task has been edited.");
+        } catch (error) {
+            console.log("Error editing task.")
+            //TODO: show notification that task has not been updated
+        }
         //Show task again but refreshed with edits, random query to refres h
         this.$router.push({ name: "TDList"});
         this.$forceUpdate();
-
-        
     },
 
     async editTask() {
@@ -133,6 +132,7 @@ export default {
         //New date format is: "2024-11-01 T11:00:11.000+00:00T15:30:00.000z"
         //const dueDate = `${this.fetchedTask.dueDate}T15:30:00.000z`;
         const dueDate = `${this.fetchedTask.dueDate}T11:00:11.000+00:00T15:30:00.000z`;
+        //const dueDate = `${this.fetchedTask.dueDate}`;
 
         const taskData = {
           taskName: this.fetchedTask.taskName,
