@@ -19,13 +19,6 @@
               {{ currentUser.userName }}
             </h1>
             <p class="text-lg text-gray-600 mb-4">Welcome to your dashboard!</p>
-            <button
-              @click="goToViewOrgs"
-              class="inline-flex items-center px-6 py-3 bg-indigo-600 text-white rounded-lg hover:bg-indigo-700 transition-colors"
-            >
-              <i class="fas fa-building mr-2"></i>
-              Your Organizations
-            </button>
           </div>
         </div>
       </div>
@@ -64,18 +57,25 @@ export default {
     return {
       buttons: [
         {
-          label: "View Tasks",
+          label: "Organizations",
+          description: "Manage your organizations",
+          icon: "building",
+          color: "red",
+          action: this.goToViewOrgs,
+        },
+        {
+          label: "Tasks",
           description: "Manage your daily tasks",
           icon: "tasks",
           color: "blue",
           action: this.goToTDList,
         },
         {
-          label: "Account Settings",
-          description: "Customize your preferences",
-          icon: "cog",
-          color: "green",
-          action: this.goToSettings,
+          label: "Kanban Board",
+          description: "Manage your projects visually",
+          icon: "columns",
+          color: "yellow",
+          action: this.goToKanban,
         },
         {
           label: "Calendar",
@@ -85,11 +85,11 @@ export default {
           action: this.goToCalendar,
         },
         {
-          label: "Kanban Board",
-          description: "Manage your projects visually",
-          icon: "columns",
-          color: "yellow",
-          action: this.goToKanban,
+          label: "Settings",
+          description: "Customize your preferences",
+          icon: "cog",
+          color: "green",
+          action: this.goToSettings,
         },
       ],
     };
