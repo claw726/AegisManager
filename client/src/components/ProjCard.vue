@@ -119,8 +119,8 @@ export default {
         await this.$router.push({
           name: "ProjectDashboard",
           params: {
-            orgIndex: this.$route.params.orgIndex,
-            projIndex: this.projIndex,
+            orgIndex: this.project.parentOrgID,
+            projIndex: this.project.projectID,
           },
         });
       } catch (error) {

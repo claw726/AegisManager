@@ -39,7 +39,6 @@
             class="border border-gray-300 rounded-lg px-4 py-2 focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
           >
             <option value="name">Sort by Name</option>
-            <option value="date">Sort by Date</option>
             <option value="owner">Sort by Owner</option>
           </select>
         </div>
@@ -48,7 +47,7 @@
 
     <!-- Projects Grid -->
     <div class="max-w-7xl mx-auto">
-      <div v-if="loading" class="flex justify-center items-center py-12">
+      <div v-if="isLoading" class="flex justify-center items-center py-12">
         <i class="fas fa-circle-notch fa-spin text-3xl text-blue-500"></i>
       </div>
 
@@ -76,6 +75,7 @@
 </template>
 
 <script>
+import { mapGetters, mapState } from "vuex";
 import ProjectCard from "@/components/ProjCard.vue";
 import NavBar from "@/components/NavBar.vue";
 import NotificationComponent from "@/components/NotificationComponent.vue";
@@ -89,8 +89,6 @@ export default {
   },
   data() {
     return {
-      projects: [],
-      loading: true,
       searchQuery: "",
       sortBy: "name",
       notification: {
@@ -101,28 +99,39 @@ export default {
     };
   },
   computed: {
+    ...mapState("auth", ["currentUser", "isLoggedIn"]),
+    ...mapState("projects", ["projects"]),
+    ...mapGetters("projects", ["isLoading", "error"]),
+    // Filter only archived projects and apply search/sort
     filteredProjects() {
-      let filtered = this.projects.filter((project) => {
+      // First filter archived projects
+      if (!this.projects) {
+        return [];
+      }
+
+      let archived = this.projects.filter(
+        (project) => project.isArchived === true
+      );
+
+      let ownedArchived = archived.filter(
+        (project) => project.projectOwnerID === this.currentUser.userID
+      );
+
+      // Then apply search filter
+      let filtered = ownedArchived.filter((project) => {
+        const searchLower = this.searchQuery.toLowerCase();
         return (
-          project.projectName
-            .toLowerCase()
-            .includes(this.searchQuery.toLowerCase()) ||
-          project.projectDescription
-            .toLowerCase()
-            .includes(this.searchQuery.toLowerCase()) ||
-          project.projectOwnerID
-            .toLowerCase()
-            .includes(this.searchQuery.toLowerCase())
+          project.projectName?.toLowerCase().includes(searchLower) ||
+          project.projectDescription?.toLowerCase().includes(searchLower) ||
+          project.projectOwnerID?.toLowerCase().includes(searchLower)
         );
       });
 
-      // Sort projects
+      // Apply sorting
       filtered.sort((a, b) => {
         switch (this.sortBy) {
           case "name":
             return a.projectName.localeCompare(b.projectName);
-          case "date":
-            return new Date(b.archivedDate) - new Date(a.archivedDate);
           case "owner":
             return a.projectOwnerID.localeCompare(b.projectOwnerID);
           default:
@@ -134,20 +143,29 @@ export default {
     },
   },
   methods: {
-    async fetchArchivedProjects() {
+    async fetchProjects() {
       try {
-        this.loading = true;
-        const response = await fetch("/api/archived-projects");
-        this.projects = await response.json();
-        this.showNotification("success", "Projects loaded successfully");
+        if (!this.currentUser.email) {
+          this.showNotification("error", "User email not found");
+          return;
+        }
+
+        await this.$store.dispatch(
+          "projects/fetchUserProjects",
+          this.currentUser.email
+        );
+
+        if (this.errorMessage) {
+          this.showNotification("error", this.errorMessage);
+        } else {
+          this.showNotification("success", "Projects loaded successfully");
+        }
       } catch (error) {
-        console.error("Failed to fetch archived projects:", error);
+        console.error("Failed to fetch projects:", error);
         this.showNotification(
           "error",
-          "Failed to load projects. Please try again.",
+          "Failed to load projects. Please try again."
         );
-      } finally {
-        this.loading = false;
       }
     },
     showNotification(type, message) {
@@ -156,7 +174,6 @@ export default {
         type,
         message,
       };
-      // Auto-hide notification after 5 seconds
       setTimeout(() => {
         this.closeNotification();
       }, 5000);
@@ -165,12 +182,11 @@ export default {
       this.notification.show = false;
     },
     handleProjectClick(project) {
-      // You can add specific handling here if needed
       this.showNotification("info", `Opening project: ${project.projectName}`);
     },
   },
-  created() {
-    this.fetchArchivedProjects();
+  async created() {
+    await this.fetchProjects();
   },
   watch: {
     searchQuery() {
