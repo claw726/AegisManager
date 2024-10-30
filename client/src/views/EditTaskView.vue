@@ -130,7 +130,9 @@ export default {
     async editTask() {
       try {
 
-        const dueDate = `${this.fetchedTask.dueDate}T15:30:00.000z`;
+        //New date format is: "2024-11-01 T11:00:11.000+00:00T15:30:00.000z"
+        //const dueDate = `${this.fetchedTask.dueDate}T15:30:00.000z`;
+        const dueDate = `${this.fetchedTask.dueDate}T11:00:11.000+00:00T15:30:00.000z`;
 
         const taskData = {
           taskName: this.fetchedTask.taskName,
