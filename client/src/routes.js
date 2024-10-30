@@ -140,9 +140,15 @@ const router = createRouter({
       meta: { requiresAuth: true },
     },
     {
-      path: "/updateAccount",
-      name: "UpdateAccount",
-      component: () => import("./views/EditUserView.vue"),
+      path: "/AccountSettings",
+      name: "AccountSettings",
+      component: () => import("./views/AccountSettingsView.vue"),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: "/invitations",
+      name: "Invitations",
+      component: () => import("./views/InvitationView.vue"),
       meta: { requiresAuth: true },
     },
     {

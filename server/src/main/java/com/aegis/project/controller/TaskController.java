@@ -4,7 +4,6 @@ import java.text.ParseException;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Set;
-import java.util.List;
 
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
@@ -23,7 +22,6 @@ import org.springframework.web.server.ResponseStatusException;
 
 import com.aegis.project.dto.TaskDTO;
 import com.aegis.project.service.TaskService;
-import com.aegis.project.model.TaskModel;
 
 @RestController
 @RequestMapping("api/tasks")
