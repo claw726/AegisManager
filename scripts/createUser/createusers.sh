@@ -1,5 +1,21 @@
 #!/bin/bash
 
+# Define required commands
+REQUIRED_COMMANDS=("curl" "magick" "base64" "python3.12")
+
+# Function to check for dependencies
+check_dependencies() {
+  for cmd in "${REQUIRED_COMMANDS[@]}"; do
+    if ! command -v "$cmd" &> /dev/null; then
+      echo "Error: $cmd is not installed. Please install it to run this script."
+      exit 1
+    fi
+  done
+}
+
+# Check for dependencies
+check_dependencies
+
 # Set API endpoint URL
 API_URL="http://localhost:8080/api/auth/register"
 
@@ -43,7 +59,8 @@ for ((i=0; i<${#PROFILE_PICS[@]}; i++)); do
   name=$(generate_name)
   email=$(generate_email)
   password=$(generate_password)
-  profile_picture=$(magick "${PROFILE_PICS[$i]}" -resize 256x256\> -quality 80 jpg:- | base64)
+  profile_picture='data:image/jpeg;base64,'$(magick "${PROFILE_PICS[$i]}" -resize 256x256\> -quality 80 jpg:- | base64)
+  profile_picture=$(echo "${profile_picture}" | python3.12 -c "import sys, urllib.parse; print(urllib.parse.quote(sys.stdin.read()))") 
   curl -X POST \
     ${API_URL} \
     -H 'Content-Type: application/x-www-form-urlencoded' \
