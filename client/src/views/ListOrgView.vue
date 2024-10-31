@@ -123,8 +123,8 @@ export default {
     filteredOrganizations() {
       return (this.userOrganizations || []).filter((organization) =>
         organization.users.some(
-          (user) => user.userID === this.currentUser.userID,
-        ),
+          (user) => user.userID === this.currentUser.userID
+        )
       );
     },
   },
@@ -142,7 +142,10 @@ export default {
   },
 
   async mounted() {
-    await this.fetchOrganizations();
+    this.isLoading = true;
+    setTimeout(async () => {
+      await this.fetchOrganizations();
+    }, 300);
   },
 
   methods: {
@@ -172,7 +175,7 @@ export default {
       try {
         this.isLoading = true;
         const organizations = await this.$store.dispatch(
-          "organizations/fetchOrganizations",
+          "organizations/fetchOrganizations"
         );
         this.userOrganizations = organizations;
 
@@ -180,7 +183,7 @@ export default {
           this.showNotification(
             "success",
             "Organizations loaded successfully",
-            3000,
+            3000
           );
         }
       } catch (error) {
@@ -188,7 +191,7 @@ export default {
         this.showNotification(
           "error",
           "Failed to load organizations. Please try again later.",
-          5000,
+          5000
         );
       } finally {
         this.isLoading = false;

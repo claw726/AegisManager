@@ -245,8 +245,9 @@ export default {
     DropdownMenu,
     NotificationComponent,
   },
-  async created() {
+  async mounted() {
     await this.getProjData();
+    await this.fetchProjectTasks();
     await this.getCreatorData();
   },
   computed: {
@@ -281,16 +282,29 @@ export default {
     clearNotification() {
       this.notification.show = false;
     },
+    async fetchProjectTasks() {
+      try {
+        this.tasks = await this.$store.dispatch(
+          "projects/fetchTasksFromProject",
+          this.$route.params.projIndex
+        );
+      } catch (error) {
+        this.showNotification(
+          "error",
+          "There was an error fetching the project data"
+        );
+      }
+    },
     async getProjData() {
       try {
         this.proj = await this.$store.dispatch(
           "projects/fetchProject",
-          this.$route.params.projIndex,
+          this.$route.params.projIndex
         );
       } catch (err) {
         this.showNotification(
           "error",
-          "There was an error fetching the organization data",
+          "There was an error fetching the organization data"
         );
         this.$router.push({ name: "OrganizationDashboard" });
       }
@@ -299,7 +313,7 @@ export default {
       try {
         this.creator = await this.$store.dispatch(
           "users/fetchUserAccountByID",
-          this.proj.projectOwnerID,
+          this.proj.projectOwnerID
         );
       } catch (error) {
         this.showNotification("error", "Error getting project owner info");
@@ -313,7 +327,7 @@ export default {
         const projID = this.$route.params.projIndex;
         this.tasks = this.$store.dispatch(
           "projects/fetchTasksFromProject",
-          projID,
+          projID
         );
       } catch (error) {
         this.showNotification("error", "Error getting project tasks");
@@ -323,7 +337,7 @@ export default {
       if (this.proj.projectOwnerID !== this.currentUser.userID) {
         this.showNotification(
           "error",
-          "You are not authorized to modify this project.",
+          "You are not authorized to modify this project."
         );
         return;
       }
@@ -339,7 +353,7 @@ export default {
       if (this.proj.projectOwnerID !== this.currentUser.userID) {
         this.showNotification(
           "error",
-          "You are not authorized to archive this project.",
+          "You are not authorized to archive this project."
         );
         return;
       }
@@ -363,7 +377,7 @@ export default {
       if (this.proj.projectOwnerID !== this.currentUser.userID) {
         this.showNotification(
           "error",
-          "You are not authorized to delete this project.",
+          "You are not authorized to delete this project."
         );
         return;
       }
@@ -372,7 +386,7 @@ export default {
       this.showNotification(
         "warning",
         "Are you sure you want to delete this project? Click again to confirm.",
-        0,
+        0
       );
 
       // Set up confirmation action
@@ -397,7 +411,7 @@ export default {
       } catch (err) {
         this.showNotification(
           "error",
-          "Failed to change project archival status: " + err,
+          "Failed to change project archival status: " + err
         );
         console.error(err);
       }

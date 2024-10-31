@@ -180,6 +180,12 @@ const router = createRouter({
       component: () => import("./views/Disable2FAView.vue"),
       meta: { requiresAuth: true },
     },
+    {
+      path: "/forgot-password",
+      name: "ForgotPassword",
+      component: () => import("./views/ForgotPassword.vue"),
+      meta: { requiresGuest: true },
+    },
   ],
 });
 
