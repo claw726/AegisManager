@@ -51,6 +51,9 @@ public class TaskDTO {
         this.assignedUsers = assignedUsers.stream().map(user -> new UserDTO(user)).collect(Collectors.toSet());
     }
 
+    public TaskDTO() {
+    }
+
     public int getTaskID() {
         return taskID;
     }

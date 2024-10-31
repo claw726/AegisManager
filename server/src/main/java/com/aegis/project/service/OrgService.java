@@ -6,6 +6,7 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 import com.aegis.project.dto.TaskDTO;
+import com.aegis.project.repository.TaskRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -31,7 +32,7 @@ public class OrgService {
     @Autowired
     private ProjectRepository projectRepository;
     @Autowired
-    private ProjectRepository taskRepository;
+    private TaskRepository taskRepository;
     @Autowired
     private UserRepository userRepository;
     @Autowired
@@ -50,7 +51,7 @@ public class OrgService {
             addUser(org.getOrgID(), userRepository.findById(ownerID).get().getEmail());
         } catch (Exception e) {
             orgRepository.deleteById(org.getOrgID());
-            throw new RuntimeException("Error adding owner to org");
+            throw new RuntimeException("Error adding owner to org: " + e.getMessage());
         }
         return true;
     }
@@ -147,9 +148,8 @@ public class OrgService {
             userRepository.save(user);
         }
 
-        projectRepository.deleteByParentOrgID(orgID);
         taskRepository.deleteByParentOrgID(orgID);
-
+        projectRepository.deleteByParentOrgID(orgID);
         orgRepository.deleteById(orgID);
     }
 

@@ -17,6 +17,7 @@ import jakarta.transaction.Transactional;
 public interface TaskRepository extends JpaRepository<TaskModel, Integer> {
 
     void deleteByParentProjectID(int projectID);
+    void deleteByParentOrgID(int orgID);
 
     // Custom query to update the 'completed' field for a specific task ID
     @Modifying
