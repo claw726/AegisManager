@@ -29,13 +29,13 @@
         </div>
       </div>
       <NotificationComponent
-          class="flex"
-          :show="notification.show"
-          :type="notification.type"
-          @close="closeNotification"
-        >
-          {{ notification.message }}
-        </NotificationComponent>
+        class="flex"
+        :show="notification.show"
+        :type="notification.type"
+        @close="closeNotification"
+      >
+        {{ notification.message }}
+      </NotificationComponent>
     </div>
   </div>
 </template>
@@ -62,7 +62,7 @@ export default {
     return {
       email: "",
       password: "",
-       notification: {
+      notification: {
         show: false,
         type: "info",
         message: "",
@@ -76,10 +76,7 @@ export default {
           newPassword: this.password,
           token: this.token,
         });
-        this.showNotification(
-          "success",
-          "Password successfully updated"
-        );
+        this.showNotification("success", "Password successfully updated");
       } catch (error) {
         this.showNotification(
           "error",

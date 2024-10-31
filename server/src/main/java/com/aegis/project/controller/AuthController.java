@@ -32,6 +32,8 @@ import java.util.UUID;
 
 import org.springframework.transaction.annotation.Transactional;
 
+import com.aegis.project.exception.*;
+
 
 @RestController
 @RequestMapping("/api/auth")
@@ -135,7 +137,7 @@ public class AuthController {
         logger.info("Received password reset request for email: {}", email);
         try {
             UserModel user = userRepository.findByEmail(email)
-                    .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
+                    .orElseThrow(() -> new UserNotFoundException("User not found with email: " + email));
 
             String existingToken = user.getPasswordResetToken();
             if (existingToken != null) {
@@ -154,6 +156,9 @@ public class AuthController {
 
             emailService.sendPasswordResetEmail(email, token, LocalDateTime.now().plusMinutes(15));
             return ResponseEntity.ok("Password reset requested successfully with token: " + token);
+        } catch (UserNotFoundException e) {
+            logger.error(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         } catch (RuntimeException e) {
             logger.error("Error requesting password reset: " + e.getMessage());
             return ResponseEntity.internalServerError().body("Error requesting password reset");
@@ -165,44 +170,54 @@ public class AuthController {
         logger.info("Received password reset request with token: {}", token);
         try {
             PasswordResetToken resetToken = passwordResetTokenRepository.findByToken(token)
-                    .orElseThrow(() -> new RuntimeException("Token not found: " + token));
+                    .orElseThrow(() -> new TokenNotFoundException("Password reset token not found"));
 
             if (resetToken.isExpired()) {
                 logger.warn("Token: {} has expired", token);
-                return ResponseEntity.badRequest().body("Token has expired");
+                throw new TokenExpiredException("Password reset token has expired");
             }
 
             int userId = resetToken.getUserId();
             UserModel user = userRepository.findById(userId)
-                    .orElseThrow(() -> new RuntimeException("User not found with ID: " + userId));
+                    .orElseThrow(() -> new UserNotFoundException("User not found with ID: " + userId));
             user.setPWHash(passwordEncoder.encode(password));
             user.setPasswordResetToken(null);
             userRepository.save(user);
             passwordResetTokenRepository.deleteById(resetToken.getId());
 
             return ResponseEntity.ok("Password reset successfully");
+        } catch (TokenNotFoundException e) {
+            logger.error("Invalid password reset token requested");
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } catch (TokenExpiredException e) {
+            return ResponseEntity.status(HttpStatus.BAD_REQUEST).body(e.getMessage());
+        } catch (UserNotFoundException e) {
+            logger.error(e.getMessage());
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
         } catch (RuntimeException e) {
             logger.error("Error resetting password: " + e.getMessage());
-            return ResponseEntity.internalServerError().body("Error resetting password");
+            return ResponseEntity.internalServerError().body(e.getMessage());
         }
     }
 
-    // @PostMapping("/enable2FA")
-    // public ResponseEntity<String> enable2FA(@RequestParam int userID) {
-    //     try {
+     @PostMapping("/enable2FA")
+     public ResponseEntity<String> enable2FA(@RequestParam int userID) {
+         try {
+             String secretKey = twoFactorAuthService.generateSecretKey();
+             String qrCodeURL = twoFactorAuthService.getQRBarcodeURL(userID, secretKey);
 
-    //         userService.updateUser2FA(userID, secretKey);
-    //         return ResponseEntity.ok(qrCodeURL);
-    //     } catch (RuntimeException e) {
-    //         if (e.getMessage().equals("User not found with ID: " + userID)) {
-    //             return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found with ID: " + userID);
-    //         } else if (e.getMessage().contains("does not have permission")) {
-    //             return ResponseEntity.status(HttpStatus.FORBIDDEN).body("User does not have permission to enable 2FA for user with ID: " + userID);
-    //         } else {
-    //             return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error enabling 2FA");
-    //         }
-    //     }
-    // }
+             userService.updateUser2FA(userID, secretKey);
+             return ResponseEntity.ok(qrCodeURL);
+         } catch (RuntimeException e) {
+             if (e.getMessage().equals("User not found with ID: " + userID)) {
+                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body("User not found with ID: " + userID);
+             } else if (e.getMessage().contains("does not have permission")) {
+                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body("User does not have permission to enable 2FA for user with ID: " + userID);
+             } else {
+                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body("Error enabling 2FA");
+             }
+         }
+     }
 
     @PostMapping("/verify2FA")
     public ResponseEntity<String> verify2FA(@RequestParam int userID, @RequestParam int code) {
@@ -254,7 +269,7 @@ public class AuthController {
                 return ResponseEntity.badRequest().body(null);
             }
 
-            String qrCodeURL = twoFactorAuthService.getQRBarcodeURL("Aegis", secretKey);
+            String qrCodeURL = twoFactorAuthService.getQRBarcodeURL(userID, secretKey);
             byte[] qrCodeImage = twoFactorAuthService.generateQRCodeImage(qrCodeURL);
             return ResponseEntity.ok().contentType(MediaType.IMAGE_PNG).body(qrCodeImage);
         } catch (Exception e) {

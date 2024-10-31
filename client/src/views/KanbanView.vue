@@ -1,43 +1,109 @@
 <template>
-  <NavBar />
-  <div class="bg-background flex flex-col items-center min-h-screen h-full">
-    <div class="flex flex-col items-center space-y-8 mt-12 w-full max-w-7xl px-4 flex-grow">
-      <!-- Added max-w-7xl and px-4 here -->
-      <div class="flex justify-between items-center w-full"> <!-- Flex container for text and button -->
-        <h1 class="text-4xl font-bold text-hunter-green mb-6 flex-grow text-center">Kanban Board List</h1>
-        <Button class="dashboard-button ml-4" @click="goToTDList">To Do List</Button>
+  <div v-if="isLoggedIn" class="relative min-h-screen bg-gray-50">
+    <NavBar />
+
+    <!-- Main Container -->
+    <div class="flex min-h-[calc(100vh-64px)]">
+      <!-- Side Navigation -->
+      <div class="w-64 bg-white border-r border-gray-200 p-4 shadow-sm">
+        <div class="space-y-2">
+          <h2 class="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-4">
+            Views
+          </h2>
+
+          <router-link
+            to="/calendar"
+            class="flex items-center px-4 py-2 text-gray-700 rounded-lg hover:bg-blue-50 hover:text-blue-700 transition-colors group"
+            :class="{ 'bg-blue-50 text-blue-700': $route.path === '/calendar' }"
+          >
+            <i class="fas fa-calendar-alt w-5 h-5 mr-3 group-hover:scale-110 transition-transform"></i>
+            <span class="font-medium">Calendar</span>
+          </router-link>
+
+          <router-link
+            to="/todolist"
+            class="flex items-center px-4 py-2 text-gray-700 rounded-lg hover:bg-blue-50 hover:text-blue-700 transition-colors group"
+            :class="{ 'bg-blue-50 text-blue-700': $route.path === '/todolist' }"
+          >
+            <i class="fas fa-check-circle w-5 h-5 mr-3 group-hover:scale-110 transition-transform"></i>
+            <span class="font-medium">To-Do List</span>
+          </router-link>
+
+          <router-link
+            to="/kanban"
+            class="flex items-center px-4 py-2 text-gray-700 rounded-lg hover:bg-blue-50 hover:text-blue-700 transition-colors group"
+            :class="{ 'bg-blue-50 text-blue-700': $route.path === '/kanban' }"
+          >
+            <i class="fas fa-columns w-5 h-5 mr-3 group-hover:scale-110 transition-transform"></i>
+            <span class="font-medium">Kanban Board</span>
+          </router-link>
+        </div>
+
+        <!-- Quick Stats -->
+        <div class="mt-8 space-y-4">
+          <h2 class="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-4">
+            Overview
+          </h2>
+
+          <div class="px-4 py-3 bg-blue-50 rounded-lg hover:shadow-md transition-shadow duration-300">
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="text-sm text-blue-800">Total Tasks</div>
+                <div class="text-2xl font-bold text-blue-900">
+                  {{ tasks.length }}
+                </div>
+              </div>
+              <i class="fas fa-tasks text-blue-400 text-xl"></i>
+            </div>
+          </div>
+
+          <div class="px-4 py-3 bg-green-50 rounded-lg hover:shadow-md transition-shadow duration-300">
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="text-sm text-green-800">Completed</div>
+                <div class="text-2xl font-bold text-green-900">
+                  {{ taskStats.completed }}
+                </div>
+              </div>
+              <i class="fas fa-check-double text-green-400 text-xl"></i>
+            </div>
+          </div>
+
+          <div class="px-4 py-3 bg-yellow-50 rounded-lg hover:shadow-md transition-shadow duration-300">
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="text-sm text-yellow-800">Due Today</div>
+                <div class="text-2xl font-bold text-yellow-900">
+                  {{ getDueToday() }}
+                </div>
+              </div>
+              <i class="fas fa-clock text-yellow-400 text-xl"></i>
+            </div>
+          </div>
+        </div>
       </div>
-      <div class="h-1 bg-accent drop-shadow-lg rounded mx-16 flex w-screen" />
 
-      <SearchComponent v-model:searchQuery="searchQuery" size="70%" />
-
-      <!-- Controls Panel -->
+      <!-- Kanban Content -->
+      <div class="flex-1 p-8">
+        <div class="bg-white rounded-xl shadow-sm border border-gray-200">
+          <!-- Controls Panel -->
       <div class="w-full max-w-4xl bg-white shadow-lg rounded-lg overflow-hidden">
         <!-- Main Controls Header -->
         <div class="flex justify-between items-center p-4 bg-gray-50">
-          <button class="bg-blue-600 text-white rounded-md px-4 py-2 hover:bg-blue-700 transition"
-            @click="goToCreateTask">
-            <i class="fas fa-plus mr-2"></i>Create Task
-          </button>
-
-          <button @click="isFilterMenuOpen = !isFilterMenuOpen" class="flex items-center px-4 py-2 rounded-md 
-          hover:bg-blue-50 transition-all duration-200 
-            border border-gray-200 hover:border-blue-300 
-            hover:shadow-md group">
-            <i class="fas fa-sliders-h mr-2 text-blue-600 
-                      group-hover:rotate-180 transition-transform duration-300"></i>
+          <button @click="isFilterMenuOpen = !isFilterMenuOpen"
+            class="flex items-center px-4 py-2 rounded-md hover:bg-blue-50 transition-all duration-200 border border-gray-200 hover:border-blue-300 hover:shadow-md group">
+            <i class="fas fa-sliders-h mr-2 text-blue-600 group-hover:rotate-180 transition-transform duration-300"></i>
             <span class="relative text-gray-700 group-hover:text-blue-600">
               Filter & Sort
-              <span class="absolute bottom-0 left-0 w-full h-0.5 bg-blue-600 
-                            transform scale-x-0 group-hover:scale-x-100 
-                            transition-transform duration-200">
+              <span
+                class="absolute bottom-0 left-0 w-full h-0.5 bg-blue-600 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-200">
               </span>
             </span>
             <i :class="[
               'fas',
               'ml-2',
               isFilterMenuOpen ? 'fa-chevron-up' : 'fa-chevron-down',
-              'transform group-hover:translate-y-0.5 transition-transform text-blue-600'
+              'transform group-hover:translate-y-0.5 transition-transform text-blue-600',
             ]"></i>
           </button>
         </div>
@@ -111,16 +177,23 @@
                 </select>
                 <button @click="toggleSortOrder"
                   class="flex items-center px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 transition">
-                  <i
-                    :class="['fas', sortOrder === 'asc' ? 'fa-sort-amount-down-alt' : 'fa-sort-amount-up-alt', 'mr-2']"></i>
-                  {{ sortOrder === 'asc' ? 'Ascending' : 'Descending' }}
+                  <i :class="[
+                    'fas',
+                    sortOrder === 'asc'
+                      ? 'fa-sort-amount-down-alt'
+                      : 'fa-sort-amount-up-alt',
+                    'mr-2',
+                  ]"></i>
+                  {{ sortOrder === "asc" ? "Ascending" : "Descending" }}
                 </button>
               </div>
             </div>
 
             <!-- Active Filters Display -->
             <div v-if="hasActiveFilters" class="pt-3 border-t border-gray-200">
-              <h3 class="text-sm font-medium text-gray-700 mb-2">Active Filters:</h3>
+              <h3 class="text-sm font-medium text-gray-700 mb-2">
+                Active Filters:
+              </h3>
               <div class="flex flex-wrap gap-2">
                 <span v-if="selectedPriority"
                   class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800">
@@ -136,6 +209,20 @@
                     <i class="fas fa-times"></i>
                   </button>
                 </span>
+                <span v-if="selectedProject"
+                  class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800">
+                  Project: {{ getProjectName(selectedProject) }}
+                  <button @click="selectedProject = ''" class="ml-2 text-blue-600 hover:text-blue-800">
+                    <i class="fas fa-times"></i>
+                  </button>
+                </span>
+                <span v-if="selectedOrg"
+                  class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800">
+                  Organization: {{ getOrgName(selectedOrg) }}
+                  <button @click="selectedOrg = ''" class="ml-2 text-blue-600 hover:text-blue-800">
+                    <i class="fas fa-times"></i>
+                  </button>
+                </span>
                 <!-- Add similar spans for other active filters -->
               </div>
             </div>
@@ -143,31 +230,26 @@
         </div>
       </div>
 
-
-      <div class="container">
-        <!-- Task Grid -->
-        <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-2 gap-4 w-full max-w-7xl px-4">
-          <!-- Incomplete Task List -->
-          <div class="grid grid-cols-1 gap-4 h-48">
-            <h2 class="text-4xl font-bold text-hunter-green mb-6 flex-grow text-center">Incomplete Tasks</h2>
-            <!-- Label for Incomplete Tasks -->
-            <template v-if="filteredTasks && filteredTasks.length > 0">
-              <TaskCard v-for="task in filteredIncompleteTasks" :key="task.taskID" :task="task" />
-            </template>
-            <div v-else class="col-span-full text-center text-gray-600">
-              No tasks available.
+          <!-- Kanban Board -->
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6 p-6">
+            <!-- Incomplete Tasks Column -->
+            <div class="space-y-4">
+              <h2 class="text-xl font-bold text-gray-900">Incomplete Tasks</h2>
+              <div class="space-y-4">
+                <TaskCard v-for="task in filteredIncompleteTasks" 
+                         :key="task.taskID" 
+                         :task="task" />
+              </div>
             </div>
-          </div>
 
-          <!-- Complete Task List -->
-          <div class="grid grid-cols-1 gap-4 h-48">
-            <h2 class="text-4xl font-bold text-hunter-green mb-6 flex-grow text-center">Complete Tasks</h2>
-            <!-- Label for Complete Tasks -->
-            <template v-if="filteredTasks && filteredTasks.length > 0">
-              <TaskCard v-for="task in filteredCompleteTasks" :key="task.taskID" :task="task" />
-            </template>
-            <div v-else class="col-span-full text-center text-gray-600">
-              No tasks available.
+            <!-- Complete Tasks Column -->
+            <div class="space-y-4">
+              <h2 class="text-xl font-bold text-gray-900">Complete Tasks</h2>
+              <div class="space-y-4">
+                <TaskCard v-for="task in filteredCompleteTasks" 
+                         :key="task.taskID" 
+                         :task="task" />
+              </div>
             </div>
           </div>
         </div>
@@ -178,7 +260,6 @@
 
 <script>
 import NavBar from "@/components/NavBar.vue";
-import SearchComponent from "@/components/SearchComponent.vue";
 import { mapState, mapActions } from "vuex";
 import TaskCard from "@/components/TaskCard.vue";
 
@@ -186,7 +267,6 @@ export default {
   components: {
     NavBar,
     TaskCard,
-    SearchComponent
   },
 
   data() {
@@ -200,18 +280,22 @@ export default {
       sortField: 'dueDate',
       sortOrder: 'asc',
       uniqueAssigners: {},
+      uniqueProjects: {},
+      uniqueOrgs: {},
       searchQuery: '',
     };
   },
 
   async mounted() {
-    this.fetchTasks();
+    await this.fetchTasks();
     await this.fetchUniqueAssigners();
+    await this.fetchUniqueProjects();
+    await this.fetchUniqueOrgs();
   },
 
   computed: {
     ...mapState('tasks', ['tasks']),
-    ...mapState('auth', ['currentUser']),
+    ...mapState('auth', ['currentUser', "isLoggedIn"]),
 
     hasActiveFilters() {
       return this.selectedPriority || this.selectedAssigner ||
@@ -219,25 +303,18 @@ export default {
     },
 
     filteredIncompleteTasks() {
-      return this.filteredTasks(0);
+      return this.filterTasks(false);
     },
     filteredCompleteTasks() {
-      return this.filteredTasks(1);
+      return this.filterTasks(true);
     },
-
-    uniqueProjects() {
-      return [...new Set(this.tasks.map(task => ({
-        id: task.parentProjectID,
-        name: task.parentProject
-      })))];
-    },
-
-    uniqueOrgs() {
-      return [...new Set(this.tasks.map(task => ({
-        id: task.parentOrgID,
-        name: task.parentOrg
-      })))];
-    },
+    taskStats() {
+    return {
+      total: this.tasks.length,
+      completed: this.filteredCompleteTasks.length,
+      pending: this.filteredIncompleteTasks.length
+    }
+  }
   },
 
   methods: {
@@ -257,14 +334,60 @@ export default {
       }));
       this.uniqueAssigners = assigners;
     },
+    async fetchUniqueProjects() {
+      const projectIDs = [
+        ...new Set(this.tasks.map((task) => task.parentProjectID)),
+      ];
+      const projects = await Promise.all(
+        projectIDs.map(async (id) => {
+          const project = await this.$store.dispatch(
+            "projects/fetchProject",
+            id,
+          );
+          return {
+            id,
+            name: project ? project.projectName : "Unknown Project", // Adjust based on your user object structure
+          };
+        }),
+      );
+      this.uniqueProjects = projects;
+    },
+
+    async fetchUniqueOrgs() {
+      const orgIDs = [
+        ...new Set(this.tasks.map((task) => task.parentOrgID)),
+      ];
+      const orgs = await Promise.all(
+        orgIDs.map(async (id) => {
+          const org = await this.$store.dispatch(
+            "organizations/fetchOrganization",
+            id,
+          );
+          return {
+            id,
+            name: org ? org.orgName : "Unknown Org", // Adjust based on your user object structure
+          };
+        }),
+      );
+      this.uniqueOrgs = orgs;
+    },
 
     getAssignerName(assignerID) {
       const assigner = this.uniqueAssigners.find(assigner => assigner.id === assignerID);
       return assigner ? assigner.name : 'Unknown User';
     },
+    getProjectName(projectID) {
+      const project = this.uniqueProjects.find(
+        (project) => project.id === projectID,
+      );
+      return project ? project.name : "Unknown Project";
+    },
 
-    filterTasks() {
-      // Method kept for potential future use
+    getOrgName(orgID) {
+      const org = this.uniqueOrgs.find(
+        (org) => org.id === orgID,
+      );
+      return org ? org.name : "Unknown Organization";
     },
 
     toggleSortOrder() {
@@ -278,54 +401,83 @@ export default {
       this.$router.push({ name: "TDList" });
     },
 
-    filteredTasks(isComplete) {
-      let tasks = this.tasks;
-      if (isComplete == 1) {
-        tasks = tasks.filter(task => task.complete);
-      }
-      else {
-        tasks = tasks.filter(task => !task.complete);
-      }
-      if (this.searchQuery) {
-        tasks = tasks.filter(task =>
-            task.taskName.toLowerCase().includes(this.searchQuery.toLowerCase())
-        );
-      }
+    filterTasks(isComplete) {
+      let filtered = this.tasks.filter(task => task.complete === isComplete);
+
       // Apply filters
       if (this.selectedPriority) {
-        tasks = tasks.filter(task => task.taskPriority === this.selectedPriority);
+        filtered = filtered.filter(task => task.taskPriority === this.selectedPriority);
       }
+
       if (this.selectedAssigner) {
-        tasks = tasks.filter(task => task.assignerID === this.selectedAssigner);
+        filtered = filtered.filter(task => task.assignerID === this.selectedAssigner);
       }
+
       if (this.selectedProject) {
-        tasks = tasks.filter(task => task.parentProjectID === this.selectedProject);
+        filtered = filtered.filter(task => task.parentProjectID === this.selectedProject);
       }
+
       if (this.selectedOrg) {
-        tasks = tasks.filter(task => task.parentOrgID === this.selectedOrg);
+        filtered = filtered.filter(task => task.parentOrgID === this.selectedOrg);
       }
 
       // Apply sorting
-      tasks.sort((a, b) => {
-        let comparison = 0;
-        const priorityOrder = { High: 1, Medium: 2, Low: 3 };
+      filtered.sort((a, b) => {
+        const direction = this.sortOrder === 'asc' ? 1 : -1;
+        const priorityOrder = { High: 3, Medium: 2, Low: 1 };
         switch (this.sortField) {
           case 'dueDate':
-            comparison = new Date(a.dueDate) - new Date(b.dueDate);
-            break;
+            return direction * (new Date(a.dueDate) - new Date(b.dueDate));
           case 'taskName':
-            comparison = a.taskName.localeCompare(b.taskName);
-            break;
-          case 'taskPriority':
-
-            comparison = priorityOrder[a.taskPriority] - priorityOrder[b.taskPriority];
-            break;
+            return direction * a.taskName.localeCompare(b.taskName);
+          case 'priority':
+            return direction * (priorityOrder[a.taskPriority] - priorityOrder[b.taskPriority]);
+          default:
+            return 0;
         }
-        return this.sortOrder === 'asc' ? comparison : -comparison;
       });
 
-      return tasks;
+      return filtered;
     },
+    getDueToday() {
+    const today = new Date().toISOString().split('T')[0];
+    return this.tasks.filter(task => 
+      task.dueDate?.split('T')[0] === today && !task.isComplete
+    ).length;
+  },
+
+  getTaskPriorityColor(priority) {
+    return {
+      'High': 'text-red-600',
+      'Medium': 'text-yellow-600',
+      'Low': 'text-green-600'
+    }[priority] || 'text-gray-600';
+  },
   },
 };
 </script>
+
+<style>
+.router-link-active {
+  @apply bg-blue-50 text-blue-700;
+}
+
+.sidebar-stats {
+  @apply transition-all duration-200;
+}
+
+.sidebar-stats:hover {
+  @apply transform scale-105;
+}
+
+.task-card-enter-active,
+.task-card-leave-active {
+  transition: all 0.3s ease;
+}
+
+.task-card-enter-from,
+.task-card-leave-to {
+  opacity: 0;
+  transform: translateY(30px);
+}
+</style>

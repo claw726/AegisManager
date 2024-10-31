@@ -132,7 +132,7 @@
             </select>
 
             <!-- Button, visible only if showLeftButton is true -->
-            <button v-if="!fetchedTask.complete && showLeftButton && taskUsers.length > 0" @click="updateTaskAssigner"
+            <button v-if="!fetchedTask.complete && showLeftButton && taskUsers.length > 0" @click="sendAssignerInvite"
               class="px-4 py-2 complete-btn text-white rounded-lg hover:bg-green-600">
               Confirm Reassignment
             </button>

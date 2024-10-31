@@ -33,6 +33,7 @@
             <p v-if="errors.email" class="mt-1 text-sm text-red-500">
               {{ errors.email }}
             </p>
+            <div class="w-full px-4 flex justify-end"></div>
           </div>
 
           <!-- Password Field -->
@@ -67,6 +68,16 @@
             <p v-if="errors.password" class="mt-1 text-sm text-red-500">
               {{ errors.password }}
             </p>
+            <!-- Forgot Password Link -->
+            <div class="mt-2 flex justify-end">
+              <router-link
+                to="/forgot-password"
+                class="text-sm text-primary hover:text-primary-dark transition-colors duration-200"
+              >
+                <i class="fas fa-key mr-1"></i>
+                Forgot Password?
+              </router-link>
+            </div>
           </div>
 
           <!-- Login Button -->

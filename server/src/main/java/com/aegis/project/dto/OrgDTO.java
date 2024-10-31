@@ -22,6 +22,9 @@ public class OrgDTO {
         //this.users = orgService.getOrgMembers(orgID);
     }
 
+    public OrgDTO() {
+    }
+
     public int getOrgID() {
         return orgID;
     }

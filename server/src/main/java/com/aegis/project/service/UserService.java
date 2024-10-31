@@ -77,11 +77,14 @@ public class UserService {
 
         if (!currentUsername.equals(userRepository.findById(userID).get().getEmail())) {
             logger.warn("User does not have permission to update 2FA for user with ID: {}", userID);
-            throw new RuntimeException("User with does not have permission to update 2FA for user with ID: " + userID);
+            throw new RuntimeException("User does not have permission to update 2FA for user with ID: " + userID);
         }
 
         UserModel user = userRepository.findById(userID)
                 .orElseThrow(() -> new RuntimeException("User not found with ID: " + userID));
+
+        user.setHas2fa(twoFactorAuthInfo != null);
+
         user.setTwoFactorAuthInfo(twoFactorAuthInfo);
         userRepository.save(user);
         logger.info("Updated 2FA for user with ID: {}", userID);
@@ -95,7 +98,7 @@ public class UserService {
 
         if (!currentUsername.equals(userRepository.findById(userID).get().getEmail())) {
             logger.warn("User does not have permission to get 2FA for user with ID: {}", userID);
-            throw new RuntimeException("User with does not have permission to get 2FA for user with ID: " + userID);
+            throw new RuntimeException("User does not have permission to get 2FA for user with ID: " + userID);
         }
 
         UserModel user = userRepository.findById(userID)
@@ -119,7 +122,7 @@ public class UserService {
         logger.info("Getting user DTO for user ID: {}", userID);
         UserModel user = userRepository.findById(userID)
                 .orElseThrow(() -> new RuntimeException("User not found with ID: " + userID));
-        UserDTO userDTO = new UserDTO(user.getUserID(), user.getUserName(), user.getEmail(), user.getProfilePicture());
+        UserDTO userDTO = new UserDTO(user);
         logger.info("Got user DTO for user ID: {}", userID);
         return userDTO;
     }
@@ -128,7 +131,7 @@ public class UserService {
         logger.info("Getting user DTO for user with email: {}", email);
         UserModel user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
-        UserDTO userDTO = new UserDTO(user.getUserID(), user.getUserName(), user.getEmail(), user.getProfilePicture());
+        UserDTO userDTO = new UserDTO(user);
         logger.info("Got user DTO for user with: {}", email);
         return userDTO;
     }
@@ -142,12 +145,7 @@ public class UserService {
     public List<UserDTO> getAllUsers() {
         List<UserModel> allUsers = userRepository.findAll();
         return allUsers.stream()
-            .map(user -> new UserDTO(
-                user.getUserID(),
-                user.getUserName(),
-                user.getEmail(),
-                user.getProfilePicture()
-            ))
+            .map(user -> new UserDTO(user))
             .collect(Collectors.toList());
     }
 

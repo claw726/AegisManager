@@ -3,7 +3,6 @@ package com.aegis.project.controller;
 import java.util.List;
 import java.util.Set;
 
-import com.aegis.project.exception.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -21,6 +20,8 @@ import org.springframework.web.bind.annotation.RestController;
 import com.aegis.project.dto.ProjectDTO;
 import com.aegis.project.dto.TaskDTO;
 import com.aegis.project.dto.UserDTO;
+import com.aegis.project.exception.ProjectFetchException;
+import com.aegis.project.exception.UserNotFoundException;
 import com.aegis.project.service.ProjectService;
 
 @RestController
@@ -90,6 +91,8 @@ public class ProjectController {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
             } else if (e.getMessage().contains("User does not have permission to update project")) {
                 return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+            } else if (e.getMessage().contains("Project with given name already exists in org")) {
+                return ResponseEntity.status(HttpStatus.CONFLICT).body(e.getMessage());
             } else {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
             }
@@ -247,18 +250,18 @@ public class ProjectController {
         } catch (UserNotFoundException e) {
             logger.error("User not found: {}", e.getMessage());
             return ResponseEntity
-                .status(HttpStatus.NOT_FOUND)
-                .body("Error fetching Projects");
+                    .status(HttpStatus.NOT_FOUND)
+                    .body("Error fetching Projects");
         } catch (ProjectFetchException e) {
             logger.error("Error fetching projects: {}", e.getMessage());
             return ResponseEntity
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body("Error fetching projects");
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("Error fetching projects");
         } catch (Exception e) {
             logger.error("Unexpected Error: {}", e.getMessage());
             return ResponseEntity
-                .status(HttpStatus.INTERNAL_SERVER_ERROR)
-                .body("An unexpected error occured");
+                    .status(HttpStatus.INTERNAL_SERVER_ERROR)
+                    .body("An unexpected error occured");
         }
     }
 }
