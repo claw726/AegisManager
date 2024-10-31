@@ -77,7 +77,7 @@ public class UserService {
 
         if (!currentUsername.equals(userRepository.findById(userID).get().getEmail())) {
             logger.warn("User does not have permission to update 2FA for user with ID: {}", userID);
-            throw new RuntimeException("User with does not have permission to update 2FA for user with ID: " + userID);
+            throw new RuntimeException("User does not have permission to update 2FA for user with ID: " + userID);
         }
 
         UserModel user = userRepository.findById(userID)
@@ -98,7 +98,7 @@ public class UserService {
 
         if (!currentUsername.equals(userRepository.findById(userID).get().getEmail())) {
             logger.warn("User does not have permission to get 2FA for user with ID: {}", userID);
-            throw new RuntimeException("User with does not have permission to get 2FA for user with ID: " + userID);
+            throw new RuntimeException("User does not have permission to get 2FA for user with ID: " + userID);
         }
 
         UserModel user = userRepository.findById(userID)
