@@ -66,7 +66,7 @@
               'text-gray-500': project.isArchived,
             }"
           >
-            {{ project.projectOwnerID }}
+            {{ creator.userName }}
           </span>
         </div>
 
@@ -95,6 +95,7 @@
 </template>
 
 <script>
+
 export default {
   props: {
     project: {
@@ -106,6 +107,14 @@ export default {
       required: true,
     },
   },
+  data() {
+    return {
+      creator: "",
+    };
+  },
+  async mounted() {
+      await this.getCreatorData();
+    },
   methods: {
     formatTaskCount(count) {
       return count > 999 ? `${(count / 1000).toFixed(1)}k` : count;
@@ -127,6 +136,17 @@ export default {
         console.error("Failed to navigate to project dashboard:", error);
       }
     },
+    async getCreatorData() {
+      try {
+        this.creator = await this.$store.dispatch(
+          "users/fetchUserAccountByID",
+          this.project.projectOwnerID
+        );
+      } catch (error) {
+        this.creator = "Unknown";
+      }
+    },
+    
   },
 };
 </script>
