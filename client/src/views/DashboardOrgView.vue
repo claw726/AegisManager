@@ -158,7 +158,7 @@
           </div>
           <button
             @click="goToCreateProject"
-            class="inline-flex items-center px-6 py-3   bg-primary   text-white font-medium rounded-lg hover:bg-green-700 transition duration-200 shadow-sm"
+            class="inline-flex items-center px-6 py-3 bg-primary text-white font-medium rounded-lg hover:bg-green-700 transition duration-200 shadow-sm"
           >
             <i class="fas fa-plus mr-2"></i>
             Create New Project
@@ -182,14 +182,19 @@
         />
       </div>
       <div
-        v-if="org && projects.length >= 1 && filteredProjects.length === 0"
+        v-if="
+          org &&
+          projects &&
+          projects.length >= 1 &&
+          filteredProjects.length === 0
+        "
         class="text-center py-12 bg-white rounded-xl shadow-md p-8 border border-gray-100"
       >
         <i class="fas fa-project-diagram text-gray-400 text-4xl mb-4"></i>
         <p class="text-gray-500 text-lg">No projects in this current filter.</p>
       </div>
       <div
-        v-if="org && projects.length === 0"
+        v-if="org && projects && projects.length === 0"
         class="text-center py-12 bg-white rounded-xl shadow-md p-8 border border-gray-100"
       >
         <i class="fas fa-project-diagram text-gray-400 text-4xl mb-4"></i>
@@ -317,13 +322,13 @@ export default {
         const orgID = this.$route.params.orgIndex;
         this.org = await this.$store.dispatch(
           "organizations/fetchOrganization",
-          orgID,
+          orgID
         );
       } catch (error) {
         console.error("Error fetching organization data:", error);
         this.showNotification(
           "error",
-          `Failed to load organization data: ${error.message}`,
+          `Failed to load organization data: ${error.message}`
         );
       }
     },
@@ -332,11 +337,11 @@ export default {
         const orgID = this.$route.params.orgIndex;
         const orgProjects = await this.$store.dispatch(
           "projects/fetchOrgProjects",
-          orgID,
+          orgID
         );
         const filteredProjects = orgProjects.filter((project) => {
           const isAssignedUser = project.assignedUsers.some(
-            (user) => user.userID === this.currentUser.userID,
+            (user) => user.userID === this.currentUser.userID
           );
           const isProjectOwner =
             project.projectOwnerID === this.currentUser.userID;
@@ -348,7 +353,7 @@ export default {
         console.error("Error fetching projects:", error);
         this.showNotification(
           "error",
-          `Failed to load projects: ${error.message}`,
+          `Failed to load projects: ${error.message}`
         );
       }
     },
@@ -356,13 +361,13 @@ export default {
       try {
         this.creator = await this.$store.dispatch(
           "users/fetchUserAccountByID",
-          this.org.orgOwnerID,
+          this.org.orgOwnerID
         );
       } catch (error) {
         console.error("Error getting org owner info");
         this.showNotification(
           "error",
-          "Failed to load organization owner information",
+          "Failed to load organization owner information"
         );
       }
     },
@@ -377,7 +382,7 @@ export default {
       if (this.org.orgOwnerID !== this.currentUser.userID) {
         this.showNotification(
           "error",
-          "You do not have permission to edit this organization",
+          "You do not have permission to edit this organization"
         );
         return;
       }
@@ -392,7 +397,7 @@ export default {
       if (this.org.orgOwnerID !== this.currentUser.userID) {
         this.showNotification(
           "error",
-          "You do not have permission to delete this organization",
+          "You do not have permission to delete this organization"
         );
         return;
       }
@@ -402,7 +407,7 @@ export default {
         this.showNotification(
           "warning",
           "Are you sure you want to delete this organization? Click delete again to confirm.",
-          5000,
+          5000
         );
         this.deleteConfirmation = true;
         setTimeout(() => {
@@ -414,7 +419,7 @@ export default {
       try {
         await this.$store.dispatch(
           "organizations/deleteOrganization",
-          this.$route.params.orgIndex,
+          this.$route.params.orgIndex
         );
 
         this.showNotification("success", "Organization deleted successfully!");
@@ -427,7 +432,7 @@ export default {
       } catch (err) {
         this.showNotification(
           "error",
-          `Failed to delete organization: ${err.message}`,
+          `Failed to delete organization: ${err.message}`
         );
       }
 
@@ -438,7 +443,7 @@ export default {
       if (this.org.orgOwnerID !== this.currentUser.userID) {
         this.showNotification(
           "error",
-          "You do not have permission to edit organization users",
+          "You do not have permission to edit organization users"
         );
         return;
       }
