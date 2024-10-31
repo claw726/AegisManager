@@ -25,7 +25,7 @@ import com.aegis.project.repository.ProjectRepository;
 import com.aegis.project.repository.TaskRepository;
 import com.aegis.project.repository.UserRepository;
 
-import org.aegis.project.exception.*;
+import com.aegis.project.exception.*;
 
 @Service
 public class ProjectService {

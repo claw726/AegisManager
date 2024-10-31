@@ -58,13 +58,27 @@ const router = createRouter({
       component: () => import("./views/TaskDetail.vue"),
       meta: { requiresAuth: true },
       props: true, // Allow passing route params as props
+    }, 
+    {
+      path: "/tasks/:taskId/editTask",
+      name: "editTask",
+      component: () => import("./views/EditTaskView.vue"),
+      meta: { requiresAuth: true },
+      props: true, // Allow passing route params as props
     },
     {
       path: "/organization/:orgIndex/project/:projIndex/createTask",
       name: "createTask",
       component: () => import("./views/CreateTaskView.vue"),
       meta: { requiresAuth: true },
+    }, 
+    {
+      path: "/tasks/:taskId/addUserTask",
+      name: "addUserTask",
+      component: () => import("./views/AddUsersToTask.vue"),
+      meta: { requiresAuth: true },
     },
+
     {
       path: "/organization/:orgIndex/createProject",
       name: "createProject",
@@ -126,9 +140,15 @@ const router = createRouter({
       meta: { requiresAuth: true },
     },
     {
-      path: "/updateAccount",
-      name: "UpdateAccount",
-      component: () => import("./views/EditUserView.vue"),
+      path: "/AccountSettings",
+      name: "AccountSettings",
+      component: () => import("./views/AccountSettingsView.vue"),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: "/invitations",
+      name: "Invitations",
+      component: () => import("./views/InvitationView.vue"),
       meta: { requiresAuth: true },
     },
     {
