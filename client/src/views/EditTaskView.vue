@@ -55,6 +55,11 @@
           </select>
         </div>
 
+        <NotificationComponent class="flex" :show="notification.show" :type="notification.type"
+            @close="closeNotification">
+            {{ notification.message }}
+        </NotificationComponent>
+
         <!-- Submit Button -->
         <button
           @click="handleEditTask"
@@ -72,10 +77,12 @@
 <script>
 import { mapState, mapActions } from "vuex";
 import NavBar from "@/components/NavBar.vue";
+import NotificationComponent from "@/components/NotificationComponent.vue";
 
 export default {
   components: {
     NavBar,
+    NotificationComponent,
   },
 
   computed: {
@@ -94,7 +101,13 @@ export default {
         assignerID: null,
       },
 
+      notification: {
+        show: false,
+        type: "",
+        message: "",
+      },
     };
+
   },
   props: {
     taskId: {
@@ -111,16 +124,21 @@ export default {
   methods: {
     ...mapActions("auth", ["user", "isLoggedIn", "currentUser"]),
 
-    handleEditTask() {
+    async handleEditTask() {
         try {
-            console.log("Inside handling edit task");
-        this.editTask();
-        //TODO: show notification that task has been updated
-        ///console.log("Task has been edited.");
+
+            this.editTask();
+            console.log("Task has been edited.");
+            this.showNotification("success", "Task successfully edited!");
+            await new Promise(resolve => setTimeout(resolve, 2000));
+
         } catch (error) {
             console.log("Error editing task.")
-            //TODO: show notification that task has not been updated
+            this.showNotification("error", "Task was not edited!");
+            await new Promise(resolve => setTimeout(resolve, 2000));
+
         }
+
         //Show task again but refreshed with edits, random query to refres h
         this.$router.push({ name: "TDList"});
         this.$forceUpdate();
@@ -132,7 +150,6 @@ export default {
         //New date format is: "2024-11-01 T11:00:11.000+00:00T15:30:00.000z"
         //const dueDate = `${this.fetchedTask.dueDate}T15:30:00.000z`;
         const dueDate = `${this.fetchedTask.dueDate}T11:00:11.000+00:00T15:30:00.000z`;
-        //const dueDate = `${this.fetchedTask.dueDate}`;
 
         const taskData = {
           taskName: this.fetchedTask.taskName,
@@ -151,25 +168,36 @@ export default {
           taskData: taskData,
         });
 
+        //this.showNotification("success", "Task successfully edited!");
+        //await new Promise(resolve => setTimeout(resolve, 2500));
+        return s;
+        
+
       } catch (error) {
         console.error('Failed to edit task', error);
         // Error will be handled by Vuex store and displayed via updateStatus
       }
     },
 
+    showNotification(type, message) {
+      this.notification = {
+        show: true,
+        type: type,
+        message: message,
+      };
+
+      
+    },
+
+    closeNotification() {
+      this.notification.show = false;
+    },
+
     async getTask() {
       console.log("Doing async method")
       return this.$store.dispatch("tasks/fetchTask", this.taskId);
     },
-    goBack() {
-      this.$router.go(-1);
-    },
 
-    createUserJson() {
-      const userJson = JSON.stringify(this.user, null, 2);
-      console.log("User JSON:", userJson);
-      return userJson;
-    },
   },
 };
 </script>

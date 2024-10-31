@@ -255,7 +255,7 @@ const actions = {
         }
       }
       console.log('error response: ', error.response);
-      console.log('error status: ', error.response.status);
+      //console.log('error status: ', error.response.status);
     }
 
   }, 

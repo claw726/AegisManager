@@ -126,6 +126,7 @@ export default {
       }
       //will remove this afrer notifiction is implemented
       this.$router.push({ name: "TDList" });
+      this.$forceUpdate();
       
     },
 
