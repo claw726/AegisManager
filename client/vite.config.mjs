@@ -24,11 +24,13 @@ export default defineConfig({
   },
   server: {
     port: 8081,
+    host: true,
     proxy: {
       "/api": {
         target: "http://localhost:8080", // Target server
         ws: true, // Enable WebSocket support
         changeOrigin: true, // Change the origin of the host header to the target URL
+        secure: false
       },
     },
   },

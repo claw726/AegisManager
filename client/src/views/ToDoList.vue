@@ -503,3 +503,38 @@ export default {
   },
 };
 </script>
+
+<style>
+.router-link-active {
+  @apply bg-blue-50 text-blue-700;
+}
+
+.stat-card {
+  @apply transition-all duration-300 hover:scale-105 cursor-pointer;
+}
+
+/* Custom scrollbar */
+::-webkit-scrollbar {
+  width: 8px;
+  height: 8px;
+}
+
+::-webkit-scrollbar-track {
+  @apply bg-gray-100 rounded-full;
+}
+
+::-webkit-scrollbar-thumb {
+  @apply bg-gray-300 rounded-full hover:bg-gray-400 transition-colors;
+}
+
+/* Improved transitions */
+.fade-enter-active,
+.fade-leave-active {
+  @apply transition-opacity duration-200;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  @apply opacity-0;
+}
+</style>

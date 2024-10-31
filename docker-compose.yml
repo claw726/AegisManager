@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  frontend:
+    build:
+      context: ./client  # Assuming your frontend code is in a directory called "frontend"
+      dockerfile: Dockerfile
+    ports:
+      - "8443:8443"
+    volumes:
+      - ssl_certs:/etc/nginx/ssl
+    depends_on:
+      - backend
+    networks:
+      - app-network
+
+  backend:
+    build:
+      context: ./server  # Assuming your backend code is in a directory called "backend"
+      dockerfile: Dockerfile
+    ports:
+      - "8080:8080"
+    volumes:
+      - ./data:/app/data 
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:sqlite:/app/data/aegis.db  # Update the database path
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  ssl_certs:
+  data:
