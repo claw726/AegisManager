@@ -151,8 +151,8 @@ public class AuthControllerTest {
 
         ResponseEntity<String> response = authController.requestPasswordReset(email);
 
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
-        assertEquals("Error requesting password reset", response.getBody());
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assert(response.getBody().contains("User not found with email: " + email));
     }
 
     @Test
@@ -183,8 +183,8 @@ public class AuthControllerTest {
 
         ResponseEntity<String> response = authController.resetPassword(token, password);
 
-        assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, response.getStatusCode());
-        assertEquals("Error resetting password", response.getBody());
+        assertEquals(HttpStatus.NOT_FOUND, response.getStatusCode());
+        assertEquals("Password reset token not found", response.getBody());
     }
 
     @Test
