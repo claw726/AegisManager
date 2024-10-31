@@ -20,7 +20,7 @@ export default defineConfig({
   },
   test: {
     globals: true, // Enable global test functions like describe, it, beforeEach, etc.
-    environment: "jsdom", // Use the jsdom environment for DOM-related tests
+    environment: "happy-dom", // Use the jsdom environment for DOM-related tests
   },
   server: {
     port: 8081,
