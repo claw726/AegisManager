@@ -5,6 +5,8 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.aegis.project.dto.TaskDTO;
+import com.aegis.project.repository.TaskRepository;
 import jakarta.transaction.Transactional;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
@@ -30,7 +32,7 @@ public class OrgService {
     @Autowired
     private ProjectRepository projectRepository;
     @Autowired
-    private ProjectRepository taskRepository;
+    private TaskRepository taskRepository;
     @Autowired
     private UserRepository userRepository;
     @Autowired
@@ -146,9 +148,8 @@ public class OrgService {
             userRepository.save(user);
         }
 
-        projectRepository.deleteByParentOrgID(orgID);
         taskRepository.deleteByParentOrgID(orgID);
-
+        projectRepository.deleteByParentOrgID(orgID);
         orgRepository.deleteById(orgID);
     }
 

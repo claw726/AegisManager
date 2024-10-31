@@ -110,9 +110,9 @@ public class TaskController {
         } catch (RuntimeException e) {
             logger.error("Error fetching task with ID: " + taskID, e);
             if (e.getMessage().contains("Task not found with id:")) {
-                throw new ResponseStatusException(HttpStatus.NOT_FOUND, e.getMessage());
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
             } else {
-                throw new ResponseStatusException(HttpStatus.INTERNAL_SERVER_ERROR, e.getMessage());
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
             }
         }
     }
@@ -144,7 +144,7 @@ public class TaskController {
     public ResponseEntity<String> deleteTask(@PathVariable int taskID) {
         try {
             taskService.deleteTask(taskID);
-            return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Taskdeleted successfully");
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body("Task deleted successfully");
         } catch (RuntimeException e) {
             if (e.getMessage().contains("Task not found with id:")) {
                 return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());

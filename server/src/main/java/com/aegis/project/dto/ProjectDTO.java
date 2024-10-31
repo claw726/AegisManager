@@ -43,6 +43,9 @@ public class ProjectDTO {
         this.isArchived = project.isArchived();
     }
 
+    public ProjectDTO() {
+    }
+
     public int getProjectID() {
         return projectID;
     }

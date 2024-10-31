@@ -1,0 +1,1 @@
+'data:image/jpeg;base64,'$(magick "${PROFILE_PICS[$i]}" -resize 256x256\> -quality 80 jpg:- | base64)

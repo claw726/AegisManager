@@ -249,6 +249,10 @@ export default {
     await this.getProjData();
     await this.fetchProjectTasks();
     await this.getCreatorData();
+    // Wait 300ms before getting tasks
+    setTimeout(async () => {
+      await this.fetchProjectTasks();
+    }, 300);
   },
   computed: {
     ...mapState("auth", ["isLoggedIn", "currentUser"]),

@@ -170,7 +170,7 @@ public class AuthController {
         logger.info("Received password reset request with token: {}", token);
         try {
             PasswordResetToken resetToken = passwordResetTokenRepository.findByToken(token)
-                    .orElseThrow(() -> new TokenNotFoundException("Password Reset token not found"));
+                    .orElseThrow(() -> new TokenNotFoundException("Password reset token not found"));
 
             if (resetToken.isExpired()) {
                 logger.warn("Token: {} has expired", token);

@@ -359,6 +359,7 @@ export default {
       //TODO: make sure notification only shows if error shows right status code
       //this.showNotification("error", "Task failed to delete.");
      console.error('Failed to delete task:');
+     console.error(error);
      //await new Promise(resolve => setTimeout(resolve, 2000));
      }
      this.$router.push({ name: "TDList" });
@@ -491,12 +492,15 @@ export default {
           taskData: taskData,
         });
 
+        this.showNotification("success", "Task successfully edited!");
+        await new Promise(resolve => setTimeout(resolve, 2500));
+
         if (s==true) {
           this.showNotification("success", "Task successfully updated!");
           await new Promise(resolve => setTimeout(resolve, 2500));
         }
         
-        this.goBack();
+        //this.goBack();
         
       } catch (error) {
         console.error('Failed to edit task', error);

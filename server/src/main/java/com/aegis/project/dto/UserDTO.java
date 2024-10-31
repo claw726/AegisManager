@@ -25,6 +25,9 @@ public class UserDTO {
         this.has2fa = user.isHas2fa();
     }
 
+    public UserDTO() {
+    }
+
     public int getUserID() {
         return userID;
     }
