@@ -7,12 +7,14 @@ public class UserDTO {
     private String userName;
     private String email;
     private String profilePicture;
+    private boolean has2fa;
 
-    public UserDTO(int userID, String userName, String email, String profilePicture) {
+    public UserDTO(int userID, String userName, String email, String profilePicture, boolean has2fa) {
         this.userID = userID;
         this.userName = userName;
         this.email = email;
         this.profilePicture = profilePicture;
+        this.has2fa = has2fa;
     }
 
     public UserDTO(UserModel user) {
@@ -20,6 +22,7 @@ public class UserDTO {
         this.userName = user.getUserName();
         this.email = user.getEmail();
         this.profilePicture = user.getProfilePicture();
+        this.has2fa = user.isHas2fa();
     }
 
     public int getUserID() {
@@ -52,5 +55,13 @@ public class UserDTO {
 
     public void setProfilePicture(String profilePicture) {
         this.profilePicture = profilePicture;
+    }
+
+    public boolean isHas2fa() {
+        return has2fa;
+    }
+
+    public void setHas2fa(boolean has2fa) {
+        this.has2fa = has2fa;
     }
 }

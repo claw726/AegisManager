@@ -58,7 +58,7 @@ const router = createRouter({
       component: () => import("./views/TaskDetail.vue"),
       meta: { requiresAuth: true },
       props: true, // Allow passing route params as props
-    }, 
+    },
     {
       path: "/tasks/:taskId/editTask",
       name: "editTask",
@@ -71,14 +71,13 @@ const router = createRouter({
       name: "createTask",
       component: () => import("./views/CreateTaskView.vue"),
       meta: { requiresAuth: true },
-    }, 
+    },
     {
       path: "/tasks/:taskId/addUserTask",
       name: "addUserTask",
       component: () => import("./views/AddUsersToTask.vue"),
       meta: { requiresAuth: true },
     },
-
     {
       path: "/organization/:orgIndex/createProject",
       name: "createProject",
@@ -140,9 +139,9 @@ const router = createRouter({
       meta: { requiresAuth: true },
     },
     {
-      path: "/AccountSettings",
-      name: "AccountSettings",
-      component: () => import("./views/AccountSettingsView.vue"),
+      path: "/updateAccount",
+      name: "UpdateAccount",
+      component: () => import("./views/EditUserView.vue"),
       meta: { requiresAuth: true },
     },
     {
@@ -167,6 +166,18 @@ const router = createRouter({
       path: "/archived-projects",
       name: "ArchivedProjects",
       component: () => import("./views/ArchivedProjectsView.vue"),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: "/enable2FA",
+      name: "Enable2FA",
+      component: () => import("./views/Enable2FAView.vue"),
+      meta: { requiresAuth: true },
+    },
+    {
+      path: "/disable2FA",
+      name: "Disable2FA",
+      component: () => import("./views/Disable2FAView.vue"),
       meta: { requiresAuth: true },
     },
   ],

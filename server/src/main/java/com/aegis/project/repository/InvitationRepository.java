@@ -14,4 +14,8 @@ public interface InvitationRepository extends JpaRepository<InvitationModel, Int
 
     @Query("SELECT i FROM InvitationModel i WHERE i.RecipientID = :userID")
     List<InvitationModel> getRecipientInvitations(@Param("userID") int userID);
+
+    @Query("SELECT CASE WHEN COUNT(i) > 0 THEN true ELSE false END "
+            + "FROM InvitationModel i WHERE i.Message = :message")
+    boolean existsInvitationByMessage(String message);
 }
