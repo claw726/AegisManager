@@ -1,168 +1,264 @@
 <template>
-  <NavBar />
+  <div v-if="isLoggedIn" class="relative min-h-screen bg-gray-50">
+    <NavBar />
 
-  <div class="bg-background flex flex-col items-center min-h-screen h-full">
-    <div class="flex flex-col items-center w-full max-w-7xl px-4 mx-auto space-y-8 mt-12">
-      <div class="flex justify-between items-center w-full"> <!-- Flex container for text and button -->
-        <h1 class="text-4xl font-bold text-hunter-green mb-6 flex-grow text-center">To Do List</h1>
-        <Button class="dashboard-button ml-4" @click="goToKanbanBoard">Kanban Board</Button>
-      </div>
+    <!-- Main Container -->
+    <div class="flex min-h-[calc(100vh-64px)]">
+      <!-- Side Navigation -->
+      <div class="w-64 bg-white border-r border-gray-200 p-4 shadow-sm">
+        <div class="space-y-2">
+          <h2 class="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-4">
+            Views
+          </h2>
 
-      <div class="h-1 bg-accent drop-shadow-lg rounded mx-16 flex w-screen" />
+          <router-link
+            to="/calendar"
+            class="flex items-center px-4 py-2 text-gray-700 rounded-lg hover:bg-blue-50 hover:text-blue-700 transition-colors group"
+            :class="{ 'bg-blue-50 text-blue-700': $route.path === '/calendar' }"
+          >
+            <i class="fas fa-calendar-alt w-5 h-5 mr-3 group-hover:scale-110 transition-transform"></i>
+            <span class="font-medium">Calendar</span>
+          </router-link>
 
-      <SearchComponent v-model:searchQuery="searchQuery" size="70%" />
+          <router-link
+            to="/todolist"
+            class="flex items-center px-4 py-2 text-gray-700 rounded-lg hover:bg-blue-50 hover:text-blue-700 transition-colors group"
+            :class="{ 'bg-blue-50 text-blue-700': $route.path === '/todolist' }"
+          >
+            <i class="fas fa-check-circle w-5 h-5 mr-3 group-hover:scale-110 transition-transform"></i>
+            <span class="font-medium">To-Do List</span>
+          </router-link>
 
-      <!-- Controls Panel -->
-      <div class="w-full max-w-4xl bg-white shadow-lg rounded-lg overflow-hidden">
-        <!-- Main Controls Header -->
-        <div class="flex justify-between items-center p-4 bg-gray-50">
-          <button @click="isFilterMenuOpen = !isFilterMenuOpen"
-            class="flex items-center px-4 py-2 rounded-md hover:bg-blue-50 transition-all duration-200 border border-gray-200 hover:border-blue-300 hover:shadow-md group">
-            <i class="fas fa-sliders-h mr-2 text-blue-600 group-hover:rotate-180 transition-transform duration-300"></i>
-            <span class="relative text-gray-700 group-hover:text-blue-600">
-              Filter & Sort
-              <span
-                class="absolute bottom-0 left-0 w-full h-0.5 bg-blue-600 transform scale-x-0 group-hover:scale-x-100 transition-transform duration-200">
-              </span>
-            </span>
-            <i :class="[
-              'fas',
-              'ml-2',
-              isFilterMenuOpen ? 'fa-chevron-up' : 'fa-chevron-down',
-              'transform group-hover:translate-y-0.5 transition-transform text-blue-600',
-            ]"></i>
-          </button>
+          <router-link
+            to="/kanban"
+            class="flex items-center px-4 py-2 text-gray-700 rounded-lg hover:bg-blue-50 hover:text-blue-700 transition-colors group"
+            :class="{ 'bg-blue-50 text-blue-700': $route.path === '/kanban' }"
+          >
+            <i class="fas fa-columns w-5 h-5 mr-3 group-hover:scale-110 transition-transform"></i>
+            <span class="font-medium">Kanban Board</span>
+          </router-link>
         </div>
 
-        <!-- Expandable Filter Panel -->
-        <div v-show="isFilterMenuOpen" class="border-t border-gray-200">
-          <div class="p-4 space-y-4">
-            <!-- Filter Section -->
-            <div class="space-y-3">
-              <h3 class="font-semibold text-gray-700">Filter By</h3>
-              <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
-                <!-- Priority Filter -->
-                <div class="space-y-1">
-                  <label class="text-sm text-gray-600">Priority</label>
-                  <select v-model="selectedPriority" @change="filterTasks"
-                    class="w-full border border-gray-300 rounded-md p-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                    <option value="">All Priorities</option>
-                    <option value="High">High</option>
-                    <option value="Medium">Medium</option>
-                    <option value="Low">Low</option>
-                  </select>
-                </div>
+        <!-- Quick Stats -->
+        <div class="mt-8 space-y-4">
+          <h2 class="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-4">
+            Overview
+          </h2>
 
-                <!-- Assigner Filter -->
-                <div class="space-y-1" v-if="uniqueAssigners">
-                  <label class="text-sm text-gray-600">Assigner</label>
-                  <select v-model="selectedAssigner" @change="filterTasks"
-                    class="w-full border border-gray-300 rounded-md p-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                    <option value="">All Assigners</option>
-                    <option v-for="user in uniqueAssigners" :key="user.id" :value="user.id">
-                      {{ user.name }}
-                    </option>
-                  </select>
-                </div>
-
-                <!-- Project Filter -->
-                <div class="space-y-1">
-                  <label class="text-sm text-gray-600">Project</label>
-                  <select v-model="selectedProject" @change="filterTasks"
-                    class="w-full border border-gray-300 rounded-md p-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                    <option value="">All Projects</option>
-                    <option v-for="project in uniqueProjects" :key="project.id" :value="project.id">
-                      {{ project.name }}
-                    </option>
-                  </select>
-                </div>
-
-                <!-- Organization Filter -->
-                <div class="space-y-1">
-                  <label class="text-sm text-gray-600">Organization</label>
-                  <select v-model="selectedOrg" @change="filterTasks"
-                    class="w-full border border-gray-300 rounded-md p-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                    <option value="">All Organizations</option>
-                    <option v-for="org in uniqueOrgs" :key="org.id" :value="org.id">
-                      {{ org.name }}
-                    </option>
-                  </select>
+          <div class="px-4 py-3 bg-blue-50 rounded-lg hover:shadow-md transition-shadow duration-300">
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="text-sm text-blue-800">Total Tasks</div>
+                <div class="text-2xl font-bold text-blue-900">
+                  {{ filteredTasks.length }}
                 </div>
               </div>
+              <i class="fas fa-tasks text-blue-400 text-xl"></i>
             </div>
+          </div>
 
-            <!-- Sort Section -->
-            <div class="space-y-3">
-              <h3 class="font-semibold text-gray-700">Sort By</h3>
-              <div class="flex space-x-4">
-                <select v-model="sortField"
-                  class="border border-gray-300 rounded-md p-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
-                  <option value="dueDate">Due Date</option>
-                  <option value="taskName">Task Name</option>
-                  <option value="taskPriority">Priority</option>
-                </select>
-                <button @click="toggleSortOrder"
-                  class="flex items-center px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 transition">
-                  <i :class="[
-                    'fas',
-                    sortOrder === 'asc'
-                      ? 'fa-sort-amount-down-alt'
-                      : 'fa-sort-amount-up-alt',
-                    'mr-2',
-                  ]"></i>
-                  {{ sortOrder === "asc" ? "Ascending" : "Descending" }}
-                </button>
+          <div class="px-4 py-3 bg-green-50 rounded-lg hover:shadow-md transition-shadow duration-300">
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="text-sm text-green-800">Completed</div>
+                <div class="text-2xl font-bold text-green-900">
+                  {{ taskStats.completed }}
+                </div>
               </div>
+              <i class="fas fa-check-double text-green-400 text-xl"></i>
             </div>
+          </div>
 
-            <!-- Active Filters Display -->
-            <div v-if="hasActiveFilters" class="pt-3 border-t border-gray-200">
-              <h3 class="text-sm font-medium text-gray-700 mb-2">
-                Active Filters:
-              </h3>
-              <div class="flex flex-wrap gap-2">
-                <span v-if="selectedPriority"
-                  class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800">
-                  Priority: {{ selectedPriority }}
-                  <button @click="selectedPriority = ''" class="ml-2 text-blue-600 hover:text-blue-800">
-                    <i class="fas fa-times"></i>
-                  </button>
-                </span>
-                <span v-if="selectedAssigner"
-                  class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800">
-                  Assigned By: {{ getAssignerName(selectedAssigner) }}
-                  <button @click="selectedAssigner = ''" class="ml-2 text-blue-600 hover:text-blue-800">
-                    <i class="fas fa-times"></i>
-                  </button>
-                </span>
-                <span v-if="selectedProject"
-                  class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800">
-                  Project: {{ getProjectName(selectedProject) }}
-                  <button @click="selectedProject = ''" class="ml-2 text-blue-600 hover:text-blue-800">
-                    <i class="fas fa-times"></i>
-                  </button>
-                </span>
-                <span v-if="selectedOrg"
-                  class="inline-flex items-center px-3 py-1 rounded-full text-sm bg-blue-100 text-blue-800">
-                  Organization: {{ getOrgName(selectedOrg) }}
-                  <button @click="selectedOrg = ''" class="ml-2 text-blue-600 hover:text-blue-800">
-                    <i class="fas fa-times"></i>
-                  </button>
-                </span>
-                <!-- Add similar spans for other active filters -->
+          <div class="px-4 py-3 bg-yellow-50 rounded-lg hover:shadow-md transition-shadow duration-300">
+            <div class="flex items-center justify-between">
+              <div>
+                <div class="text-sm text-yellow-800">Due Today</div>
+                <div class="text-2xl font-bold text-yellow-900">
+                  {{ getDueToday() }}
+                </div>
               </div>
+              <i class="fas fa-clock text-yellow-400 text-xl"></i>
             </div>
           </div>
         </div>
       </div>
 
-      <!-- Task Grid -->
-      <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 w-full max-w-7xl px-4">
-        <template v-if="filteredTasks && filteredTasks.length > 0">
-          <TaskCard v-for="task in filteredTasks" :key="task.taskID" :task="task" />
-        </template>
-        <div v-else class="col-span-full text-center text-gray-600">
-          No tasks available.
+      <!-- Main Content Area -->
+      <div class="flex-1 overflow-x-hidden">
+        <div class="flex flex-col items-center w-full max-w-7xl px-4 mx-auto space-y-8 mt-12">
+          <!-- Header -->
+          <div class="flex justify-between items-center w-full">
+            <h1 class="text-4xl font-bold text-hunter-green mb-6 flex-grow text-center">To Do List</h1>
+          </div>
+
+          <div class="h-1 bg-accent drop-shadow-lg rounded mx-16 flex w-screen" />
+
+          <SearchComponent v-model:searchQuery="searchQuery" size="70%" />
+
+          <!-- Controls Panel -->
+          <div class="w-full max-w-4xl bg-white shadow-lg rounded-lg overflow-hidden">
+            <!-- Main Controls Header -->
+            <div class="flex justify-between items-center p-4 bg-gray-50">
+              <button @click="isFilterMenuOpen = !isFilterMenuOpen"
+                class="flex items-center px-4 py-2 rounded-md hover:bg-blue-50 transition-all duration-200 
+                border border-gray-200 hover:border-blue-300 hover:shadow-md group">
+                <i class="fas fa-sliders-h mr-2 text-blue-600 
+                  group-hover:rotate-180 transition-transform duration-300"></i>
+                <span class="relative text-gray-700 group-hover:text-blue-600">
+                  Filter & Sort
+                  <span class="absolute bottom-0 left-0 w-full h-0.5 bg-blue-600 
+                    transform scale-x-0 group-hover:scale-x-100 transition-transform duration-200">
+                  </span>
+                </span>
+                <i :class="[
+                  'fas',
+                  'ml-2',
+                  isFilterMenuOpen ? 'fa-chevron-up' : 'fa-chevron-down',
+                  'transform group-hover:translate-y-0.5 transition-transform text-blue-600'
+                ]"></i>
+              </button>
+            </div>
+
+            <!-- Expandable Filter Panel -->
+            <div v-show="isFilterMenuOpen" class="border-t border-gray-200">
+              <div class="p-4 space-y-4">
+                <!-- Filter Section -->
+                <div class="space-y-3">
+                  <h3 class="font-semibold text-gray-700">Filter By</h3>
+                  <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-4">
+                    <!-- Priority Filter -->
+                    <div class="space-y-1">
+                      <label class="text-sm text-gray-600">Priority</label>
+                      <select v-model="selectedPriority" @change="filterTasks"
+                        class="w-full border border-gray-300 rounded-md p-2 text-sm 
+                        focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <option value="">All Priorities</option>
+                        <option value="High">High</option>
+                        <option value="Medium">Medium</option>
+                        <option value="Low">Low</option>
+                      </select>
+                    </div>
+
+                    <!-- Assigner Filter -->
+                    <div class="space-y-1" v-if="uniqueAssigners">
+                      <label class="text-sm text-gray-600">Assigner</label>
+                      <select v-model="selectedAssigner" @change="filterTasks"
+                        class="w-full border border-gray-300 rounded-md p-2 text-sm 
+                        focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <option value="">All Assigners</option>
+                        <option v-for="user in uniqueAssigners" :key="user.id" :value="user.id">
+                          {{ user.name }}
+                        </option>
+                      </select>
+                    </div>
+
+                    <!-- Project Filter -->
+                    <div class="space-y-1">
+                      <label class="text-sm text-gray-600">Project</label>
+                      <select v-model="selectedProject" @change="filterTasks"
+                        class="w-full border border-gray-300 rounded-md p-2 text-sm 
+                        focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <option value="">All Projects</option>
+                        <option v-for="project in uniqueProjects" :key="project.id" :value="project.id">
+                          {{ project.name }}
+                        </option>
+                      </select>
+                    </div>
+
+                    <!-- Organization Filter -->
+                    <div class="space-y-1">
+                      <label class="text-sm text-gray-600">Organization</label>
+                      <select v-model="selectedOrg" @change="filterTasks"
+                        class="w-full border border-gray-300 rounded-md p-2 text-sm 
+                        focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                        <option value="">All Organizations</option>
+                        <option v-for="org in uniqueOrgs" :key="org.id" :value="org.id">
+                          {{ org.name }}
+                        </option>
+                      </select>
+                    </div>
+                  </div>
+                </div>
+
+                <!-- Sort Section -->
+                <div class="space-y-3">
+                  <h3 class="font-semibold text-gray-700">Sort By</h3>
+                  <div class="flex space-x-4">
+                    <select v-model="sortField"
+                      class="border border-gray-300 rounded-md p-2 text-sm 
+                      focus:ring-2 focus:ring-blue-500 focus:border-blue-500">
+                      <option value="dueDate">Due Date</option>
+                      <option value="taskName">Task Name</option>
+                      <option value="taskPriority">Priority</option>
+                    </select>
+                    <button @click="toggleSortOrder"
+                      class="flex items-center px-4 py-2 border border-gray-300 
+                      rounded-md hover:bg-gray-50 transition">
+                      <i :class="[
+                        'fas',
+                        sortOrder === 'asc' ? 'fa-sort-amount-down-alt' : 'fa-sort-amount-up-alt',
+                        'mr-2'
+                      ]"></i>
+                      {{ sortOrder === "asc" ? "Ascending" : "Descending" }}
+                    </button>
+                  </div>
+                </div>
+
+                <!-- Active Filters Display -->
+                <div v-if="hasActiveFilters" class="pt-3 border-t border-gray-200">
+                  <h3 class="text-sm font-medium text-gray-700 mb-2">Active Filters:</h3>
+                  <div class="flex flex-wrap gap-2">
+                    <span v-if="selectedPriority"
+                      class="inline-flex items-center px-3 py-1 rounded-full text-sm 
+                      bg-blue-100 text-blue-800">
+                      Priority: {{ selectedPriority }}
+                      <button @click="selectedPriority = ''" 
+                        class="ml-2 text-blue-600 hover:text-blue-800">
+                        <i class="fas fa-times"></i>
+                      </button>
+                    </span>
+                    <span v-if="selectedAssigner"
+                      class="inline-flex items-center px-3 py-1 rounded-full text-sm 
+                      bg-blue-100 text-blue-800">
+                      Assigned By: {{ getAssignerName(selectedAssigner) }}
+                      <button @click="selectedAssigner = ''" 
+                        class="ml-2 text-blue-600 hover:text-blue-800">
+                        <i class="fas fa-times"></i>
+                      </button>
+                    </span>
+                    <span v-if="selectedProject"
+                      class="inline-flex items-center px-3 py-1 rounded-full text-sm 
+                      bg-blue-100 text-blue-800">
+                      Project: {{ getProjectName(selectedProject) }}
+                      <button @click="selectedProject = ''" 
+                        class="ml-2 text-blue-600 hover:text-blue-800">
+                        <i class="fas fa-times"></i>
+                      </button>
+                    </span>
+                    <span v-if="selectedOrg"
+                      class="inline-flex items-center px-3 py-1 rounded-full text-sm 
+                      bg-blue-100 text-blue-800">
+                      Organization: {{ getOrgName(selectedOrg) }}
+                      <button @click="selectedOrg = ''" 
+                        class="ml-2 text-blue-600 hover:text-blue-800">
+                        <i class="fas fa-times"></i>
+                      </button>
+                    </span>
+                  </div>
+                </div>
+              </div>
+            </div>
+          </div>
+
+          <!-- Task Grid -->
+          <div class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4 w-full max-w-7xl px-4">
+            <template v-if="filteredTasks && filteredTasks.length > 0">
+              <TaskCard v-for="task in filteredTasks" :key="task.taskID" :task="task" />
+            </template>
+            <div v-else class="col-span-full text-center text-gray-600">
+              No tasks available.
+            </div>
+          </div>
         </div>
       </div>
     </div>
@@ -208,7 +304,7 @@ export default {
 
   computed: {
     ...mapState("tasks", ["tasks"]),
-    ...mapState("auth", ["currentUser"]),
+    ...mapState("auth", ["currentUser", "isLoggedIn"]),
 
     hasActiveFilters() {
       return (
@@ -269,6 +365,14 @@ export default {
 
       return tasks;
     },
+
+    taskStats() {
+      return {
+        total: this.tasks.length,
+        completed: this.tasks.filter((task) => task.complete).length,
+        pending: this.tasks.filter((task) => !task.complete).length,
+      }
+    }
   },
 
   watch: {
@@ -381,6 +485,21 @@ export default {
     goToKanbanBoard() {
       this.$router.push({ name: "KB" });
     },
+    getDueToday() {
+      const today = new Date().toISOString().split('T')[0];
+      return this.filteredTasks.filter(task => 
+        task.dueDate?.split('T')[0] === today && !task.complete
+      ).length;
+    },
+
+    getTaskPriorityColor(priority) {
+    return {
+      'High': 'text-red-600',
+      'Medium': 'text-yellow-600',
+      'Low': 'text-green-600'
+    }[priority] || 'text-gray-600';
+  }
+
   },
 };
 </script>

@@ -125,7 +125,7 @@ export default {
         //ADD NOTIFICATION FOR FAILED CRREATION
       }
       //will remove this afrer notifiction is implemented
-      this.$router.push({ name: "TDList" });
+      this.$router.go(-1);
       
     },
 
