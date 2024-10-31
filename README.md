@@ -29,6 +29,7 @@ This builds both the server and the client as well as the required volumes for t
 **Terminal 1**:
 ```
 cd ./client
+npm ci
 npm run dev
 ```
 
