@@ -21,3 +21,4 @@ node_modules/
 server/.gradle/
 server/build/
 *.class
+data/aegis.db
