@@ -165,6 +165,7 @@
 import NavBar from "@/components/NavBar.vue";
 import NotificationComponent from "@/components/NotificationComponent.vue";
 import { mapState } from "vuex";
+import { connect } from '@/utils/websocket.js';
 
 export default {
   components: {
@@ -251,6 +252,7 @@ export default {
         if (response.has2fa) {
           this.requires2FA = true;
         } else {
+          connect();
           this.$router.push({ name: "Dashboard" });
         }
       } catch (error) {
@@ -267,6 +269,7 @@ export default {
       try {
         await this.$store.dispatch("auth/verify2fa", this.code);
         this.showNotification("success", "2FA verified successfully");
+        connect();
         setTimeout(() => {
           this.$router.push({ name: "Dashboard" });
         }, 2000);
