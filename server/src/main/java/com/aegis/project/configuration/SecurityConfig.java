@@ -46,6 +46,7 @@ public class SecurityConfig {
         http.csrf(AbstractHttpConfigurer::disable)
                 .authorizeHttpRequests(authorize -> authorize
                          //.requestMatchers("/login", "/register").permitAll()
+                         .requestMatchers("/api/ws/**").permitAll()
                          //.anyRequest().authenticated()
                          .anyRequest().permitAll() // Allow all requests temporarily
                 )
