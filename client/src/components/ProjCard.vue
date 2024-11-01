@@ -86,7 +86,7 @@
               'text-gray-500': project.isArchived,
             }"
           >
-            {{ formatTaskCount(9000) }}
+            {{ formatTaskCount(tasks.length) }}
           </span>
         </div>
       </div>
@@ -110,10 +110,12 @@ export default {
   data() {
     return {
       creator: "",
+      tasks: [],
     };
   },
   async mounted() {
       await this.getCreatorData();
+      await this.fetchProjectTasks();
     },
   methods: {
     formatTaskCount(count) {
@@ -144,6 +146,19 @@ export default {
         );
       } catch (error) {
         this.creator = "Unknown";
+      }
+    },
+    async fetchProjectTasks() {
+      try {
+        this.tasks = await this.$store.dispatch(
+          "projects/fetchTasksFromProject",
+          this.project.projectID
+        );
+      } catch (error) {
+        this.showNotification(
+          "error",
+          "There was an error fetching the project data"
+        );
       }
     },
     
