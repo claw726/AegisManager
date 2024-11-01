@@ -418,7 +418,6 @@ export default {
       } catch (err) {
         this.showNotification(
           "error",
-          "Failed to change project archival status: " + err
         );
         console.error(err);
       }

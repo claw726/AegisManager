@@ -28,6 +28,11 @@ services:
       - ./data:/app/data
     environment:
       - SPRING_DATASOURCE_URL=jdbc:sqlite:/app/data/aegis.db # Update the database path
+      - LOGGING_LEVEL_ORG_HIBERNATE=ERROR
+      - LOGGING_LEVEL_ROOT=INFO
+      - SPRING_JPA_SHOW_SQL=false
+      - SPRING_JPA_PROPERTIES_HIBERNATE_FORMAT_SQL=false
+      - SPRING_JPA_PROPERTIES_HIBERNATE_SHOW_SQL=false
     networks:
       - app-network
 
