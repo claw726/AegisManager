@@ -186,6 +186,19 @@ const router = createRouter({
       component: () => import("./views/ForgotPassword.vue"),
       meta: { requiresGuest: true },
     },
+    {
+      path: "/health",
+      name: "health",
+      component: () =>
+        new Promise((resolve) => {
+          resolve({
+            template: "<div>healthy</div>",
+            beforeCreate() {
+              this.$router.push(this.$route.query.redirect || "/");
+            },
+          });
+        }),
+    },
   ],
 });
 

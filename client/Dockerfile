@@ -54,7 +54,7 @@ RUN chown -R nginx:nginx /usr/share/nginx/html && \
 
 # Add healthcheck
 HEALTHCHECK --interval=30s --timeout=3s \
-  CMD curl -f http://localhost:8081/health || exit 1
+  CMD curl -k https://localhost:8443/health || exit 1
 
 # Expose the port on which the app will run
 EXPOSE 8081 8443
