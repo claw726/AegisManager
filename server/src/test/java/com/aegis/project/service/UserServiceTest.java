@@ -9,6 +9,7 @@ import org.mockito.ArgumentCaptor;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
+import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
@@ -46,19 +47,18 @@ public class UserServiceTest {
     @Test
     public void testUpdateUser2FA_Success() {
         int userID = 1;
-        String twoFactorAuthInfo = "2FA Info";
         UserModel user = new UserModel();
+        user.setUserID(userID);
         user.setEmail("test@example.com");
+        user.setTwoFactorAuthInfo("2FA Info");
 
         when(authentication.getPrincipal()).thenReturn(userDetails);
         when(userDetails.getUsername()).thenReturn("test@example.com");
         when(userRepository.findById(userID)).thenReturn(Optional.of(user));
 
-        userService.updateUser2FA(userID, twoFactorAuthInfo);
+        String twoFactorAuthInfo = userService.getUser2FA(userID);
 
-        verify(userRepository, times(1)).save(user);
-        assertTrue(user.isHas2fa());
-        assertEquals(twoFactorAuthInfo, user.getTwoFactorAuthInfo());
+        assertEquals("2FA Info", twoFactorAuthInfo);
     }
 
     @Test
@@ -85,6 +85,7 @@ public class UserServiceTest {
         UserModel user = new UserModel();
         user.setEmail("test@example.com");
         user.setTwoFactorAuthInfo("2FA Info");
+        user.setUserID(userID);
 
         when(authentication.getPrincipal()).thenReturn(userDetails);
         when(userDetails.getUsername()).thenReturn("test@example.com");

@@ -1,9 +1,13 @@
-version: '3.8'
-
 services:
   frontend:
+    healthcheck:
+      test: ["CMD", "curl", "-f", "-k", "https://localhost:8443/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
     build:
-      context: ./client  # Assuming your frontend code is in a directory called "frontend"
+      context: ./client # Assuming your frontend code is in a directory called "frontend"
       dockerfile: Dockerfile
     ports:
       - "8443:8443"
@@ -16,14 +20,14 @@ services:
 
   backend:
     build:
-      context: ./server  # Assuming your backend code is in a directory called "backend"
+      context: ./server # Assuming your backend code is in a directory called "backend"
       dockerfile: Dockerfile
     ports:
       - "8080:8080"
     volumes:
-      - ./data:/app/data 
+      - ./data:/app/data
     environment:
-      - SPRING_DATASOURCE_URL=jdbc:sqlite:/app/data/aegis.db  # Update the database path
+      - SPRING_DATASOURCE_URL=jdbc:sqlite:/app/data/aegis.db # Update the database path
     networks:
       - app-network
 

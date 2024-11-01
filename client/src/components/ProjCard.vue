@@ -66,7 +66,7 @@
               'text-gray-500': project.isArchived,
             }"
           >
-            {{ project.projectOwnerID }}
+            {{ creator.userName }}
           </span>
         </div>
 
@@ -86,7 +86,7 @@
               'text-gray-500': project.isArchived,
             }"
           >
-            {{ formatTaskCount(9000) }}
+            {{ formatTaskCount(tasks.length) }}
           </span>
         </div>
       </div>
@@ -95,6 +95,7 @@
 </template>
 
 <script>
+
 export default {
   props: {
     project: {
@@ -106,6 +107,16 @@ export default {
       required: true,
     },
   },
+  data() {
+    return {
+      creator: "",
+      tasks: [],
+    };
+  },
+  async mounted() {
+      await this.getCreatorData();
+      await this.fetchProjectTasks();
+    },
   methods: {
     formatTaskCount(count) {
       return count > 999 ? `${(count / 1000).toFixed(1)}k` : count;
@@ -127,6 +138,30 @@ export default {
         console.error("Failed to navigate to project dashboard:", error);
       }
     },
+    async getCreatorData() {
+      try {
+        this.creator = await this.$store.dispatch(
+          "users/fetchUserAccountByID",
+          this.project.projectOwnerID
+        );
+      } catch (error) {
+        this.creator = "Unknown";
+      }
+    },
+    async fetchProjectTasks() {
+      try {
+        this.tasks = await this.$store.dispatch(
+          "projects/fetchTasksFromProject",
+          this.project.projectID
+        );
+      } catch (error) {
+        this.showNotification(
+          "error",
+          "There was an error fetching the project data"
+        );
+      }
+    },
+    
   },
 };
 </script>

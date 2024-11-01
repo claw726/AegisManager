@@ -60,7 +60,7 @@
               />
             </svg>
             <span class="truncate"
-              >Created by: {{ organization.orgOwnerID }}</span
+              >Created by: {{ creator.userName }}</span
             >
           </div>
 
@@ -146,10 +146,13 @@ export default {
   data() {
     return {
       imageLoaded: true,
+      creator: "",
     };
   },
 
-  computed: {},
+  async mounted() {
+    await this.getCreatorData();
+  },
 
   methods: {
     viewOrganization() {
@@ -161,6 +164,16 @@ export default {
 
     handleImageError() {
       this.imageLoaded = false;
+    },
+    async getCreatorData() {
+      try {
+        this.creator = await this.$store.dispatch(
+          "users/fetchUserAccountByID",
+          this.organization.orgOwnerID
+        );
+      } catch (error) {
+        this.creator = "Unknown";
+      }
     },
   },
 };

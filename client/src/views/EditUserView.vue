@@ -11,47 +11,47 @@
         <form @submit.prevent="updateUserDetails" class="w-full max-w-lg">
           <div class="mb-4">
             <label
-              class="block text-gray-700 text-sm font-bold mb-2"
-              for="userName"
+                class="block text-gray-700 text-sm font-bold mb-2"
+                for="userName"
             >
               Name
             </label>
             <input
-              v-model="userName"
-              class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              id="userName"
-              type="text"
-              placeholder="Enter your name"
+                v-model="userName"
+                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                id="userName"
+                type="text"
+                placeholder="Enter your name"
             />
           </div>
           <div class="mb-4">
             <label
-              class="block text-gray-700 text-sm font-bold mb-2"
-              for="email"
+                class="block text-gray-700 text-sm font-bold mb-2"
+                for="email"
             >
               Email
             </label>
             <input
-              v-model="email"
-              class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              id="email"
-              type="email"
-              placeholder="Enter your email"
+                v-model="email"
+                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                id="email"
+                type="email"
+                placeholder="Enter your email"
             />
           </div>
           <div class="mb-4">
             <label
-              class="block text-gray-700 text-sm font-bold mb-2"
-              for="profilePicture"
+                class="block text-gray-700 text-sm font-bold mb-2"
+                for="profilePicture"
             >
               Profile Picture
             </label>
             <input
-              @change="handleFileUpload"
-              class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              id="profilePicture"
-              type="file"
-              accept="image/*"
+                @change="handleFileUpload"
+                class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
+                id="profilePicture"
+                type="file"
+                accept="image/*"
             />
           </div>
           <div class="flex items-center justify-between">
@@ -61,13 +61,18 @@
       </div>
     </div>
 
-    <NotificationComponent
-      v-if="notification.show"
-      :type="notification.type"
-      @close="notification.show = false"
-    >
-      {{ notification.message }}
-    </NotificationComponent>
+    <div class="flex justify-center mt-4">
+      <NotificationComponent
+          :show="notification.show"
+          :type="notification.type"
+          @close="closeNotification"
+          class="max-w-md w-full shadow-lg rounded-lg overflow-hidden"
+      >
+        <div class="p-4 break-words">
+          {{ notification.message }}
+        </div>
+      </NotificationComponent>
+    </div>
   </div>
 </template>
 
@@ -84,7 +89,6 @@ export default {
   },
   data() {
     return {
-      // Need to initiate these values as empty strings to avoid null values in the input fields
       userName: "",
       email: "",
       profilePicture: "",
@@ -98,7 +102,6 @@ export default {
   computed: {
     ...mapState("auth", ["isLoggedIn", "currentUser"]),
   },
-  // Watch for changes in the currentUser object and update the data properties accordingly
   watch: {
     currentUser: {
       immediate: true,
@@ -117,6 +120,11 @@ export default {
       event.preventDefault();
       const file = event.target.files[0];
       if (file) {
+        const validImageTypes = ['image/jpeg', 'image/png', 'image/gif'];
+        if (!validImageTypes.includes(file.type)) {
+          this.showNotification("error", "Invalid file type. Please select an image file.");
+          return;
+        }
         try {
           const options = {
             maxSizeMB: 0.064,
@@ -149,27 +157,27 @@ export default {
               canvas.width = newWidth;
               canvas.height = newHeight;
               ctx.drawImage(
-                image,
-                x,
-                y,
-                newWidth,
-                newHeight,
-                0,
-                0,
-                newWidth,
-                newHeight,
+                  image,
+                  x,
+                  y,
+                  newWidth,
+                  newHeight,
+                  0,
+                  0,
+                  newWidth,
+                  newHeight,
               );
 
               const croppedDataURL = canvas.toDataURL("image/jpeg", 0.92);
               const blob = await fetch(croppedDataURL).then((res) =>
-                res.blob(),
+                  res.blob(),
               );
               const newFile = new File([blob], file.name, {
                 type: "image/jpeg",
               });
               const compressedCroppedFile = await imageCompression(
-                newFile,
-                options,
+                  newFile,
+                  options,
               );
 
               const reader = new FileReader();
@@ -184,8 +192,8 @@ export default {
         } catch (error) {
           console.error("Error compressing image:", error);
           this.showNotification(
-            "error",
-            "An error occurred while compressing the image. Please try again with a new file.",
+              "error",
+              "An error occurred while compressing the image. Please try again with a new file.",
           );
         }
       } else {
@@ -207,9 +215,17 @@ export default {
       }
     },
     showNotification(type, message) {
-      this.notification.type = type;
-      this.notification.message = message;
-      this.notification.show = true;
+      this.notification = {
+        show: true,
+        type,
+        message,
+      };
+      if (type === "success") {
+        setTimeout(this.closeNotification, 5000);
+      }
+    },
+    closeNotification() {
+      this.notification.show = false;
     },
   },
 };
