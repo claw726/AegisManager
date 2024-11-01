@@ -210,6 +210,9 @@ export default {
       try {
         await this.updateUser(updatedDetails);
         this.showNotification("success", "User details updated successfully!");
+        setTimeout(() => {
+          this.$router.push({name: "AccountSettings"});
+        }, 2000);
       } catch (error) {
         this.showNotification("error", error.message);
       }
