@@ -15,7 +15,7 @@ import javax.crypto.SecretKey;
 @Service
 public class TokenService {
     private final SecretKey key = Jwts.SIG.HS512.key().build();
-    private final long expirationTime = 1000 * 60 * 15; // 15 minutes
+    private final long expirationTime = 1000 * 60 * 60; // 15 minutes
     private static final Logger logger = LoggerFactory.getLogger(TokenService.class);
 
     public String generateToken(Authentication auth) {
