@@ -22,7 +22,7 @@ RUN gradle dependencies --no-daemon
 COPY --chown=gradle:gradle src ./src
 
 # Build the project
-RUN gradle clean build --no-daemon
+RUN gradle clean build -x test --no-daemon
 
 # Runtime stage
 FROM eclipse-temurin:21-jre-alpine

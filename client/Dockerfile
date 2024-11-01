@@ -1,5 +1,5 @@
 # Stage 1: Build
-FROM node:lts-alpine AS builder
+FROM node:21-alpine AS builder
 
 # Set the working directory inside the container
 WORKDIR /app
@@ -13,7 +13,7 @@ ENV NODE_ENV=production \
     NPM_CONFIG_LOGLEVEL=error
 
 # Install the app dependencies with specific optimizations
-RUN npm ci --only=production && \
+RUN npm ci --verbose --only=production && \
     npm cache clean --force
 
 # Copy necessary config files
