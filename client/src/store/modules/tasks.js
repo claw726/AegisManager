@@ -281,12 +281,63 @@ const actions = {
       if (response.status === 200) {
         commit("UPDATE_TASK_IN_LIST", { taskId, ...taskData });
         commit("SET_UPDATE_STATUS", { success: true });
+      }
+      commit("SET_TASKS", tasks);
+      //can't read status if successful, return number
+      return true;
+
+    } catch (error) {
+      let errorMessage = "An error occurred while adding user to the task.";
+
+      if (error.response) {
+        switch (error.response.status) {
+          case 404:
+            errorMessage = "Task or user not found.";
+            //break;
+          case 403:
+            errorMessage = "You do not have permission to add a user this task.";
+            //break;
+          default:
+            errorMessage = error.response.data || errorMessage;
+        }
+        return error.response.status;
+      }
+
+      commit("SET_UPDATE_STATUS", { error: errorMessage });
+      //throw new Error(errorMessage);
+      console.log("printing repsonse status for error:", error.response.status);
+    } finally {
+      commit("SET_UPDATE_STATUS", { loading: false });
+    }
+  },
+
+  async removeUserToTask({ commit, rootState }, { taskId, email }) {
+    commit("SET_UPDATE_STATUS", { loading: true, error: null, success: false });
+
+    try {
+      const params = {
+        email: email,
+      };
+
+      const response = await axios({
+        method: "post",
+        url: `/api/tasks/${taskId}/removeUser`,
+        params: params,
+        headers: {
+          Authorization: `Bearer ${rootState.auth.authToken}`,
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+      });
+
+      if (response.status === 200) {
+        commit("UPDATE_TASK_IN_LIST", { taskId, ...taskData });
+        commit("SET_UPDATE_STATUS", { success: true });
         return true;
       }
       commit("SET_TASKS", tasks);
-      return true;
+      return 200;
     } catch (error) {
-      let errorMessage = "An error occurred while adding user to the task.";
+      let errorMessage = null;
 
       if (error.response) {
         switch (error.response.status) {
@@ -299,10 +350,13 @@ const actions = {
           default:
             errorMessage = error.response.data || errorMessage;
         }
+        return error.response.status;
       }
 
       commit("SET_UPDATE_STATUS", { error: errorMessage });
-      throw new Error(errorMessage);
+
+      console.log(errorMessage);
+      return false;
     } finally {
       commit("SET_UPDATE_STATUS", { loading: false });
     }

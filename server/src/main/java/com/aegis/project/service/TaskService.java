@@ -235,6 +235,8 @@ public class TaskService {
         task.setComplete(isComplete);
 
         taskRepository.save(task);
+
+        sendTaskInfoToUsers(taskID);
     }
 
     public void deleteTask(int taskID) {

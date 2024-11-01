@@ -6,7 +6,7 @@
       <div class="bg-white shadow-md rounded-lg p-6">
         <p class="mb-4">Scan the QR code below with your authenticator app:</p>
         <div v-if="qrCode" class="flex justify-center mb-4">
-          <img :src="qrCode" alt="QR Code" />
+          <img :src="qrCode" alt="QR Code"  class="qr-code"/>
         </div>
         <div v-else class="flex justify-center mb-4">
           <p>Loading QR code...</p>
@@ -91,13 +91,8 @@ export default {
       }
     },
     async disable2fa() {
-      try {
         await this.$store.dispatch("auth/disable2fa");
         this.$store.commit("auth/set2FAStatus", false);
-        this.showNotification("success", "2FA disabled successfully");
-      } catch (error) {
-        this.showNotification("error", "Failed to disable 2FA: " + error.message);
-      }
     },
     showNotification(type, message) {
       this.notification = {
@@ -119,5 +114,10 @@ export default {
 <style scoped>
 .container {
   max-width: 600px;
+}
+
+.qr-code {
+  width: 300px;
+  height: 300px;
 }
 </style>
