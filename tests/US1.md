@@ -1,25 +1,16 @@
 # Wiew all assigned tasks on To-Do List page.  - Test Plan
 
-## Test Case 1: Verify All Tasks are present
+## Test Case 1: Verify All Tasks are chronologically in due date order.
 1. Log in as the task assignee
-2. Navigate to the project editing page
-3. Verify the project name and description are displayed in editable form fields
+2. Navigate to the To-Do List
+3. Verify tasks are sorted in chronological due date order.
 
-## Test Case 2: Successful Project Update
-1. Log in as the project manager
-2. Navigate to the project editing page
-3. Update the project name and description with valid values
-4. Click the "Submit" button
-5. Verify the project page displays the updated project information
+## Test Case 2: Verify All Tasks are present.
+1. Log in as the task assignee
+2. Navigate to the To-Do List
+3. Verify tasks from all projects are visible.
 
-## Test Case 3: Failed Project Update Due to Invalid Data
-1. Log in as the project manager
-2. Navigate to the project editing page
-3. Leave the project name field empty and update the description
-4. Click the "Submit" button
-5. Verify an error message is displayed indicating the project name is required
-
-## Test Case 4: Failed Project Update Due to Unauthorized Access
-1. Log out of the application
-2. Try to access the project editing page directly
-3. Verify the user is redirected to the login page or shown an error message indicating they do not have permission to access the pages
+## Test Case 3: Verify All Tasks, regardless of completion status are present.
+1. Log in as the task assignee
+2. Navigate to the To-Do List
+3. Verify all tasks, both complete and incomplete are present.
