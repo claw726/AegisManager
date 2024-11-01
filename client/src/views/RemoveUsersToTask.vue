@@ -6,7 +6,7 @@
     <!-- Main Content -->
     <div 
     v-if="fetchedTask"
-    class="cc text-4xl font-bold text-hunter-green mb-6">Add Users to Task</div>
+    class="cc text-4xl font-bold text-hunter-green mb-6">Remove Users From Task</div>
 
     <!-- Form Container -->
     <form @submit.prevent="handleSubmit">
@@ -29,7 +29,7 @@
 
         <!-- Submit Button -->
         <button
-          @click="handleAddUser"
+          @click="handleRemoveUser"
           type="submit"
           data-testid="submit-button"
           class="w-full mt-4 bg-primary text-white font-semibold py-3 rounded-lg"
@@ -90,20 +90,33 @@ export default {
   methods: {
     ...mapActions("auth", ["user", "isLoggedIn", "currentUser"]),
 
-    async handleAddUser() {
+    async handleRemoveUser() {
+        console.log("Inside handleremoveuser.");
+        let erroneous = false;
+        
         try {
-            const s = this.addUser(this.email)
-            let erroneous = false;
+            const s = this.removeUser(this.email)
 
             s.then(result => {
                 this.promiseResult = result;
                 //console.log("Promise resolved with: ", result); 
 
-                if (result == 404) {
-                    //user not found error
-                    console.log('User not found, unable to add to task.');
-                    this.showNotification("error", "User not found, unable to add to task.");
+                if (result == 403) {
+                    console.log('You do not have permission to to remove user to task, unable to remove to task.');
+                    this.showNotification("error", "You do not have permission to remove user to task, unable to add to task.");
                     erroneous = true;
+                    return;
+                }
+
+                if (result == 404) {
+                    console.log('Invalid user, unable to remove from task.');
+                    this.showNotification("error", "Invalid user, unable to remove from task.");
+                    erroneous = true;
+                    return;
+                }
+
+                if (result == false) {
+                    this.showNotification("success", "Successfully removed user from task!");
                     return;
                 }
 
@@ -111,32 +124,40 @@ export default {
                 console.error("Promise rejected with: ", error);
             });
 
-            if (erroneous == false) {
-                //console.log("User added to task WEEEEEEEEEEE.");
-                this.showNotification("success", "Successfully added user to task!");
-            }
             await new Promise(resolve => setTimeout(resolve, 2500));
+
+            if (s == true) {
+                console.log("Removed user successfully inside handle.");
+            }
+            
+            if (erroneous = false) {
+                await new Promise(resolve => setTimeout(resolve, 2500));
+            }
             
         } catch (error) {
-            console.error('Failed to add user to task', error);
-            this.showNotification("error", "Unexpected error with task delegation.");
+            console.error('Failed to remove user to task', error);
+            this.showNotification("error", "Unexpected error with task user removing.");
         }
         this.$router.push({ name: "TDList"});
     },
 
-    async addUser(email) {
+    async removeUser(email) {
       try {
 
-        const s = await this.$store.dispatch("tasks/addUserToTask", {
+        const s = await this.$store.dispatch("tasks/removeUserToTask", {
           email: email,
           taskId: this.fetchedTask.taskID,
         });
 
+        if (s == true) {
+          console.log("User removed task.");
+        }
         return s;
       } catch (error) {
-        console.error('Failed to add user PEEEEEE to task', error);
-
+        console.error('Failed to remove user to task', error);
+        return 999;
       }
+      
     },
 
     async getTask() {

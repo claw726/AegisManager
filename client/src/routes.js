@@ -79,6 +79,12 @@ const router = createRouter({
       meta: { requiresAuth: true },
     },
     {
+      path: "/tasks/:taskId/removeUserTask",
+      name: "removeUserTask",
+      component: () => import("./views/RemoveUsersToTask.vue"),
+      meta: { requiresAuth: true },
+    },
+    {
       path: "/organization/:orgIndex/createProject",
       name: "createProject",
       component: () => import("./views/CreateProjView.vue"),

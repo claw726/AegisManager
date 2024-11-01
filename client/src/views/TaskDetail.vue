@@ -110,7 +110,8 @@
             {{ notification.message }}
           </NotificationComponent>
         </div>
-        <div :class="fetchedTask.complete ? 'greyed-out' : ''" class="space-y-4">
+        
+        <div :class="fetchedTask.complete ? 'greyed-out' : ''" class="text-lg font-semibold mb-2 space-y-4">
           <div class="flex justify-between mt-6">
             <label v-if="!fetchedTask.complete && showLeftButton && taskUsers.length > 0" for="assignerSelect"
               class="font-semibold text-gray-800">Select Assigner</label>
@@ -119,8 +120,9 @@
 
         <!-- Task Actions Container -->
         <div class="flex justify-between mt-6">
+          
           <!-- Left-aligned dropdown and button -->
-          <div class="flex items-center space-x-4">
+          <div class="flex items-center ">
             <!-- Text above the dropdown -->
 
             <!-- Dropdown menu -->
@@ -140,15 +142,6 @@
 
           <!-- Right-aligned buttons -->
           <div class="flex space-x-4"> <!-- Align buttons to the right -->
-            
-
-            <button
-              v-if="!fetchedTask.complete && showLeftButton"
-              @click="goToEditTask"
-              class="px-4 py-2 edit-btn text-white rounded-lg hover:bg-green-600"
-            >
-              Edit Task
-            </button>
 
            <button
               v-if="!fetchedTask.complete && showLeftButton"
@@ -157,6 +150,22 @@
             >
               Add Users
            </button>
+
+           <button
+              v-if="!fetchedTask.complete && showLeftButton"
+              @click="goToRemoveUsers"
+              class="px-4 py-2 remove-user-btn text-white rounded-lg hover:bg-green-600"
+            >
+              Remove Users
+           </button>
+
+           <button
+              v-if="!fetchedTask.complete && showLeftButton"
+              @click="goToEditTask"
+              class="px-4 py-2 edit-btn text-white rounded-lg hover:bg-green-600"
+            >
+              Edit Task
+            </button>
 
             <button
              v-if="showLeftButton"
@@ -274,8 +283,8 @@ export default {
 
     makeNameListofAssignees() {
       const nameList = this.getNames(this.fetchedTask.assignedUsers);
-      console.log("Printing nameList:");
-      console.log(nameList);
+      //console.log("Printing nameList:");
+      //console.log(nameList);
       return nameList;
     },
 
@@ -357,10 +366,8 @@ export default {
 
      } catch (error) {
       //TODO: make sure notification only shows if error shows right status code
-      //this.showNotification("error", "Task failed to delete.");
      console.error('Failed to delete task:');
      console.error(error);
-     //await new Promise(resolve => setTimeout(resolve, 2000));
      }
      this.$router.push({ name: "TDList" });
    },
@@ -510,8 +517,6 @@ export default {
       
     },
 
-
-
     goToAddUsers() {
       this.$router.push({
        name: "addUserTask",
@@ -522,7 +527,19 @@ export default {
        },
      });
       
-    }
+    },
+
+    goToRemoveUsers() {
+      console.log("Remove Users task actions");
+      this.$router.push({
+       name: "removeUserTask",
+       params: {
+        orgIndex: this.fetchedTask.parentOrgID,
+        projIndex: this.fetchedTask.parentProjectID,
+        taskId: this.$route.params.taskId,
+       },
+     });
+    },
 
   },
 
@@ -575,11 +592,21 @@ export default {
   color: white;
   border: none;
   padding: 5px 10px;
+  margin-left: 10px;
 }
 
 .add-btn {
  cursor: pointer;
  background-color: rgb(73, 116, 99);
+ color: white;
+ border: none;
+ padding: 5px 10px;
+ margin-left: 10px;
+}
+
+.remove-user-btn {
+ cursor: pointer;
+ background-color: rgb(109, 73, 57);
  color: white;
  border: none;
  padding: 5px 10px;
