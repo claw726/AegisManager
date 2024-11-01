@@ -94,7 +94,6 @@ const actions = {
       throw new Error(errorMessage);
     }
   },
-
   async login({ commit, dispatch }, { email, password }) {
     try {
       const params = new URLSearchParams();
@@ -111,17 +110,23 @@ const actions = {
 
       if (data && data.token) {
         commit("setAuthToken", data.token);
-        commit("setLogin", true);
         // Fetch user details after login
         const user = await dispatch("users/fetchUserAccountByEmail", email, {
           root: true,
         });
         commit("setCurrentUser", user);
+
+        console.log("User 2fa status:", user.has2fa);
+        if (user.has2fa) {
+          return { has2fa: true };
+        }
+        commit("setLogin", true);
       } else {
         console.error("Login Failed:", data ? data : "No data received!");
         throw new Error("Login Failed!");
       }
       commit("SET_ERROR", null);
+      return { has2fa: false };
     } catch (error) {
       let errorMessage = "An unexpected error occurred. Please try again.";
 
@@ -238,7 +243,7 @@ const actions = {
       throw new Error("Failed to disable 2FA");
       }
   },
-  async verify2fa({ state }, code) {
+  async verify2fa({ commit, state }, code) {
     try {
       const params = new URLSearchParams();
       params.append("userID", state.currentUser.userID);
@@ -249,6 +254,7 @@ const actions = {
         },
       });
       console.log("2FA verified:", response.data);
+      commit("setLogin", true);
       return response.data;
     } catch (error) {
       console.error("Failed to verify 2FA:", error.response.data);
