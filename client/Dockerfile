@@ -23,7 +23,7 @@ COPY . .
 RUN npm run build
 
 # Stage 2: Serve
-FROM nginx:stable-alpine AS production
+FROM nginx:1.27-alpine-slim AS production
 
 # Set the working directory inside the container
 WORKDIR /app

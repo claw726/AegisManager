@@ -33,6 +33,14 @@ services:
       - SPRING_JPA_SHOW_SQL=false
       - SPRING_JPA_PROPERTIES_HIBERNATE_FORMAT_SQL=false
       - SPRING_JPA_PROPERTIES_HIBERNATE_SHOW_SQL=false
+      - MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=health,info,metrics
+      - MANAGEMENT_ENDPOINT_HEALTH_SHOW_DETAILS=when_authorized
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 60s
     networks:
       - app-network
 
