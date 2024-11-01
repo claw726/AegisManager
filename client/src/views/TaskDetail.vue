@@ -294,7 +294,7 @@ export default {
     },
 
     goBack() {
-      this.$router.push({ name: "TDList" });
+      this.$router.go(-1);
     },
 
     goToEditTask(){
