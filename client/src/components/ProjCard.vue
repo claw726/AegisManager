@@ -86,7 +86,7 @@
               'text-gray-500': project.isArchived,
             }"
           >
-            {{ formatTaskCount(tasks.length) }}
+            {{ formatTaskCount(uncompletedTasks.length) }}
           </span>
         </div>
       </div>
@@ -112,6 +112,11 @@ export default {
       creator: "",
       tasks: [],
     };
+  },
+  computed: {
+    uncompletedTasks() {
+      return this.tasks.filter((task) => !task.complete);
+    },
   },
   async mounted() {
       await this.getCreatorData();

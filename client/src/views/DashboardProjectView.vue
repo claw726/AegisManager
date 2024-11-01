@@ -122,7 +122,7 @@
               >
                 <i class="fas fa-tasks text-blue-600"></i>
                 <span class="text-blue-600 font-medium">
-                  {{ tasks.length }} Tasks
+                  {{ uncompletedTasks.length }} Uncompleted Tasks
                 </span>
               </div>
               <!-- Add more project stats here -->
@@ -172,11 +172,11 @@
     <!-- List of Tasks with improved empty state -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div
-        v-if="tasks && tasks.length > 0"
+        v-if="uncompletedTasks && uncompletedTasks.length > 0"
         class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
       >
         <TaskCard
-          v-for="(task, index) in tasks"
+          v-for="(task, index) in uncompletedTasks"
           :key="index"
           :task="task"
           :taskIndex="index"
@@ -256,6 +256,9 @@ export default {
   },
   computed: {
     ...mapState("auth", ["isLoggedIn", "currentUser"]),
+    uncompletedTasks() {
+      return this.tasks.filter((task) => !task.complete);
+    },
   },
   methods: {
     goToCreateTask() {
