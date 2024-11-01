@@ -245,11 +245,11 @@ public class ProjectService {
     }
 
     public void addUser(int projectID, String email) {
-        UserModel userToAdd = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
-
         ProjectModel project = projectRepository.findById(projectID)
                 .orElseThrow(() -> new RuntimeException("Project not found with id: " + projectID));
+
+        UserModel userToAdd = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String currentUsername = ((UserDetails) authentication.getPrincipal()).getUsername();
@@ -267,11 +267,11 @@ public class ProjectService {
     }
 
     public void removeUser(int projectID, String email) {
-        UserModel userToRemove = userRepository.findByEmail(email)
-                .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
-
         ProjectModel project = projectRepository.findById(projectID)
                 .orElseThrow(() -> new RuntimeException("Project not found with id: " + projectID));
+
+        UserModel userToRemove = userRepository.findByEmail(email)
+                .orElseThrow(() -> new RuntimeException("User not found with email: " + email));
 
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String currentUsername = ((UserDetails) authentication.getPrincipal()).getUsername();
