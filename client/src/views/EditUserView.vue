@@ -210,6 +210,7 @@ export default {
       try {
         await this.updateUser(updatedDetails);
         this.showNotification("success", "User details updated successfully!");
+        this.$router.go(-1);
       } catch (error) {
         this.showNotification("error", error.message);
       }
