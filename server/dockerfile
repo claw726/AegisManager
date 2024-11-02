@@ -35,11 +35,14 @@ RUN apk update && \
     apk upgrade && \
     apk add --no-cache tini curl openssl && \
     mkdir -p /app/data && \
+    mkdir -p /app/logs && \
+    mkdir -p /app/temp && \
     addgroup -S spring && \
     adduser -S spring -G spring && \
     chown -R spring:spring /app && \
     chmod -R 755 /app && \
-    rm -rf /var/cache/apk/*
+    rm -rf /var/cache/apk/* && \
+    chmod 777 /app/temp
 
 # Generate keystore
 RUN keytool -genkeypair \
