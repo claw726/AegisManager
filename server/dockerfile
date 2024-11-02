@@ -1,5 +1,5 @@
 # Build stage
-FROM gradle:latest AS build
+FROM gradle:jdk-lts-and-current-alpine AS build
 
 WORKDIR /app
 
@@ -33,13 +33,29 @@ WORKDIR /app
 # Install security updates and add necessary packages
 RUN apk update && \
     apk upgrade && \
-    apk add --no-cache tini curl && \
+    apk add --no-cache tini curl openssl && \
     mkdir -p /app/data && \
     addgroup -S spring && \
     adduser -S spring -G spring && \
     chown -R spring:spring /app && \
     chmod -R 755 /app && \
     rm -rf /var/cache/apk/*
+
+# Generate keystore
+RUN keytool -genkeypair \
+    -alias tomcat \
+    -keyalg RSA \
+    -keysize 2048 \
+    -keystore /app/keystore.p12 \
+    -validity 3650 \
+    -storetype PKCS12 \
+    -storepass changeit \
+    -keypass changeit \
+    -dname "CN=AegisManager, OU=Aegis, O=Purdue, L=WestLafayette, S=IN, C=US"
+
+# Set ownership of the keystore
+RUN chown spring:spring /app/keystore.p12
+
 
 # Use tini as init process
 ENTRYPOINT ["/sbin/tini", "--"]
@@ -55,7 +71,7 @@ COPY --chown=gradle:gradle src/main/resources/templates ./src/main/resources/tem
 
 # Add healthcheck
 HEALTHCHECK --interval=30s --timeout=3s \
-  CMD wget --no-verbose --tries=1 --spider http://localhost:8080/actuator/health || exit 1
+  CMD curl -k --fail https://localhost:8444/actuator/health || exit 1
 
 EXPOSE 8444
 
@@ -69,6 +85,11 @@ CMD ["java", \
     "-XX:HeapDumpPath=/app/data/heap-dump.hprof", \
     "-XX:+UseStringDeduplication", \
     "-Djava.security.egd=file:/dev/./urandom", \
+    "-Dserver.ssl.key-store=/app/keystore.p12", \
+    "-Dserver.ssl.key-store-password=changeit", \
+    "-Dserver.ssl.key-alias=tomcat", \
+    "-Dserver.ssl.key-store-type=PKCS12", \
+    "-Dserver.port=8444", \
     "-jar", \
     "app.jar" \
 ]

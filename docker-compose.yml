@@ -23,7 +23,7 @@ services:
       context: ./server # Assuming your backend code is in a directory called "backend"
       dockerfile: Dockerfile
     ports:
-      - "8080:8080"
+      - "8444:8444"
     volumes:
       - ./data:/app/data
     environment:
@@ -36,7 +36,8 @@ services:
       - MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=health,info,metrics
       - MANAGEMENT_ENDPOINT_HEALTH_SHOW_DETAILS=when_authorized
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8080/actuator/health"]
+      test:
+        ["CMD", "curl", "-f", "-k", "https://localhost:8444/actuator/health"]
       interval: 30s
       timeout: 3s
       retries: 3
