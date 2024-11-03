@@ -1,165 +1,168 @@
 package com.aegis.project.model;
 
 import jakarta.persistence.*;
-
 import java.util.HashSet;
 import java.util.Set;
 
 @Entity
 @Table(name = "users")
 public class UserModel {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int UserID;
 
-    @Column(name = "user_name")
-    private String userName;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private int UserID;
 
-    @Column(name = "email")
-    private String email;
+  @Column(name = "user_name")
+  private String userName;
 
-    @ManyToMany
-    @JoinTable(
-            name = "user_orgs",
-            joinColumns = @JoinColumn(name = "user_id"),
-            inverseJoinColumns = @JoinColumn(name = "org_id")
-    )
-    private Set<OrgModel> Orgs = new HashSet<>();
+  @Column(name = "email")
+  private String email;
 
-    @Column(name = "password_hash")
-    private String PWHash;
+  @ManyToMany
+  @JoinTable(
+    name = "user_orgs",
+    joinColumns = @JoinColumn(name = "user_id"),
+    inverseJoinColumns = @JoinColumn(name = "org_id")
+  )
+  private Set<OrgModel> Orgs = new HashSet<>();
 
-    @Column(name = "auth_info")
-    private String TwoFactorAuthInfo;
+  @Column(name = "password_hash")
+  private String PWHash;
 
-    @Column(name = "password_reset_token")
-    private String passwordResetToken;
+  @Column(name = "auth_info")
+  private String TwoFactorAuthInfo;
 
-    @Column(name = "is_logged_in")
-    private Boolean IsLoggedIn;
+  @Column(name = "password_reset_token")
+  private String passwordResetToken;
 
-    @Column(name = "failed_login_attempts")
-    private int failedLoginAttempts;
+  @Column(name = "is_logged_in")
+  private Boolean IsLoggedIn;
 
-    @Column(name = "is_locked")
-    private boolean isLocked;
+  @Column(name = "failed_login_attempts")
+  private int failedLoginAttempts;
 
-    @Column(name = "profile_picture")
-    private String profilePicture;
+  @Column(name = "is_locked")
+  private boolean isLocked;
 
-    @Column(name = "has_2fa")
-    private boolean has2fa;
+  @Column(name = "profile_picture")
+  private String profilePicture;
 
-    public UserModel(String userName, String email, String PWHash, String profilePicture) {
-        this.userName = userName;
-        this.email = email;
-        this.PWHash = PWHash;
-        this.profilePicture = profilePicture;
-        TwoFactorAuthInfo = null;
-        passwordResetToken = null;
-        IsLoggedIn = false;
-        this.failedLoginAttempts = 0;
-        this.isLocked = false;
-        this.has2fa = false;
-    }
+  @Column(name = "has_2fa")
+  private boolean has2fa;
 
-    public UserModel() {
-    }
+  public UserModel(
+    String userName,
+    String email,
+    String PWHash,
+    String profilePicture
+  ) {
+    this.userName = userName;
+    this.email = email;
+    this.PWHash = PWHash;
+    this.profilePicture = profilePicture;
+    TwoFactorAuthInfo = null;
+    passwordResetToken = null;
+    IsLoggedIn = false;
+    this.failedLoginAttempts = 0;
+    this.isLocked = false;
+    this.has2fa = false;
+  }
 
-    public int getUserID() {
-        return UserID;
-    }
+  public UserModel() {}
 
-    public void setUserID(int userID) {
-        UserID = userID;
-    }
+  public int getUserID() {
+    return UserID;
+  }
 
-    public String getUserName() {
-        return userName;
-    }
+  public void setUserID(int userID) {
+    UserID = userID;
+  }
 
-    public void setUserName(String userName) {
-        this.userName = userName;
-    }
+  public String getUserName() {
+    return userName;
+  }
 
-    public String getEmail() {
-        return email;
-    }
+  public void setUserName(String userName) {
+    this.userName = userName;
+  }
 
-    public void setEmail(String email) {
-        this.email = email;
-    }
+  public String getEmail() {
+    return email;
+  }
 
-    public Set<OrgModel> getOrgs() {
-        return Orgs;
-    }
+  public void setEmail(String email) {
+    this.email = email;
+  }
 
-    public void setOrgs(Set<OrgModel> orgs) {
-        Orgs = orgs;
-    }
+  public Set<OrgModel> getOrgs() {
+    return Orgs;
+  }
 
-    public String getPWHash() {
-        return PWHash;
-    }
+  public void setOrgs(Set<OrgModel> orgs) {
+    Orgs = orgs;
+  }
 
-    public void setPWHash(String PWHash) {
-        this.PWHash = PWHash;
-    }
+  public String getPWHash() {
+    return PWHash;
+  }
 
-    public String getTwoFactorAuthInfo() {
-        return TwoFactorAuthInfo;
-    }
+  public void setPWHash(String PWHash) {
+    this.PWHash = PWHash;
+  }
 
-    public void setTwoFactorAuthInfo(String twoFactorAuthInfo) {
-        TwoFactorAuthInfo = twoFactorAuthInfo;
-    }
+  public String getTwoFactorAuthInfo() {
+    return TwoFactorAuthInfo;
+  }
 
-    public String getPasswordResetToken() {
-        return passwordResetToken;
-    }
+  public void setTwoFactorAuthInfo(String twoFactorAuthInfo) {
+    TwoFactorAuthInfo = twoFactorAuthInfo;
+  }
 
-    public void setPasswordResetToken(String passwordResetToken) {
-        this.passwordResetToken = passwordResetToken;
-    }
+  public String getPasswordResetToken() {
+    return passwordResetToken;
+  }
 
-    public Boolean getLoggedIn() {
-        return IsLoggedIn;
-    }
+  public void setPasswordResetToken(String passwordResetToken) {
+    this.passwordResetToken = passwordResetToken;
+  }
 
-    public void setLoggedIn(Boolean loggedIn) {
-        IsLoggedIn = loggedIn;
-    }
+  public Boolean getLoggedIn() {
+    return IsLoggedIn;
+  }
 
-    public int getFailedLoginAttempts() {
-        return failedLoginAttempts;
-    }
+  public void setLoggedIn(Boolean loggedIn) {
+    IsLoggedIn = loggedIn;
+  }
 
-    public void setFailedLoginAttempts(int failedLoginAttempts) {
-        this.failedLoginAttempts = failedLoginAttempts;
-    }
+  public int getFailedLoginAttempts() {
+    return failedLoginAttempts;
+  }
 
-    public boolean isLocked() {
-        return isLocked;
-    }
+  public void setFailedLoginAttempts(int failedLoginAttempts) {
+    this.failedLoginAttempts = failedLoginAttempts;
+  }
 
-    public void setLocked(boolean locked) {
-        isLocked = locked;
-    }
+  public boolean isLocked() {
+    return isLocked;
+  }
 
-    public String getProfilePicture() {
-        return profilePicture;
-    }
+  public void setLocked(boolean locked) {
+    isLocked = locked;
+  }
 
-    public void setProfilePicture(String profilePicture) {
-        this.profilePicture = profilePicture;
-    }
+  public String getProfilePicture() {
+    return profilePicture;
+  }
 
-    public boolean isHas2fa() {
-        return has2fa;
-    }
+  public void setProfilePicture(String profilePicture) {
+    this.profilePicture = profilePicture;
+  }
 
-    public void setHas2fa(boolean has2fa) {
-        this.has2fa = has2fa;
-    }
+  public boolean isHas2fa() {
+    return has2fa;
+  }
+
+  public void setHas2fa(boolean has2fa) {
+    this.has2fa = has2fa;
+  }
 }
-
