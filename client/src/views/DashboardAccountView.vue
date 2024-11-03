@@ -28,8 +28,8 @@
         <button
           v-for="(button, index) in buttons"
           :key="index"
-          @click="button.action"
           class="flex flex-col items-center p-6 bg-white rounded-xl shadow-lg hover:shadow-xl transition-shadow group"
+          @click="button.action"
         >
           <div
             :class="`w-16 h-16 flex items-center justify-center bg-${button.color}-100 rounded-full mb-4 group-hover:bg-${button.color}-200 transition-colors`"
@@ -53,6 +53,10 @@ import NavBar from "@/components/NavBar.vue";
 import { mapState } from "vuex";
 
 export default {
+  name: "DashboardMenu",
+  components: {
+    NavBar,
+  },
   data() {
     return {
       buttons: [
@@ -100,10 +104,6 @@ export default {
         },
       ],
     };
-  },
-  name: "DashboardMenu",
-  components: {
-    NavBar,
   },
   computed: {
     ...mapState("auth", ["isLoggedIn", "currentUser"]),

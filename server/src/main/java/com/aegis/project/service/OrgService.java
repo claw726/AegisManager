@@ -2,7 +2,6 @@ package com.aegis.project.service;
 
 import com.aegis.project.dto.OrgDTO;
 import com.aegis.project.dto.ProjectDTO;
-import com.aegis.project.dto.TaskDTO;
 import com.aegis.project.dto.UserDTO;
 import com.aegis.project.model.OrgModel;
 import com.aegis.project.model.ProjectModel;
@@ -39,9 +38,6 @@ public class OrgService {
 
   @Autowired
   private UserService userService;
-
-  @Autowired
-  private ProjectService projectService;
 
   public boolean createOrg(
     String name,

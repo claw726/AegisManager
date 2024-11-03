@@ -12,15 +12,15 @@
           </p>
           <div class="mb-4">
             <input
-              type="text"
               v-model="verificationCode"
+              type="text"
               placeholder="Enter the code"
               class="w-full p-2 border rounded"
             />
           </div>
           <button
-            @click="verify2fa"
             class="w-full bg-blue-500 text-white p-2 rounded"
+            @click="verify2fa"
           >
             Verify
           </button>
@@ -28,8 +28,8 @@
         <div v-else>
           <p class="mb-4">Verification successful. You can now disable 2FA.</p>
           <button
-            @click="disable2fa"
             class="w-full bg-red-500 text-white p-2 rounded"
+            @click="disable2fa"
           >
             Disable 2FA
           </button>
@@ -39,8 +39,8 @@
         <NotificationComponent
           :show="notification.show"
           :type="notification.type"
-          @close="closeNotification"
           class="max-w-md w-full shadow-lg rounded-lg overflow-hidden"
+          @close="closeNotification"
         >
           <div class="p-4 break-words">
             {{ notification.message }}

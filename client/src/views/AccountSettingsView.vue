@@ -92,8 +92,8 @@
                     class="relative inline-flex items-center cursor-pointer"
                   >
                     <input
-                      type="checkbox"
                       v-model="settings.twoFactorEnabled"
+                      type="checkbox"
                       class="sr-only peer"
                       @click="toggleTwoFactorAuth"
                     />
@@ -127,8 +127,8 @@
                     class="relative inline-flex items-center cursor-pointer"
                   >
                     <input
-                      type="checkbox"
                       v-model="settings.notifications[key].enabled"
+                      type="checkbox"
                       class="sr-only peer"
                     />
                     <div
@@ -202,8 +202,8 @@
       <NotificationComponent
         :show="notification.show"
         :type="notification.type"
-        @close="closeNotification"
         class="w-full shadow-lg rounded-lg overflow-hidden"
+        @close="closeNotification"
       >
         <div class="p-4 break-words">
           <!-- Added padding and word breaking -->

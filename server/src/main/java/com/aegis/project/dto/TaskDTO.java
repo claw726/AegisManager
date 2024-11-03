@@ -2,7 +2,6 @@ package com.aegis.project.dto;
 
 import com.aegis.project.model.TaskModel;
 import com.aegis.project.model.UserModel;
-import com.aegis.project.service.TaskService;
 import java.util.Date;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -19,8 +18,6 @@ public class TaskDTO {
   private String taskPriority;
   private Date dueDate;
   private boolean isComplete;
-
-  private TaskService taskService;
 
   public TaskDTO(TaskModel task) {
     this.taskID = task.getTaskID();

@@ -39,9 +39,9 @@
 
     <!-- Action Button -->
     <button
-      @click.stop="handleUserAction"
       class="ml-4 px-4 py-2 rounded-md font-medium text-sm transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-offset-2"
       :class="buttonClasses"
+      @click.stop="handleUserAction"
     >
       <i :class="buttonIcon" class="mr-2"></i>
       {{ buttonText }}

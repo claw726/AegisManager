@@ -15,14 +15,14 @@
 import OrgUserCard from "@/components/OrgUserCard.vue";
 
 export default {
+  components: {
+    OrgUserCard,
+  },
   props: {
     users: {
       type: Array,
       required: true,
     },
-  },
-  components: {
-    OrgUserCard,
   },
   methods: {
     removeUser(email) {

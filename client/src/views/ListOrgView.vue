@@ -80,8 +80,8 @@
           <!-- Create Organization Button -->
           <div class="flex justify-center mt-8">
             <button
-              @click="goToCreateOrg"
               class="inline-flex items-center px-6 py-3 bg-primary text-white rounded-lg hover:bg-secondary transition-colors duration-200"
+              @click="goToCreateOrg"
             >
               <svg
                 class="w-5 h-5 mr-2"
@@ -118,17 +118,6 @@ export default {
     NotificationComponent,
   },
 
-  computed: {
-    ...mapState("auth", ["isLoggedIn", "currentUser"]),
-    filteredOrganizations() {
-      return (this.userOrganizations || []).filter((organization) =>
-        organization.users.some(
-          (user) => user.userID === this.currentUser.userID
-        )
-      );
-    },
-  },
-
   data() {
     return {
       userOrganizations: null,
@@ -139,6 +128,17 @@ export default {
         message: "",
       },
     };
+  },
+
+  computed: {
+    ...mapState("auth", ["isLoggedIn", "currentUser"]),
+    filteredOrganizations() {
+      return (this.userOrganizations || []).filter((organization) =>
+        organization.users.some(
+          (user) => user.userID === this.currentUser.userID
+        )
+      );
+    },
   },
 
   async mounted() {

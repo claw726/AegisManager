@@ -29,9 +29,9 @@
             >Project Name:</label
           >
           <input
-            type="text"
             id="projName"
             v-model="modifiedProject.projectName"
+            type="text"
             class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent transition duration-200"
           />
         </div>
@@ -83,15 +83,15 @@
             Profile Picture</label
           >
           <input
+            ref="fileInput"
             type="file"
             accept="image/jpeg"
-            @change="handleImageUpload"
             class="hidden"
-            ref="fileInput"
+            @change="handleImageUpload"
           />
           <button
-            @click="triggerFileInput"
             class="flex items-center justify-center w-full px-4 py-2 border-2 border-dashed border-gray-300 rounded-lg hover:border-secondary hover:bg-blue-50 transition duration-200"
+            @click="triggerFileInput"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -114,8 +114,8 @@
         <!-- Submit Button -->
         <div class="flex justify-center">
           <button
-            @click="submitForm()"
             class="w-full bg-primary text-white font-medium py-3 px-4 rounded-lg hover:bg-secondary transition duration-200 flex items-center justify-center space-x-2"
+            @click="submitForm()"
           >
             Submit
           </button>
@@ -140,6 +140,10 @@ import imageCompression from "browser-image-compression";
 import NotificationComponent from "@/components/NotificationComponent.vue";
 
 export default {
+  components: {
+    NavBar,
+    NotificationComponent,
+  },
   data() {
     return {
       modifiedProject: {
@@ -156,10 +160,6 @@ export default {
         message: "",
       },
     };
-  },
-  components: {
-    NavBar,
-    NotificationComponent,
   },
   computed: {
     ...mapState("auth", ["isLoggedIn", "currentUser"]),

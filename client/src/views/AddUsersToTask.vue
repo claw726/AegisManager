@@ -19,8 +19,8 @@
             Please Enter the Assignee's Email</label
           >
           <input
-            type="text"
             v-model="email"
+            type="text"
             class="w-full border border-highlight rounded-lg p-3"
           />
         </div>
@@ -36,10 +36,10 @@
 
         <!-- Submit Button -->
         <button
-          @click="handleAddUser"
           type="submit"
-          data-testid="submit-button"
           class="w-full mt-4 bg-primary text-white font-semibold py-3 rounded-lg"
+          data-testid="submit-button"
+          @click="handleAddUser"
         >
           Submit
         </button>
@@ -58,9 +58,11 @@ export default {
     NavBar,
     NotificationComponent,
   },
-
-  computed: {
-    ...mapState("auth", ["isLoggedIn", "currentUser"]),
+  props: {
+    taskId: {
+      type: [String, Number],
+      required: true,
+    },
   },
   data() {
     return {
@@ -74,11 +76,9 @@ export default {
       },
     };
   },
-  props: {
-    taskId: {
-      type: [String, Number],
-      required: true,
-    },
+
+  computed: {
+    ...mapState("auth", ["isLoggedIn", "currentUser"]),
   },
 
   async mounted() {

@@ -3,7 +3,6 @@ package com.aegis.project.controller;
 import static org.junit.jupiter.api.Assertions.assertEquals;
 import static org.mockito.Mockito.*;
 
-import com.aegis.project.AegisApplication;
 import com.aegis.project.model.PasswordResetToken;
 import com.aegis.project.model.UserModel;
 import com.aegis.project.repository.PasswordResetTokenRepository;
@@ -13,7 +12,6 @@ import com.aegis.project.service.TokenService;
 import com.aegis.project.service.TwoFactorAuthService;
 import com.aegis.project.service.UserService;
 import java.time.LocalDateTime;
-import java.util.HashMap;
 import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
@@ -22,15 +20,13 @@ import org.junit.jupiter.api.Test;
 import org.mockito.InjectMocks;
 import org.mockito.Mock;
 import org.mockito.MockitoAnnotations;
-import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.context.SpringBootTest;
+
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.AuthenticationException;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
 public class AuthControllerTest {

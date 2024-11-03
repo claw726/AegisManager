@@ -6,8 +6,8 @@
     <div class="container mx-auto px-4 py-8">
       <!-- Back Button -->
       <button
-        @click="$router.back()"
         class="mb-6 inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-md shadow-sm hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors"
+        @click="$router.back()"
       >
         <i class="fas fa-arrow-left mr-2"></i>
         Back
@@ -29,25 +29,25 @@
           <!-- Toggle Tabs -->
           <div class="flex border-b">
             <button
-              @click="showAddUsers = true"
               :class="[
                 'flex-1 px-6 py-4 text-sm font-medium focus:outline-none transition-colors',
                 showAddUsers
                   ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50'
                   : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50',
               ]"
+              @click="showAddUsers = true"
             >
               <i class="fas fa-user-plus mr-2"></i>
               Add Users
             </button>
             <button
-              @click="showAddUsers = false"
               :class="[
                 'flex-1 px-6 py-4 text-sm font-medium focus:outline-none transition-colors',
                 !showAddUsers
                   ? 'text-blue-600 border-b-2 border-blue-600 bg-blue-50'
                   : 'text-gray-500 hover:text-gray-700 hover:bg-gray-50',
               ]"
+              @click="showAddUsers = false"
             >
               <i class="fas fa-user-minus mr-2"></i>
               Remove Users
@@ -59,8 +59,8 @@
             <div class="relative">
               <i class="fas fa-search absolute left-3 top-3 text-gray-400"></i>
               <input
-                type="text"
                 v-model="searchQuery"
+                type="text"
                 :placeholder="
                   showAddUsers
                     ? 'Search available users...'
@@ -114,6 +114,12 @@ import CurrentUsersTable from "@/components/CurrentUsersTable.vue";
 import NotificationComponent from "@/components/NotificationComponent.vue";
 
 export default {
+  components: {
+    NavBar,
+    AvailableUsersTable,
+    CurrentUsersTable,
+    NotificationComponent,
+  },
   data() {
     return {
       availableUsers: [],
@@ -126,12 +132,6 @@ export default {
         message: "",
       },
     };
-  },
-  components: {
-    NavBar,
-    AvailableUsersTable,
-    CurrentUsersTable,
-    NotificationComponent,
   },
   computed: {
     ...mapState("auth", ["isLoggedIn", "currentUser"]),
@@ -153,6 +153,9 @@ export default {
           user.email.toLowerCase().includes(query)
       );
     },
+  },
+  mounted() {
+    this.fetchOrgMembers();
   },
   methods: {
     async addUser(email) {
@@ -228,9 +231,6 @@ export default {
         );
       }
     },
-  },
-  mounted() {
-    this.fetchOrgMembers();
   },
 };
 </script>

@@ -1,7 +1,7 @@
 <template>
   <div
-    @click="goToTask()"
     class="flex flex-col justify-between p-6 rounded-lg shadow-lg hover:shadow-xl transition-shadow duration-300 bg-white border border-gray-100 hover:border-accent cursor-pointer h-full"
+    @click="goToTask()"
   >
     <!-- Header Section with Title and Status -->
     <div class="flex justify-between items-start mb-4">

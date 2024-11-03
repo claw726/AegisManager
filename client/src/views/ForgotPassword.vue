@@ -12,17 +12,17 @@
       </div>
 
       <div class="w-3/4 max-w-4xl mt-10 bg-white shadow-lg rounded-lg p-8">
-        <form @submit.prevent="resetPassword" class="flex flex-col">
+        <form class="flex flex-col" @submit.prevent="resetPassword">
           <!-- Email Field -->
           <div class="mb-4">
             <label class="block text-sm font-semibold text-gray-800 mb-2"
               >Email Address</label
             >
             <input
-              type="email"
               id="email"
-              autocomplete="on"
               v-model="email"
+              type="email"
+              autocomplete="on"
               :class="[
                 'w-full border rounded-lg p-3 transition-all duration-200',
                 errors.email
@@ -94,8 +94,8 @@
       <NotificationComponent
         :show="notification.show"
         :type="notification.type"
-        @close="closeNotification"
         class="w-full shadow-lg rounded-lg overflow-hidden"
+        @close="closeNotification"
       >
         <div class="p-4 break-words">
           <!-- Added padding and word breaking -->

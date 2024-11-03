@@ -14,8 +14,8 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
       <div class="flex items-center space-x-4">
         <button
-          @click="goBack"
           class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+          @click="goBack"
         >
           <i class="fas fa-arrow-left mr-2"></i>
           Back to Organizations
@@ -136,8 +136,8 @@
               ></i>
             </div>
             <button
-              @click="viewUsersInOrg"
               class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200"
+              @click="viewUsersInOrg"
             >
               <i class="fas fa-users mr-2"></i>
               View Organization Users
@@ -157,8 +157,8 @@
             </DropdownMenu>
           </div>
           <button
-            @click="goToCreateProject"
             class="inline-flex items-center px-6 py-3 bg-primary text-white font-medium rounded-lg hover:bg-green-700 transition duration-200 shadow-sm"
+            @click="goToCreateProject"
           >
             <i class="fas fa-plus mr-2"></i>
             Create New Project
@@ -221,33 +221,6 @@ export default {
     DropdownMenu,
     NotificationComponent,
   },
-  computed: {
-    ...mapState("auth", ["isLoggedIn", "currentUser"]),
-    projectToggleLabel() {
-      switch (this.projectToggle) {
-        case "unarchived":
-          return "Unarchived Projects";
-        case "archived":
-          return "Archived Projects";
-        case "all":
-          return "All Projects";
-        default:
-          return "";
-      }
-    },
-    filteredProjects() {
-      switch (this.projectToggle) {
-        case "unarchived":
-          return this.projects.filter((project) => !project.isArchived);
-        case "archived":
-          return this.projects.filter((project) => project.isArchived);
-        case "all":
-          return this.projects;
-        default:
-          return [];
-      }
-    },
-  },
   data() {
     return {
       org: null,
@@ -295,6 +268,33 @@ export default {
       },
       deleteConfirmation: false,
     };
+  },
+  computed: {
+    ...mapState("auth", ["isLoggedIn", "currentUser"]),
+    projectToggleLabel() {
+      switch (this.projectToggle) {
+        case "unarchived":
+          return "Unarchived Projects";
+        case "archived":
+          return "Archived Projects";
+        case "all":
+          return "All Projects";
+        default:
+          return "";
+      }
+    },
+    filteredProjects() {
+      switch (this.projectToggle) {
+        case "unarchived":
+          return this.projects.filter((project) => !project.isArchived);
+        case "archived":
+          return this.projects.filter((project) => project.isArchived);
+        case "all":
+          return this.projects;
+        default:
+          return [];
+      }
+    },
   },
   async created() {
     await this.getOrgData();

@@ -133,12 +133,6 @@ const router = createRouter({
       meta: { requiresAuth: true },
     },
     {
-      path: "/organization/:orgIndex/project/:projIndex/edit/assignUsers",
-      name: "assignUsersinProj",
-      component: () => import("./views/ListProjUsersView.vue"),
-      meta: { requiresAuth: true },
-    },
-    {
       path: "/AccountSettings",
       name: "AccountSettings",
       component: () => import("./views/AccountSettingsView.vue"),

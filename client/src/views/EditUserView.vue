@@ -8,7 +8,7 @@
       </div>
 
       <div v-if="currentUser" class="relative flex flex-col items-center py-12">
-        <form @submit.prevent="updateUserDetails" class="w-full max-w-lg">
+        <form class="w-full max-w-lg" @submit.prevent="updateUserDetails">
           <div class="mb-4">
             <label
               class="block text-gray-700 text-sm font-bold mb-2"
@@ -17,9 +17,9 @@
               Name
             </label>
             <input
+              id="userName"
               v-model="userName"
               class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              id="userName"
               type="text"
               placeholder="Enter your name"
             />
@@ -32,9 +32,9 @@
               Email
             </label>
             <input
+              id="email"
               v-model="email"
               class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              id="email"
               type="email"
               placeholder="Enter your email"
             />
@@ -47,11 +47,11 @@
               Profile Picture
             </label>
             <input
-              @change="handleFileUpload"
-              class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
               id="profilePicture"
+              class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
               type="file"
               accept="image/*"
+              @change="handleFileUpload"
             />
           </div>
           <div class="flex items-center justify-between">
@@ -65,8 +65,8 @@
       <NotificationComponent
         :show="notification.show"
         :type="notification.type"
-        @close="closeNotification"
         class="max-w-md w-full shadow-lg rounded-lg overflow-hidden"
+        @close="closeNotification"
       >
         <div class="p-4 break-words">
           {{ notification.message }}

@@ -14,8 +14,8 @@
             Task Name</label
           >
           <input
-            type="text"
             v-model="task.taskName"
+            type="text"
             class="w-full border border-highlight rounded-lg p-3"
           />
         </div>
@@ -25,8 +25,8 @@
             >Task Description</label
           >
           <input
-            type="text"
             v-model="task.taskDescription"
+            type="text"
             class="w-full border border-highlight rounded-lg p-3"
           />
         </div>
@@ -36,8 +36,8 @@
             >Due Date</label
           >
           <input
-            type="date"
             v-model="task.dueDate"
+            type="date"
             class="w-full border border-highlight rounded-lg p-3"
           />
         </div>
@@ -64,10 +64,10 @@
 
         <!-- Submit Button -->
         <button
-          @click="callCreateTask"
           type="submit"
           data-testid="submit-button"
           class="w-full mt-4 bg-primary text-white font-semibold py-3 rounded-lg"
+          @click="callCreateTask"
         >
           Submit
         </button>
@@ -85,10 +85,6 @@ export default {
   components: {
     NavBar,
     NotificationComponent,
-  },
-
-  computed: {
-    ...mapState("auth", ["isLoggedIn", "currentUser"]),
   },
   data() {
     return {
@@ -111,6 +107,10 @@ export default {
       //THIS BOOL CONTROLS WHETHER 'TASK CREATED SUCCESSFULLY' NOTIFICATION SHOULD SHOW
       //showTaskCreatedNotifBool: false,
     };
+  },
+
+  computed: {
+    ...mapState("auth", ["isLoggedIn", "currentUser"]),
   },
   watch: {},
   methods: {

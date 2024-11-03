@@ -125,8 +125,8 @@
             <!-- Main Controls Header -->
             <div class="flex justify-between items-center p-4 bg-gray-50">
               <button
-                @click="isFilterMenuOpen = !isFilterMenuOpen"
                 class="flex items-center px-4 py-2 rounded-md hover:bg-blue-50 transition-all duration-200 border border-gray-200 hover:border-blue-300 hover:shadow-md group"
+                @click="isFilterMenuOpen = !isFilterMenuOpen"
               >
                 <i
                   class="fas fa-sliders-h mr-2 text-blue-600 group-hover:rotate-180 transition-transform duration-300"
@@ -163,8 +163,8 @@
                       <label class="text-sm text-gray-600">Priority</label>
                       <select
                         v-model="selectedPriority"
-                        @change="filterTasks"
                         class="w-full border border-gray-300 rounded-md p-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        @change="filterTasks"
                       >
                         <option value="">All Priorities</option>
                         <option value="High">High</option>
@@ -174,12 +174,12 @@
                     </div>
 
                     <!-- Assigner Filter -->
-                    <div class="space-y-1" v-if="uniqueAssigners">
+                    <div v-if="uniqueAssigners" class="space-y-1">
                       <label class="text-sm text-gray-600">Assigner</label>
                       <select
                         v-model="selectedAssigner"
-                        @change="filterTasks"
                         class="w-full border border-gray-300 rounded-md p-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        @change="filterTasks"
                       >
                         <option value="">All Assigners</option>
                         <option
@@ -197,8 +197,8 @@
                       <label class="text-sm text-gray-600">Project</label>
                       <select
                         v-model="selectedProject"
-                        @change="filterTasks"
                         class="w-full border border-gray-300 rounded-md p-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        @change="filterTasks"
                       >
                         <option value="">All Projects</option>
                         <option
@@ -216,8 +216,8 @@
                       <label class="text-sm text-gray-600">Organization</label>
                       <select
                         v-model="selectedOrg"
-                        @change="filterTasks"
                         class="w-full border border-gray-300 rounded-md p-2 text-sm focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
+                        @change="filterTasks"
                       >
                         <option value="">All Organizations</option>
                         <option
@@ -245,8 +245,8 @@
                       <option value="taskPriority">Priority</option>
                     </select>
                     <button
-                      @click="toggleSortOrder"
                       class="flex items-center px-4 py-2 border border-gray-300 rounded-md hover:bg-gray-50 transition"
+                      @click="toggleSortOrder"
                     >
                       <i
                         :class="[
@@ -277,8 +277,8 @@
                     >
                       Priority: {{ selectedPriority }}
                       <button
-                        @click="selectedPriority = ''"
                         class="ml-2 text-blue-600 hover:text-blue-800"
+                        @click="selectedPriority = ''"
                       >
                         <i class="fas fa-times"></i>
                       </button>
@@ -289,8 +289,8 @@
                     >
                       Assigned By: {{ getAssignerName(selectedAssigner) }}
                       <button
-                        @click="selectedAssigner = ''"
                         class="ml-2 text-blue-600 hover:text-blue-800"
+                        @click="selectedAssigner = ''"
                       >
                         <i class="fas fa-times"></i>
                       </button>
@@ -301,8 +301,8 @@
                     >
                       Project: {{ getProjectName(selectedProject) }}
                       <button
-                        @click="selectedProject = ''"
                         class="ml-2 text-blue-600 hover:text-blue-800"
+                        @click="selectedProject = ''"
                       >
                         <i class="fas fa-times"></i>
                       </button>
@@ -313,8 +313,8 @@
                     >
                       Organization: {{ getOrgName(selectedOrg) }}
                       <button
-                        @click="selectedOrg = ''"
                         class="ml-2 text-blue-600 hover:text-blue-800"
+                        @click="selectedOrg = ''"
                       >
                         <i class="fas fa-times"></i>
                       </button>
@@ -388,27 +388,6 @@ export default {
     };
   },
 
-  async mounted() {
-    await this.fetchTasks();
-    await this.fetchUniqueAssigners();
-    await this.fetchUniqueProjects();
-    await this.fetchUniqueOrgs();
-  },
-
-  watch: {
-    searchQuery() {
-      this.filterTasks();
-    },
-
-    $route(to, from) {
-      if (to.path === from.path) {
-        this.$nextTick(() => {
-          this.$forceUpdate();
-        });
-      }
-    },
-  },
-
   computed: {
     ...mapState("tasks", ["tasks"]),
     ...mapState("auth", ["currentUser", "isLoggedIn"]),
@@ -435,6 +414,27 @@ export default {
         pending: this.filteredIncompleteTasks.length,
       };
     },
+  },
+
+  watch: {
+    searchQuery() {
+      this.filterTasks();
+    },
+
+    $route(to, from) {
+      if (to.path === from.path) {
+        this.$nextTick(() => {
+          this.$forceUpdate();
+        });
+      }
+    },
+  },
+
+  async mounted() {
+    await this.fetchTasks();
+    await this.fetchUniqueAssigners();
+    await this.fetchUniqueProjects();
+    await this.fetchUniqueOrgs();
   },
 
   methods: {

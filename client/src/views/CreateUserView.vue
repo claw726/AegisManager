@@ -16,8 +16,8 @@
               >First Name</label
             >
             <input
-              type="text"
               v-model="user.firstName"
+              type="text"
               class="w-full border border-highlight rounded-lg p-3"
               @focus="clearError('firstName')"
             />
@@ -32,8 +32,8 @@
               >Last Name</label
             >
             <input
-              type="text"
               v-model="user.lastName"
+              type="text"
               class="w-full border border-highlight rounded-lg p-3"
               @focus="clearError('lastName')"
             />
@@ -48,8 +48,8 @@
               >Email Address</label
             >
             <input
-              type="email"
               v-model="user.email"
+              type="email"
               class="w-full border border-highlight rounded-lg p-3"
               @focus="clearError('email')"
             />
@@ -64,15 +64,15 @@
               >Profile Picture</label
             >
             <input
+              ref="fileInput"
               type="file"
               accept="image/jpeg"
-              @change="handleFileUpload"
               class="hidden"
-              ref="fileInput"
+              @change="handleFileUpload"
             />
             <button
-              @click="triggerFileInput"
               class="w-full bg-primary text-white font-semibold py-3 rounded-lg"
+              @click="triggerFileInput"
             >
               Upload Image
               <span v-if="imageUploaded" class="text-gray-500 ml-2"
@@ -85,8 +85,8 @@
           <div class="w-full flex justify-center px-4 mb-4">
             <div class="w-full md:w-1/2">
               <PasswordInput
-                @update-password="updatePassword"
                 :Title="'Password'"
+                @update-password="updatePassword"
               />
               <p v-if="errors.password" class="mt-1 text-sm text-red-500">
                 {{ errors.password }}
@@ -96,9 +96,9 @@
 
           <!-- Submit Button -->
           <button
-            @click="submitForm"
             data-testid="submit-button"
             class="w-full mt-4 bg-primary text-white font-semibold py-3 rounded-lg"
+            @click="submitForm"
           >
             Submit
           </button>
@@ -128,9 +128,6 @@ export default {
     PasswordInput,
     NavBar,
   },
-  computed: {
-    ...mapState("auth", ["isLoggedIn", "error"]),
-  },
   data() {
     return {
       user: {
@@ -149,6 +146,9 @@ export default {
         general: "",
       },
     };
+  },
+  computed: {
+    ...mapState("auth", ["isLoggedIn", "error"]),
   },
   watch: {
     "user.email"(newEmail) {

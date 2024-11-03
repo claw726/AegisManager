@@ -14,8 +14,8 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
       <div class="flex items-center space-x-4">
         <button
-          @click="goBack"
           class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+          @click="goBack"
         >
           <i class="fas fa-arrow-left mr-2"></i>
           Back to Organization
@@ -159,8 +159,8 @@
             </div>
           </div>
           <button
-            @click="goToCreateTask"
             class="inline-flex items-center px-6 py-3 bg-primary text-white font-medium rounded-lg hover:bg-green-700 transition duration-200 shadow-sm"
+            @click="goToCreateTask"
           >
             <i class="fas fa-plus mr-2"></i>
             Create New Task
@@ -203,6 +203,12 @@ import DropdownMenu from "@/components/DropdownMenu.vue";
 import NotificationComponent from "@/components/NotificationComponent.vue";
 
 export default {
+  components: {
+    NavBar,
+    TaskCard,
+    DropdownMenu,
+    NotificationComponent,
+  },
   data() {
     return {
       proj: null,
@@ -239,11 +245,11 @@ export default {
       },
     };
   },
-  components: {
-    NavBar,
-    TaskCard,
-    DropdownMenu,
-    NotificationComponent,
+  computed: {
+    ...mapState("auth", ["isLoggedIn", "currentUser"]),
+    uncompletedTasks() {
+      return this.tasks.filter((task) => !task.complete);
+    },
   },
   async mounted() {
     await this.getProjData();
@@ -253,12 +259,6 @@ export default {
     setTimeout(async () => {
       await this.fetchProjectTasks();
     }, 300);
-  },
-  computed: {
-    ...mapState("auth", ["isLoggedIn", "currentUser"]),
-    uncompletedTasks() {
-      return this.tasks.filter((task) => !task.complete);
-    },
   },
   methods: {
     goToCreateTask() {

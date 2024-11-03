@@ -1,5 +1,5 @@
 import axios from "@/utils/axios.js";
-import { Buffer } from 'buffer';
+import { Buffer } from "buffer";
 
 const state = {
   isLoggedIn: false,
@@ -213,13 +213,11 @@ const actions = {
     try {
       const params = new URLSearchParams();
       params.append("userID", state.currentUser.userID);
-      const response = await axios.post("/api/auth/enable2FA", params,
-        {
-          headers: {
-            Authorization: `Bearer ${state.authToken}`,
-          },
+      const response = await axios.post("/api/auth/enable2FA", params, {
+        headers: {
+          Authorization: `Bearer ${state.authToken}`,
         },
-      );
+      });
       console.log("2FA enabled:", response.data);
       return response.data;
     } catch (error) {
@@ -227,21 +225,21 @@ const actions = {
       throw new Error("Failed to enable 2FA");
     }
   },
-  async disable2fa({ state, commit }) {
-      try {
+  async disable2fa({ state }) {
+    try {
       const params = new URLSearchParams();
       params.append("userID", state.currentUser.userID);
       const response = await axios.post("/api/auth/disable2FA", params, {
-          headers: {
+        headers: {
           Authorization: `Bearer ${state.authToken}`,
-          },
+        },
       });
       console.log("2FA disabled:", response.data);
       return response.data;
-      } catch (error) {
+    } catch (error) {
       console.error("Failed to disable 2FA:", error.response.data);
       throw new Error("Failed to disable 2FA");
-      }
+    }
   },
   async verify2fa({ commit, state }, code) {
     try {
@@ -270,13 +268,16 @@ const actions = {
         headers: {
           Authorization: `Bearer ${state.authToken}`,
         },
-        responseType: 'arraybuffer', // Ensure the response is treated as binary data
+        responseType: "arraybuffer", // Ensure the response is treated as binary data
       });
-      const qrCodeImage = `data:image/png;base64,${Buffer.from(response.data, 'binary').toString('base64')}`;
+      const qrCodeImage = `data:image/png;base64,${Buffer.from(response.data, "binary").toString("base64")}`;
       console.log("QR Code fetched:", qrCodeImage);
       return qrCodeImage;
     } catch (error) {
-      console.error("Failed to fetch QR Code:", error.response?.data || error.message);
+      console.error(
+        "Failed to fetch QR Code:",
+        error.response?.data || error.message,
+      );
       throw new Error("Failed to fetch QR Code");
     }
   },

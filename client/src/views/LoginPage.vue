@@ -11,17 +11,17 @@
       </div>
 
       <div class="w-3/4 max-w-4xl mt-10 bg-white shadow-lg rounded-lg p-8">
-        <form @submit.prevent="login" class="flex flex-wrap -mx-4">
+        <form class="flex flex-wrap -mx-4" @submit.prevent="login">
           <!-- Email Field -->
           <div class="w-full md:w-1/2 px-4 mb-4">
             <label class="block text-sm font-semibold text-gray-800 mb-2"
               >Email Address</label
             >
             <input
-              type="email"
               id="email"
-              autocomplete="on"
               v-model="email"
+              type="email"
+              autocomplete="on"
               :class="[
                 'w-full border rounded-lg p-3 transition-all duration-200',
                 errors.email
@@ -42,10 +42,10 @@
             >
             <div class="relative">
               <input
-                :type="showPassword ? 'text' : 'password'"
                 id="password"
-                autocomplete="on"
                 v-model="password"
+                :type="showPassword ? 'text' : 'password'"
+                autocomplete="on"
                 :class="[
                   'w-full border rounded-lg p-3 pr-10 transition-all duration-200',
                   errors.password
@@ -56,8 +56,8 @@
               />
               <button
                 type="button"
-                @click="showPassword = !showPassword"
                 class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                @click="showPassword = !showPassword"
               >
                 <i
                   :class="['fas', showPassword ? 'fa-eye-slash' : 'fa-eye']"
@@ -122,23 +122,23 @@
       </div>
 
       <div class="w-3/4 max-w-4xl mt-10 bg-white shadow-lg rounded-lg p-8">
-        <form @submit.prevent="verify2fa" class="flex flex-wrap -mx-4">
+        <form class="flex flex-wrap -mx-4" @submit.prevent="verify2fa">
           <!-- 2FA Code Field -->
           <div class="w-full px-4 mb-4">
             <label class="block text-sm font-semibold text-gray-800 mb-2"
               >2FA Code</label
             >
             <input
-              type="text"
               v-model="code"
+              type="text"
               :class="[
                 'w-full border rounded-lg p-3 transition-all duration-200',
                 errors.code
                   ? 'border-red-500 focus:ring-red-200'
                   : 'border-highlight focus:ring-blue-200',
               ]"
-              @focus="clearError('code')"
               required
+              @focus="clearError('code')"
             />
             <p v-if="errors.code" class="mt-1 text-sm text-red-500">
               {{ errors.code }}
@@ -174,8 +174,8 @@
       <NotificationComponent
         :show="notification.show"
         :type="notification.type"
-        @close="closeNotification"
         class="max-w-md w-full shadow-lg rounded-lg overflow-hidden"
+        @close="closeNotification"
       >
         <div class="p-4 break-words">
           {{ notification.message }}
@@ -196,9 +196,6 @@ export default {
     NavBar,
     NotificationComponent,
   },
-  computed: {
-    ...mapState("auth", ["isLoggedIn", "error"]),
-  },
   data() {
     return {
       email: "",
@@ -218,6 +215,9 @@ export default {
         message: "",
       },
     };
+  },
+  computed: {
+    ...mapState("auth", ["isLoggedIn", "error"]),
   },
   watch: {
     email(newEmail) {

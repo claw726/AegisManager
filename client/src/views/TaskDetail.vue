@@ -5,17 +5,17 @@
     <!-- Moving buttons up to clear up space -->
     <div v-if="fetchedTask" class="max-w-4xl mx-auto bg-white rounded-lg p-6">
       <button
-        @click="goBack"
         class="px-4 py-2 text-white rounded-lg hover:bg-gray-300"
         style="background-color: #555"
+        @click="goBack"
       >
         Back
       </button>
 
       <button
         v-if="!fetchedTask.complete && showLeftButton"
-        @click="markAsComplete"
         class="px-4 py-2 complete-btn text-white rounded-lg hover:bg-green-600"
+        @click="markAsComplete"
       >
         Mark Complete
       </button>
@@ -75,7 +75,7 @@
                 <h2 class="text-lg font-semibold mb-2">Assignees:</h2>
                 <p>
                   {{
-                    this.makeNameListofAssignees(
+                    makeNameListofAssignees(
                       fetchedTask.assignedUsers
                     ).toString()
                   }}
@@ -117,7 +117,7 @@
                 <h2 class="text-lg font-semibold mb-2">Assignees:</h2>
                 <p>
                   {{
-                    this.makeNameListofAssignees(
+                    makeNameListofAssignees(
                       fetchedTask.assignedUsers
                     ).toString()
                   }}
@@ -189,8 +189,8 @@
                   showLeftButton &&
                   taskUsers.length > 0
                 "
-                @click="sendAssignerInvite"
                 class="px-4 py-2 complete-btn text-white rounded-lg hover:bg-green-600"
+                @click="sendAssignerInvite"
               >
                 Confirm Reassignment
               </button>
@@ -202,32 +202,32 @@
 
               <button
                 v-if="!fetchedTask.complete && showLeftButton"
-                @click="goToAddUsers"
                 class="px-4 py-2 add-btn text-white rounded-lg hover:bg-green-600"
+                @click="goToAddUsers"
               >
                 Add Users
               </button>
 
               <button
                 v-if="!fetchedTask.complete && showLeftButton"
-                @click="goToRemoveUsers"
                 class="px-4 py-2 remove-user-btn text-white rounded-lg hover:bg-green-600"
+                @click="goToRemoveUsers"
               >
                 Remove Users
               </button>
 
               <button
                 v-if="!fetchedTask.complete && showLeftButton"
-                @click="goToEditTask"
                 class="px-4 py-2 edit-btn text-white rounded-lg hover:bg-green-600"
+                @click="goToEditTask"
               >
                 Edit Task
               </button>
 
               <button
                 v-if="showLeftButton"
-                @click="showPopup = true"
                 class="px-4 py-2 remove-btn text-gray-700 rounded-lg hover:bg-gray-300"
+                @click="showPopup = true"
               >
                 Delete Task
               </button>
@@ -235,8 +235,8 @@
               <div v-if="showPopup" class="popup">
                 <div class="popup-content">
                   <p>Are you sure you want to delete this task?</p>
-                  <button @click="handleYes" class="remove-btn">Yes</button>
-                  <button @click="handleNo" class="remove-btn">No</button>
+                  <button class="remove-btn" @click="handleYes">Yes</button>
+                  <button class="remove-btn" @click="handleNo">No</button>
                 </div>
               </div>
             </div>
@@ -255,6 +255,18 @@ import NotificationComponent from "@/components/NotificationComponent.vue";
 export default {
   name: "TaskDetail",
 
+  components: {
+    NavBar,
+    NotificationComponent,
+  },
+
+  props: {
+    taskId: {
+      type: [String, Number],
+      required: true,
+    },
+  },
+
   data() {
     return {
       isGrayedOut: null,
@@ -272,18 +284,6 @@ export default {
     };
   },
 
-  components: {
-    NavBar,
-    NotificationComponent,
-  },
-
-  props: {
-    taskId: {
-      type: [String, Number],
-      required: true,
-    },
-  },
-
   computed: {
     // Map allTasks from the tasks module
     ...mapState("tasks", ["allTasks"]),
@@ -295,6 +295,15 @@ export default {
     ...mapState("tasks", ["currentTask", "updateTask"]),
     showLeftButton() {
       return this.IsAssigner();
+    },
+  },
+
+  watch: {
+    selectedAssigner(newEmail) {
+      const selectedUser = this.taskUsers.find(
+        (user) => user.email === newEmail
+      );
+      this.selectedUserID = selectedUser ? selectedUser.ID : null;
     },
   },
 
@@ -598,15 +607,6 @@ export default {
           taskId: this.$route.params.taskId,
         },
       });
-    },
-  },
-
-  watch: {
-    selectedAssigner(newEmail) {
-      const selectedUser = this.taskUsers.find(
-        (user) => user.email === newEmail
-      );
-      this.selectedUserID = selectedUser ? selectedUser.ID : null;
     },
   },
 };

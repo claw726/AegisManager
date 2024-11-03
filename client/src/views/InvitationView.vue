@@ -37,8 +37,8 @@
             <!-- Icons: Accept and Reject -->
             <div class="flex space-x-6">
               <button
-                @click="acceptInvitation(invitation.id)"
                 class="p-3 bg-green-600 text-white rounded-full"
+                @click="acceptInvitation(invitation.id)"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"
@@ -57,8 +57,8 @@
               </button>
 
               <button
-                @click="rejectInvitation(invitation.id)"
                 class="p-3 bg-brown-600 text-white rounded-full"
+                @click="rejectInvitation(invitation.id)"
               >
                 <svg
                   xmlns="http://www.w3.org/2000/svg"

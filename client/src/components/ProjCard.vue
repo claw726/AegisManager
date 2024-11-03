@@ -1,7 +1,7 @@
 <template>
   <div
-    @click="goToProj()"
     class="group flex flex-col h-full bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 cursor-pointer overflow-hidden"
+    @click="goToProj()"
   >
     <!-- Image with overlay -->
     <div class="relative aspect-video overflow-hidden">
