@@ -4,9 +4,12 @@
     <NavBar />
 
     <!-- Main Content -->
-    <div 
-    v-if="fetchedTask"
-    class="cc text-4xl font-bold text-hunter-green mb-6">Add Users to Task</div>
+    <div
+      v-if="fetchedTask"
+      class="cc text-4xl font-bold text-hunter-green mb-6"
+    >
+      Add Users to Task
+    </div>
 
     <!-- Form Container -->
     <form @submit.prevent="handleSubmit">
@@ -22,9 +25,13 @@
           />
         </div>
 
-        <NotificationComponent class="flex" :show="notification.show" :type="notification.type"
-            @close="closeNotification">
-            {{ notification.message }}
+        <NotificationComponent
+          class="flex"
+          :show="notification.show"
+          :type="notification.type"
+          @close="closeNotification"
+        >
+          {{ notification.message }}
         </NotificationComponent>
 
         <!-- Submit Button -->
@@ -36,7 +43,6 @@
         >
           Submit
         </button>
-
       </div>
     </form>
   </div>
@@ -46,7 +52,6 @@
 import { mapState, mapActions } from "vuex";
 import NavBar from "@/components/NavBar.vue";
 import NotificationComponent from "@/components/NotificationComponent.vue";
-
 
 export default {
   components: {
@@ -67,23 +72,20 @@ export default {
         type: "error",
         message: "",
       },
-
-      notification: {
-        show: false,
-        type: "info",
-        message: "",
-      },
     };
   },
   props: {
     taskId: {
       type: [String, Number],
-      required: true
-    }
+      required: true,
+    },
   },
 
   async mounted() {
-    this.fetchedTask = await this.$store.dispatch("tasks/fetchTask", this.$route.params.taskId);
+    this.fetchedTask = await this.$store.dispatch(
+      "tasks/fetchTask",
+      this.$route.params.taskId
+    );
     console.log("Client has stored fetched task.");
   },
 
@@ -91,42 +93,45 @@ export default {
     ...mapActions("auth", ["user", "isLoggedIn", "currentUser"]),
 
     async handleAddUser() {
-        try {
-            const s = this.addUser(this.email)
-            let erroneous = false;
+      try {
+        const s = this.addUser(this.email);
+        let erroneous = false;
 
-            s.then(result => {
-                this.promiseResult = result;
-                //console.log("Promise resolved with: ", result); 
+        s.then((result) => {
+          this.promiseResult = result;
+          //console.log("Promise resolved with: ", result);
 
-                if (result == 404) {
-                    //user not found error
-                    console.log('User not found, unable to add to task.');
-                    this.showNotification("error", "User not found, unable to add to task.");
-                    erroneous = true;
-                    return;
-                }
+          if (result == 404) {
+            //user not found error
+            console.log("User not found, unable to add to task.");
+            this.showNotification(
+              "error",
+              "User not found, unable to add to task."
+            );
+            erroneous = true;
+            return;
+          }
+        }).catch((error) => {
+          console.error("Promise rejected with: ", error);
+        });
 
-            }).catch(error => {
-                console.error("Promise rejected with: ", error);
-            });
-
-            if (erroneous == false) {
-                //console.log("User added to task WEEEEEEEEEEE.");
-                this.showNotification("success", "Successfully added user to task!");
-            }
-            await new Promise(resolve => setTimeout(resolve, 2500));
-            
-        } catch (error) {
-            console.error('Failed to add user to task', error);
-            this.showNotification("error", "Unexpected error with task delegation.");
+        if (erroneous == false) {
+          //console.log("User added to task WEEEEEEEEEEE.");
+          this.showNotification("success", "Successfully added user to task!");
         }
-        this.$router.push({ name: "TDList"});
+        await new Promise((resolve) => setTimeout(resolve, 2500));
+      } catch (error) {
+        console.error("Failed to add user to task", error);
+        this.showNotification(
+          "error",
+          "Unexpected error with task delegation."
+        );
+      }
+      this.$router.push({ name: "TDList" });
     },
 
     async addUser(email) {
       try {
-
         const s = await this.$store.dispatch("tasks/addUserToTask", {
           email: email,
           taskId: this.fetchedTask.taskID,
@@ -134,13 +139,12 @@ export default {
 
         return s;
       } catch (error) {
-        console.error('Failed to add user PEEEEEE to task', error);
-
+        console.error("Failed to add user PEEEEEE to task", error);
       }
     },
 
     async getTask() {
-      console.log("Doing async method")
+      console.log("Doing async method");
       return this.$store.dispatch("tasks/fetchTask", this.taskId);
     },
 

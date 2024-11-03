@@ -1,8 +1,6 @@
 <template>
   <NavBar />
-  <div
-    class="min-h-screen bg-background py-12 px-4 sm:px-6 lg:px-8"
-  >
+  <div class="min-h-screen bg-background py-12 px-4 sm:px-6 lg:px-8">
     <div class="max-w-3xl mx-auto">
       <!-- Header -->
       <div class="text-center mb-8">
@@ -180,7 +178,7 @@ export default {
       const projIndex = this.$route.params.projIndex;
       const proj = await this.$store.dispatch(
         "projects/fetchProject",
-        projIndex,
+        projIndex
       );
       this.modifiedProject = proj;
     },
@@ -236,7 +234,7 @@ export default {
                 0,
                 0,
                 newWidth,
-                newHeight,
+                newHeight
               );
 
               // Convert the Canvas to a URL
@@ -244,7 +242,7 @@ export default {
 
               // Convert the data URL to a BLOB
               const blob = await fetch(croppedDataURL).then((res) =>
-                res.blob(),
+                res.blob()
               );
 
               // Create a new file from the BLOB
@@ -255,7 +253,7 @@ export default {
               // Compress the cropped image
               const compressedCroppedFile = await imageCompression(
                 newFile,
-                options,
+                options
               );
 
               // Read the compressed file as a data URL
@@ -274,7 +272,7 @@ export default {
           console.error("Error compressing image:", error);
           this.showNotification(
             "error",
-            "An error occurred while compressing the image. Please try again with a new file.",
+            "An error occurred while compressing the image. Please try again with a new file."
           );
         }
       } else {
@@ -291,7 +289,7 @@ export default {
       ) {
         this.showNotification(
           "error",
-          "Please ensure that the project name and description are not empty.",
+          "Please ensure that the project name and description are not empty."
         );
         return;
       }
@@ -300,7 +298,7 @@ export default {
       if (this.modifiedProject.projectOwnerID !== this.currentUser.userID) {
         this.showNotification(
           "error",
-          "Error determining your identity! Please log out and back in to continue.",
+          "Error determining your identity! Please log out and back in to continue."
         );
         return;
       }
@@ -316,7 +314,7 @@ export default {
       } catch (error) {
         this.showNotification(
           "error",
-          "An error occurred while updating the organization. Please try again.",
+          "An error occurred while updating the organization. Please try again."
         );
       }
     },

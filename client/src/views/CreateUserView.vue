@@ -215,7 +215,7 @@ export default {
                 0,
                 0,
                 newWidth,
-                newHeight,
+                newHeight
               );
 
               // Convert the Canvas to a URL
@@ -223,7 +223,7 @@ export default {
 
               // Convert the data URL to a BLOB
               const blob = await fetch(croppedDataURL).then((res) =>
-                res.blob(),
+                res.blob()
               );
 
               // Create a new file from the BLOB
@@ -234,7 +234,7 @@ export default {
               // Compress the cropped image
               const compressedCroppedFile = await imageCompression(
                 newFile,
-                options,
+                options
               );
 
               // Read the compressed file as a data URL

@@ -4,9 +4,12 @@
     <NavBar />
 
     <!-- Main Content -->
-    <div 
-    v-if="fetchedTask"
-    class="cc text-4xl font-bold text-hunter-green mb-6">Remove Users From Task</div>
+    <div
+      v-if="fetchedTask"
+      class="cc text-4xl font-bold text-hunter-green mb-6"
+    >
+      Remove Users From Task
+    </div>
 
     <!-- Form Container -->
     <form @submit.prevent="handleSubmit">
@@ -22,9 +25,13 @@
           />
         </div>
 
-        <NotificationComponent class="flex" :show="notification.show" :type="notification.type"
-            @close="closeNotification">
-            {{ notification.message }}
+        <NotificationComponent
+          class="flex"
+          :show="notification.show"
+          :type="notification.type"
+          @close="closeNotification"
+        >
+          {{ notification.message }}
         </NotificationComponent>
 
         <!-- Submit Button -->
@@ -36,7 +43,6 @@
         >
           Submit
         </button>
-
       </div>
     </form>
   </div>
@@ -46,7 +52,6 @@
 import { mapState, mapActions } from "vuex";
 import NavBar from "@/components/NavBar.vue";
 import NotificationComponent from "@/components/NotificationComponent.vue";
-
 
 export default {
   components: {
@@ -78,12 +83,15 @@ export default {
   props: {
     taskId: {
       type: [String, Number],
-      required: true
-    }
+      required: true,
+    },
   },
 
   async mounted() {
-    this.fetchedTask = await this.$store.dispatch("tasks/fetchTask", this.$route.params.taskId);
+    this.fetchedTask = await this.$store.dispatch(
+      "tasks/fetchTask",
+      this.$route.params.taskId
+    );
     console.log("Client has stored fetched task.");
   },
 
@@ -91,59 +99,70 @@ export default {
     ...mapActions("auth", ["user", "isLoggedIn", "currentUser"]),
 
     async handleRemoveUser() {
-        console.log("Inside handleremoveuser.");
-        let erroneous = false;
-        
-        try {
-            const s = this.removeUser(this.email)
+      console.log("Inside handleremoveuser.");
+      let erroneous = false;
 
-            s.then(result => {
-                this.promiseResult = result;
-                //console.log("Promise resolved with: ", result); 
+      try {
+        const s = this.removeUser(this.email);
 
-                if (result == 403) {
-                    console.log('You do not have permission to to remove user to task, unable to remove to task.');
-                    this.showNotification("error", "You do not have permission to remove user to task, unable to add to task.");
-                    erroneous = true;
-                    return;
-                }
+        s.then((result) => {
+          this.promiseResult = result;
+          //console.log("Promise resolved with: ", result);
 
-                if (result == 404) {
-                    console.log('Invalid user, unable to remove from task.');
-                    this.showNotification("error", "Invalid user, unable to remove from task.");
-                    erroneous = true;
-                    return;
-                }
+          if (result == 403) {
+            console.log(
+              "You do not have permission to to remove user to task, unable to remove to task."
+            );
+            this.showNotification(
+              "error",
+              "You do not have permission to remove user to task, unable to add to task."
+            );
+            erroneous = true;
+            return;
+          }
 
-                if (result == false) {
-                    this.showNotification("success", "Successfully removed user from task!");
-                    return;
-                }
+          if (result == 404) {
+            console.log("Invalid user, unable to remove from task.");
+            this.showNotification(
+              "error",
+              "Invalid user, unable to remove from task."
+            );
+            erroneous = true;
+            return;
+          }
 
-            }).catch(error => {
-                console.error("Promise rejected with: ", error);
-            });
+          if (result == false) {
+            this.showNotification(
+              "success",
+              "Successfully removed user from task!"
+            );
+            return;
+          }
+        }).catch((error) => {
+          console.error("Promise rejected with: ", error);
+        });
 
-            await new Promise(resolve => setTimeout(resolve, 2500));
+        await new Promise((resolve) => setTimeout(resolve, 2500));
 
-            if (s == true) {
-                console.log("Removed user successfully inside handle.");
-            }
-            
-            if (erroneous = false) {
-                await new Promise(resolve => setTimeout(resolve, 2500));
-            }
-            
-        } catch (error) {
-            console.error('Failed to remove user to task', error);
-            this.showNotification("error", "Unexpected error with task user removing.");
+        if (s == true) {
+          console.log("Removed user successfully inside handle.");
         }
-        this.$router.push({ name: "TDList"});
+
+        if ((erroneous = false)) {
+          await new Promise((resolve) => setTimeout(resolve, 2500));
+        }
+      } catch (error) {
+        console.error("Failed to remove user to task", error);
+        this.showNotification(
+          "error",
+          "Unexpected error with task user removing."
+        );
+      }
+      this.$router.push({ name: "TDList" });
     },
 
     async removeUser(email) {
       try {
-
         const s = await this.$store.dispatch("tasks/removeUserToTask", {
           email: email,
           taskId: this.fetchedTask.taskID,
@@ -154,14 +173,13 @@ export default {
         }
         return s;
       } catch (error) {
-        console.error('Failed to remove user to task', error);
+        console.error("Failed to remove user to task", error);
         return 999;
       }
-      
     },
 
     async getTask() {
-      console.log("Doing async method")
+      console.log("Doing async method");
       return this.$store.dispatch("tasks/fetchTask", this.taskId);
     },
 

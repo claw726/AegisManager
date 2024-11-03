@@ -53,9 +53,13 @@
           </select>
         </div>
 
-        <NotificationComponent class="flex" :show="notification.show" :type="notification.type"
-            @close="closeNotification">
-            {{ notification.message }}
+        <NotificationComponent
+          class="flex"
+          :show="notification.show"
+          :type="notification.type"
+          @close="closeNotification"
+        >
+          {{ notification.message }}
         </NotificationComponent>
 
         <!-- Submit Button -->
@@ -77,11 +81,10 @@ import { mapState, mapActions } from "vuex";
 import NavBar from "@/components/NavBar.vue";
 import NotificationComponent from "@/components/NotificationComponent.vue";
 
-
 export default {
   components: {
     NavBar,
-    NotificationComponent
+    NotificationComponent,
   },
 
   computed: {
@@ -112,7 +115,7 @@ export default {
   watch: {},
   methods: {
     ...mapActions("auth", ["user", "isLoggedIn", "currentUser"]),
-    
+
     async callCreateTask() {
       const t = {
         dueDate: this.task.dueDate.toString().concat("T11:00:11.000Z"),
@@ -132,17 +135,18 @@ export default {
 
         //ADD NOTIFICATION HERE FOR TASK SUCCESSFULLY CREATED
         this.showNotification("success", "Successfully created task!");
-        await new Promise(resolve => setTimeout(resolve, 2000));
-      
-      } catch(error) {
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+      } catch (error) {
         console.log("Task cannot be created.");
-        this.showNotification("error", "Unexpected error with task delegation.");
-        await new Promise(resolve => setTimeout(resolve, 1500));
+        this.showNotification(
+          "error",
+          "Unexpected error with task delegation."
+        );
+        await new Promise((resolve) => setTimeout(resolve, 1500));
       }
       //will remove this afrer notifiction is implemented
       this.$router.go(-1);
       //this.$forceUpdate();
-      
     },
 
     showNotification(type, message) {

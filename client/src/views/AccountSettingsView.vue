@@ -243,7 +243,7 @@ library.add(
   faUserShield,
   faChevronRight,
   faTriangleExclamation,
-  faTrash,
+  faTrash
 );
 
 export default {
@@ -303,17 +303,17 @@ export default {
       try {
         await this.$store.dispatch(
           "auth/requestPasswordReset",
-          this.currentUser.email,
+          this.currentUser.email
         );
         this.showNotification(
           "success",
-          "Password reset email sent to " + this.currentUser.email,
+          "Password reset email sent to " + this.currentUser.email
         );
       } catch (error) {
         this.showNotification(
           "error",
           "Failed to send reset email: " +
-            (error.response?.data || error.message),
+            (error.response?.data || error.message)
         );
       }
     },
@@ -325,7 +325,7 @@ export default {
       // Implement account deletion confirmation dialog
       this.showNotification(
         "warning",
-        "Account deletion requires confirmation",
+        "Account deletion requires confirmation"
       );
     },
     showNotification(type, message) {

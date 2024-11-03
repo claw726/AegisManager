@@ -1,5 +1,5 @@
 # Stage 1: Build
-FROM node:21-alpine AS builder
+FROM node:current-alpine AS builder
 
 # Set the working directory inside the container
 WORKDIR /app

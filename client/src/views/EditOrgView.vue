@@ -176,7 +176,7 @@ export default {
       const orgID = this.$route.params.orgIndex; // Ensure you are getting the correct orgID
       this.modifiedOrganization = await this.$store.dispatch(
         "organizations/fetchOrganization",
-        orgID,
+        orgID
       );
       console.log("Fetched Organization:", this.modifiedOrganization); // Log the fetched organization
     } catch (error) {
@@ -246,7 +246,7 @@ export default {
                 0,
                 0,
                 newWidth,
-                newHeight,
+                newHeight
               );
 
               // Convert the Canvas to a URL
@@ -254,7 +254,7 @@ export default {
 
               // Convert the data URL to a BLOB
               const blob = await fetch(croppedDataURL).then((res) =>
-                res.blob(),
+                res.blob()
               );
 
               // Create a new file from the BLOB
@@ -265,7 +265,7 @@ export default {
               // Compress the cropped image
               const compressedCroppedFile = await imageCompression(
                 newFile,
-                options,
+                options
               );
 
               // Read the compressed file as a data URL
@@ -284,7 +284,7 @@ export default {
           console.error("Error compressing image:", error);
           this.showNotification(
             "error",
-            "An error occurred while compressing the image. Please try again with a new file.",
+            "An error occurred while compressing the image. Please try again with a new file."
           );
         }
       } else {
@@ -296,11 +296,11 @@ export default {
       if (this.modifiedOrganization.orgOwnerID !== this.currentUser.userID) {
         console.log(
           this.modifiedOrganization.orgOwnerID,
-          this.currentUser.userID,
+          this.currentUser.userID
         );
         this.showNotification(
           "error",
-          "Error determining your identity! Please log out and back in to continue.",
+          "Error determining your identity! Please log out and back in to continue."
         );
         return;
       }
@@ -319,7 +319,7 @@ export default {
       } catch (error) {
         this.showNotification(
           "error",
-          "An error occurred while updating the organization. Please try again.",
+          "An error occurred while updating the organization. Please try again."
         );
       }
     },

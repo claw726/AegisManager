@@ -141,7 +141,7 @@ export default {
       return this.availableUsers.filter(
         (user) =>
           user.userName.toLowerCase().includes(query) ||
-          user.email.toLowerCase().includes(query),
+          user.email.toLowerCase().includes(query)
       );
     },
     filteredMembers() {
@@ -150,7 +150,7 @@ export default {
       return this.members.filter(
         (user) =>
           user.userName.toLowerCase().includes(query) ||
-          user.email.toLowerCase().includes(query),
+          user.email.toLowerCase().includes(query)
       );
     },
   },
@@ -164,13 +164,13 @@ export default {
         });
         this.showNotification(
           "success",
-          `Successfully added ${email} to organization`,
+          `Successfully added ${email} to organization`
         );
         await this.fetchOrgMembers();
       } catch (error) {
         this.showNotification(
           "error",
-          `Failed to add user: ${error.response?.data || error.message}`,
+          `Failed to add user: ${error.response?.data || error.message}`
         );
       }
     },
@@ -183,13 +183,13 @@ export default {
         });
         this.showNotification(
           "success",
-          `Successfully removed ${email} from organization`,
+          `Successfully removed ${email} from organization`
         );
         await this.fetchOrgMembers();
       } catch (error) {
         this.showNotification(
           "error",
-          `Failed to remove user: ${error.response?.data || error.message}`,
+          `Failed to remove user: ${error.response?.data || error.message}`
         );
       }
     },
@@ -213,18 +213,18 @@ export default {
 
         this.members = await this.$store.dispatch(
           "organizations/fetchOrgMembers",
-          orgID,
+          orgID
         );
         const allUsers = await this.$store.dispatch("users/fetchAllUsers");
 
         const memberIDs = this.members.map((member) => member.userID);
         this.availableUsers = allUsers.filter(
-          (user) => !memberIDs.includes(user.userID),
+          (user) => !memberIDs.includes(user.userID)
         );
       } catch (error) {
         this.showNotification(
           "error",
-          "Failed to load users. Please try again later.",
+          "Failed to load users. Please try again later."
         );
       }
     },

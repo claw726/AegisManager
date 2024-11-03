@@ -4,9 +4,12 @@
     <NavBar />
 
     <!-- Main Content -->
-    <div 
-    v-if="fetchedTask"
-    class="cc text-4xl font-bold text-hunter-green mb-6">Edit Task</div>
+    <div
+      v-if="fetchedTask"
+      class="cc text-4xl font-bold text-hunter-green mb-6"
+    >
+      Edit Task
+    </div>
 
     <!-- Form Container -->
     <form @submit.prevent="handleSubmit">
@@ -55,9 +58,13 @@
           </select>
         </div>
 
-        <NotificationComponent class="flex" :show="notification.show" :type="notification.type"
-            @close="closeNotification">
-            {{ notification.message }}
+        <NotificationComponent
+          class="flex"
+          :show="notification.show"
+          :type="notification.type"
+          @close="closeNotification"
+        >
+          {{ notification.message }}
         </NotificationComponent>
 
         <!-- Submit Button -->
@@ -107,17 +114,19 @@ export default {
         message: "",
       },
     };
-
   },
   props: {
     taskId: {
       type: [String, Number],
-      required: true
-    }
+      required: true,
+    },
   },
 
   async mounted() {
-    this.fetchedTask = await this.$store.dispatch("tasks/fetchTask", this.$route.params.taskId);
+    this.fetchedTask = await this.$store.dispatch(
+      "tasks/fetchTask",
+      this.$route.params.taskId
+    );
     console.log("Client has stored fetched task.");
   },
 
@@ -125,28 +134,24 @@ export default {
     ...mapActions("auth", ["user", "isLoggedIn", "currentUser"]),
 
     async handleEditTask() {
-        try {
+      try {
+        this.editTask();
+        console.log("Task has been edited.");
+        this.showNotification("success", "Task successfully edited!");
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+      } catch (error) {
+        console.log("Error editing task.");
+        this.showNotification("error", "Task was not edited!");
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+      }
 
-            this.editTask();
-            console.log("Task has been edited.");
-            this.showNotification("success", "Task successfully edited!");
-            await new Promise(resolve => setTimeout(resolve, 2000));
-
-        } catch (error) {
-            console.log("Error editing task.")
-            this.showNotification("error", "Task was not edited!");
-            await new Promise(resolve => setTimeout(resolve, 2000));
-
-        }
-
-        //Show task again but refreshed with edits, random query to refres h
-        this.$router.push({ name: "TDList"});
-        this.$forceUpdate();
+      //Show task again but refreshed with edits, random query to refres h
+      this.$router.push({ name: "TDList" });
+      this.$forceUpdate();
     },
 
     async editTask() {
       try {
-
         //New date format is: "2024-11-01 T11:00:11.000+00:00T15:30:00.000z"
         //const dueDate = `${this.fetchedTask.dueDate}T15:30:00.000z`;
         const dueDate = `${this.fetchedTask.dueDate}T11:00:11.000+00:00T15:30:00.000z`;
@@ -171,10 +176,8 @@ export default {
         //this.showNotification("success", "Task successfully edited!");
         //await new Promise(resolve => setTimeout(resolve, 2500));
         return s;
-        
-
       } catch (error) {
-        console.error('Failed to edit task', error);
+        console.error("Failed to edit task", error);
         // Error will be handled by Vuex store and displayed via updateStatus
       }
     },
@@ -185,8 +188,6 @@ export default {
         type: type,
         message: message,
       };
-
-      
     },
 
     closeNotification() {
@@ -194,10 +195,9 @@ export default {
     },
 
     async getTask() {
-      console.log("Doing async method")
+      console.log("Doing async method");
       return this.$store.dispatch("tasks/fetchTask", this.taskId);
     },
-
   },
 };
 </script>

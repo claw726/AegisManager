@@ -1,20 +1,19 @@
-import store from '@/store/index.js';
+import store from "@/store/index.js";
 
 /**
  * Auto-magically logs out users when the close the tab or the browser
  */
 
 export function logout() {
+  localStorage.removeItem("CurrentUser");
 
-    localStorage.removeItem('CurrentUser');
+  store.dispatch("auth/logout");
+}
 
-    store.dispatch('auth/logout');
-  }
-  
-  export function addBeforeUnloadListener() {
-    window.addEventListener('beforeunload', logout);
-  }
-  
-  export function removeBeforeUnloadListener() {
-    window.removeEventListener('beforeunload', logout);
-  }
+export function addBeforeUnloadListener() {
+  window.addEventListener("beforeunload", logout);
+}
+
+export function removeBeforeUnloadListener() {
+  window.removeEventListener("beforeunload", logout);
+}

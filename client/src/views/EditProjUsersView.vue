@@ -141,7 +141,7 @@ export default {
       return this.availableUsers.filter(
         (user) =>
           user.userName.toLowerCase().includes(query) ||
-          user.email.toLowerCase().includes(query),
+          user.email.toLowerCase().includes(query)
       );
     },
     filteredMembers() {
@@ -150,7 +150,7 @@ export default {
       return this.members.filter(
         (user) =>
           user.userName.toLowerCase().includes(query) ||
-          user.email.toLowerCase().includes(query),
+          user.email.toLowerCase().includes(query)
       );
     },
   },
@@ -168,14 +168,14 @@ export default {
         });
         this.showNotification(
           "success",
-          `Successfully added ${email} to project`,
+          `Successfully added ${email} to project`
         );
         this.fetchProjMembers();
       } catch (error) {
         this.showNotification(
           "error",
           "Failed to add user to Project: " +
-            (error.response?.data || error.message),
+            (error.response?.data || error.message)
         );
       }
     },
@@ -188,14 +188,14 @@ export default {
         });
         this.showNotification(
           "success",
-          `Successfully removed ${email} from project`,
+          `Successfully removed ${email} from project`
         );
         this.fetchProjMembers();
       } catch (error) {
         this.showNotification(
           "error",
           "Failed to remove member from Project: " +
-            (error.response?.data || error.message),
+            (error.response?.data || error.message)
         );
       }
     },
@@ -213,21 +213,21 @@ export default {
         // Fetch proj members
         this.members = await this.$store.dispatch(
           "projects/fetchProjectMembers",
-          projID,
+          projID
         );
         console.log("Organization Members:", this.members);
 
         // Fetch all org users
         const allUsers = await this.$store.dispatch(
           "organizations/fetchOrgMembers",
-          orgID,
+          orgID
         );
         console.log("All org Users:", allUsers);
 
         // Filter out users who are not a member of this project
         const memberIDs = this.members.map((member) => member.userID);
         this.availableUsers = allUsers.filter(
-          (user) => !memberIDs.includes(user.userID),
+          (user) => !memberIDs.includes(user.userID)
         );
       } catch (error) {
         console.error("Error fetching project members:", error.message);

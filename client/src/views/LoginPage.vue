@@ -14,50 +14,64 @@
         <form @submit.prevent="login" class="flex flex-wrap -mx-4">
           <!-- Email Field -->
           <div class="w-full md:w-1/2 px-4 mb-4">
-            <label class="block text-sm font-semibold text-gray-800 mb-2">Email Address</label>
+            <label class="block text-sm font-semibold text-gray-800 mb-2"
+              >Email Address</label
+            >
             <input
-                type="email"
-                id="email"
-                autocomplete="on"
-                v-model="email"
-                :class="[
+              type="email"
+              id="email"
+              autocomplete="on"
+              v-model="email"
+              :class="[
                 'w-full border rounded-lg p-3 transition-all duration-200',
-                errors.email ? 'border-red-500 focus:ring-red-200' : 'border-highlight focus:ring-blue-200',
+                errors.email
+                  ? 'border-red-500 focus:ring-red-200'
+                  : 'border-highlight focus:ring-blue-200',
               ]"
-                @focus="clearError('email')"
+              @focus="clearError('email')"
             />
-            <p v-if="errors.email" class="mt-1 text-sm text-red-500">{{ errors.email }}</p>
+            <p v-if="errors.email" class="mt-1 text-sm text-red-500">
+              {{ errors.email }}
+            </p>
           </div>
 
           <!-- Password Field -->
           <div class="w-full md:w-1/2 px-4 mb-4">
-            <label class="block text-sm font-semibold text-gray-800 mb-2">Password</label>
+            <label class="block text-sm font-semibold text-gray-800 mb-2"
+              >Password</label
+            >
             <div class="relative">
               <input
-                  :type="showPassword ? 'text' : 'password'"
-                  id="password"
-                  autocomplete="on"
-                  v-model="password"
-                  :class="[
+                :type="showPassword ? 'text' : 'password'"
+                id="password"
+                autocomplete="on"
+                v-model="password"
+                :class="[
                   'w-full border rounded-lg p-3 pr-10 transition-all duration-200',
-                  errors.password ? 'border-red-500 focus:ring-red-200' : 'border-highlight focus:ring-blue-200',
+                  errors.password
+                    ? 'border-red-500 focus:ring-red-200'
+                    : 'border-highlight focus:ring-blue-200',
                 ]"
-                  @focus="clearError('password')"
+                @focus="clearError('password')"
               />
               <button
-                  type="button"
-                  @click="showPassword = !showPassword"
-                  class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
+                type="button"
+                @click="showPassword = !showPassword"
+                class="absolute right-3 top-1/2 transform -translate-y-1/2 text-gray-500 hover:text-gray-700"
               >
-                <i :class="['fas', showPassword ? 'fa-eye-slash' : 'fa-eye']"></i>
+                <i
+                  :class="['fas', showPassword ? 'fa-eye-slash' : 'fa-eye']"
+                ></i>
               </button>
             </div>
-            <p v-if="errors.password" class="mt-1 text-sm text-red-500">{{ errors.password }}</p>
+            <p v-if="errors.password" class="mt-1 text-sm text-red-500">
+              {{ errors.password }}
+            </p>
             <!-- Forgot Password Link -->
             <div class="mt-2 flex justify-end">
               <router-link
-                  to="/forgot-password"
-                  class="text-sm text-primary hover:text-primary-dark transition-colors duration-200"
+                to="/forgot-password"
+                class="text-sm text-primary hover:text-primary-dark transition-colors duration-200"
               >
                 <i class="fas fa-key mr-1"></i>
                 Forgot Password?
@@ -68,11 +82,13 @@
           <!-- Login Button -->
           <div class="w-full px-4">
             <button
-                type="submit"
-                :disabled="isLoading"
-                :class="[
+              type="submit"
+              :disabled="isLoading"
+              :class="[
                 'w-full mt-4 font-semibold py-3 rounded-lg transition-all duration-200',
-                isLoading ? 'bg-gray-400 cursor-not-allowed' : 'bg-primary hover:bg-primary-dark',
+                isLoading
+                  ? 'bg-gray-400 cursor-not-allowed'
+                  : 'bg-primary hover:bg-primary-dark',
                 'text-white',
               ]"
             >
@@ -87,8 +103,8 @@
           <!-- General Error Message -->
           <div v-if="error" class="w-full px-4 mt-4">
             <div
-                class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
-                role="alert"
+              class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
+              role="alert"
             >
               <span class="block sm:inline">{{ error }}</span>
             </div>
@@ -109,28 +125,36 @@
         <form @submit.prevent="verify2fa" class="flex flex-wrap -mx-4">
           <!-- 2FA Code Field -->
           <div class="w-full px-4 mb-4">
-            <label class="block text-sm font-semibold text-gray-800 mb-2">2FA Code</label>
+            <label class="block text-sm font-semibold text-gray-800 mb-2"
+              >2FA Code</label
+            >
             <input
-                type="text"
-                v-model="code"
-                :class="[
+              type="text"
+              v-model="code"
+              :class="[
                 'w-full border rounded-lg p-3 transition-all duration-200',
-                errors.code ? 'border-red-500 focus:ring-red-200' : 'border-highlight focus:ring-blue-200',
+                errors.code
+                  ? 'border-red-500 focus:ring-red-200'
+                  : 'border-highlight focus:ring-blue-200',
               ]"
-                @focus="clearError('code')"
-                required
+              @focus="clearError('code')"
+              required
             />
-            <p v-if="errors.code" class="mt-1 text-sm text-red-500">{{ errors.code }}</p>
+            <p v-if="errors.code" class="mt-1 text-sm text-red-500">
+              {{ errors.code }}
+            </p>
           </div>
 
           <!-- Verify Button -->
           <div class="w-full px-4">
             <button
-                type="submit"
-                :disabled="isLoading"
-                :class="[
+              type="submit"
+              :disabled="isLoading"
+              :class="[
                 'w-full mt-4 font-semibold py-3 rounded-lg transition-all duration-200',
-                isLoading ? 'bg-gray-400 cursor-not-allowed' : 'bg-primary hover:bg-primary-dark',
+                isLoading
+                  ? 'bg-gray-400 cursor-not-allowed'
+                  : 'bg-primary hover:bg-primary-dark',
                 'text-white',
               ]"
             >
@@ -148,10 +172,10 @@
     <!-- Centered Notification Component -->
     <div class="flex justify-center mt-4">
       <NotificationComponent
-          :show="notification.show"
-          :type="notification.type"
-          @close="closeNotification"
-          class="max-w-md w-full shadow-lg rounded-lg overflow-hidden"
+        :show="notification.show"
+        :type="notification.type"
+        @close="closeNotification"
+        class="max-w-md w-full shadow-lg rounded-lg overflow-hidden"
       >
         <div class="p-4 break-words">
           {{ notification.message }}
@@ -165,7 +189,7 @@
 import NavBar from "@/components/NavBar.vue";
 import NotificationComponent from "@/components/NotificationComponent.vue";
 import { mapState } from "vuex";
-import { connect } from '@/utils/websocket.js';
+import { connect } from "@/utils/websocket.js";
 
 export default {
   components: {
@@ -257,7 +281,8 @@ export default {
         }
       } catch (error) {
         console.error("Error during login:", error);
-        this.errors.general = error.response?.data?.message || "An unexpected error occurred.";
+        this.errors.general =
+          error.response?.data?.message || "An unexpected error occurred.";
       } finally {
         this.isLoading = false;
       }
@@ -274,7 +299,10 @@ export default {
           this.$router.push({ name: "Dashboard" });
         }, 2000);
       } catch (error) {
-        this.showNotification("error", error.message || "An unexpected error occurred.");
+        this.showNotification(
+          "error",
+          error.message || "An unexpected error occurred."
+        );
       } finally {
         this.isLoading = false;
       }

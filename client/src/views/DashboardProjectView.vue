@@ -416,9 +416,7 @@ export default {
           this.$router.push({ name: "OrganizationDashboard" });
         }, 1500);
       } catch (err) {
-        this.showNotification(
-          "error",
-        );
+        this.showNotification("error");
         console.error(err);
       }
 
