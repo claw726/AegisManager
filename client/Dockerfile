@@ -1,5 +1,5 @@
 # Stage 1: Build
-FROM node:lts-alpine AS builder
+FROM node:current-alpine AS builder
 
 # Set the working directory inside the container
 WORKDIR /app
@@ -13,7 +13,7 @@ ENV NODE_ENV=production \
     NPM_CONFIG_LOGLEVEL=error
 
 # Install the app dependencies with specific optimizations
-RUN npm ci --only=production && \
+RUN npm ci --verbose --only=production && \
     npm cache clean --force
 
 # Copy necessary config files
@@ -23,7 +23,7 @@ COPY . .
 RUN npm run build
 
 # Stage 2: Serve
-FROM nginx:stable-alpine AS production
+FROM nginx:1.27-alpine-slim AS production
 
 # Set the working directory inside the container
 WORKDIR /app
@@ -54,7 +54,7 @@ RUN chown -R nginx:nginx /usr/share/nginx/html && \
 
 # Add healthcheck
 HEALTHCHECK --interval=30s --timeout=3s \
-  CMD curl -f http://localhost:8081/health || exit 1
+  CMD curl -k https://localhost:8443/health || exit 1
 
 # Expose the port on which the app will run
 EXPOSE 8081 8443

@@ -41,13 +41,13 @@ const actions = {
           headers: {
             Authorization: `Bearer ${rootState.auth.authToken}`,
           },
-        }
+        },
       );
       return response.data;
     } catch (error) {
       console.error(
         `Failed to fetch projects for org ${orgID}:`,
-        error.response ? error.response.data : error.message
+        error.response ? error.response.data : error.message,
       );
       throw new Error("Failed to fetch projects");
     }
@@ -69,7 +69,7 @@ const actions = {
     } catch (error) {
       console.error(
         "Error creating project:",
-        error.response ? error.response.data : error.message
+        error.response ? error.response.data : error.message,
       );
       throw new Error("Failed to Create Project");
     }
@@ -104,7 +104,8 @@ const actions = {
       } else {
         console.error("Error deleting project:", error.message);
         errorMessage = `Error: ${error.message}`;
-      } throw new Error(errorMessage);
+      }
+      throw new Error(errorMessage);
     }
   },
   async modifyProject({ rootState }, { project, projectID }) {
@@ -123,7 +124,7 @@ const actions = {
     } catch (error) {
       console.error(
         "Failed to modify project:",
-        error.response ? error.response.data : error.message
+        error.response ? error.response.data : error.message,
       );
       throw new Error("Failed to modify project");
     }
@@ -139,7 +140,7 @@ const actions = {
     } catch (error) {
       console.error(
         `Failed to fetch project ${projID}`,
-        error.response ? error.response.data : error.message
+        error.response ? error.response.data : error.message,
       );
       throw new Error("Failed to fetch project");
     }
@@ -155,7 +156,7 @@ const actions = {
     } catch (error) {
       console.error(
         "Error fetching project members: ",
-        error.response?.data || error.message
+        error.response?.data || error.message,
       );
       throw error;
     }
@@ -172,13 +173,13 @@ const actions = {
           headers: {
             Authorization: `Bearer ${rootState.auth.authToken}`,
           },
-        }
+        },
       );
       return response.data;
     } catch (error) {
       console.error(
         "Error removing user from project: ",
-        error.response?.data || error.message
+        error.response?.data || error.message,
       );
       throw error;
     }
@@ -194,13 +195,13 @@ const actions = {
           headers: {
             Authorization: `Bearer ${rootState.auth.authToken}`,
           },
-        }
+        },
       );
       return response.data;
     } catch (error) {
       console.error(
         "Error adding user to project: ",
-        error.response?.data || error.message
+        error.response?.data || error.message,
       );
       throw error;
     }
@@ -213,7 +214,7 @@ const actions = {
           headers: {
             Authorization: `Bearer ${rootState.auth.authToken}`,
           },
-        }
+        },
       );
       return response.data;
     } catch (error) {
@@ -252,13 +253,13 @@ const actions = {
           headers: {
             Authorization: `Bearer ${rootState.auth.authToken}`,
           },
-        }
+        },
       );
       return response.data;
     } catch (error) {
       console.error(
         "Error changing archived status: ",
-        error.response?.data || error.message
+        error.response?.data || error.message,
       );
       var errorMessage = "An error occurred while changing archived status.";
       if (error.response) {

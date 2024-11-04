@@ -2,35 +2,45 @@
   <div>
     <Navbar />
     <div class="container mx-auto p-4">
-      <h1 class="text-2xl font-semibold mb-4">Disable Two-Factor Authentication</h1>
+      <h1 class="text-2xl font-semibold mb-4">
+        Disable Two-Factor Authentication
+      </h1>
       <div class="bg-white shadow-md rounded-lg p-6">
         <div v-if="!isVerified">
-          <p class="mb-4">Enter the code from your authenticator app to verify:</p>
+          <p class="mb-4">
+            Enter the code from your authenticator app to verify:
+          </p>
           <div class="mb-4">
             <input
-                type="text"
-                v-model="verificationCode"
-                placeholder="Enter the code"
-                class="w-full p-2 border rounded"
+              v-model="verificationCode"
+              type="text"
+              placeholder="Enter the code"
+              class="w-full p-2 border rounded"
             />
           </div>
-          <button @click="verify2fa" class="w-full bg-blue-500 text-white p-2 rounded">
+          <button
+            class="w-full bg-blue-500 text-white p-2 rounded"
+            @click="verify2fa"
+          >
             Verify
           </button>
         </div>
         <div v-else>
           <p class="mb-4">Verification successful. You can now disable 2FA.</p>
-          <button @click="disable2fa" class="w-full bg-red-500 text-white p-2 rounded">
+          <button
+            class="w-full bg-red-500 text-white p-2 rounded"
+            @click="disable2fa"
+          >
             Disable 2FA
           </button>
         </div>
       </div>
       <div class="flex justify-center mt-4">
         <NotificationComponent
-            :show="notification.show"
-            :type="notification.type"
-            @close="closeNotification"
-            class="max-w-md w-full shadow-lg rounded-lg overflow-hidden"
+          :show="notification.show"
+          :type="notification.type"
+          class="max-w-md w-full shadow-lg rounded-lg overflow-hidden"
+          @close="closeNotification"
         >
           <div class="p-4 break-words">
             {{ notification.message }}
@@ -80,7 +90,10 @@ export default {
           this.$router.push({ name: "AccountSettings" });
         }, 2000);
       } catch (error) {
-        this.showNotification("error", "Failed to disable 2FA: " + error.message);
+        this.showNotification(
+          "error",
+          "Failed to disable 2FA: " + error.message
+        );
       }
     },
     showNotification(type, message) {

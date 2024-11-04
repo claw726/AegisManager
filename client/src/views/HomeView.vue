@@ -41,8 +41,8 @@
             <!-- CTA Buttons -->
             <div class="flex flex-col sm:flex-row gap-4">
               <button
-                @click="goToCreateAcct"
                 class="flex items-center justify-center px-6 py-3 bg-blue-600 text-white font-medium rounded-lg shadow-lg hover:bg-blue-700 transition-all duration-300 transform hover:scale-105 group"
+                @click="goToCreateAcct"
               >
                 <i
                   class="fas fa-rocket mr-2 group-hover:translate-x-1 transition-transform"
@@ -50,8 +50,8 @@
                 Get Started Free
               </button>
               <button
-                @click="watchDemo"
                 class="flex items-center justify-center px-6 py-3 bg-white text-gray-700 font-medium rounded-lg border border-gray-200 hover:bg-gray-50 hover:border-gray-300 transition-all duration-300"
+                @click="watchDemo"
               >
                 <i class="fas fa-play-circle mr-2"></i>
                 Watch Demo
@@ -196,15 +196,15 @@
           </p>
           <div class="flex flex-col sm:flex-row gap-4">
             <button
-              @click="goToCreateAcct"
               class="inline-flex items-center px-6 py-3 bg-white text-blue-600 font-medium rounded-lg hover:bg-blue-50 transition-colors duration-300"
+              @click="goToCreateAcct"
             >
               Start Free Trial
               <i class="fas fa-arrow-right ml-2"></i>
             </button>
             <button
-              @click="contactSales"
               class="inline-flex items-center px-6 py-3 bg-blue-700 text-white font-medium rounded-lg hover:bg-blue-800 transition-colors duration-300"
+              @click="contactSales"
             >
               Contact Sales
             </button>

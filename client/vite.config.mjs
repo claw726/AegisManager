@@ -2,6 +2,7 @@
 import { defineConfig } from "vite";
 import vue from "@vitejs/plugin-vue";
 import { fileURLToPath } from "node:url";
+import fs from "node:fs";
 
 export default defineConfig({
   plugins: [
@@ -23,15 +24,34 @@ export default defineConfig({
     environment: "happy-dom", // Use the jsdom environment for DOM-related tests
   },
   server: {
-    port: 8081,
-    host: true,
+    port: 8443,
+    host: "localhost",
+    https: {
+      key: fs.readFileSync("./keystore/key.pem"),
+      cert: fs.readFileSync("./keystore/cert.pem"),
+    },
     proxy: {
       "/api": {
-        target: "http://localhost:8080", // Target server
+        target: "https://localhost:8443", // Target server
         ws: true, // Enable WebSocket support
         changeOrigin: true, // Change the origin of the host header to the target URL
-        secure: false
+        secure: false,
+        headers: {
+          "Access-Control-Allow-Origin": "*",
+          "Access-Control-Allow-Methods": "GET, POST, PUT, DELETE, OPTIONS",
+          "Access-Control-Allow-Headers":
+            "Content-Type, Authorization, X-Requested-With",
+        },
       },
     },
+    cors: {
+      origin: "https://localhost:8443",
+      methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
+      allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
+      credentials: true,
+    },
+  },
+  define: {
+    global: {},
   },
 });

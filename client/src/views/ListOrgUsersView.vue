@@ -77,7 +77,7 @@ export default {
         const orgID = this.$route.params.orgIndex;
         this.org = await this.$store.dispatch(
           "organizations/fetchOrganization",
-          orgID,
+          orgID
         );
         if (!this.org) {
           throw new Error("Organization not found");
@@ -86,7 +86,7 @@ export default {
         console.error("Error fetching organization data:", error);
         this.showNotification(
           "error",
-          "There was an error fetching the organization data",
+          "There was an error fetching the organization data"
         );
         this.$router.push({ name: "viewOrgs" });
       }

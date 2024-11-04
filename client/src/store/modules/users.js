@@ -70,9 +70,12 @@ const actions = {
             Authorization: `Bearer ${rootState.auth.authToken}`,
             "Content-Type": "application/x-www-form-urlencoded",
           },
-        }
+        },
       );
-      const user = await dispatch("fetchUserAccountByEmail", updatedDetails.email);
+      const user = await dispatch(
+        "fetchUserAccountByEmail",
+        updatedDetails.email,
+      );
       commit("auth/setCurrentUser", user, { root: true });
 
       return response.data;
@@ -82,7 +85,6 @@ const actions = {
     }
   },
 };
-
 
 export default {
   namespaced: true,

@@ -92,8 +92,8 @@
                     class="relative inline-flex items-center cursor-pointer"
                   >
                     <input
-                      type="checkbox"
                       v-model="settings.twoFactorEnabled"
+                      type="checkbox"
                       class="sr-only peer"
                       @click="toggleTwoFactorAuth"
                     />
@@ -127,8 +127,8 @@
                     class="relative inline-flex items-center cursor-pointer"
                   >
                     <input
-                      type="checkbox"
                       v-model="settings.notifications[key].enabled"
+                      type="checkbox"
                       class="sr-only peer"
                     />
                     <div
@@ -202,8 +202,8 @@
       <NotificationComponent
         :show="notification.show"
         :type="notification.type"
-        @close="closeNotification"
         class="w-full shadow-lg rounded-lg overflow-hidden"
+        @close="closeNotification"
       >
         <div class="p-4 break-words">
           <!-- Added padding and word breaking -->
@@ -243,7 +243,7 @@ library.add(
   faUserShield,
   faChevronRight,
   faTriangleExclamation,
-  faTrash,
+  faTrash
 );
 
 export default {
@@ -303,17 +303,17 @@ export default {
       try {
         await this.$store.dispatch(
           "auth/requestPasswordReset",
-          this.currentUser.email,
+          this.currentUser.email
         );
         this.showNotification(
           "success",
-          "Password reset email sent to " + this.currentUser.email,
+          "Password reset email sent to " + this.currentUser.email
         );
       } catch (error) {
         this.showNotification(
           "error",
           "Failed to send reset email: " +
-            (error.response?.data || error.message),
+            (error.response?.data || error.message)
         );
       }
     },
@@ -325,7 +325,7 @@ export default {
       // Implement account deletion confirmation dialog
       this.showNotification(
         "warning",
-        "Account deletion requires confirmation",
+        "Account deletion requires confirmation"
       );
     },
     showNotification(type, message) {

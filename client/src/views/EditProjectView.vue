@@ -1,8 +1,6 @@
 <template>
   <NavBar />
-  <div
-    class="min-h-screen bg-background py-12 px-4 sm:px-6 lg:px-8"
-  >
+  <div class="min-h-screen bg-background py-12 px-4 sm:px-6 lg:px-8">
     <div class="max-w-3xl mx-auto">
       <!-- Header -->
       <div class="text-center mb-8">
@@ -31,9 +29,9 @@
             >Project Name:</label
           >
           <input
-            type="text"
             id="projName"
             v-model="modifiedProject.projectName"
+            type="text"
             class="w-full px-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-accent focus:border-transparent transition duration-200"
           />
         </div>
@@ -85,15 +83,15 @@
             Profile Picture</label
           >
           <input
+            ref="fileInput"
             type="file"
             accept="image/jpeg"
-            @change="handleImageUpload"
             class="hidden"
-            ref="fileInput"
+            @change="handleImageUpload"
           />
           <button
-            @click="triggerFileInput"
             class="flex items-center justify-center w-full px-4 py-2 border-2 border-dashed border-gray-300 rounded-lg hover:border-secondary hover:bg-blue-50 transition duration-200"
+            @click="triggerFileInput"
           >
             <svg
               xmlns="http://www.w3.org/2000/svg"
@@ -116,8 +114,8 @@
         <!-- Submit Button -->
         <div class="flex justify-center">
           <button
-            @click="submitForm()"
             class="w-full bg-primary text-white font-medium py-3 px-4 rounded-lg hover:bg-secondary transition duration-200 flex items-center justify-center space-x-2"
+            @click="submitForm()"
           >
             Submit
           </button>
@@ -142,6 +140,10 @@ import imageCompression from "browser-image-compression";
 import NotificationComponent from "@/components/NotificationComponent.vue";
 
 export default {
+  components: {
+    NavBar,
+    NotificationComponent,
+  },
   data() {
     return {
       modifiedProject: {
@@ -158,10 +160,6 @@ export default {
         message: "",
       },
     };
-  },
-  components: {
-    NavBar,
-    NotificationComponent,
   },
   computed: {
     ...mapState("auth", ["isLoggedIn", "currentUser"]),
@@ -180,7 +178,7 @@ export default {
       const projIndex = this.$route.params.projIndex;
       const proj = await this.$store.dispatch(
         "projects/fetchProject",
-        projIndex,
+        projIndex
       );
       this.modifiedProject = proj;
     },
@@ -236,7 +234,7 @@ export default {
                 0,
                 0,
                 newWidth,
-                newHeight,
+                newHeight
               );
 
               // Convert the Canvas to a URL
@@ -244,7 +242,7 @@ export default {
 
               // Convert the data URL to a BLOB
               const blob = await fetch(croppedDataURL).then((res) =>
-                res.blob(),
+                res.blob()
               );
 
               // Create a new file from the BLOB
@@ -255,7 +253,7 @@ export default {
               // Compress the cropped image
               const compressedCroppedFile = await imageCompression(
                 newFile,
-                options,
+                options
               );
 
               // Read the compressed file as a data URL
@@ -274,7 +272,7 @@ export default {
           console.error("Error compressing image:", error);
           this.showNotification(
             "error",
-            "An error occurred while compressing the image. Please try again with a new file.",
+            "An error occurred while compressing the image. Please try again with a new file."
           );
         }
       } else {
@@ -291,7 +289,7 @@ export default {
       ) {
         this.showNotification(
           "error",
-          "Please ensure that the project name and description are not empty.",
+          "Please ensure that the project name and description are not empty."
         );
         return;
       }
@@ -300,7 +298,7 @@ export default {
       if (this.modifiedProject.projectOwnerID !== this.currentUser.userID) {
         this.showNotification(
           "error",
-          "Error determining your identity! Please log out and back in to continue.",
+          "Error determining your identity! Please log out and back in to continue."
         );
         return;
       }
@@ -316,7 +314,7 @@ export default {
       } catch (error) {
         this.showNotification(
           "error",
-          "An error occurred while updating the organization. Please try again.",
+          "An error occurred while updating the organization. Please try again."
         );
       }
     },

@@ -14,8 +14,8 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 pt-6">
       <div class="flex items-center space-x-4">
         <button
-          @click="goBack"
           class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+          @click="goBack"
         >
           <i class="fas fa-arrow-left mr-2"></i>
           Back to Organization
@@ -122,7 +122,7 @@
               >
                 <i class="fas fa-tasks text-blue-600"></i>
                 <span class="text-blue-600 font-medium">
-                  {{ tasks.length }} Tasks
+                  {{ uncompletedTasks.length }} Uncompleted Tasks
                 </span>
               </div>
               <!-- Add more project stats here -->
@@ -159,8 +159,8 @@
             </div>
           </div>
           <button
-            @click="goToCreateTask"
             class="inline-flex items-center px-6 py-3 bg-primary text-white font-medium rounded-lg hover:bg-green-700 transition duration-200 shadow-sm"
+            @click="goToCreateTask"
           >
             <i class="fas fa-plus mr-2"></i>
             Create New Task
@@ -172,11 +172,11 @@
     <!-- List of Tasks with improved empty state -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <div
-        v-if="tasks && tasks.length > 0"
+        v-if="uncompletedTasks && uncompletedTasks.length > 0"
         class="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-6"
       >
         <TaskCard
-          v-for="(task, index) in tasks"
+          v-for="(task, index) in uncompletedTasks"
           :key="index"
           :task="task"
           :taskIndex="index"
@@ -203,6 +203,12 @@ import DropdownMenu from "@/components/DropdownMenu.vue";
 import NotificationComponent from "@/components/NotificationComponent.vue";
 
 export default {
+  components: {
+    NavBar,
+    TaskCard,
+    DropdownMenu,
+    NotificationComponent,
+  },
   data() {
     return {
       proj: null,
@@ -239,11 +245,11 @@ export default {
       },
     };
   },
-  components: {
-    NavBar,
-    TaskCard,
-    DropdownMenu,
-    NotificationComponent,
+  computed: {
+    ...mapState("auth", ["isLoggedIn", "currentUser"]),
+    uncompletedTasks() {
+      return this.tasks.filter((task) => !task.complete);
+    },
   },
   async mounted() {
     await this.getProjData();
@@ -253,9 +259,6 @@ export default {
     setTimeout(async () => {
       await this.fetchProjectTasks();
     }, 300);
-  },
-  computed: {
-    ...mapState("auth", ["isLoggedIn", "currentUser"]),
   },
   methods: {
     goToCreateTask() {
@@ -413,10 +416,7 @@ export default {
           this.$router.push({ name: "OrganizationDashboard" });
         }, 1500);
       } catch (err) {
-        this.showNotification(
-          "error",
-          "Failed to change project archival status: " + err
-        );
+        this.showNotification("error");
         console.error(err);
       }
 

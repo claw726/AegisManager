@@ -2,33 +2,38 @@
   <div>
     <Navbar @click="disable2fa" />
     <div class="container mx-auto p-4">
-      <h1 class="text-2xl font-semibold mb-4">Enable Two-Factor Authentication</h1>
+      <h1 class="text-2xl font-semibold mb-4">
+        Enable Two-Factor Authentication
+      </h1>
       <div class="bg-white shadow-md rounded-lg p-6">
         <p class="mb-4">Scan the QR code below with your authenticator app:</p>
         <div v-if="qrCode" class="flex justify-center mb-4">
-          <img :src="qrCode" alt="QR Code" />
+          <img :src="qrCode" alt="QR Code" class="qr-code" />
         </div>
         <div v-else class="flex justify-center mb-4">
           <p>Loading QR code...</p>
         </div>
         <div class="mb-4">
           <input
-              type="text"
-              v-model="verificationCode"
-              placeholder="Enter the code from your authenticator app"
-              class="w-full p-2 border rounded"
+            v-model="verificationCode"
+            type="text"
+            placeholder="Enter the code from your authenticator app"
+            class="w-full p-2 border rounded"
           />
         </div>
-        <button @click="verify2fa" class="w-full bg-blue-500 text-white p-2 rounded">
+        <button
+          class="w-full bg-blue-500 text-white p-2 rounded"
+          @click="verify2fa"
+        >
           Verify
         </button>
       </div>
       <div class="flex justify-center mt-4">
         <NotificationComponent
-            :show="notification.show"
-            :type="notification.type"
-            @close="closeNotification"
-            class="max-w-md w-full shadow-lg rounded-lg overflow-hidden"
+          :show="notification.show"
+          :type="notification.type"
+          class="max-w-md w-full shadow-lg rounded-lg overflow-hidden"
+          @close="closeNotification"
         >
           <div class="p-4 break-words">
             {{ notification.message }}
@@ -73,7 +78,10 @@ export default {
         await this.$store.dispatch("auth/enable2fa");
         this.$store.commit("auth/set2FAStatus", true);
       } catch (error) {
-        this.showNotification("error", "Failed to enable 2FA: " + error.message);
+        this.showNotification(
+          "error",
+          "Failed to enable 2FA: " + error.message
+        );
       }
     },
     async getQRCode() {
@@ -84,20 +92,15 @@ export default {
         await this.$store.dispatch("auth/verify2fa", this.verificationCode);
         this.showNotification("success", "2FA enabled successfully");
         setTimeout(() => {
-          this.$router.push({name: "AccountSettings"});
+          this.$router.push({ name: "AccountSettings" });
         }, 2000);
       } catch (error) {
         this.showNotification("error", "Verification failed: " + error.message);
       }
     },
     async disable2fa() {
-      try {
-        await this.$store.dispatch("auth/disable2fa");
-        this.$store.commit("auth/set2FAStatus", false);
-        this.showNotification("success", "2FA disabled successfully");
-      } catch (error) {
-        this.showNotification("error", "Failed to disable 2FA: " + error.message);
-      }
+      await this.$store.dispatch("auth/disable2fa");
+      this.$store.commit("auth/set2FAStatus", false);
     },
     showNotification(type, message) {
       this.notification = {
@@ -119,5 +122,10 @@ export default {
 <style scoped>
 .container {
   max-width: 600px;
+}
+
+.qr-code {
+  width: 300px;
+  height: 300px;
 }
 </style>

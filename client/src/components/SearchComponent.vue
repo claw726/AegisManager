@@ -4,11 +4,11 @@
     <input
         type="text"
         :value="searchQuery"
-        @input="onInput"
         placeholder="Search..."
         class="search-input"
+        @input="onInput"
     />
-    <button v-if="searchQuery" @click="clearSearch" class="clear-button">×</button>
+    <button v-if="searchQuery" class="clear-button" @click="clearSearch">×</button>
   </div>
 </template>
 

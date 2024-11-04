@@ -92,8 +92,8 @@
       :task="selectedTask"
       :visible="popupVisible"
       :position="popupPosition"
-      @close="popupVisible = false"
       class="z-50"
+      @close="popupVisible = false"
     />
   </div>
 </template>
@@ -166,6 +166,21 @@ export default {
       return this.tasks.filter((task) => task.complete).length;
     },
   },
+  watch: {
+    tasks: {
+      handler() {
+        this.calendarOptions.events = this.calendarEvents;
+      },
+      deep: true,
+    },
+  },
+  async mounted() {
+    await this.loadTasks();
+    document.addEventListener("click", this.handleClickOutside);
+  },
+  beforeUnmount() {
+    document.removeEventListener("click", this.handleClickOutside);
+  },
   methods: {
     ...mapActions("tasks", ["fetchTasks"]),
 
@@ -209,21 +224,6 @@ export default {
           this.closePopup();
         }
       }
-    },
-  },
-  async mounted() {
-    await this.loadTasks();
-    document.addEventListener("click", this.handleClickOutside);
-  },
-  beforeUnmount() {
-    document.removeEventListener("click", this.handleClickOutside);
-  },
-  watch: {
-    tasks: {
-      handler() {
-        this.calendarOptions.events = this.calendarEvents;
-      },
-      deep: true,
     },
   },
 };

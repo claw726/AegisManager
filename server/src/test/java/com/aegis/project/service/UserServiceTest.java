@@ -1,8 +1,13 @@
 package com.aegis.project.service;
 
+import static org.junit.jupiter.api.Assertions.*;
+import static org.mockito.Mockito.*;
+
 import com.aegis.project.dto.UserDTO;
 import com.aegis.project.model.UserModel;
 import com.aegis.project.repository.UserRepository;
+import java.util.List;
+import java.util.Optional;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.mockito.ArgumentCaptor;
@@ -14,302 +19,331 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.security.crypto.bcrypt.BCryptPasswordEncoder;
 
-import java.util.List;
-import java.util.Optional;
-
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.Mockito.*;
-
 public class UserServiceTest {
 
-    @Mock
-    private UserRepository userRepository;
-
-    @Mock
-    private Authentication authentication;
-
-    @Mock
-    private UserDetails userDetails;
+  @Mock
+  private UserRepository userRepository;
+
+  @Mock
+  private Authentication authentication;
+
+  @Mock
+  private UserDetails userDetails;
+
+  @Mock
+  private BCryptPasswordEncoder passwordEncoder;
+
+  @InjectMocks
+  private UserService userService;
+
+  @BeforeEach
+  public void setUp() {
+    MockitoAnnotations.openMocks(this);
+    SecurityContextHolder.getContext().setAuthentication(authentication);
+  }
+
+  @Test
+  public void testUpdateUser2FA_Success() {
+    int userID = 1;
+    UserModel user = new UserModel();
+    user.setUserID(userID);
+    user.setEmail("test@example.com");
+    user.setTwoFactorAuthInfo("2FA Info");
+
+    when(authentication.getPrincipal()).thenReturn(userDetails);
+    when(userDetails.getUsername()).thenReturn("test@example.com");
+    when(userRepository.findById(userID)).thenReturn(Optional.of(user));
 
-    @Mock
-    private BCryptPasswordEncoder passwordEncoder;
+    String twoFactorAuthInfo = userService.getUser2FA(userID);
 
-    @InjectMocks
-    private UserService userService;
+    assertEquals("2FA Info", twoFactorAuthInfo);
+  }
+
+  @Test
+  public void testUpdateUser2FA_NoPermission() {
+    int userID = 1;
+    String twoFactorAuthInfo = "2FA Info";
+    UserModel user = new UserModel();
+    user.setEmail("test@example.com");
 
-    @BeforeEach
-    public void setUp() {
-        MockitoAnnotations.openMocks(this);
-        SecurityContextHolder.getContext().setAuthentication(authentication);
-    }
+    when(authentication.getPrincipal()).thenReturn(userDetails);
+    when(userDetails.getUsername()).thenReturn("other@example.com");
+    when(userRepository.findById(userID)).thenReturn(Optional.of(user));
 
-    @Test
-    public void testUpdateUser2FA_Success() {
-        int userID = 1;
-        String twoFactorAuthInfo = "2FA Info";
-        UserModel user = new UserModel();
-        user.setEmail("test@example.com");
+    Exception exception = assertThrows(RuntimeException.class, () -> {
+      userService.updateUser2FA(userID, twoFactorAuthInfo);
+    });
 
-        when(authentication.getPrincipal()).thenReturn(userDetails);
-        when(userDetails.getUsername()).thenReturn("test@example.com");
-        when(userRepository.findById(userID)).thenReturn(Optional.of(user));
+    assertEquals(
+      "User does not have permission to update 2FA for user with ID: " + userID,
+      exception.getMessage()
+    );
+  }
 
-        userService.updateUser2FA(userID, twoFactorAuthInfo);
+  @Test
+  public void testGetUser2FA_Success() {
+    int userID = 1;
+    UserModel user = new UserModel();
+    user.setEmail("test@example.com");
+    user.setTwoFactorAuthInfo("2FA Info");
+    user.setUserID(userID);
 
-        verify(userRepository, times(1)).save(user);
-        assertTrue(user.isHas2fa());
-        assertEquals(twoFactorAuthInfo, user.getTwoFactorAuthInfo());
-    }
+    when(authentication.getPrincipal()).thenReturn(userDetails);
+    when(userDetails.getUsername()).thenReturn("test@example.com");
+    when(userRepository.findById(userID)).thenReturn(Optional.of(user));
 
-    @Test
-    public void testUpdateUser2FA_NoPermission() {
-        int userID = 1;
-        String twoFactorAuthInfo = "2FA Info";
-        UserModel user = new UserModel();
-        user.setEmail("test@example.com");
+    String twoFactorAuthInfo = userService.getUser2FA(userID);
 
-        when(authentication.getPrincipal()).thenReturn(userDetails);
-        when(userDetails.getUsername()).thenReturn("other@example.com");
-        when(userRepository.findById(userID)).thenReturn(Optional.of(user));
+    assertEquals("2FA Info", twoFactorAuthInfo);
+  }
 
-        Exception exception = assertThrows(RuntimeException.class, () -> {
-            userService.updateUser2FA(userID, twoFactorAuthInfo);
-        });
+  @Test
+  public void testGetUser2FA_NoPermission() {
+    int userID = 1;
+    UserModel user = new UserModel();
+    user.setEmail("test@example.com");
 
-        assertEquals("User does not have permission to update 2FA for user with ID: " + userID, exception.getMessage());
-    }
+    when(authentication.getPrincipal()).thenReturn(userDetails);
+    when(userDetails.getUsername()).thenReturn("other@example.com");
+    when(userRepository.findById(userID)).thenReturn(Optional.of(user));
 
-    @Test
-    public void testGetUser2FA_Success() {
-        int userID = 1;
-        UserModel user = new UserModel();
-        user.setEmail("test@example.com");
-        user.setTwoFactorAuthInfo("2FA Info");
+    Exception exception = assertThrows(RuntimeException.class, () -> {
+      userService.getUser2FA(userID);
+    });
 
-        when(authentication.getPrincipal()).thenReturn(userDetails);
-        when(userDetails.getUsername()).thenReturn("test@example.com");
-        when(userRepository.findById(userID)).thenReturn(Optional.of(user));
+    assertEquals(
+      "User does not have permission to get 2FA for user with ID: " + userID,
+      exception.getMessage()
+    );
+  }
 
-        String twoFactorAuthInfo = userService.getUser2FA(userID);
+  @Test
+  public void testFindUserByEmail_Success() {
+    String email = "test@example.com";
+    UserModel user = new UserModel();
+    user.setEmail(email);
 
-        assertEquals("2FA Info", twoFactorAuthInfo);
-    }
+    when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
 
-    @Test
-    public void testGetUser2FA_NoPermission() {
-        int userID = 1;
-        UserModel user = new UserModel();
-        user.setEmail("test@example.com");
+    Optional<UserModel> foundUser = userService.findUserByEmail(email);
 
-        when(authentication.getPrincipal()).thenReturn(userDetails);
-        when(userDetails.getUsername()).thenReturn("other@example.com");
-        when(userRepository.findById(userID)).thenReturn(Optional.of(user));
+    assertTrue(foundUser.isPresent());
+    assertEquals(email, foundUser.get().getEmail());
+  }
 
-        Exception exception = assertThrows(RuntimeException.class, () -> {
-            userService.getUser2FA(userID);
-        });
+  @Test
+  public void testFindUserByEmail_NotFound() {
+    String email = "test@example.com";
 
-        assertEquals("User does not have permission to get 2FA for user with ID: " + userID, exception.getMessage());
-    }
+    when(userRepository.findByEmail(email)).thenReturn(Optional.empty());
 
-    @Test
-    public void testFindUserByEmail_Success() {
-        String email = "test@example.com";
-        UserModel user = new UserModel();
-        user.setEmail(email);
+    Optional<UserModel> foundUser = userService.findUserByEmail(email);
 
-        when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
+    assertFalse(foundUser.isPresent());
+  }
 
-        Optional<UserModel> foundUser = userService.findUserByEmail(email);
+  @Test
+  public void testGetUserDTO_Success() {
+    int userID = 1;
+    UserModel user = new UserModel();
+    user.setUserID(userID);
 
-        assertTrue(foundUser.isPresent());
-        assertEquals(email, foundUser.get().getEmail());
-    }
+    when(userRepository.findById(userID)).thenReturn(Optional.of(user));
 
-    @Test
-    public void testFindUserByEmail_NotFound() {
-        String email = "test@example.com";
+    UserDTO userDTO = userService.getUserDTO(userID);
 
-        when(userRepository.findByEmail(email)).thenReturn(Optional.empty());
+    assertEquals(userID, userDTO.getUserID());
+  }
 
-        Optional<UserModel> foundUser = userService.findUserByEmail(email);
+  @Test
+  public void testGetUserDTO_NotFound() {
+    int userID = 1;
 
-        assertFalse(foundUser.isPresent());
-    }
+    when(userRepository.findById(userID)).thenReturn(Optional.empty());
 
-    @Test
-    public void testGetUserDTO_Success() {
-        int userID = 1;
-        UserModel user = new UserModel();
-        user.setUserID(userID);
+    Exception exception = assertThrows(RuntimeException.class, () -> {
+      userService.getUserDTO(userID);
+    });
 
-        when(userRepository.findById(userID)).thenReturn(Optional.of(user));
+    assertEquals("User not found with ID: " + userID, exception.getMessage());
+  }
 
-        UserDTO userDTO = userService.getUserDTO(userID);
+  @Test
+  public void testGetUserDTOByEmail_Success() {
+    String email = "test@example.com";
+    UserModel user = new UserModel();
+    user.setEmail(email);
 
-        assertEquals(userID, userDTO.getUserID());
-    }
+    when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
 
-    @Test
-    public void testGetUserDTO_NotFound() {
-        int userID = 1;
+    UserDTO userDTO = userService.getUserDTOByEmail(email);
 
-        when(userRepository.findById(userID)).thenReturn(Optional.empty());
+    assertEquals(email, userDTO.getEmail());
+  }
 
-        Exception exception = assertThrows(RuntimeException.class, () -> {
-            userService.getUserDTO(userID);
-        });
+  @Test
+  public void testGetUserDTOByEmail_NotFound() {
+    String email = "test@example.com";
 
-        assertEquals("User not found with ID: " + userID, exception.getMessage());
-    }
-
-    @Test
-    public void testGetUserDTOByEmail_Success() {
-        String email = "test@example.com";
-        UserModel user = new UserModel();
-        user.setEmail(email);
-
-        when(userRepository.findByEmail(email)).thenReturn(Optional.of(user));
-
-        UserDTO userDTO = userService.getUserDTOByEmail(email);
-
-        assertEquals(email, userDTO.getEmail());
-    }
-
-    @Test
-    public void testGetUserDTOByEmail_NotFound() {
-        String email = "test@example.com";
-
-        when(userRepository.findByEmail(email)).thenReturn(Optional.empty());
-
-        Exception exception = assertThrows(RuntimeException.class, () -> {
-            userService.getUserDTOByEmail(email);
-        });
-
-        assertEquals("User not found with email: " + email, exception.getMessage());
-    }
-
-    @Test
-    public void testUpdateFailedLoginAttempts() {
-        int userID = 1;
-        int failedLoginAttempts = 3;
-        boolean isLocked = true;
-
-        doNothing().when(userRepository).updateFailedLoginAttempts(failedLoginAttempts, isLocked, userID);
-
-        userService.updateFailedLoginAttempts(failedLoginAttempts, isLocked, userID);
-
-        verify(userRepository, times(1)).updateFailedLoginAttempts(failedLoginAttempts, isLocked, userID);
-    }
-
-    @Test
-    public void testGetAllUsers() {
-        UserModel user1 = new UserModel();
-        user1.setUserID(1);
-        UserModel user2 = new UserModel();
-        user2.setUserID(2);
-
-        when(userRepository.findAll()).thenReturn(List.of(user1, user2));
-
-        List<UserDTO> users = userService.getAllUsers();
-
-        assertEquals(2, users.size());
-        assertEquals(1, users.get(0).getUserID());
-        assertEquals(2, users.get(1).getUserID());
-    }
-
-    @Test
-    public void testCreateUserJson() {
-        UserModel user = new UserModel();
-        user.setUserID(1);
-        user.setUserName("Test User");
-        user.setEmail("test@example.com");
-
-        String userJson = userService.createUserJson(user);
-
-        assertEquals("{\"userID\": 1,\"userName\": Test User,\"email\": test@example.com\"}", userJson);
-    }
-
-    @Test
-    public void testUpdateUser_Success() {
-        int userID = 1;
-        String name = "Updated Name";
-        String email = "updated@example.com";
-        String profilePicture = "updatedProfilePic.jpg";
-        UserModel user = new UserModel();
-        user.setEmail("test@example.com");
-
-        when(authentication.getPrincipal()).thenReturn(userDetails);
-        when(userDetails.getUsername()).thenReturn("test@example.com");
-        when(userRepository.findById(userID)).thenReturn(Optional.of(user));
-        when(userRepository.existsByEmail(email)).thenReturn(false);
-
-        userService.updateUser(userID, name, email, profilePicture);
-
-        verify(userRepository, times(1)).save(user);
-        assertEquals(name, user.getUserName());
-        assertEquals(email, user.getEmail());
-        assertEquals(profilePicture, user.getProfilePicture());
-    }
-
-    @Test
-    public void testUpdateUser_NoPermission() {
-        int userID = 1;
-        String name = "Updated Name";
-        String email = "updated@example.com";
-        String profilePicture = "updatedProfilePic.jpg";
-        UserModel user = new UserModel();
-        user.setEmail("test@example.com");
-
-        when(authentication.getPrincipal()).thenReturn(userDetails);
-        when(userDetails.getUsername()).thenReturn("other@example.com");
-        when(userRepository.findById(userID)).thenReturn(Optional.of(user));
-
-        Exception exception = assertThrows(RuntimeException.class, () -> {
-            userService.updateUser(userID, name, email, profilePicture);
-        });
-
-        assertEquals("User with email: other@example.com does not have permission to update user with ID: " + userID, exception.getMessage());
-    }
-
-    @Test
-    public void testCreateUser_Success() {
-        String password = "password";
-        UserModel user = new UserModel();
-        user.setUserName("New User");
-        user.setEmail("newuser@example.com");
-        user.setPWHash("password");
-
-        when(userRepository.existsByEmail(user.getEmail())).thenReturn(false);
-        when(passwordEncoder.encode(password)).thenReturn("encodedPassword");
-
-        boolean isCreated = userService.createUser("newuser@example.com", "New User", "password", null);
-
-        assertTrue(isCreated);
-
-        ArgumentCaptor<UserModel> userCaptor = ArgumentCaptor.forClass(UserModel.class);
-        verify(userRepository, times(1)).save(userCaptor.capture());
-        UserModel savedUser = userCaptor.getValue();
-
-        assertEquals("New User", savedUser.getUserName());
-        assertEquals("newuser@example.com", savedUser.getEmail());
-        assertEquals("encodedPassword", savedUser.getPWHash());
-    }
-
-    @Test
-    public void testCreateUser_UserAlreadyExists() {
-        String password = "password";
-        UserModel user = new UserModel();
-        user.setUserName("Existing User");
-        user.setEmail("existinguser@example.com");
-        user.setPWHash("password");
-
-        when(userRepository.existsByEmail(user.getEmail())).thenReturn(true);
-        when(passwordEncoder.encode(password)).thenReturn("encodedPassword");
-
-        boolean isCreated = userService.createUser("existinguser@example.com", "Existing User", "password", null);
-
-        assertFalse(isCreated);
-        verify(userRepository, never()).save(user);
-    }
+    when(userRepository.findByEmail(email)).thenReturn(Optional.empty());
+
+    Exception exception = assertThrows(RuntimeException.class, () -> {
+      userService.getUserDTOByEmail(email);
+    });
+
+    assertEquals("User not found with email: " + email, exception.getMessage());
+  }
+
+  @Test
+  public void testUpdateFailedLoginAttempts() {
+    int userID = 1;
+    int failedLoginAttempts = 3;
+    boolean isLocked = true;
+
+    doNothing()
+      .when(userRepository)
+      .updateFailedLoginAttempts(failedLoginAttempts, isLocked, userID);
+
+    userService.updateFailedLoginAttempts(
+      failedLoginAttempts,
+      isLocked,
+      userID
+    );
+
+    verify(userRepository, times(1)).updateFailedLoginAttempts(
+      failedLoginAttempts,
+      isLocked,
+      userID
+    );
+  }
+
+  @Test
+  public void testGetAllUsers() {
+    UserModel user1 = new UserModel();
+    user1.setUserID(1);
+    UserModel user2 = new UserModel();
+    user2.setUserID(2);
+
+    when(userRepository.findAll()).thenReturn(List.of(user1, user2));
+
+    List<UserDTO> users = userService.getAllUsers();
+
+    assertEquals(2, users.size());
+    assertEquals(1, users.get(0).getUserID());
+    assertEquals(2, users.get(1).getUserID());
+  }
+
+  @Test
+  public void testCreateUserJson() {
+    UserModel user = new UserModel();
+    user.setUserID(1);
+    user.setUserName("Test User");
+    user.setEmail("test@example.com");
+
+    String userJson = userService.createUserJson(user);
+
+    assertEquals(
+      "{\"userID\": 1,\"userName\": Test User,\"email\": test@example.com\"}",
+      userJson
+    );
+  }
+
+  @Test
+  public void testUpdateUser_Success() {
+    int userID = 1;
+    String name = "Updated Name";
+    String email = "updated@example.com";
+    String profilePicture = "updatedProfilePic.jpg";
+    UserModel user = new UserModel();
+    user.setEmail("test@example.com");
+
+    when(authentication.getPrincipal()).thenReturn(userDetails);
+    when(userDetails.getUsername()).thenReturn("test@example.com");
+    when(userRepository.findById(userID)).thenReturn(Optional.of(user));
+    when(userRepository.existsByEmail(email)).thenReturn(false);
+
+    userService.updateUser(userID, name, email, profilePicture);
+
+    verify(userRepository, times(1)).save(user);
+    assertEquals(name, user.getUserName());
+    assertEquals(email, user.getEmail());
+    assertEquals(profilePicture, user.getProfilePicture());
+  }
+
+  @Test
+  public void testUpdateUser_NoPermission() {
+    int userID = 1;
+    String name = "Updated Name";
+    String email = "updated@example.com";
+    String profilePicture = "updatedProfilePic.jpg";
+    UserModel user = new UserModel();
+    user.setEmail("test@example.com");
+
+    when(authentication.getPrincipal()).thenReturn(userDetails);
+    when(userDetails.getUsername()).thenReturn("other@example.com");
+    when(userRepository.findById(userID)).thenReturn(Optional.of(user));
+
+    Exception exception = assertThrows(RuntimeException.class, () -> {
+      userService.updateUser(userID, name, email, profilePicture);
+    });
+
+    assertEquals(
+      "User with email: other@example.com does not have permission to update user with ID: " +
+      userID,
+      exception.getMessage()
+    );
+  }
+
+  @Test
+  public void testCreateUser_Success() {
+    String password = "password";
+    UserModel user = new UserModel();
+    user.setUserName("New User");
+    user.setEmail("newuser@example.com");
+    user.setPWHash("password");
+
+    when(userRepository.existsByEmail(user.getEmail())).thenReturn(false);
+    when(passwordEncoder.encode(password)).thenReturn("encodedPassword");
+
+    boolean isCreated = userService.createUser(
+      "newuser@example.com",
+      "New User",
+      "password",
+      null
+    );
+
+    assertTrue(isCreated);
+
+    ArgumentCaptor<UserModel> userCaptor = ArgumentCaptor.forClass(
+      UserModel.class
+    );
+    verify(userRepository, times(1)).save(userCaptor.capture());
+    UserModel savedUser = userCaptor.getValue();
+
+    assertEquals("New User", savedUser.getUserName());
+    assertEquals("newuser@example.com", savedUser.getEmail());
+    assertEquals("encodedPassword", savedUser.getPWHash());
+  }
+
+  @Test
+  public void testCreateUser_UserAlreadyExists() {
+    String password = "password";
+    UserModel user = new UserModel();
+    user.setUserName("Existing User");
+    user.setEmail("existinguser@example.com");
+    user.setPWHash("password");
+
+    when(userRepository.existsByEmail(user.getEmail())).thenReturn(true);
+    when(passwordEncoder.encode(password)).thenReturn("encodedPassword");
+
+    boolean isCreated = userService.createUser(
+      "existinguser@example.com",
+      "Existing User",
+      "password",
+      null
+    );
+
+    assertFalse(isCreated);
+    verify(userRepository, never()).save(user);
+  }
 }

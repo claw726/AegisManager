@@ -156,7 +156,6 @@ const actions = {
         return true;
       }
       console.log("Task created successfully");
-      commit("SET_TASKS", tasks);
       return response.status;
     } catch (error) {
       console.log("An error occurred while updating the task.");
@@ -193,7 +192,6 @@ const actions = {
         commit("SET_UPDATE_STATUS", { success: true });
         return true;
       }
-      commit("SET_TASKS", tasks);
       return true;
     } catch (error) {
       let errorMessage = "An error occurred while updating the task.";
@@ -224,41 +222,39 @@ const actions = {
     console.log(typeof id);
     try {
       const response = await axios({
-        method: 'delete',
+        method: "delete",
         url: `/api/tasks/${id}/deleteTask`,
-          headers: {
-            Authorization: `Bearer ${rootState.auth.authToken}`,
-            'Content-Type': 'application/x-www-form-urlencoded',
-          }
-        });
+        headers: {
+          Authorization: `Bearer ${rootState.auth.authToken}`,
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+      });
 
       if (response.status === 200) {
-        commit('SET_UPDATE_STATUS', { success: true });
+        commit("SET_UPDATE_STATUS", { success: true });
         console.log("Task deleted");
         return true;
       }
-      commit("SET_TASKS", tasks);
       console.log("Task deleted successfully");
     } catch (error) {
-      console.log('An error occurred while deleting the task.');
+      let errorMessage = "An error occurred while deleting the task.";
 
       if (error.response) {
         switch (error.response.status) {
           case 404:
-            errorMessage = 'Task or user not found.';
+            errorMessage = "Task or user not found.";
             break;
           case 403:
-            errorMessage = 'You do not have permission to delete this task.';
+            errorMessage = "You do not have permission to delete this task.";
             break;
           default:
             errorMessage = error.response.data || errorMessage;
         }
       }
-      console.log('error response: ', error.response);
+      console.log("error response: ", errorMessage);
       //console.log('error status: ', error.response.status);
     }
-
-  }, 
+  },
 
   async addUserToTask({ commit, rootState }, { taskId, email }) {
     commit("SET_UPDATE_STATUS", { loading: true, error: null, success: false });
@@ -279,11 +275,9 @@ const actions = {
       });
 
       if (response.status === 200) {
-        commit("UPDATE_TASK_IN_LIST", { taskId, ...taskData });
         commit("SET_UPDATE_STATUS", { success: true });
-        return true;
       }
-      commit("SET_TASKS", tasks);
+      //can't read status if successful, return number
       return true;
     } catch (error) {
       let errorMessage = "An error occurred while adding user to the task.";
@@ -294,21 +288,72 @@ const actions = {
             errorMessage = "Task or user not found.";
             break;
           case 403:
-            errorMessage = "You do not have permission to add a user this task.";
+            errorMessage =
+              "You do not have permission to add a user this task.";
             break;
           default:
             errorMessage = error.response.data || errorMessage;
         }
+        return error.response.status;
       }
 
       commit("SET_UPDATE_STATUS", { error: errorMessage });
-      throw new Error(errorMessage);
+      //throw new Error(errorMessage);
+      console.log("printing repsonse status for error:", error.response.status);
     } finally {
       commit("SET_UPDATE_STATUS", { loading: false });
     }
   },
 
+  async removeUserToTask({ commit, rootState }, { taskId, email }) {
+    commit("SET_UPDATE_STATUS", { loading: true, error: null, success: false });
 
+    try {
+      const params = {
+        email: email,
+      };
+
+      const response = await axios({
+        method: "post",
+        url: `/api/tasks/${taskId}/removeUser`,
+        params: params,
+        headers: {
+          Authorization: `Bearer ${rootState.auth.authToken}`,
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+      });
+
+      if (response.status === 200) {
+        commit("SET_UPDATE_STATUS", { success: true });
+        return true;
+      }
+      return 200;
+    } catch (error) {
+      let errorMessage = null;
+
+      if (error.response) {
+        switch (error.response.status) {
+          case 404:
+            errorMessage = "Task or user not found.";
+            break;
+          case 403:
+            errorMessage =
+              "You do not have permission to add a user this task.";
+            break;
+          default:
+            errorMessage = error.response.data || errorMessage;
+        }
+        return error.response.status;
+      }
+
+      commit("SET_UPDATE_STATUS", { error: errorMessage });
+
+      console.log(errorMessage);
+      return false;
+    } finally {
+      commit("SET_UPDATE_STATUS", { loading: false });
+    }
+  },
 };
 
 const getters = {
@@ -321,8 +366,6 @@ const getters = {
   updateSuccess: (state) => state.updateStatus.success,
   fullTasks: (state) => state.tasks,
 };
-
-
 
 export default {
   state,

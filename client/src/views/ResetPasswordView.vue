@@ -14,15 +14,15 @@
             <div class="w-full flex justify-center px-4 mb-4">
               <div class="w-full">
                 <PasswordInput
-                  @update-password="updatePassword"
                   :Title="'New Password'"
+                  @update-password="updatePassword"
                 />
               </div>
             </div>
           </div>
           <button
-            @click="resetPassword"
             class="w-full mt-4 bg-primary text-white font-semibold py-3 rounded-lg"
+            @click="resetPassword"
           >
             Update Password
           </button>
@@ -52,12 +52,6 @@ export default {
     PasswordInput,
     NotificationComponent,
   },
-  computed: {
-    ...mapState("auth", ["isLoggedIn", "currentUser"]),
-    token() {
-      return this.$route.query.token;
-    },
-  },
   data() {
     return {
       email: "",
@@ -68,6 +62,12 @@ export default {
         message: "",
       },
     };
+  },
+  computed: {
+    ...mapState("auth", ["isLoggedIn", "currentUser"]),
+    token() {
+      return this.$route.query.token;
+    },
   },
   methods: {
     async resetPassword() {

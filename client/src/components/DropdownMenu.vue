@@ -2,10 +2,10 @@
   <div class="relative inline-block text-left">
     <!-- Trigger Button -->
     <button
-      @click="toggleMenu"
+      :class="{ 'ring-2 ring-blue-500 ring-offset-2': isOpen }"
       type="button"
       class="inline-flex items-center justify-center w-10 h-10 rounded-full bg-white border border-gray-200 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-all duration-200"
-      :class="{ 'ring-2 ring-blue-500 ring-offset-2': isOpen }"
+      @click="toggleMenu"
     >
       <i :class="symbol" class="text-gray-600"></i>
     </button>
@@ -21,15 +21,15 @@
     >
       <div
         v-if="isOpen"
-        class="absolute right-0 mt-2 w-56 rounded-lg shadow-lg bg-white ring-1 ring-black ring-opacity-5 divide-y divide-gray-100 focus:outline-none z-50"
         v-click-outside="closeMenu"
+        class="absolute right-0 mt-2 w-56 rounded-lg shadow-lg bg-white ring-1 ring-black ring-opacity-5 divide-y divide-gray-100 focus:outline-none z-50"
       >
         <div class="py-1">
           <button
             v-for="(item, index) in items"
             :key="index"
-            @click="handleItemClick(item)"
             class="group flex items-center w-full px-4 py-2 text-sm text-gray-700 hover:bg-blue-50 hover:text-blue-700 transition-colors duration-150"
+            @click="handleItemClick(item)"
           >
             <!-- Item Icon (if provided) -->
             <i
@@ -63,22 +63,6 @@
 <script>
 export default {
   name: "DropdownMenu",
-  props: {
-    items: {
-      type: Array,
-      required: true,
-    },
-    symbol: {
-      type: String,
-      required: false,
-      default: "fas fa-ellipsis-v",
-    },
-  },
-  data() {
-    return {
-      isOpen: false,
-    };
-  },
   directives: {
     "click-outside": {
       mounted(el, binding) {
@@ -102,6 +86,33 @@ export default {
       },
     },
   },
+  props: {
+    items: {
+      type: Array,
+      required: true,
+    },
+    symbol: {
+      type: String,
+      required: false,
+      default: "fas fa-ellipsis-v",
+    },
+  },
+  data() {
+    return {
+      isOpen: false,
+    };
+  },
+  mounted() {
+    // Close menu on escape key
+    document.addEventListener("keydown", (e) => {
+      if (e.key === "Escape" && this.isOpen) {
+        this.closeMenu();
+      }
+    });
+  },
+  beforeUnmount() {
+    document.removeEventListener("keydown", this.closeMenu);
+  },
   methods: {
     toggleMenu(event) {
       // Stop event propagation
@@ -117,17 +128,6 @@ export default {
       }
       this.closeMenu();
     },
-  },
-  mounted() {
-    // Close menu on escape key
-    document.addEventListener("keydown", (e) => {
-      if (e.key === "Escape" && this.isOpen) {
-        this.closeMenu();
-      }
-    });
-  },
-  beforeUnmount() {
-    document.removeEventListener("keydown", this.closeMenu);
   },
 };
 </script>

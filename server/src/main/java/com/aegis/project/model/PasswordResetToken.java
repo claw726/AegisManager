@@ -1,67 +1,70 @@
 package com.aegis.project.model;
 
 import jakarta.persistence.*;
-
 import java.time.LocalDateTime;
 
 @Entity
 @Table(name = "password_reset_tokens")
 public class PasswordResetToken {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int id;
 
-    @Column(name = "token")
-    private String token;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private int id;
 
-    @Column(name = "user_id")
-    private int userId;
+  @Column(name = "token")
+  private String token;
 
-    @Column(name = "expiry_date")
-    private LocalDateTime expiryDate;
+  @Column(name = "user_id")
+  private int userId;
 
-    public PasswordResetToken(String token, int userId, LocalDateTime expiryDate) {
-        this.token = token;
-        this.userId = userId;
-        this.expiryDate = expiryDate;
-    }
+  @Column(name = "expiry_date")
+  private LocalDateTime expiryDate;
 
-    public PasswordResetToken() {
-    }
+  public PasswordResetToken(
+    String token,
+    int userId,
+    LocalDateTime expiryDate
+  ) {
+    this.token = token;
+    this.userId = userId;
+    this.expiryDate = expiryDate;
+  }
 
-    public int getId() {
-        return id;
-    }
+  public PasswordResetToken() {}
 
-    public void setId(int id) {
-        this.id = id;
-    }
+  public int getId() {
+    return id;
+  }
 
-    public String getToken() {
-        return token;
-    }
+  public void setId(int id) {
+    this.id = id;
+  }
 
-    public void setToken(String token) {
-        this.token = token;
-    }
+  public String getToken() {
+    return token;
+  }
 
-    public int getUserId() {
-        return userId;
-    }
+  public void setToken(String token) {
+    this.token = token;
+  }
 
-    public void setUserId(int userId) {
-        this.userId = userId;
-    }
+  public int getUserId() {
+    return userId;
+  }
 
-    public LocalDateTime getExpiryDate() {
-        return expiryDate;
-    }
+  public void setUserId(int userId) {
+    this.userId = userId;
+  }
 
-    public void setExpiryDate(LocalDateTime expiryDate) {
-        this.expiryDate = expiryDate;
-    }
+  public LocalDateTime getExpiryDate() {
+    return expiryDate;
+  }
 
-    public boolean isExpired() {
-        return LocalDateTime.now().isAfter(expiryDate);
-    }
+  public void setExpiryDate(LocalDateTime expiryDate) {
+    this.expiryDate = expiryDate;
+  }
+
+  public boolean isExpired() {
+    return LocalDateTime.now().isAfter(expiryDate);
+  }
 }

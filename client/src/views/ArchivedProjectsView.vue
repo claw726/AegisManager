@@ -5,8 +5,8 @@
     <NotificationComponent
       :show="notification.show"
       :type="notification.type"
-      @close="closeNotification"
       class="max-w-7xl mx-auto"
+      @close="closeNotification"
     >
       {{ notification.message }}
     </NotificationComponent>
@@ -24,8 +24,8 @@
           <!-- Search Input -->
           <div class="relative">
             <input
-              type="text"
               v-model="searchQuery"
+              type="text"
               placeholder="Search projects..."
               class="pl-10 pr-4 py-2 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-blue-500"
             />
@@ -142,6 +142,16 @@ export default {
       return filtered;
     },
   },
+  watch: {
+    searchQuery() {
+      if (this.searchQuery) {
+        this.showNotification("info", `Searching for "${this.searchQuery}"`);
+      }
+    },
+  },
+  async created() {
+    await this.fetchProjects();
+  },
   methods: {
     async fetchProjects() {
       try {
@@ -183,16 +193,6 @@ export default {
     },
     handleProjectClick(project) {
       this.showNotification("info", `Opening project: ${project.projectName}`);
-    },
-  },
-  async created() {
-    await this.fetchProjects();
-  },
-  watch: {
-    searchQuery() {
-      if (this.searchQuery) {
-        this.showNotification("info", `Searching for "${this.searchQuery}"`);
-      }
     },
   },
 };

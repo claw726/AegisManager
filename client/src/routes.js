@@ -79,6 +79,12 @@ const router = createRouter({
       meta: { requiresAuth: true },
     },
     {
+      path: "/tasks/:taskId/removeUserTask",
+      name: "removeUserTask",
+      component: () => import("./views/RemoveUsersToTask.vue"),
+      meta: { requiresAuth: true },
+    },
+    {
       path: "/organization/:orgIndex/createProject",
       name: "createProject",
       component: () => import("./views/CreateProjView.vue"),
@@ -124,12 +130,6 @@ const router = createRouter({
       path: "/organization/:orgIndex/project/:projIndex/editUsers",
       name: "EditProjUsers",
       component: () => import("./views/EditProjUsersView.vue"),
-      meta: { requiresAuth: true },
-    },
-    {
-      path: "/organization/:orgIndex/project/:projIndex/edit/assignUsers",
-      name: "assignUsersinProj",
-      component: () => import("./views/ListProjUsersView.vue"),
       meta: { requiresAuth: true },
     },
     {
@@ -185,6 +185,19 @@ const router = createRouter({
       name: "ForgotPassword",
       component: () => import("./views/ForgotPassword.vue"),
       meta: { requiresGuest: true },
+    },
+    {
+      path: "/health",
+      name: "health",
+      component: () =>
+        new Promise((resolve) => {
+          resolve({
+            template: "<div>healthy</div>",
+            beforeCreate() {
+              this.$router.push(this.$route.query.redirect || "/");
+            },
+          });
+        }),
     },
   ],
 });

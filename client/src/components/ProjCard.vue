@@ -1,7 +1,7 @@
 <template>
   <div
-    @click="goToProj()"
     class="group flex flex-col h-full bg-white rounded-xl shadow-md hover:shadow-xl transition-all duration-300 cursor-pointer overflow-hidden"
+    @click="goToProj()"
   >
     <!-- Image with overlay -->
     <div class="relative aspect-video overflow-hidden">
@@ -86,7 +86,7 @@
               'text-gray-500': project.isArchived,
             }"
           >
-            {{ formatTaskCount(tasks.length) }}
+            {{ formatTaskCount(uncompletedTasks.length) }}
           </span>
         </div>
       </div>
@@ -112,6 +112,11 @@ export default {
       creator: "",
       tasks: [],
     };
+  },
+  computed: {
+    uncompletedTasks() {
+      return this.tasks.filter((task) => !task.complete);
+    },
   },
   async mounted() {
       await this.getCreatorData();

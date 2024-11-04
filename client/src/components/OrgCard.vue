@@ -151,7 +151,7 @@ export default {
   },
 
   async mounted() {
-    await this.getCreatorData();
+    await this.getCreatorData(); 
   },
 
   methods: {

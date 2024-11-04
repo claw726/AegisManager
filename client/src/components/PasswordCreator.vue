@@ -5,10 +5,10 @@
       Title
     }}</label>
     <input
-      type="password"
       v-model="password"
-      @input="checkStrength"
+      type="password"
       class="w-full border border-highlight rounded-lg p-3"
+      @input="checkStrength"
     />
     <div class="mt-2 text-sm" :class="strengthColor">{{ strengthMessage }}</div>
   </div>
@@ -16,18 +16,18 @@
 
 <script>
 export default {
+  props: {
+    Title: {
+      type: String,
+      required: true,
+    },
+  },
   data() {
     return {
       password: "",
       strengthMessage: "",
       strengthColor: "",
     };
-  },
-  props: {
-    Title: {
-      type: String,
-      required: true,
-    },
   },
   methods: {
     // Update in the future to include more password strength checks
