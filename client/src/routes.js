@@ -199,6 +199,44 @@ const router = createRouter({
           });
         }),
     },
+    {
+      path: "/chat",
+      name: "Chat",
+      component: () => import("./views/ChatView.vue"),
+      meta: { requiresAuth: false },
+      children: [
+        {
+          path: "/direct/:userID",
+          name: "DirectChat",
+          component: () => import("./components/ChatWindow.vue"),
+          props: true,
+        },
+        {
+          path: "/group/:groupID",
+          name: "GroupChat",
+          component: () => import("./components/ChatWindow.vue"),
+          props: true,
+        },
+        {
+          path: "/organization/:orgIndex/chat",
+          name: "OrgChat",
+          component: () => import("./components/ChatWindow.vue"),
+          props: true,
+        },
+        {
+          path: "/organization/:orgIndex/project/:projectIndex/chat",
+          name: "ProjectChat",
+          component: () => import("./components/ChatWindow.vue"),
+          props: true,
+        },
+        {
+          path: "/organization/:orgIndex/project/:projectIndex/tasks/:taskID/chat",
+          name: "TaskChat",
+          component: () => import("./components/ChatWindow.vue"),
+          props: true,
+        },
+      ],
+    },
   ],
 });
 
