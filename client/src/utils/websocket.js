@@ -7,7 +7,7 @@ let stompClient = null;
 
 export function connect() {
   console.log("Connecting to WebSocket");
-  const socket = () => new SockJS("/api/ws");
+  const socket = () => new SockJS("https://localhost:8444/api/ws");
   stompClient = Stomp.over(socket);
 
   console.log("Connecting with Stomp client");
@@ -22,23 +22,36 @@ function onConnected() {
 }
 
 function onTaskUpdate(message) {
-  const taskUpdate = JSON.parse(message.body);
-  console.log("Task updated:", taskUpdate);
+  try {
+    const taskUpdate = JSON.parse(message.body);
+    console.log("Task updated:", taskUpdate);
 
-  const route = useRoute();
-  if (
-    (route.name === "TaskDetails" && route.params.id === taskUpdate.id) ||
-    route.name === "TDList" ||
-    route.name === "KB" ||
-    route.name === "ProjectDashboard"
-  ) {
-    console.log("Task details page is open");
-    window.location.reload();
+    // Don't use useRoute() here - it should only be used in Vue components
+    // Instead, you could emit an event or use a callback
+    window.dispatchEvent(
+      new CustomEvent("task-updated", {
+        detail: taskUpdate,
+      }),
+    );
+  } catch (error) {
+    console.error("Error processing task update:", error);
   }
 }
 
 function onError(error) {
   console.error("Error connecting to WebSocket:", error);
+  // 4. Add reconnection logic
+  setTimeout(() => {
+    console.log("Attempting to reconnect...");
+    connect();
+  }, 5000);
+}
+
+export function disconnect() {
+  if (stompClient) {
+    stompClient.disconnect();
+    stompClient = null;
+  }
 }
 
 export { stompClient };

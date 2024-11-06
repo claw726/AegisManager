@@ -7,8 +7,10 @@ services:
       retries: 3
       start_period: 40s
     build:
-      context: ./client # Assuming your frontend code is in a directory called "frontend"
+      context: ./client # Assuming your frontend code is in a directory called "client"
       dockerfile: Dockerfile
+      args:
+        BUILDKIT_INLINE_CACHE: 1
     ports:
       - 8443:8443
     volumes:
@@ -20,12 +22,14 @@ services:
 
   backend:
     build:
-      context: ./server # Assuming your backend code is in a directory called "backend"
+      context: ./server # Assuming your backend code is in a directory called "server"
       dockerfile: Dockerfile
+      args:
+        BUILDKIT_INLINE_CACHE: 1
     ports:
       - 8444:8444
     volumes:
-      - ./data:/app/data
+      - data:/app/data
     environment:
       - SPRING_DATASOURCE_URL=jdbc:sqlite:/app/data/aegis.db # Update the database path
       - LOGGING_LEVEL_ORG_HIBERNATE=ERROR
@@ -36,7 +40,7 @@ services:
       - MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=health,info,metrics
       - MANAGEMENT_ENDPOINT_HEALTH_SHOW_DETAILS=when_authorized
     healthcheck:
-      test: CMD curl -f -k https://localhost:8444/actuator/health
+      test: [CMD, curl, -f, -k, https://localhost:8444/actuator/health]
       interval: 30s
       timeout: 3s
       retries: 3

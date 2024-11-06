@@ -75,7 +75,7 @@
               class="absolute inset-0 bg-gradient-to-r from-blue-500/10 to-indigo-500/10 rounded-3xl transform rotate-3"
             ></div>
             <img
-              src="@/assets/Check-icon.png"
+              src="@/assets/Check-icon2.svg"
               alt="Project Management Dashboard"
               class="relative rounded-2xl shadow-2xl transform hover:-rotate-2 transition-transform duration-500"
             />

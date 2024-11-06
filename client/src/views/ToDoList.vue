@@ -4,100 +4,8 @@
 
     <!-- Main Container -->
     <div class="flex min-h-[calc(100vh-64px)]">
-      <!-- Side Navigation -->
-      <div class="w-64 bg-white border-r border-gray-200 p-4 shadow-sm">
-        <div class="space-y-2">
-          <h2
-            class="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-4"
-          >
-            Views
-          </h2>
-
-          <router-link
-            to="/calendar"
-            class="flex items-center px-4 py-2 text-gray-700 rounded-lg hover:bg-blue-50 hover:text-blue-700 transition-colors group"
-            :class="{ 'bg-blue-50 text-blue-700': $route.path === '/calendar' }"
-          >
-            <i
-              class="fas fa-calendar-alt w-5 h-5 mr-3 group-hover:scale-110 transition-transform"
-            ></i>
-            <span class="font-medium">Calendar</span>
-          </router-link>
-
-          <router-link
-            to="/todolist"
-            class="flex items-center px-4 py-2 text-gray-700 rounded-lg hover:bg-blue-50 hover:text-blue-700 transition-colors group"
-            :class="{ 'bg-blue-50 text-blue-700': $route.path === '/todolist' }"
-          >
-            <i
-              class="fas fa-check-circle w-5 h-5 mr-3 group-hover:scale-110 transition-transform"
-            ></i>
-            <span class="font-medium">To-Do List</span>
-          </router-link>
-
-          <router-link
-            to="/kanban"
-            class="flex items-center px-4 py-2 text-gray-700 rounded-lg hover:bg-blue-50 hover:text-blue-700 transition-colors group"
-            :class="{ 'bg-blue-50 text-blue-700': $route.path === '/kanban' }"
-          >
-            <i
-              class="fas fa-columns w-5 h-5 mr-3 group-hover:scale-110 transition-transform"
-            ></i>
-            <span class="font-medium">Kanban Board</span>
-          </router-link>
-        </div>
-
-        <!-- Quick Stats -->
-        <div class="mt-8 space-y-4">
-          <h2
-            class="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-4"
-          >
-            Overview
-          </h2>
-
-          <div
-            class="px-4 py-3 bg-blue-50 rounded-lg hover:shadow-md transition-shadow duration-300"
-          >
-            <div class="flex items-center justify-between">
-              <div>
-                <div class="text-sm text-blue-800">Total Tasks</div>
-                <div class="text-2xl font-bold text-blue-900">
-                  {{ filteredTasks.length }}
-                </div>
-              </div>
-              <i class="fas fa-tasks text-blue-400 text-xl"></i>
-            </div>
-          </div>
-
-          <div
-            class="px-4 py-3 bg-green-50 rounded-lg hover:shadow-md transition-shadow duration-300"
-          >
-            <div class="flex items-center justify-between">
-              <div>
-                <div class="text-sm text-green-800">Completed</div>
-                <div class="text-2xl font-bold text-green-900">
-                  {{ taskStats.completed }}
-                </div>
-              </div>
-              <i class="fas fa-check-double text-green-400 text-xl"></i>
-            </div>
-          </div>
-
-          <div
-            class="px-4 py-3 bg-yellow-50 rounded-lg hover:shadow-md transition-shadow duration-300"
-          >
-            <div class="flex items-center justify-between">
-              <div>
-                <div class="text-sm text-yellow-800">Due Today</div>
-                <div class="text-2xl font-bold text-yellow-900">
-                  {{ getDueToday() }}
-                </div>
-              </div>
-              <i class="fas fa-clock text-yellow-400 text-xl"></i>
-            </div>
-          </div>
-        </div>
-      </div>
+      <!-- Sidebar -->
+      <TaskSidebarComponent :tasks="filteredTasks" />
 
       <!-- Main Content Area -->
       <div class="flex-1 overflow-x-hidden">
@@ -352,12 +260,14 @@ import NavBar from "@/components/NavBar.vue";
 import SearchComponent from "@/components/SearchComponent.vue";
 import { mapState, mapActions } from "vuex";
 import TaskCard from "@/components/TaskCard.vue";
+import TaskSidebarComponent from "@/components/TaskSidebarComponent.vue";
 
 export default {
   components: {
     NavBar,
     TaskCard,
     SearchComponent,
+    TaskSidebarComponent,
   },
 
   data() {
@@ -405,7 +315,9 @@ export default {
           tasks = tasks.filter((task) => task.dueDate.includes(formattedDay));
         } else {
           tasks = tasks.filter((task) =>
-            task.taskName.toLowerCase().includes(this.searchQuery.toLowerCase())
+            task.taskName
+              .toLowerCase()
+              .includes(this.searchQuery.toLowerCase()),
           );
         }
       }
@@ -413,17 +325,17 @@ export default {
       // Apply filters
       if (this.selectedPriority) {
         tasks = tasks.filter(
-          (task) => task.taskPriority === this.selectedPriority
+          (task) => task.taskPriority === this.selectedPriority,
         );
       }
       if (this.selectedAssigner) {
         tasks = tasks.filter(
-          (task) => task.assignerID === this.selectedAssigner
+          (task) => task.assignerID === this.selectedAssigner,
         );
       }
       if (this.selectedProject) {
         tasks = tasks.filter(
-          (task) => task.parentProjectID === this.selectedProject
+          (task) => task.parentProjectID === this.selectedProject,
         );
       }
       if (this.selectedOrg) {
@@ -496,13 +408,13 @@ export default {
         assignerIDs.map(async (id) => {
           const user = await this.$store.dispatch(
             "users/fetchUserAccountByID",
-            id
+            id,
           );
           return {
             id,
             name: user ? user.userName : "Unknown User", // Adjust based on your user object structure
           };
-        })
+        }),
       );
       this.uniqueAssigners = assigners;
     },
@@ -515,13 +427,13 @@ export default {
         projectIDs.map(async (id) => {
           const project = await this.$store.dispatch(
             "projects/fetchProject",
-            id
+            id,
           );
           return {
             id,
             name: project ? project.projectName : "Unknown Project", // Adjust based on your user object structure
           };
-        })
+        }),
       );
       this.uniqueProjects = projects;
     },
@@ -532,27 +444,27 @@ export default {
         orgIDs.map(async (id) => {
           const org = await this.$store.dispatch(
             "organizations/fetchOrganization",
-            id
+            id,
           );
           return {
             id,
             name: org ? org.orgName : "Unknown Org", // Adjust based on your user object structure
           };
-        })
+        }),
       );
       this.uniqueOrgs = orgs;
     },
 
     getAssignerName(assignerID) {
       const assigner = this.uniqueAssigners.find(
-        (assigner) => assigner.id === assignerID
+        (assigner) => assigner.id === assignerID,
       );
       return assigner ? assigner.name : "Unknown User";
     },
 
     getProjectName(projectID) {
       const project = this.uniqueProjects.find(
-        (project) => project.id === projectID
+        (project) => project.id === projectID,
       );
       return project ? project.name : "Unknown Project";
     },
@@ -579,7 +491,7 @@ export default {
     getDueToday() {
       const today = new Date().toISOString().split("T")[0];
       return this.filteredTasks.filter(
-        (task) => task.dueDate?.split("T")[0] === today && !task.complete
+        (task) => task.dueDate?.split("T")[0] === today && !task.complete,
       ).length;
     },
     getTaskPriorityColor(priority) {

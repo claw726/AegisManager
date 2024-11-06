@@ -32,7 +32,7 @@ export default defineConfig({
     },
     proxy: {
       "/api": {
-        target: "https://localhost:8443", // Target server
+        target: "https://localhost:8444", // Target server
         ws: true, // Enable WebSocket support
         changeOrigin: true, // Change the origin of the host header to the target URL
         secure: false,

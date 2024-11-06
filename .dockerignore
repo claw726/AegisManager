@@ -1,9 +1,46 @@
+# Version Control
 .git
 .gitignore
-.gradle
-build
-!build/libs/*.jar
+
+# Documentation
 *.md
+docs/
+.idea/
+
+# Development Artifcats
+node_modules/
+npm-debug.log
 *.log
-.idea
-*.iml
+*.bak
+
+# Build Artifacts
+dist/
+build/
+*.exe
+*.dll
+*.so
+*.dylib
+*.jar
+gradle/
+
+# IDE
+.idea/
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test Files
+test/
+__tests__/
+*.spec.*
+
+# Configuration
+.env
+.env.*
+config.local.js
+
+# Dockerfiles
+Dockerfile
+docker-compose.yml
