@@ -1,3 +1,4 @@
+/** @type {import{'tailwindcss'}.Config} */
 export default {
   theme: {
     extend: {
@@ -10,8 +11,6 @@ export default {
       },
     },
   },
-  content: [
-    "./src/**/*.{html,js,vue}", // Adjust the paths according to your project structure
-  ],
+  content: ["./index.html", "./src/**/*.{ts,tsx,js,jsx,vue}"],
   plugins: [],
 };

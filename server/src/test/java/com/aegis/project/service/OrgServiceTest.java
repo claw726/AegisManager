@@ -59,7 +59,6 @@ public class OrgServiceTest {
 
   @Test
   public void testCreateOrg_Success() {
-    int orgID = 1;
     OrgModel org = new OrgModel();
     org.setOrgName("New Org");
     org.setOrgDescription("Description");
