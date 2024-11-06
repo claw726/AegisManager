@@ -3,8 +3,12 @@ FROM gradle:jdk-lts-and-current-alpine AS build
 
 WORKDIR /app
 
+# Mount gradle cache
+RUN --mount=type=cache,target=/home/gradle/.gradle \
+    mkdir -p /home/gradle/.gradle && \
+    chmod 777 /home/gradle/.gradle
+
 # Cache gradle files
-COPY --chown=gradle:gradle gradle/ gradle/
 COPY --chown=gradle:gradle build.gradle ./
 
 # Optimize Gradle
@@ -14,24 +18,38 @@ ENV GRADLE_OPTS="-Dorg.gradle.daemon=false \
     -Dorg.gradle.configureondemand=true \
     -Dorg.gradle.jvmargs=-Xmx2048m"
 
-
-# Download dependencies (this layer will be cached)
-RUN gradle dependencies --no-daemon
+# Download dependencies using cache mount
+RUN --mount=type=cache,target=/home/gradle/.gradle \
+    gradle dependencies --no-daemon
 
 # Copy source code
 COPY --chown=gradle:gradle src ./src
 
-# Build the project
-RUN gradle clean build -x test --no-daemon
+# Build the project using cache mount
+RUN --mount=type=cache,target=/home/gradle/.gradle \
+    gradle clean build -x test --no-daemon
 
-# Runtime stage
-FROM eclipse-temurin:23-jre-alpine
+# Create a custom JRE
+FROM eclipse-temurin:23-jdk-alpine AS jlink-builder
+
+# Create a custom JRE
+RUN --mount=type=cache,target=/var/cache/apk \
+    jlink \
+    --add-modules java.base,java.logging,java.xml,java.sql,java.naming,java.desktop,java.management,java.security.jgss,java.instrument,jdk.unsupported,java.net.http \
+    --strip-debug \
+    --no-man-pages \
+    --no-header-files \
+    --compress=2 \
+    --output /customjre
+
+FROM alpine:latest AS runtime
 
 WORKDIR /app
 
 
-# Install security updates and add necessary packages
-RUN apk update && \
+# Install security updates and add necessary packages using cache mount
+RUN --mount=type=cache,target=/var/cache/apk \
+    apk update && \
     apk upgrade && \
     apk add --no-cache tini curl openssl && \
     mkdir -p /app/data && \
@@ -41,8 +59,14 @@ RUN apk update && \
     adduser -S spring -G spring && \
     chown -R spring:spring /app && \
     chmod -R 755 /app && \
-    rm -rf /var/cache/apk/* && \
     chmod 777 /app/temp
+
+# Copy the custom JRE
+COPY --from=jlink-builder /customjre /opt/java/openjdk
+
+# Set JAVA_HOME
+ENV JAVA_HOME=/opt/java/openjdk
+ENV PATH="${JAVA_HOME}/bin:${PATH}"
 
 # Generate keystore
 RUN keytool -genkeypair \
@@ -56,9 +80,10 @@ RUN keytool -genkeypair \
     -keypass changeit \
     -dname "CN=AegisManager, OU=Aegis, O=Purdue, L=WestLafayette, S=IN, C=US"
 
+
+
 # Set ownership of the keystore
 RUN chown spring:spring /app/keystore.p12
-
 
 # Use tini as init process
 ENTRYPOINT ["/sbin/tini", "--"]
@@ -74,7 +99,7 @@ COPY --chown=gradle:gradle src/main/resources/templates ./src/main/resources/tem
 
 # Add healthcheck
 HEALTHCHECK --interval=30s --timeout=3s \
-  CMD curl -k --fail https://localhost:8444/actuator/health || exit 1
+    CMD curl -k --fail https://localhost:8444/actuator/health || exit 1
 
 EXPOSE 8444
 
@@ -95,4 +120,4 @@ CMD ["java", \
     "-Dserver.port=8444", \
     "-jar", \
     "app.jar" \
-]
+    ]
