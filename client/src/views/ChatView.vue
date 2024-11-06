@@ -9,6 +9,7 @@
         <div class="p-3 border-b">
           <div class="relative">
             <input
+              v-model="searchQuery"
               type="text"
               placeholder="Search"
               class="w-full px-4 py-2 pl-10 bg-[#ffffff] rounded-full border-none focus:ring-2 focus:ring-blue-500"
@@ -19,13 +20,16 @@
 
         <!-- Chat List -->
         <div class="flex-1 overflow-y-auto">
-          <ChatListItem
-            v-for="chat in chats"
-            :key="chat.id"
-            :chat="chat"
-            :active="activeChat?.id === chat.id"
-            @select="handleChatSelect"
-          />
+          <TransitionGroup name="chat-list" tag="div">
+            <ChatListItem
+              v-for="chat in filteredChats"
+              :key="chat.id"
+              :chat="chat"
+              :active="activeChat?.id === chat.id"
+              :searchQuery="searchQuery"
+              @select="handleChatSelect"
+            />
+          </TransitionGroup>
         </div>
 
         <!-- New Chat Button -->
@@ -71,6 +75,7 @@ export default {
   data() {
     return {
       showNewChatModal: false,
+      searchQuery: "",
     };
   },
   computed: {
@@ -78,8 +83,39 @@ export default {
       chats: (state) => state.chat.chats,
       currentUser: (state) => state.chat.currentUser,
       activeChat: (state) => state.chat.activeChat,
+      messages: (state) => state.chat.messages,
     }),
+
+    filteredChats() {
+      if (!this.searchQuery.trim()) {
+        return this.chats;
+      }
+
+      const query = this.searchQuery.toLowerCase().trim();
+
+      return this.chats.filter((chat) => {
+        // Search in chat title
+        if (chat.title.toLowerCase().includes(query)) {
+          return true;
+        }
+
+        // Search in chat messages
+        const chatMessages = this.messages[chat.id] || [];
+        return chatMessages.some(
+          (message) =>
+            message.content.toLowerCase().includes(query) ||
+            message.senderName.toLowerCase().includes(query),
+        );
+      });
+    },
   },
+
+  watch: {
+    $route() {
+      this.searchQuery = "";
+    },
+  },
+
   created() {
     // Add debug logging
     console.log("Current state:", {
@@ -183,3 +219,30 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.chat-list-enter-active,
+.chat-list-leave-active {
+  transition: all 0.5s ease;
+}
+
+.chat-list-enter-from {
+  opacity: 0;
+  transform: translateX(-30px);
+}
+
+.chat-list-leave-to {
+  opacity: 0;
+  transform: translateX(30px);
+}
+
+.chat-list-move {
+  transition: transform 0.5s ease;
+}
+
+.highlight {
+  background-color: yellow;
+  padding: 0 2px;
+  border-radius: 2px;
+}
+</style>

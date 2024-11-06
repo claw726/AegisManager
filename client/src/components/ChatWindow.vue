@@ -33,18 +33,21 @@
       ref="messageContainer"
       class="flex-1 overflow-y-auto p-4 space-y-2 bg-[#ffffff] flex flex-col"
     >
-      <div
-        v-for="(message, index) in chatMessages"
-        :key="message.id"
-        class="w-full"
-      >
-        <MessageBubble
-          :message="message"
-          :isOwn="message.senderId === currentUser?.id"
-          :showSender="shouldShowSenderName(message, index)"
-          class="w-full"
-        />
-      </div>
+      <TransitionGroup name="message" tag="div" class="flex flex-col flex-grow">
+        <div
+          v-for="(message, index) in chatMessages"
+          :key="message.id"
+          class="w-full message-item"
+        >
+          <MessageBubble
+            :message="message"
+            :isOwn="message.senderId === currentUser?.id"
+            :showSender="shouldShowSenderName(message, index)"
+            :showTimestamp="shouldShowTimestamp(message, index)"
+            class="w-full"
+          />
+        </div>
+      </TransitionGroup>
     </div>
 
     <!-- Message Input -->
@@ -213,6 +216,43 @@ export default {
       // Show sender name if previous message was from a different sender
       return previousMessage.senderId !== message.senderId;
     },
+    shouldShowTimestamp(message, index) {
+      if (index === 0) return true;
+
+      const currentTime = new Date(message.timestamp);
+      const previousTime = new Date(this.chatMessages[index - 1].timestamp);
+
+      // Show timestamp if more than 15 minutes have passed
+      const timeDifference = currentTime - previousTime;
+      return timeDifference > 15 * 60 * 1000; // 15 minutes in milliseconds
+    },
   },
 };
 </script>
+
+<style scoped>
+.message-item {
+  position: relative; /* Add this to maintain position during animation */
+}
+
+.message-enter-active,
+.message-leave-active {
+  transition: all 0.3s ease;
+  position: absolute; /* Changed from relative */
+  width: 100%;
+}
+
+.message-enter-from {
+  opacity: 0;
+  transform: translateY(30px);
+}
+
+.message-leave-to {
+  opacity: 0;
+  transform: translateY(-30px);
+}
+
+.message-move {
+  transition: all 0.3s ease;
+}
+</style>

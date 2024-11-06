@@ -295,7 +295,7 @@ const mutations = {
     state.activeChat = state.chats.find((chat) => chat.id === chatId) || null;
     console.log("Active chat set to:", state.activeChat);
   },
-  ADD_MESSGAE(state, { chatId, message }) {
+  ADD_MESSAGE(state, { chatId, message }) {
     if (!state.messages[chatId]) {
       state.messages[chatId] = [];
     }
@@ -303,6 +303,21 @@ const mutations = {
   },
   SET_CHAT_MEMBERS(state, { chatId, members }) {
     state.chatMembers[chatId] = members;
+  },
+  UPDATE_LAST_MESSAGE(state, { chatId, content }) {
+    const chatIndex = state.chats.findIndex((chat) => chat.id === chatId);
+    if (chatIndex !== -1) {
+      // Create a new chat object with updated lastMessage
+      const updatedChat = {
+        ...state.chats[chatIndex],
+        lastMessage: content,
+      };
+
+      // Remove the chat from its current position
+      state.chats.splice(chatIndex, 1);
+      // Add it to the beginning of the array
+      state.chats.unshift(updatedChat);
+    }
   },
 };
 
@@ -327,6 +342,7 @@ const actions = {
     };
 
     commit("ADD_MESSAGE", { chatId, message: newMessage });
+    commit("UPDATE_LAST_MESSAGE", { chatId, content });
     return newMessage;
   },
   async createChat({ commit }, { type, participants }) {
@@ -338,7 +354,7 @@ const getters = {
   getChatMessages: (state) => (chatId) => {
     return state.messages[chatId] || [];
   },
-  getCurrentUser: (state, getters, rootState) => authState.currentUser,
+  getCurrentUser: (rootState) => rootState.auth.currentUser,
 
   getActiveChat: (state) => state.activeChat,
 };
