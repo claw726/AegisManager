@@ -7,7 +7,8 @@ let stompClient = null;
 
 export function connect() {
   console.log("Connecting to WebSocket");
-  const socket = () => new SockJS("https://localhost:8444/api/ws");
+  const socket = () => new SockJS("https://localhost:8444/ws");
+  console.log("Stomping over")
   stompClient = Stomp.over(socket);
 
   console.log("Connecting with Stomp client");
