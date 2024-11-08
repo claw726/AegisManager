@@ -23,7 +23,7 @@ public class ChatService {
     @Autowired
     private UserRepository userRepository;
 
-    public ChatDTO createChat(String type, Set<Integer> participants, String title) {
+    public void createChat(String type, Set<Integer> participants, String title) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String currentUsername = ((UserDetails) authentication.getPrincipal()).getUsername();
 
@@ -33,12 +33,23 @@ public class ChatService {
         ChatModel chat = new ChatModel(type, title, participants);
         chat.addParticipant(currentUser.getUserID());
         chatRepository.save(chat);
-        return new ChatDTO(chat);
     }
 
     public ChatDTO getChat(int chatID) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUsername = ((UserDetails) authentication.getPrincipal()).getUsername();
+
+        UserModel currentUser = userRepository.findByEmail(currentUsername).orElseThrow(() ->
+                new RuntimeException("User not found with email: " + currentUsername));
+
         ChatModel chat = chatRepository.findById(chatID).orElseThrow(() ->
                 new RuntimeException("Chat not found with id: " + chatID));
+
+        for (int participant : chat.getParticipants()) {
+            if (participant != currentUser.getUserID()) {
+                chat.addParticipant(participant);
+            }
+        }
         return new ChatDTO(chat);
     }
 
@@ -53,6 +64,9 @@ public class ChatService {
     public void addParticipant(int chatID, int userID) {
         ChatModel chat = chatRepository.findById(chatID).orElseThrow(() ->
                 new RuntimeException("Chat not found with id: " + chatID));
+
+        UserModel user = userRepository.findById(userID).orElseThrow(() ->
+                new RuntimeException("User not found with id: " + userID));
         chat.addParticipant(userID);
         chatRepository.save(chat);
     }
@@ -60,6 +74,14 @@ public class ChatService {
     public void removeParticipant(int chatID, int userID) {
         ChatModel chat = chatRepository.findById(chatID).orElseThrow(() ->
                 new RuntimeException("Chat not found with id: " + chatID));
+
+        UserModel user = userRepository.findById(userID).orElseThrow(() ->
+                new RuntimeException("User not found with id: " + userID));
+
+        if (!chat.getParticipants().contains(userID)) {
+            throw new RuntimeException("User not found in chat");
+        }
+
         chat.removeParticipant(userID);
         chatRepository.save(chat);
     }

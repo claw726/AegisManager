@@ -52,8 +52,15 @@ public class MessageService {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String currentUsername = ((UserDetails) authentication.getPrincipal()).getUsername();
 
+        ChatModel chat = chatRepository.findById(chatID).orElseThrow(() ->
+                new RuntimeException("Chat not found with id: " + chatID));
+
         UserModel currentUser = userRepository.findByEmail(currentUsername).orElseThrow(() ->
                 new RuntimeException("User not found with email: " + currentUsername));
+
+        if (!chat.getParticipants().contains(currentUser.getUserID())) {
+            throw new RuntimeException("User not authorized to view messages in chat: " + chatID);
+        }
 
         for (MessageModel message : messages) {
             if (message.getSenderID() != currentUser.getUserID()) {
