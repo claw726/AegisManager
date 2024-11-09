@@ -1,279 +1,338 @@
 import WebSocketService from "@/services/websocket.js";
 
 const mockUsers = [
-  { id: 1, name: "John Doe", avatar: null },
-  { id: 2, name: "Jane Smith", avatar: null },
-  { id: 3, name: "Bob Johnson", avatar: null },
+  {
+    id: 1,
+    name: "Dr. Gregory House",
+    email: "house@ppth.edu",
+    orgId: "ppth",
+    title: "Head of Diagnostic Medicine",
+  },
+  {
+    id: 2,
+    name: "Dr. Lisa Cuddy",
+    email: "cuddy@ppth.edu",
+    orgId: "ppth",
+    title: "Dean of Medicine",
+  },
+  {
+    id: 3,
+    name: "Dr. James Wilson",
+    email: "wilson@ppth.edu",
+    orgId: "ppth",
+    title: "Head of Oncology",
+  },
+  {
+    id: 4,
+    name: "Dr. Eric Foreman",
+    email: "foreman@ppth.edu",
+    orgId: "ppth",
+    title: "Neurologist",
+  },
+  {
+    id: 5,
+    name: "Dr. Robert Chase",
+    email: "chase@ppth.edu",
+    orgId: "ppth",
+    title: "Surgeon/Intensivist",
+  },
+  {
+    id: 6,
+    name: "Dr. Allison Cameron",
+    email: "cameron@ppth.edu",
+    orgId: "ppth",
+    title: "Immunologist",
+  },
+  {
+    id: 7,
+    name: "Dr. Chris Taub",
+    email: "taub@ppth.edu",
+    orgId: "ppth",
+    title: "Plastic Surgeon",
+  },
+  {
+    id: 8,
+    name: "Dr. Remy Hadley",
+    email: "thirteen@ppth.edu",
+    orgId: "ppth",
+    title: "Internist",
+  },
+  {
+    id: 9,
+    name: "Dr. Lawrence Kutner",
+    email: "kutner@ppth.edu",
+    orgId: "ppth",
+    title: "Sports Medicine",
+  },
 ];
 
-// Don't forget to update the mockChats array to include the new chat references:
+const mockOrganizations = [
+  {
+    id: "ppth",
+    name: "Princeton-Plainsboro Teaching Hospital",
+    department: "Diagnostic Medicine",
+  },
+];
+
+// Let's also update some mock chats to reflect these characters
 const mockChats = [
   {
     id: "direct-2",
     type: "direct",
-    participants: [1, 2],
-    title: "Jane Smith",
-    lastMessage: "Should we schedule a team meeting to discuss implementation?",
+    participants: [1, 2], // House and Cuddy
+    title: "Dr. Lisa Cuddy",
+    lastMessage: "Your clinic hours are still mandatory, House.",
     unreadCount: 2,
+  },
+  {
+    id: "direct-3",
+    type: "direct",
+    participants: [1, 3], // House and Wilson
+    title: "Dr. James Wilson",
+    lastMessage: "Want to get lunch?",
+    unreadCount: 0,
   },
   {
     id: "group-1",
     type: "group",
-    participants: [1, 2, 3],
-    title: "Project Team",
-    lastMessage: "Don't forget to bring your project updates!",
-    unreadCount: 0,
-  },
-  {
-    id: "org-1",
-    type: "organization",
-    orgId: "1",
-    participants: [1, 2, 3],
-    title: "Organization Chat",
-    lastMessage: "Perfect, thanks!",
+    participants: [1, 4, 5, 6], // House and original team
+    title: "Original Diagnostic Team",
+    lastMessage: "Differential diagnosis, people!",
     unreadCount: 1,
   },
   {
-    id: "project-1",
-    type: "project",
-    orgId: "1",
-    participants: [1, 2, 3],
-    title: "Website Redesign",
-    lastMessage: "Looking forward to seeing them!",
-    unreadCount: 0,
+    id: "group-2",
+    type: "group",
+    participants: [1, 7, 8, 9], // House and new team
+    title: "New Diagnostic Team",
+    lastMessage: "The patient is getting worse.",
+    unreadCount: 3,
   },
   {
-    id: "task-1",
-    type: "task",
-    orgId: "1",
-    projectId: "project-1",
-    participants: [1, 2],
-    title: "Design Homepage",
-    lastMessage: "That should work, thanks!",
+    id: "org-ppth",
+    type: "organization",
+    orgId: "ppth",
+    participants: [1, 2, 3, 4, 5, 6, 7, 8, 9],
+    title: "PPTH General",
+    lastMessage: "Remember the department meeting tomorrow.",
     unreadCount: 0,
   },
 ];
 
+// You might want to update the mock messages as well with some House-style dialogue
 const mockMessages = {
   "direct-2": [
+    // House and Cuddy
     {
       id: 1,
-      content: "Hey, how are you?",
+      content: "House, where are you? You have clinic duty.",
       senderId: 2,
-      senderName: "Jane Smith",
-      timestamp: new Date("2024-01-20T10:00:00").toISOString(),
+      senderName: "Dr. Lisa Cuddy",
+      timestamp: new Date("2024-01-20T09:00:00").toISOString(),
     },
     {
       id: 2,
-      content: "I'm good, thanks! How about you?",
+      content: "Coma guy needs me. Very critical. He might wake up any second.",
       senderId: 1,
-      senderName: "John Doe",
-      timestamp: new Date("2024-01-20T10:01:00").toISOString(),
+      senderName: "Dr. Gregory House",
+      timestamp: new Date("2024-01-20T09:01:00").toISOString(),
     },
     {
       id: 3,
       content:
-        "Doing well! Did you get a chance to review the project proposal?",
+        "You're watching General Hospital in his room again, aren't you?",
       senderId: 2,
-      senderName: "Jane Smith",
-      timestamp: new Date("2024-01-20T10:03:00").toISOString(),
+      senderName: "Dr. Lisa Cuddy",
+      timestamp: new Date("2024-01-20T09:01:30").toISOString(),
     },
     {
       id: 4,
-      content: "Yes, I just finished looking it over. Great work!",
-      senderId: 1,
-      senderName: "John Doe",
-      timestamp: new Date("2024-01-20T10:05:00").toISOString(),
+      content: "Your clinic hours are still mandatory, House.",
+      senderId: 2,
+      senderName: "Dr. Lisa Cuddy",
+      timestamp: new Date("2024-01-20T09:02:00").toISOString(),
     },
+  ],
+
+  "direct-3": [
+    // House and Wilson
     {
       id: 5,
-      content: "I particularly liked the innovation section",
-      senderId: 1,
-      senderName: "John Doe",
-      timestamp: new Date("2024-01-20T10:05:30").toISOString(),
+      content: "Want to get lunch?",
+      senderId: 3,
+      senderName: "Dr. James Wilson",
+      timestamp: new Date("2024-01-20T11:30:00").toISOString(),
     },
     {
       id: 6,
-      content: "Thanks! I spent extra time on that part",
-      senderId: 2,
-      senderName: "Jane Smith",
-      timestamp: new Date("2024-01-20T10:07:00").toISOString(),
+      content: "Only if you're buying. And I'm taking half your sandwich.",
+      senderId: 1,
+      senderName: "Dr. Gregory House",
+      timestamp: new Date("2024-01-20T11:31:00").toISOString(),
     },
     {
       id: 7,
-      content: "Should we schedule a team meeting to discuss implementation?",
-      senderId: 2,
-      senderName: "Jane Smith",
-      timestamp: new Date("2024-01-20T10:10:00").toISOString(),
+      content: "So... the usual then?",
+      senderId: 3,
+      senderName: "Dr. James Wilson",
+      timestamp: new Date("2024-01-20T11:31:30").toISOString(),
+    },
+    {
+      id: 8,
+      content:
+        "Cuddy's looking for you, by the way. Something about clinic hours.",
+      senderId: 3,
+      senderName: "Dr. James Wilson",
+      timestamp: new Date("2024-01-20T11:32:00").toISOString(),
+    },
+    {
+      id: 9,
+      content: "Lunch first. Hide from Cuddy later.",
+      senderId: 1,
+      senderName: "Dr. Gregory House",
+      timestamp: new Date("2024-01-20T11:32:30").toISOString(),
     },
   ],
 
   "group-1": [
-    {
-      id: 8,
-      content: "Good morning everyone! Meeting at 3 PM today",
-      senderId: 3,
-      senderName: "Bob Johnson",
-      timestamp: new Date("2024-01-20T09:00:00").toISOString(),
-    },
-    {
-      id: 9,
-      content: "I'll be there!",
-      senderId: 1,
-      senderName: "John Doe",
-      timestamp: new Date("2024-01-20T09:05:00").toISOString(),
-    },
+    // Original team
     {
       id: 10,
       content:
-        "Can we make it 3:30? I have another meeting that might run long",
-      senderId: 2,
-      senderName: "Jane Smith",
-      timestamp: new Date("2024-01-20T09:10:00").toISOString(),
+        "Differential diagnosis, people! 16-year-old male, seizures, rash, and now kidney failure.",
+      senderId: 1,
+      senderName: "Dr. Gregory House",
+      timestamp: new Date("2024-01-20T14:00:00").toISOString(),
     },
     {
       id: 11,
-      content: "3:30 works for me",
-      senderId: 3,
-      senderName: "Bob Johnson",
-      timestamp: new Date("2024-01-20T09:12:00").toISOString(),
+      content: "Could be lupus.",
+      senderId: 6,
+      senderName: "Dr. Allison Cameron",
+      timestamp: new Date("2024-01-20T14:01:00").toISOString(),
     },
     {
       id: 12,
-      content: "Great, I'll update the calendar invite",
+      content: "It's never lupus.",
       senderId: 1,
-      senderName: "John Doe",
-      timestamp: new Date("2024-01-20T09:15:00").toISOString(),
+      senderName: "Dr. Gregory House",
+      timestamp: new Date("2024-01-20T14:01:30").toISOString(),
     },
     {
       id: 13,
-      content: "Don't forget to bring your project updates!",
-      senderId: 3,
-      senderName: "Bob Johnson",
-      timestamp: new Date("2024-01-20T09:20:00").toISOString(),
+      content: "Autoimmune response to a viral infection?",
+      senderId: 4,
+      senderName: "Dr. Eric Foreman",
+      timestamp: new Date("2024-01-20T14:02:00").toISOString(),
     },
-  ],
-
-  "org-1": [
     {
       id: 14,
-      content: "Welcome everyone to our new organizational chat!",
-      senderId: 1,
-      senderName: "John Doe",
-      timestamp: new Date("2024-01-19T11:00:00").toISOString(),
+      content: "Drug use could explain all the symptoms.",
+      senderId: 5,
+      senderName: "Dr. Robert Chase",
+      timestamp: new Date("2024-01-20T14:02:30").toISOString(),
     },
     {
       id: 15,
-      content: "Excited to be here!",
-      senderId: 2,
-      senderName: "Jane Smith",
-      timestamp: new Date("2024-01-19T11:02:00").toISOString(),
+      content:
+        "Chase, go break into the patient's house. Foreman, run the blood cultures. Cameron, get a detailed family history.",
+      senderId: 1,
+      senderName: "Dr. Gregory House",
+      timestamp: new Date("2024-01-20T14:03:00").toISOString(),
     },
+  ],
+
+  "group-2": [
+    // New team
     {
       id: 16,
-      content: "Quick reminder: Company meeting next Tuesday",
-      senderId: 3,
-      senderName: "Bob Johnson",
-      timestamp: new Date("2024-01-19T14:00:00").toISOString(),
+      content: "Patient started coughing up blood during the MRI.",
+      senderId: 8,
+      senderName: "Dr. Remy Hadley",
+      timestamp: new Date("2024-01-20T15:00:00").toISOString(),
     },
     {
       id: 17,
-      content: "Will it be in-person or virtual?",
-      senderId: 2,
-      senderName: "Jane Smith",
-      timestamp: new Date("2024-01-19T14:05:00").toISOString(),
+      content: "Interesting. Now we know it's not boring.",
+      senderId: 1,
+      senderName: "Dr. Gregory House",
+      timestamp: new Date("2024-01-20T15:01:00").toISOString(),
     },
     {
       id: 18,
-      content: "Hybrid - you can choose either option",
-      senderId: 3,
-      senderName: "Bob Johnson",
-      timestamp: new Date("2024-01-19T14:10:00").toISOString(),
+      content: "Could be Wegener's granulomatosis.",
+      senderId: 7,
+      senderName: "Dr. Chris Taub",
+      timestamp: new Date("2024-01-20T15:01:30").toISOString(),
     },
     {
       id: 19,
-      content: "Perfect, thanks!",
-      senderId: 2,
-      senderName: "Jane Smith",
-      timestamp: new Date("2024-01-19T14:12:00").toISOString(),
+      content: "Or pulmonary embolism with paraneoplastic syndrome.",
+      senderId: 9,
+      senderName: "Dr. Lawrence Kutner",
+      timestamp: new Date("2024-01-20T15:02:00").toISOString(),
     },
-  ],
-
-  "project-1": [
     {
       id: 20,
       content:
-        "Project kickoff meeting notes are now available in the shared drive",
+        "Run the tests for both. And someone figure out why this patient is lying about their medical history.",
       senderId: 1,
-      senderName: "John Doe",
-      timestamp: new Date("2024-01-18T15:00:00").toISOString(),
+      senderName: "Dr. Gregory House",
+      timestamp: new Date("2024-01-20T15:02:30").toISOString(),
     },
     {
       id: 21,
-      content: "Thanks for sharing! I'll review them today",
-      senderId: 2,
-      senderName: "Jane Smith",
-      timestamp: new Date("2024-01-18T15:30:00").toISOString(),
-    },
-    {
-      id: 22,
-      content: "Has anyone started on the design mockups?",
-      senderId: 3,
-      senderName: "Bob Johnson",
-      timestamp: new Date("2024-01-18T16:00:00").toISOString(),
-    },
-    {
-      id: 23,
-      content:
-        "I'm working on them now, should have something to share by tomorrow",
-      senderId: 2,
-      senderName: "Jane Smith",
-      timestamp: new Date("2024-01-18T16:05:00").toISOString(),
-    },
-    {
-      id: 24,
-      content: "Looking forward to seeing them!",
-      senderId: 1,
-      senderName: "John Doe",
-      timestamp: new Date("2024-01-18T16:10:00").toISOString(),
+      content: "The patient is getting worse.",
+      senderId: 8,
+      senderName: "Dr. Remy Hadley",
+      timestamp: new Date("2024-01-20T15:45:00").toISOString(),
     },
   ],
 
-  "task-1": [
+  "org-ppth": [
+    // Hospital-wide chat
+    {
+      id: 22,
+      content: "Reminder: Department heads meeting tomorrow at 9 AM.",
+      senderId: 2,
+      senderName: "Dr. Lisa Cuddy",
+      timestamp: new Date("2024-01-20T16:00:00").toISOString(),
+    },
+    {
+      id: 23,
+      content: "Will there be coffee?",
+      senderId: 1,
+      senderName: "Dr. Gregory House",
+      timestamp: new Date("2024-01-20T16:01:00").toISOString(),
+    },
+    {
+      id: 24,
+      content: "Yes, House, there will be coffee.",
+      senderId: 2,
+      senderName: "Dr. Lisa Cuddy",
+      timestamp: new Date("2024-01-20T16:02:00").toISOString(),
+    },
     {
       id: 25,
-      content: "I've updated the task description with more details",
+      content: "Great, then I'll make sure to miss it.",
       senderId: 1,
-      senderName: "John Doe",
-      timestamp: new Date("2024-01-17T13:00:00").toISOString(),
+      senderName: "Dr. Gregory House",
+      timestamp: new Date("2024-01-20T16:03:00").toISOString(),
     },
     {
       id: 26,
-      content: "Got it, reviewing now",
+      content:
+        "Don't forget to submit your department budget reports by Friday.",
       senderId: 2,
-      senderName: "Jane Smith",
-      timestamp: new Date("2024-01-17T13:15:00").toISOString(),
+      senderName: "Dr. Lisa Cuddy",
+      timestamp: new Date("2024-01-20T16:04:00").toISOString(),
     },
     {
       id: 27,
-      content: "Quick question - what's the deadline for this?",
+      content: "Remember the department meeting tomorrow.",
       senderId: 2,
-      senderName: "Jane Smith",
-      timestamp: new Date("2024-01-17T13:20:00").toISOString(),
-    },
-    {
-      id: 28,
-      content: "End of next week, but let me know if you need more time",
-      senderId: 1,
-      senderName: "John Doe",
-      timestamp: new Date("2024-01-17T13:25:00").toISOString(),
-    },
-    {
-      id: 29,
-      content: "That should work, thanks!",
-      senderId: 2,
-      senderName: "Jane Smith",
-      timestamp: new Date("2024-01-17T13:30:00").toISOString(),
+      senderName: "Dr. Lisa Cuddy",
+      timestamp: new Date("2024-01-20T16:05:00").toISOString(),
     },
   ],
 };
@@ -283,6 +342,7 @@ const state = {
   activeChat: null,
   chats: mockChats,
   messages: mockMessages,
+  organizations: mockOrganizations,
   users: mockUsers,
   chatMembers: {},
   unreadCounts: {},
@@ -318,6 +378,10 @@ const mutations = {
       state.chats.unshift(updatedChat);
     }
   },
+  CREATE_CHAT(state, chat) {
+    state.chats.unshift(chat);
+    state.messages[chat.id] = [];
+  },
 };
 
 const actions = {
@@ -348,8 +412,49 @@ const actions = {
     commit("UPDATE_LAST_MESSAGE", { chatId, content });
     return newMessage;
   },
-  async createChat({ commit }, { type, participants }) {
-    // Create a new chat
+  async createNewChat({ commit, state }, { type, participants }) {
+    // Generate a unique ID for the chat
+    const chatId =
+      type === "direct" ? `direct-${participants[0]}` : `group-${Date.now()}`;
+
+    // Find participant users to get their names
+    const participantUsers = participants.map((id) =>
+      state.users.find((user) => user.id === id),
+    );
+
+    // Create chat title
+    const title =
+      type === "direct"
+        ? participantUsers[0].name
+        : `Group Chat (${participantUsers.map((u) => u.name).join(", ")})`;
+
+    // Create a new chat object
+    const newChat = {
+      id: chatId,
+      type,
+      participants: [...participants, state.currentUser.id],
+      title,
+      lastMessage: "",
+      unreadCount: 0,
+      timestamp: new Date().toISOString(),
+    };
+
+    // Add welcome message
+    const welcomeMessage = {
+      id: Date.now(),
+      content:
+        type === "direct" ? "Start of your conversation" : "Group chat created",
+      senderId: state.currentUser.id,
+      senderName: state.currentUser.name,
+      timestamp: new Date().toISOString(),
+    };
+
+    // Commit
+    commit("CREATE_CHAT", newChat);
+    commit("ADD_MESSAGE", { chatId: newChat.id, message: welcomeMessage });
+    commit("SET_ACTIVE_CHAT", newChat.id);
+
+    return newChat;
   },
 };
 

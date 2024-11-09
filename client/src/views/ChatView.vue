@@ -1,12 +1,12 @@
 <template>
-  <div class="h-max-screen bg-background">
-    <NavBar />
-    <div class="flex h-screen">
+  <div class="h-screen flex flex-col overflow-hidden bg-background">
+    <NavBar class="flex-shrink-0" />
+    <div class="flex flex-1 min-h-0">
       <!-- Light gray background -->
       <!-- Sidebar -->
       <div class="w-80 border-r bg-[#f7f7f7] flex flex-col">
         <!-- Search bar -->
-        <div class="p-3 border-b">
+        <div class="p-3 border-b flex-shrink-0">
           <div class="relative">
             <input
               v-model="searchQuery"
@@ -19,7 +19,7 @@
         </div>
 
         <!-- Chat List -->
-        <div class="flex-1 overflow-y-auto">
+        <div class="flex-1 overflow-y-auto min-h-0">
           <TransitionGroup name="chat-list" tag="div">
             <ChatListItem
               v-for="chat in filteredChats"
@@ -33,7 +33,7 @@
         </div>
 
         <!-- New Chat Button -->
-        <div class="p-3 border-t">
+        <div class="p-3 border-t flex-shrink-0">
           <button
             class="w-full bg-blue-500 hover:bg-blue-600 text-white rounded-full px-4 py-2 flex items-center justify-center transition-colors"
             @click="showNewChatModal = true"
@@ -45,7 +45,7 @@
       </div>
 
       <!-- Main Chat Area -->
-      <div class="flex-1 flex flex-col bg-white">
+      <div class="flex-1 flex flex-col min-h-0 bg-white">
         <router-view v-if="activeChat"></router-view>
         <div
           v-else
@@ -59,18 +59,25 @@
       </div>
     </div>
   </div>
+  <NewChatModal
+    v-if="showNewChatModal"
+    @close="showNewChatModal = false"
+    @create="createNewChat"
+  />
 </template>
 
 <script>
 import { mapState, mapActions } from "vuex";
 import ChatListItem from "@/components/ChatListItem.vue";
 import NavBar from "@/components/NavBar.vue";
+import NewChatModal from "@/components/NewChatModal.vue";
 
 export default {
   name: "ChatView",
   components: {
     ChatListItem,
     NavBar,
+    NewChatModal,
   },
   data() {
     return {
@@ -134,9 +141,33 @@ export default {
   },
   methods: {
     ...mapActions("chat", ["selectChat"]),
-    createNewChat(data) {
-      // Implement when backend is ready
-      this.showNewChatModal = false;
+    async createNewChat(chatData) {
+      try {
+        await this.$store.dispatch("chat/createNewChat", chatData);
+        this.showNewChatModal = false;
+
+        // Get the newly created chat (it will be the first one in the list)
+        const newChat = this.$store.state.chat.chats[0];
+
+        // Navigate to the appropriate route based on chat type
+        let route;
+        if (chatData.type === "direct") {
+          route = {
+            name: "DirectChat",
+            params: { userID: chatData.participants[0] },
+          };
+        } else {
+          route = {
+            name: "GroupChat",
+            params: { groupID: newChat.id },
+          };
+        }
+
+        await this.$router.push(route);
+      } catch (error) {
+        console.error("Error creating new chat:", error);
+        // You might want to add error handling UI here
+      }
     },
     async handleChatSelect(chat) {
       if (!chat || !chat.id) return;

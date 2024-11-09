@@ -1,7 +1,7 @@
 <template>
-  <div class="flex flex-col h-full">
+  <div class="flex flex-col h-full min-h-0">
     <!-- Chat Header -->
-    <div class="border-b p-4 flex items-center bg-white">
+    <div class="border-b p-4 flex items-center bg-white flex-shrink-0">
       <div class="flex-1 flex items-center">
         <div
           class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center mr-3"
@@ -31,7 +31,7 @@
     <!-- Messages Area -->
     <div
       ref="messageContainer"
-      class="flex-1 overflow-y-auto p-4 space-y-2 bg-[#ffffff] flex flex-col"
+      class="flex-1 overflow-y-auto p-4 space-y-2 bg-[#ffffff] min-h-0"
     >
       <TransitionGroup name="message" tag="div" class="flex flex-col flex-grow">
         <div
@@ -51,7 +51,7 @@
     </div>
 
     <!-- Message Input -->
-    <div class="p-3 bg-[#f7f7f7]">
+    <div class="p-3 bg-[#f7f7f7] flex-shrink-0">
       <div class="flex items-center bg-white rounded-full border">
         <button class="p-2 text-gray-500 hover:text-gray-700">
           <i class="fas fa-plus"></i>
@@ -60,7 +60,7 @@
           v-model="newMessage"
           type="text"
           class="flex-1 px-4 py-2 bg-transparent border-none focus:ring-0"
-          placeholder="iMessage"
+          placeholder="Type a message..."
           @keyup.enter="handleSendMessage"
         />
         <button

@@ -49,11 +49,14 @@ RUN --mount=type=cache,target=/var/cache/apk \
     tini && \
     mkdir -p /etc/nginx/ssl && \
     mkdir -p /var/cache/nginx && \
+    # Create nginx dirs with correct perms
     chown -R nginx:nginx /etc/nginx && \
     chown -R nginx:nginx /var/cache/nginx && \
     chown -R nginx:nginx /var/log/nginx && \
     touch /var/run/nginx.pid && \
-    chown -R nginx:nginx /var/run/nginx.pid
+    chown -R nginx:nginx /var/run/nginx.pid && \
+    # Ensure nginx user can read the SLL dir
+    chmod -R 755 /etc/nginx/ssl
 
 # Generate SSL certificates using BuildKit's secret mount
 RUN --mount=type=secret,id=ssl_password,mode=0400 \
@@ -61,7 +64,11 @@ RUN --mount=type=secret,id=ssl_password,mode=0400 \
     -keyout /etc/nginx/ssl/key.pem \
     -out /etc/nginx/ssl/cert.pem \
     -subj "/C=US/ST=Indiana/L=WestLafayette/O=AegisManager/CN=localhost" \
-    -addext "subjectAltName=DNS:localhost,IP:127.0.0.1"
+    -addext "subjectAltName=DNS:localhost,IP:127.0.0.1,IP:0.0.0.0" &&\
+    chown nginx:nginx /etc/nginx/ssl/key.pem && \
+    chown nginx:nginx /etc/nginx/ssl/cert.pem && \
+    chmod 600 /etc/nginx/ssl/key.pem && \
+    chmod 600 /etc/nginx/ssl/cert.pem
 
 # Copy nginx configuration
 COPY --chown=nginx:nginx nginx.conf /etc/nginx/conf.d/default.conf
@@ -70,14 +77,10 @@ COPY --chown=nginx:nginx nginx.conf /etc/nginx/conf.d/default.conf
 COPY --from=builder --chown=nginx:nginx /app/dist /usr/share/nginx/html
 
 # Set proper permissions
-RUN chmod -R 755 /usr/share/nginx/html && \
-    chmod -R 600 /etc/nginx/ssl
+RUN chmod -R 755 /usr/share/nginx/html
 
 # Use tini as init
 ENTRYPOINT ["/sbin/tini", "--"]
-
-# Set the user to the non-root user
-USER nginx
 
 # Add healthcheck
 HEALTHCHECK --interval=30s --timeout=3s \

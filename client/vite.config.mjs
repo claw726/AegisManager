@@ -25,7 +25,7 @@ export default defineConfig({
   },
   server: {
     port: 8443,
-    host: "localhost",
+    host: "0.0.0.0",
     https: {
       key: fs.readFileSync("./keystore/key.pem"),
       cert: fs.readFileSync("./keystore/cert.pem"),
@@ -45,7 +45,7 @@ export default defineConfig({
       },
     },
     cors: {
-      origin: "https://localhost:8443",
+      origin: ["https://localhost:8443", "https://0.0.0.0:8443"],
       methods: ["GET", "POST", "PUT", "DELETE", "OPTIONS"],
       allowedHeaders: ["Content-Type", "Authorization", "X-Requested-With"],
       credentials: true,
