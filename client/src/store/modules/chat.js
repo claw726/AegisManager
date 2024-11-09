@@ -1,5 +1,4 @@
-// import axios from "@/utils/axios.js";
-// import { Buffer } from "buffer";
+import WebSocketService from "@/services/websocket.js";
 
 const mockUsers = [
   { id: 1, name: "John Doe", avatar: null },
@@ -323,8 +322,8 @@ const mutations = {
 
 const actions = {
   selectChat({ commit }, chatId) {
-    console.log("selectChat action called with:", chatId);
     if (!chatId) return;
+    WebSocketService.subscribeToChatRoom(chatId);
     commit("SET_ACTIVE_CHAT", chatId);
   },
   async fetchMessages({ commit }, chatId) {
@@ -339,7 +338,11 @@ const actions = {
       senderId: state.currentUser.id,
       senderName: state.currentUser.name,
       timestamp: new Date().toISOString(),
+      chadId: chatId,
     };
+
+    // Send the message to the server
+    WebSocketService.sendMessage(newMessage);
 
     commit("ADD_MESSAGE", { chatId, message: newMessage });
     commit("UPDATE_LAST_MESSAGE", { chatId, content });

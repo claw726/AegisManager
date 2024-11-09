@@ -152,15 +152,13 @@ export default {
   },
 
   watch: {
-    activeChat: {
-      immediate: true,
-      handler(newChat) {
-        if (newChat) {
-          this.$nextTick(() => {
-            this.scrollToBottom();
-          });
-        }
+    chatMessages: {
+      handler() {
+        this.$nextTick(() => {
+          this.scrollToBottom();
+        });
       },
+      deep: true,
     },
   },
 
