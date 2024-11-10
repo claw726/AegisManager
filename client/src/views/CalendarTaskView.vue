@@ -4,66 +4,8 @@
 
     <!-- Main Container -->
     <div class="flex min-h-[calc(100vh-64px)]">
-      <!-- Side Navigation -->
-      <div class="w-64 bg-white border-r border-gray-200 p-4 shadow-sm">
-        <div class="space-y-2">
-          <h2
-            class="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-4"
-          >
-            Views
-          </h2>
-
-          <router-link
-            to="/calendar"
-            class="flex items-center px-4 py-2 text-gray-700 rounded-lg hover:bg-blue-50 hover:text-blue-700 transition-colors group"
-            :class="{ 'bg-blue-50 text-blue-700': $route.path === '/calendar' }"
-          >
-            <i class="fas fa-calendar-alt w-5 h-5 mr-3"></i>
-            <span class="font-medium">Calendar</span>
-          </router-link>
-
-          <router-link
-            to="/todolist"
-            class="flex items-center px-4 py-2 text-gray-700 rounded-lg hover:bg-blue-50 hover:text-blue-700 transition-colors group"
-            :class="{ 'bg-blue-50 text-blue-700': $route.path === '/todolist' }"
-          >
-            <i class="fas fa-tasks w-5 h-5 mr-3"></i>
-            <span class="font-medium">To-Do List</span>
-          </router-link>
-
-          <router-link
-            to="/kanban"
-            class="flex items-center px-4 py-2 text-gray-700 rounded-lg hover:bg-blue-50 hover:text-blue-700 transition-colors group"
-            :class="{ 'bg-blue-50 text-blue-700': $route.path === '/kanban' }"
-          >
-            <i class="fas fa-columns w-5 h-5 mr-3"></i>
-            <span class="font-medium">Kanban Board</span>
-          </router-link>
-        </div>
-
-        <!-- Quick Stats -->
-        <div class="mt-8 space-y-4">
-          <h2
-            class="text-xs font-semibold text-gray-600 uppercase tracking-wider mb-4"
-          >
-            Overview
-          </h2>
-
-          <div class="px-4 py-3 bg-blue-50 rounded-lg">
-            <div class="text-sm text-blue-800">Today's Tasks</div>
-            <div class="text-2xl font-bold text-blue-900">
-              {{ todayTasks }}
-            </div>
-          </div>
-
-          <div class="px-4 py-3 bg-green-50 rounded-lg">
-            <div class="text-sm text-green-800">Completed</div>
-            <div class="text-2xl font-bold text-green-900">
-              {{ completedTasks }}
-            </div>
-          </div>
-        </div>
-      </div>
+      <!-- SideBar -->
+      <TaskSidebarComponent :tasks="tasks" />
 
       <!-- Calendar Container -->
       <div class="flex-1 p-8">
@@ -92,8 +34,8 @@
       :task="selectedTask"
       :visible="popupVisible"
       :position="popupPosition"
-      @close="popupVisible = false"
       class="z-50"
+      @close="popupVisible = false"
     />
   </div>
 </template>
@@ -106,12 +48,14 @@ import dayGridPlugin from "@fullcalendar/daygrid";
 import interactionPlugin from "@fullcalendar/interaction";
 import listPlugin from "@fullcalendar/list";
 import TaskDetailPopup from "@/components/TaskDetailPopup.vue";
+import TaskSidebarComponent from "@/components/TaskSidebarComponent.vue";
 
 export default {
   components: {
     NavBar,
     Fullcalendar,
     TaskDetailPopup,
+    TaskSidebarComponent,
   },
   data() {
     return {
@@ -157,14 +101,21 @@ export default {
         className: task.complete ? "bg-green-500" : "",
       }));
     },
-    todayTasks() {
-      const today = new Date().toISOString().split("T")[0];
-      return this.tasks.filter((task) => task.dueDate?.split("T")[0] === today)
-        .length;
+  },
+  watch: {
+    tasks: {
+      handler() {
+        this.calendarOptions.events = this.calendarEvents;
+      },
+      deep: true,
     },
-    completedTasks() {
-      return this.tasks.filter((task) => task.complete).length;
-    },
+  },
+  async mounted() {
+    await this.loadTasks();
+    document.addEventListener("click", this.handleClickOutside);
+  },
+  beforeUnmount() {
+    document.removeEventListener("click", this.handleClickOutside);
   },
   methods: {
     ...mapActions("tasks", ["fetchTasks"]),
@@ -209,21 +160,6 @@ export default {
           this.closePopup();
         }
       }
-    },
-  },
-  async mounted() {
-    await this.loadTasks();
-    document.addEventListener("click", this.handleClickOutside);
-  },
-  beforeUnmount() {
-    document.removeEventListener("click", this.handleClickOutside);
-  },
-  watch: {
-    tasks: {
-      handler() {
-        this.calendarOptions.events = this.calendarEvents;
-      },
-      deep: true,
     },
   },
 };

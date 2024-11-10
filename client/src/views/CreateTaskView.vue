@@ -14,8 +14,8 @@
             Task Name</label
           >
           <input
-            type="text"
             v-model="task.taskName"
+            type="text"
             class="w-full border border-highlight rounded-lg p-3"
           />
         </div>
@@ -25,8 +25,8 @@
             >Task Description</label
           >
           <input
-            type="text"
             v-model="task.taskDescription"
+            type="text"
             class="w-full border border-highlight rounded-lg p-3"
           />
         </div>
@@ -36,8 +36,8 @@
             >Due Date</label
           >
           <input
-            type="date"
             v-model="task.dueDate"
+            type="date"
             class="w-full border border-highlight rounded-lg p-3"
           />
         </div>
@@ -53,12 +53,21 @@
           </select>
         </div>
 
+        <NotificationComponent
+          class="flex"
+          :show="notification.show"
+          :type="notification.type"
+          @close="closeNotification"
+        >
+          {{ notification.message }}
+        </NotificationComponent>
+
         <!-- Submit Button -->
         <button
-          @click="callCreateTask"
           type="submit"
           data-testid="submit-button"
           class="w-full mt-4 bg-primary text-white font-semibold py-3 rounded-lg"
+          @click="callCreateTask"
         >
           Submit
         </button>
@@ -70,14 +79,12 @@
 <script>
 import { mapState, mapActions } from "vuex";
 import NavBar from "@/components/NavBar.vue";
+import NotificationComponent from "@/components/NotificationComponent.vue";
 
 export default {
   components: {
     NavBar,
-  },
-
-  computed: {
-    ...mapState("auth", ["isLoggedIn", "currentUser"]),
+    NotificationComponent,
   },
   data() {
     return {
@@ -91,15 +98,25 @@ export default {
         assignerID: null,
       },
 
+      notification: {
+        show: false,
+        type: "error",
+        message: "",
+      },
+
       //THIS BOOL CONTROLS WHETHER 'TASK CREATED SUCCESSFULLY' NOTIFICATION SHOULD SHOW
-      showTaskCreatedNotifBool: false,
+      //showTaskCreatedNotifBool: false,
     };
+  },
+
+  computed: {
+    ...mapState("auth", ["isLoggedIn", "currentUser"]),
   },
   watch: {},
   methods: {
     ...mapActions("auth", ["user", "isLoggedIn", "currentUser"]),
-    
-    callCreateTask() {
+
+    async callCreateTask() {
       const t = {
         dueDate: this.task.dueDate.toString().concat("T11:00:11.000Z"),
         taskName: this.task.taskName,
@@ -117,23 +134,34 @@ export default {
         console.log("Resulting Promise", r);
 
         //ADD NOTIFICATION HERE FOR TASK SUCCESSFULLY CREATED
-        console.log("About to show notif");
-        this.showTaskCreatedNotifBool = true;
-      
-      } catch(error) {
+        this.showNotification("success", "Successfully created task!");
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+      } catch (error) {
         console.log("Task cannot be created.");
-        //ADD NOTIFICATION FOR FAILED CRREATION
+        this.showNotification(
+          "error",
+          "Unexpected error with task delegation."
+        );
+        await new Promise((resolve) => setTimeout(resolve, 1500));
       }
       //will remove this afrer notifiction is implemented
-      this.$router.push({ name: "TDList" });
-      
+      this.$router.go(-1);
+      //this.$forceUpdate();
     },
 
-    //CALL THIS METHOD WHEN TASK CREATED NOTIFICATION IS CLOSED
-    closeTaskCreatedNotif() {
-      this.showTaskCreatedNotifBool = false;
-      // Redirect to the viewOrgs page
-      this.$router.push({ name: "TDList" });
+    showNotification(type, message) {
+      this.notification = {
+        show: true,
+        type,
+        message,
+      };
+
+      if (type == "success") {
+        setTimeout(this.closeNotification, 5000);
+      }
+    },
+    closeNotification() {
+      this.notification.show = false;
     },
 
     createUserJson() {

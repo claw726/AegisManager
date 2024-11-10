@@ -1,8 +1,5 @@
 package com.aegis.project.model;
 
-import java.util.HashSet;
-import java.util.Set;
-
 import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
@@ -12,88 +9,94 @@ import jakarta.persistence.Id;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
+import java.util.HashSet;
+import java.util.Set;
 
 @Entity
 @Table(name = "orgs")
 public class OrgModel {
-    @Id
-    @GeneratedValue(strategy = GenerationType.IDENTITY)
-    private int OrgID;
 
-    @Column(name = "name")
-    private String OrgName;
+  @Id
+  @GeneratedValue(strategy = GenerationType.IDENTITY)
+  private int OrgID;
 
-    @Column(name = "description")
-    private String OrgDescription;
+  @Column(name = "name")
+  private String OrgName;
 
-    @Column(name = "owner_ID")
-    private int OrgOwnerID;
+  @Column(name = "description")
+  private String OrgDescription;
 
-    @ManyToMany(mappedBy = "Orgs")
-    private Set<UserModel> Users = new HashSet<>();
+  @Column(name = "owner_ID")
+  private int OrgOwnerID;
 
-    @OneToMany(mappedBy = "parentOrg", cascade = CascadeType.ALL, orphanRemoval = true)
-    private Set<ProjectModel> OrgProjects = new HashSet<>();
+  @ManyToMany(mappedBy = "Orgs")
+  private Set<UserModel> Users = new HashSet<>();
 
-    @Column(name = "encoded_image")
-    private String encodedImage;
+  @OneToMany(
+    mappedBy = "parentOrg",
+    cascade = CascadeType.ALL,
+    orphanRemoval = true
+  )
+  private Set<ProjectModel> OrgProjects = new HashSet<>();
 
-    public int getOrgID() {
-        return OrgID;
-    }
+  @Column(name = "encoded_image")
+  private String encodedImage;
 
-    public void setOrgID(int orgID) {
-        OrgID = orgID;
-    }
+  public int getOrgID() {
+    return OrgID;
+  }
 
-    public String getOrgName() {
-        return OrgName;
-    }
+  public void setOrgID(int orgID) {
+    OrgID = orgID;
+  }
 
-    public void setOrgName(String orgName) {
-        OrgName = orgName;
-    }
+  public String getOrgName() {
+    return OrgName;
+  }
 
-    public String getOrgDescription() {
-        return OrgDescription;
-    }
+  public void setOrgName(String orgName) {
+    OrgName = orgName;
+  }
 
-    public void setOrgDescription(String orgDescription) {
-        OrgDescription = orgDescription;
-    }
+  public String getOrgDescription() {
+    return OrgDescription;
+  }
 
-    public int getOrgOwnerID() {
-        return OrgOwnerID;
-    }
+  public void setOrgDescription(String orgDescription) {
+    OrgDescription = orgDescription;
+  }
 
-    public void setOrgOwnerID(int orgOwnerID) {
-        OrgOwnerID = orgOwnerID;
-    }
+  public int getOrgOwnerID() {
+    return OrgOwnerID;
+  }
 
-    public Set<UserModel> getUsers() {
-        return Users;
-    }
+  public void setOrgOwnerID(int orgOwnerID) {
+    OrgOwnerID = orgOwnerID;
+  }
 
-    public void setUsers(Set<UserModel> users) {
-        Users = users;
-    }
+  public Set<UserModel> getUsers() {
+    return Users;
+  }
 
-    public Set<ProjectModel> getOrgProjects() {
-        return OrgProjects;
-    }
+  public void setUsers(Set<UserModel> users) {
+    Users = users;
+  }
 
-    public void setOrgProjects(Set<ProjectModel> orgProjects) {
-        this.OrgProjects = orgProjects;
-    }
+  public Set<ProjectModel> getOrgProjects() {
+    return OrgProjects;
+  }
 
-    public String getEncodedImage() {
-        return encodedImage;
-    }
+  public void setOrgProjects(Set<ProjectModel> orgProjects) {
+    this.OrgProjects = orgProjects;
+  }
 
-    public void setEncodedImage(String encodedImage) {
-        this.encodedImage = encodedImage;
-    }
+  public String getEncodedImage() {
+    return encodedImage;
+  }
 
-//    @OneToMany(mappedBy = "Org", cascade = CascadeType.ALL, orphanRemoval = true)
-//    private String OrgChatsTableName;
+  public void setEncodedImage(String encodedImage) {
+    this.encodedImage = encodedImage;
+  }
+  //    @OneToMany(mappedBy = "Org", cascade = CascadeType.ALL, orphanRemoval = true)
+  //    private String OrgChatsTableName;
 }

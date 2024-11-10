@@ -1,5 +1,5 @@
 import axios from "@/utils/axios.js";
-import { Buffer } from 'buffer';
+import { Buffer } from "buffer";
 
 const state = {
   isLoggedIn: false,
@@ -94,7 +94,6 @@ const actions = {
       throw new Error(errorMessage);
     }
   },
-
   async login({ commit, dispatch }, { email, password }) {
     try {
       const params = new URLSearchParams();
@@ -111,17 +110,23 @@ const actions = {
 
       if (data && data.token) {
         commit("setAuthToken", data.token);
-        commit("setLogin", true);
         // Fetch user details after login
         const user = await dispatch("users/fetchUserAccountByEmail", email, {
           root: true,
         });
         commit("setCurrentUser", user);
+
+        console.log("User 2fa status:", user.has2fa);
+        if (user.has2fa) {
+          return { has2fa: true };
+        }
+        commit("setLogin", true);
       } else {
         console.error("Login Failed:", data ? data : "No data received!");
         throw new Error("Login Failed!");
       }
       commit("SET_ERROR", null);
+      return { has2fa: false };
     } catch (error) {
       let errorMessage = "An unexpected error occurred. Please try again.";
 
@@ -208,13 +213,11 @@ const actions = {
     try {
       const params = new URLSearchParams();
       params.append("userID", state.currentUser.userID);
-      const response = await axios.post("/api/auth/enable2FA", params,
-        {
-          headers: {
-            Authorization: `Bearer ${state.authToken}`,
-          },
+      const response = await axios.post("/api/auth/enable2FA", params, {
+        headers: {
+          Authorization: `Bearer ${state.authToken}`,
         },
-      );
+      });
       console.log("2FA enabled:", response.data);
       return response.data;
     } catch (error) {
@@ -222,23 +225,23 @@ const actions = {
       throw new Error("Failed to enable 2FA");
     }
   },
-  async disable2fa({ state, commit }) {
-      try {
+  async disable2fa({ state }) {
+    try {
       const params = new URLSearchParams();
       params.append("userID", state.currentUser.userID);
       const response = await axios.post("/api/auth/disable2FA", params, {
-          headers: {
+        headers: {
           Authorization: `Bearer ${state.authToken}`,
-          },
+        },
       });
       console.log("2FA disabled:", response.data);
       return response.data;
-      } catch (error) {
+    } catch (error) {
       console.error("Failed to disable 2FA:", error.response.data);
       throw new Error("Failed to disable 2FA");
-      }
+    }
   },
-  async verify2fa({ state }, code) {
+  async verify2fa({ commit, state }, code) {
     try {
       const params = new URLSearchParams();
       params.append("userID", state.currentUser.userID);
@@ -249,6 +252,7 @@ const actions = {
         },
       });
       console.log("2FA verified:", response.data);
+      commit("setLogin", true);
       return response.data;
     } catch (error) {
       console.error("Failed to verify 2FA:", error.response.data);
@@ -264,13 +268,16 @@ const actions = {
         headers: {
           Authorization: `Bearer ${state.authToken}`,
         },
-        responseType: 'arraybuffer', // Ensure the response is treated as binary data
+        responseType: "arraybuffer", // Ensure the response is treated as binary data
       });
-      const qrCodeImage = `data:image/png;base64,${Buffer.from(response.data, 'binary').toString('base64')}`;
+      const qrCodeImage = `data:image/png;base64,${Buffer.from(response.data, "binary").toString("base64")}`;
       console.log("QR Code fetched:", qrCodeImage);
       return qrCodeImage;
     } catch (error) {
-      console.error("Failed to fetch QR Code:", error.response?.data || error.message);
+      console.error(
+        "Failed to fetch QR Code:",
+        error.response?.data || error.message,
+      );
       throw new Error("Failed to fetch QR Code");
     }
   },

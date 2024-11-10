@@ -1,0 +1,57 @@
+services:
+  frontend:
+    healthcheck:
+      test: [CMD, curl, -f, -k, https://localhost:8443/health]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 40s
+    build:
+      context: ./client # Assuming your frontend code is in a directory called "client"
+      dockerfile: Dockerfile
+      args:
+        BUILDKIT_INLINE_CACHE: 1
+    ports:
+      - 8443:8443
+    volumes:
+      - ssl_certs:/etc/nginx/ssl
+    depends_on:
+      - backend
+    networks:
+      - app-network
+
+  backend:
+    build:
+      context: ./server # Assuming your backend code is in a directory called "server"
+      dockerfile: Dockerfile
+      args:
+        BUILDKIT_INLINE_CACHE: 1
+    ports:
+      - 8444:8444
+    volumes:
+      - data:/app/data
+    environment:
+      - SPRING_DATASOURCE_URL=jdbc:sqlite:/app/data/aegis.db # Update the database path
+      - LOGGING_LEVEL_ORG_HIBERNATE=ERROR
+      - LOGGING_LEVEL_ROOT=INFO
+      - SPRING_JPA_SHOW_SQL=false
+      - SPRING_JPA_PROPERTIES_HIBERNATE_FORMAT_SQL=false
+      - SPRING_JPA_PROPERTIES_HIBERNATE_SHOW_SQL=false
+      - MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=health,info,metrics
+      - MANAGEMENT_ENDPOINT_HEALTH_SHOW_DETAILS=when_authorized
+    healthcheck:
+      test: [CMD, curl, -f, -k, https://localhost:8444/actuator/health]
+      interval: 30s
+      timeout: 3s
+      retries: 3
+      start_period: 60s
+    networks:
+      - app-network
+
+networks:
+  app-network:
+    driver: bridge
+
+volumes:
+  ssl_certs:
+  data:

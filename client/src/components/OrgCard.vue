@@ -59,9 +59,7 @@
                 d="M16 7a4 4 0 11-8 0 4 4 0 018 0zM12 14a7 7 0 00-7 7h14a7 7 0 00-7-7z"
               />
             </svg>
-            <span class="truncate"
-              >Created by: {{ organization.orgOwnerID }}</span
-            >
+            <span class="truncate">Created by: {{ creator.userName }}</span>
           </div>
 
           <div class="flex items-center text-sm text-gray-500">
@@ -146,10 +144,13 @@ export default {
   data() {
     return {
       imageLoaded: true,
+      creator: "",
     };
   },
 
-  computed: {},
+  async mounted() {
+    await this.getCreatorData();
+  },
 
   methods: {
     viewOrganization() {
@@ -161,6 +162,16 @@ export default {
 
     handleImageError() {
       this.imageLoaded = false;
+    },
+    async getCreatorData() {
+      try {
+        this.creator = await this.$store.dispatch(
+          "users/fetchUserAccountByID",
+          this.organization.orgOwnerID,
+        );
+      } catch (error) {
+        this.creator = "Unknown";
+      }
     },
   },
 };

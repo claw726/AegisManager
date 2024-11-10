@@ -1,74 +1,75 @@
 <template>
-  <div class="search-container" :style="{ width: size }">
-    <i class="fas fa-search search-icon"></i>
-    <input
+  <div :class="['relative', width]">
+    <div class="relative">
+      <input
         type="text"
-        :value="searchQuery"
-        @input="onInput"
-        placeholder="Search..."
-        class="search-input"
-    />
-    <button v-if="searchQuery" @click="clearSearch" class="clear-button">×</button>
+        v-model="localSearchQuery"
+        :placeholder="placeholder"
+        class="w-full px-4 py-2 pl-10 pr-4 text-gray-700 bg-white border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
+        @input="handleInput"
+      />
+      <div
+        class="absolute inset-y-0 left-0 flex items-center pl-3 pointer-events-none"
+      >
+        <i class="fas fa-search text-gray-400"></i>
+      </div>
+      <button
+        v-if="localSearchQuery"
+        @click="clearSearch"
+        class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600"
+      >
+        <i class="fas fa-times"></i>
+      </button>
+    </div>
+    <div v-if="showDateHelp" class="mt-1 text-sm text-gray-500">
+      Date format: MM/DD/YYYY
+    </div>
   </div>
 </template>
 
 <script>
 export default {
+  name: "SearchComponent",
   props: {
-    searchQuery: {
+    modelValue: {
       type: String,
       default: "",
     },
-    size: {
+    width: {
       type: String,
-      default: "100%",
+      default: "w-full",
+    },
+    placeholder: {
+      type: String,
+      default: "Search by task name or date (MM/DD/YYYY)",
+    },
+    showDateHelp: {
+      type: Boolean,
+      default: true,
     },
   },
-  methods: {
-    onInput(event) {
-      this.$emit("update:searchQuery", event.target.value);
+
+  data() {
+    return {
+      localSearchQuery: this.modelValue,
+    };
+  },
+
+  watch: {
+    modelValue(newValue) {
+      this.localSearchQuery = newValue;
     },
+  },
+
+  methods: {
+    handleInput() {
+      this.$emit("update:modelValue", this.localSearchQuery);
+    },
+
     clearSearch() {
-      this.$emit("update:searchQuery", "");
+      this.localSearchQuery = "";
+      this.$emit("update:modelValue", "");
     },
   },
 };
 </script>
-
-<style scoped>
-.search-container {
-  position: relative;
-  margin-bottom: 1rem;
-}
-
-.search-icon {
-  position: absolute;
-  left: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  color: #ccc;
-}
-
-.search-input {
-  width: 100%;
-  padding: 0.5rem 0.5rem 0.5rem 2rem; /* Adjust padding to make space for the icon */
-  border: 1px solid #ccc;
-  border-radius: 4px;
-}
-
-.clear-button {
-  position: absolute;
-  right: 10px;
-  top: 50%;
-  transform: translateY(-50%);
-  background: none;
-  border: none;
-  font-size: 1.2rem;
-  cursor: pointer;
-  color: #ccc;
-}
-
-.clear-button:hover {
-  color: #000;
-}
-</style>

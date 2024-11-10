@@ -8,7 +8,7 @@
       </div>
 
       <div v-if="currentUser" class="relative flex flex-col items-center py-12">
-        <form @submit.prevent="updateUserDetails" class="w-full max-w-lg">
+        <form class="w-full max-w-lg" @submit.prevent="updateUserDetails">
           <div class="mb-4">
             <label
               class="block text-gray-700 text-sm font-bold mb-2"
@@ -17,9 +17,9 @@
               Name
             </label>
             <input
+              id="userName"
               v-model="userName"
               class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              id="userName"
               type="text"
               placeholder="Enter your name"
             />
@@ -32,9 +32,9 @@
               Email
             </label>
             <input
+              id="email"
               v-model="email"
               class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
-              id="email"
               type="email"
               placeholder="Enter your email"
             />
@@ -47,11 +47,11 @@
               Profile Picture
             </label>
             <input
-              @change="handleFileUpload"
-              class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
               id="profilePicture"
+              class="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline"
               type="file"
               accept="image/*"
+              @change="handleFileUpload"
             />
           </div>
           <div class="flex items-center justify-between">
@@ -61,13 +61,18 @@
       </div>
     </div>
 
-    <NotificationComponent
-      v-if="notification.show"
-      :type="notification.type"
-      @close="notification.show = false"
-    >
-      {{ notification.message }}
-    </NotificationComponent>
+    <div class="flex justify-center mt-4">
+      <NotificationComponent
+        :show="notification.show"
+        :type="notification.type"
+        class="max-w-md w-full shadow-lg rounded-lg overflow-hidden"
+        @close="closeNotification"
+      >
+        <div class="p-4 break-words">
+          {{ notification.message }}
+        </div>
+      </NotificationComponent>
+    </div>
   </div>
 </template>
 
@@ -84,7 +89,6 @@ export default {
   },
   data() {
     return {
-      // Need to initiate these values as empty strings to avoid null values in the input fields
       userName: "",
       email: "",
       profilePicture: "",
@@ -98,7 +102,6 @@ export default {
   computed: {
     ...mapState("auth", ["isLoggedIn", "currentUser"]),
   },
-  // Watch for changes in the currentUser object and update the data properties accordingly
   watch: {
     currentUser: {
       immediate: true,
@@ -112,11 +115,19 @@ export default {
     },
   },
   methods: {
-    ...mapActions('users', ["updateUser"]),
+    ...mapActions("users", ["updateUser"]),
     async handleFileUpload(event) {
       event.preventDefault();
       const file = event.target.files[0];
       if (file) {
+        const validImageTypes = ["image/jpeg", "image/png", "image/gif"];
+        if (!validImageTypes.includes(file.type)) {
+          this.showNotification(
+            "error",
+            "Invalid file type. Please select an image file."
+          );
+          return;
+        }
         try {
           const options = {
             maxSizeMB: 0.064,
@@ -157,19 +168,19 @@ export default {
                 0,
                 0,
                 newWidth,
-                newHeight,
+                newHeight
               );
 
               const croppedDataURL = canvas.toDataURL("image/jpeg", 0.92);
               const blob = await fetch(croppedDataURL).then((res) =>
-                res.blob(),
+                res.blob()
               );
               const newFile = new File([blob], file.name, {
                 type: "image/jpeg",
               });
               const compressedCroppedFile = await imageCompression(
                 newFile,
-                options,
+                options
               );
 
               const reader = new FileReader();
@@ -185,7 +196,7 @@ export default {
           console.error("Error compressing image:", error);
           this.showNotification(
             "error",
-            "An error occurred while compressing the image. Please try again with a new file.",
+            "An error occurred while compressing the image. Please try again with a new file."
           );
         }
       } else {
@@ -202,14 +213,25 @@ export default {
       try {
         await this.updateUser(updatedDetails);
         this.showNotification("success", "User details updated successfully!");
+        setTimeout(() => {
+          this.$router.push({ name: "AccountSettings" });
+        }, 2000);
       } catch (error) {
         this.showNotification("error", error.message);
       }
     },
     showNotification(type, message) {
-      this.notification.type = type;
-      this.notification.message = message;
-      this.notification.show = true;
+      this.notification = {
+        show: true,
+        type,
+        message,
+      };
+      if (type === "success") {
+        setTimeout(this.closeNotification, 5000);
+      }
+    },
+    closeNotification() {
+      this.notification.show = false;
     },
   },
 };

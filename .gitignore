@@ -21,3 +21,8 @@ node_modules/
 server/.gradle/
 server/build/
 *.class
+*.db
+.vscode/launch.json
+.vscode/settings.json
+.vscode/tasks.json
+.DS_Store

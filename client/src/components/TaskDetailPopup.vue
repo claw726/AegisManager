@@ -16,8 +16,8 @@
       <div class="flex justify-between items-start">
         <h3 class="font-semibold text-lg text-gray-800">{{ task.title }}</h3>
         <button
-          @click="closePopup"
           class="text-gray-400 hover:text-gray-600 transition-colors"
+          @click="closePopup"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"

@@ -5,68 +5,77 @@ import java.util.Set;
 
 public class OrgDTO {
 
-    private int orgID;
-    private String orgName;
-    private String orgDescription;
-    private int orgOwnerID;
-    private Set<UserDTO> users = new HashSet<>();
-    private String encodedImage;
+  private int orgID;
+  private String orgName;
+  private String orgDescription;
+  private int orgOwnerID;
+  private Set<UserDTO> users = new HashSet<>();
+  private String encodedImage;
 
-    public OrgDTO(int orgID, String orgName, String orgDescription, int orgOwnerID, String encodedImage, Set<UserDTO> users) {
-        this.orgID = orgID;
-        this.orgName = orgName;
-        this.orgDescription = orgDescription;
-        this.orgOwnerID = orgOwnerID;
-        this.encodedImage = encodedImage;
-        this.users = users;
-        //this.users = orgService.getOrgMembers(orgID);
-    }
+  public OrgDTO(
+    int orgID,
+    String orgName,
+    String orgDescription,
+    int orgOwnerID,
+    String encodedImage,
+    Set<UserDTO> users
+  ) {
+    this.orgID = orgID;
+    this.orgName = orgName;
+    this.orgDescription = orgDescription;
+    this.orgOwnerID = orgOwnerID;
+    this.encodedImage = encodedImage;
+    this.users = users;
+    //this.users = orgService.getOrgMembers(orgID);
+  }
 
-    public int getOrgID() {
-        return orgID;
-    }
+  public OrgDTO() {}
 
-    public void setOrgID(int orgID) {
-        this.orgID = orgID;
-    }
+  public int getOrgID() {
+    return orgID;
+  }
 
-    public String getOrgName() {
-        return orgName;
-    }
+  public void setOrgID(int orgID) {
+    this.orgID = orgID;
+  }
 
-    public void setOrgName(String orgName) {
-        this.orgName = orgName;
-    }
+  public String getOrgName() {
+    return orgName;
+  }
 
-    public String getOrgDescription() {
-        return orgDescription;
-    }
+  public void setOrgName(String orgName) {
+    this.orgName = orgName;
+  }
 
-    public void setOrgDescription(String orgDescription) {
-        this.orgDescription = orgDescription;
-    }
+  public String getOrgDescription() {
+    return orgDescription;
+  }
 
-    public int getOrgOwnerID() {
-        return orgOwnerID;
-    }
+  public void setOrgDescription(String orgDescription) {
+    this.orgDescription = orgDescription;
+  }
 
-    public void setOrgOwnerID(int orgOwnerID) {
-        this.orgOwnerID = orgOwnerID;
-    }
+  public int getOrgOwnerID() {
+    return orgOwnerID;
+  }
 
-    public Set<UserDTO> getUsers() {
-        return users;
-    }
+  public void setOrgOwnerID(int orgOwnerID) {
+    this.orgOwnerID = orgOwnerID;
+  }
 
-    public void setUsers(Set<UserDTO> users) {
-        this.users = users;
-    }
+  public Set<UserDTO> getUsers() {
+    return users;
+  }
 
-    public String getEncodedImage() {
-        return encodedImage;
-    }
+  public void setUsers(Set<UserDTO> users) {
+    this.users = users;
+  }
 
-    public void setEncodedImage(String encodedImage) {
-        this.encodedImage = encodedImage;
-    }
+  public String getEncodedImage() {
+    return encodedImage;
+  }
+
+  public void setEncodedImage(String encodedImage) {
+    this.encodedImage = encodedImage;
+  }
 }

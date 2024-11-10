@@ -1,0 +1,46 @@
+# Version Control
+.git
+.gitignore
+
+# Documentation
+*.md
+docs/
+.idea/
+
+# Development Artifcats
+node_modules/
+npm-debug.log
+*.log
+*.bak
+
+# Build Artifacts
+dist/
+build/
+*.exe
+*.dll
+*.so
+*.dylib
+*.jar
+gradle/
+
+# IDE
+.idea/
+.vscode/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Test Files
+test/
+__tests__/
+*.spec.*
+
+# Configuration
+.env
+.env.*
+config.local.js
+
+# Dockerfiles
+Dockerfile
+docker-compose.yml

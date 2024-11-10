@@ -82,9 +82,9 @@
 
         <!-- Close Button -->
         <button
-          @click="$emit('close')"
           class="p-1 rounded-full transition-colors flex-shrink-0"
           :class="closeButtonStyles"
+          @click="$emit('close')"
         >
           <svg
             xmlns="http://www.w3.org/2000/svg"

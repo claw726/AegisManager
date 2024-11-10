@@ -1,27 +1,123 @@
-# Use the official Gradle image to build the application
-FROM gradle:latest AS build
-
-# Set the working directory
-WORKDIR /app
-
-# Copy the project source
-COPY . .
-
-# Build the project
-RUN gradle clean build --no-daemon
-
-# Create a new stage for the runtime environment
-FROM eclipse-temurin:21
+# Build stage
+FROM gradle:jdk-lts-and-current-alpine AS build
 
 WORKDIR /app
 
-COPY . .
+# Mount gradle cache
+RUN --mount=type=cache,target=/home/gradle/.gradle \
+    mkdir -p /home/gradle/.gradle && \
+    chmod 777 /home/gradle/.gradle
 
-# Copy the compiled JAR file from the build stage
-COPY --from=build /app/build/libs/*.jar /app/app.jar
+# Cache gradle files
+COPY --chown=gradle:gradle build.gradle ./
 
-# Export the port
-EXPOSE 8080
+# Optimize Gradle
+ENV GRADLE_OPTS="-Dorg.gradle.daemon=false \
+    -Dorg.gradle.parallel=true \
+    -Dorg.gradle.caching=true \
+    -Dorg.gradle.configureondemand=true \
+    -Dorg.gradle.jvmargs=-Xmx2048m"
 
-# Run the application
-CMD ["java", "-jar", "/app/app.jar"]
+# Download dependencies using cache mount
+RUN --mount=type=cache,target=/home/gradle/.gradle \
+    gradle dependencies --no-daemon
+
+# Copy source code
+COPY --chown=gradle:gradle src ./src
+
+# Build the project using cache mount
+RUN --mount=type=cache,target=/home/gradle/.gradle \
+    gradle clean build -x test --no-daemon
+
+# Create a custom JRE
+FROM eclipse-temurin:23-jdk-alpine AS jlink-builder
+
+# Create a custom JRE
+RUN --mount=type=cache,target=/var/cache/apk \
+    jlink \
+    --add-modules java.base,java.logging,java.xml,java.sql,java.naming,java.desktop,java.management,java.security.jgss,java.instrument,jdk.unsupported,java.net.http \
+    --strip-debug \
+    --no-man-pages \
+    --no-header-files \
+    --compress=2 \
+    --output /customjre
+
+FROM alpine:latest AS runtime
+
+WORKDIR /app
+
+
+# Install security updates and add necessary packages using cache mount
+RUN --mount=type=cache,target=/var/cache/apk \
+    apk update && \
+    apk upgrade && \
+    apk add --no-cache tini curl openssl && \
+    mkdir -p /app/data && \
+    mkdir -p /app/logs && \
+    mkdir -p /app/temp && \
+    addgroup -S spring && \
+    adduser -S spring -G spring && \
+    chown -R spring:spring /app && \
+    chmod -R 755 /app && \
+    chmod 777 /app/temp
+
+# Copy the custom JRE
+COPY --from=jlink-builder /customjre /opt/java/openjdk
+
+# Set JAVA_HOME
+ENV JAVA_HOME=/opt/java/openjdk
+ENV PATH="${JAVA_HOME}/bin:${PATH}"
+
+# Generate keystore
+RUN keytool -genkeypair \
+    -alias tomcat \
+    -keyalg RSA \
+    -keysize 2048 \
+    -keystore /app/keystore.p12 \
+    -validity 3650 \
+    -storetype PKCS12 \
+    -storepass changeit \
+    -keypass changeit \
+    -dname "CN=AegisManager, OU=Aegis, O=Purdue, L=WestLafayette, S=IN, C=US"
+
+
+
+# Set ownership of the keystore
+RUN chown spring:spring /app/keystore.p12
+
+# Use tini as init process
+ENTRYPOINT ["/sbin/tini", "--"]
+
+# Set ownership to the non-root user
+USER spring:spring
+
+# Copy only the JAR file from build stage
+COPY --from=build --chown=spring:spring /app/build/libs/*.jar app.jar
+
+# Copy only the templates directory
+COPY --chown=gradle:gradle src/main/resources/templates ./src/main/resources/templates
+
+# Add healthcheck
+HEALTHCHECK --interval=30s --timeout=3s \
+    CMD curl -k --fail https://localhost:8444/actuator/health || exit 1
+
+EXPOSE 8444
+
+# Optimize Java runtime
+CMD ["java", \
+    "-XX:+UseContainerSupport", \
+    "-XX:MaxRAMPercentage=75", \
+    "-XX:InitialRAMPercentage=50", \
+    "-XX:+UseG1GC", \
+    "-XX:+HeapDumpOnOutOfMemoryError", \
+    "-XX:HeapDumpPath=/app/data/heap-dump.hprof", \
+    "-XX:+UseStringDeduplication", \
+    "-Djava.security.egd=file:/dev/./urandom", \
+    "-Dserver.ssl.key-store=/app/keystore.p12", \
+    "-Dserver.ssl.key-store-password=changeit", \
+    "-Dserver.ssl.key-alias=tomcat", \
+    "-Dserver.ssl.key-store-type=PKCS12", \
+    "-Dserver.port=8444", \
+    "-jar", \
+    "app.jar" \
+    ]

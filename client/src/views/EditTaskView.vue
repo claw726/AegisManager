@@ -4,9 +4,12 @@
     <NavBar />
 
     <!-- Main Content -->
-    <div 
-    v-if="fetchedTask"
-    class="cc text-4xl font-bold text-hunter-green mb-6">Edit Task</div>
+    <div
+      v-if="fetchedTask"
+      class="cc text-4xl font-bold text-hunter-green mb-6"
+    >
+      Edit Task
+    </div>
 
     <!-- Form Container -->
     <form @submit.prevent="handleSubmit">
@@ -16,8 +19,8 @@
             Task Name</label
           >
           <input
-            type="text"
             v-model="fetchedTask.taskName"
+            type="text"
             class="w-full border border-highlight rounded-lg p-3"
           />
         </div>
@@ -27,8 +30,8 @@
             >Task Description</label
           >
           <input
-            type="text"
             v-model="fetchedTask.taskDescription"
+            type="text"
             class="w-full border border-highlight rounded-lg p-3"
           />
         </div>
@@ -38,8 +41,8 @@
             >Due Date</label
           >
           <input
-            type="date"
             v-model="fetchedTask.dueDate"
+            type="date"
             class="w-full border border-highlight rounded-lg p-3"
           />
         </div>
@@ -55,12 +58,21 @@
           </select>
         </div>
 
+        <NotificationComponent
+          class="flex"
+          :show="notification.show"
+          :type="notification.type"
+          @close="closeNotification"
+        >
+          {{ notification.message }}
+        </NotificationComponent>
+
         <!-- Submit Button -->
         <button
-          @click="handleEditTask"
           type="submit"
           data-testid="submit-button"
           class="w-full mt-4 bg-primary text-white font-semibold py-3 rounded-lg"
+          @click="handleEditTask"
         >
           Submit
         </button>
@@ -72,14 +84,18 @@
 <script>
 import { mapState, mapActions } from "vuex";
 import NavBar from "@/components/NavBar.vue";
+import NotificationComponent from "@/components/NotificationComponent.vue";
 
 export default {
   components: {
     NavBar,
+    NotificationComponent,
   },
-
-  computed: {
-    ...mapState("auth", ["isLoggedIn", "currentUser"]),
+  props: {
+    taskId: {
+      type: [String, Number],
+      required: true,
+    },
   },
   data() {
     return {
@@ -94,45 +110,51 @@ export default {
         assignerID: null,
       },
 
+      notification: {
+        show: false,
+        type: "",
+        message: "",
+      },
     };
   },
-  props: {
-    taskId: {
-      type: [String, Number],
-      required: true
-    }
+
+  computed: {
+    ...mapState("auth", ["isLoggedIn", "currentUser"]),
   },
 
   async mounted() {
-    this.fetchedTask = await this.$store.dispatch("tasks/fetchTask", this.$route.params.taskId);
+    this.fetchedTask = await this.$store.dispatch(
+      "tasks/fetchTask",
+      this.$route.params.taskId
+    );
     console.log("Client has stored fetched task.");
   },
 
   methods: {
     ...mapActions("auth", ["user", "isLoggedIn", "currentUser"]),
 
-    handleEditTask() {
-        try {
-            console.log("Inside handling edit task");
+    async handleEditTask() {
+      try {
         this.editTask();
-        //TODO: show notification that task has been updated
-        ///console.log("Task has been edited.");
-        } catch (error) {
-            console.log("Error editing task.")
-            //TODO: show notification that task has not been updated
-        }
-        //Show task again but refreshed with edits, random query to refres h
-        this.$router.push({ name: "TDList"});
-        this.$forceUpdate();
+        console.log("Task has been edited.");
+        this.showNotification("success", "Task successfully edited!");
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+      } catch (error) {
+        console.log("Error editing task.");
+        this.showNotification("error", "Task was not edited!");
+        await new Promise((resolve) => setTimeout(resolve, 2000));
+      }
+
+      //Show task again but refreshed with edits, random query to refres h
+      this.$router.push({ name: "TDList" });
+      this.$forceUpdate();
     },
 
     async editTask() {
       try {
-
         //New date format is: "2024-11-01 T11:00:11.000+00:00T15:30:00.000z"
         //const dueDate = `${this.fetchedTask.dueDate}T15:30:00.000z`;
         const dueDate = `${this.fetchedTask.dueDate}T11:00:11.000+00:00T15:30:00.000z`;
-        //const dueDate = `${this.fetchedTask.dueDate}`;
 
         const taskData = {
           taskName: this.fetchedTask.taskName,
@@ -151,24 +173,30 @@ export default {
           taskData: taskData,
         });
 
+        //this.showNotification("success", "Task successfully edited!");
+        //await new Promise(resolve => setTimeout(resolve, 2500));
+        return s;
       } catch (error) {
-        console.error('Failed to edit task', error);
+        console.error("Failed to edit task", error);
         // Error will be handled by Vuex store and displayed via updateStatus
       }
     },
 
-    async getTask() {
-      console.log("Doing async method")
-      return this.$store.dispatch("tasks/fetchTask", this.taskId);
-    },
-    goBack() {
-      this.$router.go(-1);
+    showNotification(type, message) {
+      this.notification = {
+        show: true,
+        type: type,
+        message: message,
+      };
     },
 
-    createUserJson() {
-      const userJson = JSON.stringify(this.user, null, 2);
-      console.log("User JSON:", userJson);
-      return userJson;
+    closeNotification() {
+      this.notification.show = false;
+    },
+
+    async getTask() {
+      console.log("Doing async method");
+      return this.$store.dispatch("tasks/fetchTask", this.taskId);
     },
   },
 };
