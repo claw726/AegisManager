@@ -94,7 +94,9 @@ export default {
 
     async handleAddUser() {
       try {
-        const s = this.addUser(this.email);
+        //const s = this.addUser(this.email);
+        const s = this.sendInvite(this.email);
+
         let erroneous = false;
 
         s.then((result) => {
@@ -128,6 +130,31 @@ export default {
         );
       }
       this.$router.push({ name: "TDList" });
+    },
+
+    async sendInvite(email) {
+      try {
+        const data = {
+          senderEmail: this.currentUser.email,
+          recipientEmail: email,
+          invitationType: 4,
+          message:
+            this.fetchedTask.taskID +
+            ": Task Addition Request - " +
+            this.fetchedTask.taskName,
+        };
+        console.log("DATA");
+        console.log(data);
+        await this.$store.dispatch("invitations/createInvitation", data);
+        this.showNotification("success", "Successfully sent task invite!");
+        return true;
+      } catch (error) {
+        this.showNotification(
+          "error",
+          "Unexpected error with task delegation."
+        );
+        return false;
+      }
     },
 
     async addUser(email) {
