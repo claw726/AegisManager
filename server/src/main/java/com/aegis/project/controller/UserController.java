@@ -55,9 +55,10 @@ public class UserController {
   @GetMapping("/getAllUsers")
   public ResponseEntity<List<UserDTO>> getAllUsers() {
     try {
-      return ResponseEntity.ok(userService.getAllUsers());
+      List<UserDTO> users = userService.getAllUsers();
+      return ResponseEntity.ok(users);
     } catch (RuntimeException e) {
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+      return ResponseEntity.internalServerError().build();
     }
   }
 

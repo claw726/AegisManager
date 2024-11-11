@@ -1,4 +1,5 @@
 import WebSocketService from "@/services/websocket.js";
+import axios from "axios";
 
 const mockUsers = [
   {
@@ -338,22 +339,29 @@ const mockMessages = {
 };
 
 const state = {
-  currentUser: { id: 1, name: "John Doe" },
+  currentUser: null,
   activeChat: null,
-  chats: mockChats,
-  messages: mockMessages,
-  organizations: mockOrganizations,
-  users: mockUsers,
-  chatMembers: {},
-  unreadCounts: {},
+  chats: [],
+  messages: {},
   wsConnected: false,
+  users: [],
+  organizations: [],
+  loading: false,
+  error: null,
 };
 
 const mutations = {
-  SET_ACTIVE_CHAT(state, chatId) {
-    console.log("SET_ACTIVE_CHAT mutation called with:", chatId);
-    state.activeChat = state.chats.find((chat) => chat.id === chatId) || null;
-    console.log("Active chat set to:", state.activeChat);
+  SET_CHATS(state, chats) {
+    state.chats = chats;
+  },
+  ADD_CHAT(state, chat) {
+    state.chats.unshift(chat);
+    // In Vue 3, you can directly assign to reactive objects
+    state.messages[chat.id] = [];
+  },
+  SET_MESSAGES(state, { chatId, messages }) {
+    // In Vue 3, you can directly assign to reactive objects
+    state.messages[chatId] = messages;
   },
   ADD_MESSAGE(state, { chatId, message }) {
     if (!state.messages[chatId]) {
@@ -361,105 +369,109 @@ const mutations = {
     }
     state.messages[chatId].push(message);
   },
-  SET_CHAT_MEMBERS(state, { chatId, members }) {
-    state.chatMembers[chatId] = members;
+  SET_ACTIVE_CHAT(state, chat) {
+    state.activeChat = chat;
   },
-  UPDATE_LAST_MESSAGE(state, { chatId, content }) {
-    const chatIndex = state.chats.findIndex((chat) => chat.id === chatId);
-    if (chatIndex !== -1) {
-      // Create a new chat object with updated lastMessage
-      const updatedChat = {
-        ...state.chats[chatIndex],
-        lastMessage: content,
-      };
-
-      // Remove the chat from its current position
-      state.chats.splice(chatIndex, 1);
-      // Add it to the beginning of the array
-      state.chats.unshift(updatedChat);
-    }
-  },
-  CREATE_CHAT(state, chat) {
-    state.chats.unshift(chat);
-    state.messages[chat.id] = [];
-  },
-
   SET_WS_CONNECTED_STATUS(state, status) {
     state.wsConnected = status;
+  },
+  SET_USERS(state, users) {
+    state.users = users;
+  },
+  SET_LOADING(state, loading) {
+    state.loading = loading;
+  },
+  SET_ERROR(state, error) {
+    state.error = error;
   },
 };
 
 const actions = {
-  selectChat({ commit }, chatId) {
+  async initializeWebSocket({ commit, state }) {
+    WebSocketService.connect();
+
+    // Subscribe to personal messages
+    WebSocketService.subscribe(
+      `/user/${state.currentUser.id}/chats`,
+      (message) => {
+        commit("ADD_CHAT", JSON.parse(message.body));
+      },
+    );
+
+    // Subscribe to global messages
+    WebSocketService.subscribe("/topic/messages", (message) => {
+      const messageData = JSON.parse(message.body);
+      commit("ADD_MESSAGE", {
+        chatId: messageData.chatId,
+        message: messageData,
+      });
+    });
+  },
+
+  async fetchUsers({ rootState }, { commit }) {
+    try {
+      commit("SET_LOADING", true);
+      const response = await axios.get("/api/users/getAllUsers", {
+        headers: {
+          Authorization: `Bearer ${rootState.auth.authToken}`,
+          "Content-Type": "application/json",
+        },
+      });
+      console.log("Fetched users:", response.data);
+      commit("SET_USERS", response.data);
+    } catch (error) {
+      console.error("Error fetching users:", error);
+      commit("SET_ERROR", "Failed to fetch users");
+      throw error;
+    } finally {
+      commit("SET_LOADING", false);
+    }
+  },
+
+  async selectChat({ commit }, chatId) {
     if (!chatId) return;
-    WebSocketService.subscribeToChatRoom(chatId);
-    commit("SET_ACTIVE_CHAT", chatId);
+
+    try {
+      const [chatResponse, messagesResponse] = await Promise.all([
+        axios.get(`/api/chats/${chatId}/get`),
+        axios.get(`/api/messages/${chatId}/getMessages`),
+      ]);
+
+      commit("SET_ACTIVE_CHAT", chatResponse.data);
+      commit("SET_MESSAGES", {
+        chatId,
+        messages: messagesResponse.data,
+      });
+
+      WebSocketService.subscribeToChatRoom(chatId);
+    } catch (error) {
+      console.error("Error selecting chat:", error);
+    }
   },
-  async fetchMessages({ commit }, chatId) {
-    // Fetch messages from the server
-  },
-  sendMessage({ commit, state }, { chatId, content }) {
+
+  sendMessage({ state }, { chatId, content }) {
     if (!chatId || !content) return;
 
-    const newMessage = {
-      id: Date.now(),
+    const message = {
+      chatId,
       content,
       senderId: state.currentUser.id,
       senderName: state.currentUser.name,
       timestamp: new Date().toISOString(),
-      chadId: chatId,
     };
 
-    // Send the message to the server
-    WebSocketService.sendMessage(newMessage);
-
-    commit("ADD_MESSAGE", { chatId, message: newMessage });
-    commit("UPDATE_LAST_MESSAGE", { chatId, content });
-    return newMessage;
+    WebSocketService.sendMessage("/app/chat.message", message);
   },
-  async createNewChat({ commit, state }, { type, participants }) {
-    // Generate a unique ID for the chat
-    const chatId =
-      type === "direct" ? `direct-${participants[0]}` : `group-${Date.now()}`;
 
-    // Find participant users to get their names
-    const participantUsers = participants.map((id) =>
-      state.users.find((user) => user.id === id),
-    );
-
-    // Create chat title
-    const title =
-      type === "direct"
-        ? participantUsers[0].name
-        : `Group Chat (${participantUsers.map((u) => u.name).join(", ")})`;
-
-    // Create a new chat object
+  async createNewChat({ state }, { type, participants, title }) {
     const newChat = {
-      id: chatId,
       type,
       participants: [...participants, state.currentUser.id],
       title,
-      lastMessage: "",
-      unreadCount: 0,
       timestamp: new Date().toISOString(),
     };
 
-    // Add welcome message
-    const welcomeMessage = {
-      id: Date.now(),
-      content:
-        type === "direct" ? "Start of your conversation" : "Group chat created",
-      senderId: state.currentUser.id,
-      senderName: state.currentUser.name,
-      timestamp: new Date().toISOString(),
-    };
-
-    // Commit
-    commit("CREATE_CHAT", newChat);
-    commit("ADD_MESSAGE", { chatId: newChat.id, message: welcomeMessage });
-    commit("SET_ACTIVE_CHAT", newChat.id);
-
-    return newChat;
+    WebSocketService.sendMessage("/app/chat.create", newChat);
   },
 };
 
@@ -470,6 +482,28 @@ const getters = {
   getCurrentUser: (rootState) => rootState.auth.currentUser,
 
   getActiveChat: (state) => state.activeChat,
+  getFilteredUsers:
+    (state) =>
+    (searchQuery = "", selectedOrg = "") => {
+      if (!Array.isArray(state.users)) return [];
+
+      let filtered = [...state.users];
+
+      if (selectedOrg) {
+        filtered = filtered.filter((user) => user.orgId === selectedOrg);
+      }
+
+      if (searchQuery.trim()) {
+        const query = searchQuery.toLowerCase();
+        filtered = filtered.filter(
+          (user) =>
+            user.userName?.toLowerCase().includes(query) ||
+            user.email?.toLowerCase().includes(query),
+        );
+      }
+
+      return filtered;
+    },
 };
 
 export default {

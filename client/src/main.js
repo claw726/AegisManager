@@ -5,7 +5,6 @@ import "./styles/tailwind.css";
 import store from "./store/index.js";
 import { addBeforeUnloadListener } from "./utils/autoLogout.js";
 import "@fortawesome/fontawesome-free/css/all.css";
-import WebSocketService from "@/services/websocket.js";
 
 const app = createApp(App);
 

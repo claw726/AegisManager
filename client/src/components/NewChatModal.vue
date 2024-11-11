@@ -7,8 +7,8 @@
       <div class="flex justify-between items-center mb-4">
         <h2 class="text-xl font-semibold">New Conversation</h2>
         <button
-          @click="$emit('close')"
           class="text-gray-500 hover:text-gray-700"
+          @click="$emit('close')"
         >
           <i class="fas fa-times"></i>
         </button>
@@ -20,13 +20,13 @@
           <button
             v-for="type in chatTypes"
             :key="type.value"
-            @click="chatType = type.value"
             :class="[
               'flex-1 py-2 px-4 rounded-lg font-medium transition-colors',
               chatType === type.value
                 ? 'bg-blue-500 text-white'
                 : 'bg-gray-100 text-gray-600 hover:bg-gray-200',
             ]"
+            @click="chatType = type.value"
           >
             <i :class="[type.icon, 'mr-2']"></i>
             {{ type.label }}
@@ -35,7 +35,7 @@
       </div>
 
       <!-- Organization Filter -->
-      <div class="mb-4" v-if="organizations?.length > 0">
+      <div v-if="organizations?.length > 0" class="mb-4">
         <label class="block text-sm font-medium text-gray-700 mb-1"
           >Organization</label
         >
@@ -67,7 +67,7 @@
       </div>
 
       <!-- Selected Users Pills -->
-      <div class="flex flex-wrap gap-2 mb-4" v-if="selectedUsers.length > 0">
+      <div v-if="selectedUsers.length > 0" class="flex flex-wrap gap-2 mb-4">
         <div
           v-for="user in selectedUsers"
           :key="user.id"
@@ -75,22 +75,34 @@
         >
           <span>{{ user.name }}</span>
           <button
-            @click="removeUser(user)"
             class="text-blue-500 hover:text-blue-700"
+            @click="removeUser(user)"
           >
             <i class="fas fa-times-circle"></i>
           </button>
         </div>
       </div>
 
-      <!-- Users List -->
       <div class="flex-1 overflow-y-auto min-h-[200px] border rounded-lg">
         <div
           v-if="loading"
           class="h-full flex items-center justify-center text-gray-500"
         >
           <i class="fas fa-spinner fa-spin mr-2"></i>
-          Loading...
+          Loading users...
+        </div>
+        <div
+          v-else-if="error"
+          class="h-full flex flex-col items-center justify-center text-red-500 p-4"
+        >
+          <i class="fas fa-exclamation-circle mb-2"></i>
+          <p class="text-center mb-2">{{ error }}</p>
+          <button
+            class="px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+            @click="loadUsers"
+          >
+            Try Again
+          </button>
         </div>
         <div
           v-else-if="filteredUsers.length === 0"
@@ -102,11 +114,11 @@
           <div
             v-for="user in filteredUsers"
             :key="user.id"
-            @click="toggleUser(user)"
             :class="[
               'p-3 flex items-center gap-3 cursor-pointer hover:bg-gray-50',
               isSelected(user) ? 'bg-blue-50' : '',
             ]"
+            @click="toggleUser(user)"
           >
             <div
               class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center"
@@ -127,13 +139,12 @@
       <!-- Footer -->
       <div class="mt-4 flex justify-end gap-2">
         <button
-          @click="$emit('close')"
           class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg"
+          @click="$emit('close')"
         >
           Cancel
         </button>
         <button
-          @click="createChat"
           :disabled="!isValid"
           :class="[
             'px-4 py-2 rounded-lg',
@@ -141,6 +152,7 @@
               ? 'bg-blue-500 text-white hover:bg-blue-600'
               : 'bg-gray-200 text-gray-500 cursor-not-allowed',
           ]"
+          @click="createChat"
         >
           Create Chat
         </button>
@@ -150,7 +162,7 @@
 </template>
 
 <script>
-import { mapState } from "vuex";
+import { mapState, mapActions, mapGetters } from "vuex";
 
 export default {
   name: "NewChatModal",
@@ -160,7 +172,8 @@ export default {
       selectedUsers: [],
       searchQuery: "",
       selectedOrg: "",
-      loading: false,
+      loading: true,
+      error: null,
       chatTypes: [
         {
           value: "direct",
@@ -175,27 +188,14 @@ export default {
       ],
     };
   },
+
   computed: {
     ...mapState("chat", ["users", "currentUser", "organizations"]),
+    ...mapGetters("chat", ["getFilteredUsers"]),
     filteredUsers() {
-      let filtered = this.users.filter(
-        (user) => user.id !== this.$store.state.chat.currentUser.id,
+      return this.getFilteredUsers(this.searchQuery, this.selectedOrg).filter(
+        (user) => user.id !== this.currentUser?.id,
       );
-
-      if (this.selectedOrg) {
-        filtered = filtered.filter((user) => user.orgId === this.selectedOrg);
-      }
-
-      if (this.searchQuery.trim()) {
-        const query = this.searchQuery.toLowerCase();
-        filtered = filtered.filter(
-          (user) =>
-            user.name.toLowerCase().includes(query) ||
-            user.email.toLowerCase().includes(query),
-        );
-      }
-
-      return filtered;
     },
 
     isValid() {
@@ -205,7 +205,33 @@ export default {
       return this.selectedUsers.length >= 2;
     },
   },
+
+  async created() {
+    console.log("NewChatModal created");
+    await this.loadUsers();
+  },
+
+  mounted() {
+    console.log("Users in store:", this.users);
+  },
   methods: {
+    ...mapActions("chat", ["fetchUsers"]),
+
+    async loadUsers() {
+      if (this.loading) return;
+
+      try {
+        this.loading = true;
+        this.error = null;
+        await this.fetchUsers();
+      } catch (error) {
+        this.error = "Failed to load users. Please try again.";
+        console.log("Error loading users:", error);
+      } finally {
+        this.loading = false;
+      }
+    },
+
     handleSearch() {
       // In real implementation, this could debounce API calls
       this.loading = true;
