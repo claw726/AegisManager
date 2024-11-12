@@ -76,7 +76,7 @@
             <div v-if="showAddUsers">
               <AvailableUsersTable
                 :users="filteredAvailableUsers"
-                @addUser="addUser"
+                @addUser="sendInvite"
               />
             </div>
             <div v-else>
@@ -175,6 +175,33 @@ export default {
           "error",
           `Failed to add user: ${error.response?.data || error.message}`
         );
+      }
+    },
+    async sendInvite(email) {
+      try {
+
+        const org = await this.$store.dispatch(
+          "organizations/fetchOrganization",
+          this.$route.params.orgIndex
+        )
+
+        const data = {
+          senderEmail: this.currentUser.email,
+          recipientEmail: email,
+          invitationType: 2,
+          message:
+            this.$route.params.orgIndex +
+            ": Org Addition Request - " + org.orgName
+        };
+        await this.$store.dispatch("invitations/createInvitation", data);
+        this.showNotification("success", "Successfully sent org invite!");
+        return true;
+      } catch (error) {
+        this.showNotification(
+          "error",
+          "Unexpected error with adding user to org."
+        );
+        return false;
       }
     },
     async removeUser(email) {

@@ -151,7 +151,7 @@ export default {
       } catch (error) {
         this.showNotification(
           "error",
-          "Unexpected error with task delegation."
+          "Unexpected error with adding user to project."
         );
         return false;
       }
