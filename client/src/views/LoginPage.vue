@@ -189,6 +189,7 @@
 import NavBar from "@/components/NavBar.vue";
 import NotificationComponent from "@/components/NotificationComponent.vue";
 import { mapState } from "vuex";
+import { connect } from "@/utils/websocket.js";
 
 export default {
   components: {
@@ -272,9 +273,10 @@ export default {
           email: this.email,
           password: this.password,
         });
-        if (response?.has2fa) {
+        if (response.has2fa) {
           this.requires2FA = true;
         } else {
+          connect(this.email);
           this.$router.push({ name: "Dashboard" });
         }
       } catch (error) {
@@ -292,14 +294,14 @@ export default {
       try {
         await this.$store.dispatch("auth/verify2fa", this.code);
         this.showNotification("success", "2FA verified successfully");
-        connect();
+        connect(this.email);
         setTimeout(() => {
           this.$router.push({ name: "Dashboard" });
         }, 2000);
       } catch (error) {
         this.showNotification(
           "error",
-          error.message || "An unexpected error occurred.",
+          error.message || "An unexpected error occurred."
         );
       } finally {
         this.isLoading = false;

@@ -21,27 +21,21 @@ public class MessageController {
   @Autowired
   private MessageService messageService;
 
-  @PostMapping("/add")
-  public ResponseEntity<?> addMessage(
-    @RequestParam int chatID,
-    @RequestParam int senderID,
-    @RequestParam String content
-  ) {
-    try {
-      messageService.addMessage(chatID, senderID, content);
-      return ResponseEntity.ok("Message added successfully");
-    } catch (Exception e) {
-      if (e.getMessage().contains("Chat not found with id")) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-      } else if (e.getMessage().contains("User not found with email")) {
-        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-      } else {
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
-          e.getMessage()
-        );
-      }
+    @PostMapping("/add")
+    public ResponseEntity<?> addMessage(@RequestParam int chatID, @RequestParam String content) {
+        try {
+            messageService.addMessage(chatID, content);
+            return ResponseEntity.ok("Message added successfully");
+        } catch (Exception e) {
+            if (e.getMessage().contains("Chat not found with id")) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            } else if (e.getMessage().contains("User not found with email")) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            } else {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+            }
+        }
     }
-  }
 
   @GetMapping("{chatID}/getMessages")
   public ResponseEntity<?> getMessages(@PathVariable String chatId) {

@@ -124,6 +124,7 @@
 <script>
 import { ref } from "vue";
 import { mapState, mapActions } from "vuex";
+import {disconnect} from "@/utils/websocket";
 
 export default {
   name: "NavBar",
@@ -209,6 +210,7 @@ export default {
     async handleLogout() {
       try {
         await this.logout();
+        disconnect();
         this.closeDropdown();
         this.$router.push({ name: "Home" });
       } catch (error) {

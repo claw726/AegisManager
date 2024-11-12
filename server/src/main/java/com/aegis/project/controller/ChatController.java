@@ -11,6 +11,8 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.Set;
+
 @RestController
 @RequestMapping("api/chats")
 public class ChatController {
@@ -105,15 +107,19 @@ public class ChatController {
       // Even if the list is empty, return OK with empty list
       return ResponseEntity.ok(chats);
     } catch (Exception e) {
-      logger.error(
-        "Error fetching chats for user - ID: {}, Error: {}",
-        userID,
-        e.getMessage(),
-        e
-      );
-      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
-        e.getMessage()
-      );
+        if (e.getMessage().contains("Chat not found with user id")) {
+            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+        } else {
+          logger.error(
+            "Error fetching chats for user - ID: {}, Error: {}",
+            userID,
+            e.getMessage(),
+            e
+          );
+        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+            e.getMessage()
+        );
+        }
     }
   }
 
@@ -214,4 +220,17 @@ public class ChatController {
       );
     }
   }
+
+    @GetMapping("/getMessageableUsers")
+    public ResponseEntity<?> getMessageableUsers() {
+        try {
+            return ResponseEntity.ok(chatService.getMessageableUsers());
+        } catch (Exception e) {
+            if (e.getMessage().contains("User not found with email")) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            } else {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+            }
+        }
+    }
 }
