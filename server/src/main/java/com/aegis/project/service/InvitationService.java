@@ -118,19 +118,19 @@ public class InvitationService {
         else if (invitation.getInvitationType() == 2) {
             String message = invitation.getMessage();
             int orgID = Integer.parseInt(message.substring(0, message.indexOf(":")));
-            orgService.directlyAddUser(orgID, invitation.getRecipientEmail());
+            orgService.addUser(orgID, invitation.getRecipientEmail());
 
         } //Invitation to add a user to a project
         else if (invitation.getInvitationType() == 3) {
             String message = invitation.getMessage();
             int projectID = Integer.parseInt(message.substring(0, message.indexOf(":")));
-            projectService.directlyAddUser(projectID, invitation.getRecipientEmail());
+            projectService.addUser(projectID, invitation.getRecipientEmail());
 
         } //Invitation to add a user to a task
         else if (invitation.getInvitationType() == 4) {
             String message = invitation.getMessage();
             int orgID = Integer.parseInt(message.substring(0, message.indexOf(":")));
-            orgService.directlyAddUser(orgID, invitation.getRecipientEmail());
+            orgService.addUser(orgID, invitation.getRecipientEmail());
         }
         deleteInvitation(invitationID);
         return true;

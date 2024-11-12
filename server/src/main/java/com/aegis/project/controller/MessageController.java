@@ -3,6 +3,8 @@ package com.aegis.project.controller;
 import com.aegis.project.dto.MessageDTO;
 import com.aegis.project.service.MessageService;
 import java.util.List;
+import java.util.Set;
+
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,10 +40,10 @@ public class MessageController {
     }
 
   @GetMapping("{chatID}/getMessages")
-  public ResponseEntity<?> getMessages(@PathVariable String chatId) {
+  public ResponseEntity<?> getMessages(@PathVariable int chatId) {
     logger.info("Attempting to fetch messages for chat ID: {}", chatId);
     try {
-      List<MessageDTO> messages = messageService.getMessages(chatId);
+      Set<MessageDTO> messages = messageService.getMessages(chatId);
       logger.info(
         "Successfully retrieved {} messages for chat ID: {}",
         messages.size(),

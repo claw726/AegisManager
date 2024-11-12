@@ -103,7 +103,7 @@ public class ChatController {
   public ResponseEntity<?> findChatsByParticipant(@PathVariable int userID) {
     logger.info("Attempting to fetch chats for user ID: {}", userID);
     try {
-      List<ChatDTO> chats = chatService.findChatsByParticipant(userID);
+      Set<ChatDTO> chats = chatService.findChatsByParticipant(userID);
       // Even if the list is empty, return OK with empty list
       return ResponseEntity.ok(chats);
     } catch (Exception e) {
