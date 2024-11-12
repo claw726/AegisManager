@@ -1,58 +1,49 @@
 // utils/websocket.js
-import SockJS from "sockjs-client";
-import { Stomp } from "@stomp/stompjs";
-import { useRoute } from "vue-router";
+import io from "socket.io-client";
 
-let stompClient = null;
+let socket = null;
 
-export function connect() {
+export function connect(email) {
   console.log("Connecting to WebSocket");
-  const socket = () => new SockJS("https://localhost:8444/ws");
-  console.log("Stomping over")
-  stompClient = Stomp.over(socket);
+  socket = io("http://localhost:8080", {
+    query: {
+      email: email
+    }
+  });
 
-  console.log("Connecting with Stomp client");
-  stompClient.connect({}, onConnected, onError);
-}
+  socket.on("connect", () => {
+    console.log("Connected to WebSocket");
+  });
 
-function onConnected() {
-  console.log("Connected to WebSocket");
-  // Subscribe to a specific destination
-  stompClient.subscribe("/user/queue/task-updates", onTaskUpdate);
-  console.log("Subscribed to /user/queue/task-updates");
-}
+  socket.on("message", (message) => {
+    console.log("Received message:", message);
+    if (message.type.contains("message")) {
+      // Handle message
+    } else if (message.type.contains("task")) {
+      // Handle task update
+    } else if (message.type.contains("project")) {
+      // Handle project update
+    }
+  });
 
-function onTaskUpdate(message) {
-  try {
-    const taskUpdate = JSON.parse(message.body);
-    console.log("Task updated:", taskUpdate);
+  socket.on("disconnect", () => {
+    console.log("Disconnected from WebSocket");
+  });
 
-    // Don't use useRoute() here - it should only be used in Vue components
-    // Instead, you could emit an event or use a callback
-    window.dispatchEvent(
-      new CustomEvent("task-updated", {
-        detail: taskUpdate,
-      }),
-    );
-  } catch (error) {
-    console.error("Error processing task update:", error);
-  }
-}
-
-function onError(error) {
-  console.error("Error connecting to WebSocket:", error);
-  // 4. Add reconnection logic
-  setTimeout(() => {
-    console.log("Attempting to reconnect...");
-    connect();
-  }, 5000);
+  socket.on("connect_error", (error) => {
+    console.log("Error connecting to WebSocket:", error);
+    setTimeout(() => {
+      console.log("Attempting to reconnect...");
+      connect(email);
+    }, 5000);
+  });
 }
 
 export function disconnect() {
-  if (stompClient) {
-    stompClient.disconnect();
-    stompClient = null;
+  if (socket) {
+    socket.disconnect();
+    socket = null;
   }
 }
 
-export { stompClient };
+export { socket };

@@ -276,7 +276,7 @@ export default {
         if (response.has2fa) {
           this.requires2FA = true;
         } else {
-          connect();
+          connect(this.email);
           this.$router.push({ name: "Dashboard" });
         }
       } catch (error) {
@@ -294,7 +294,7 @@ export default {
       try {
         await this.$store.dispatch("auth/verify2fa", this.code);
         this.showNotification("success", "2FA verified successfully");
-        connect();
+        connect(this.email);
         setTimeout(() => {
           this.$router.push({ name: "Dashboard" });
         }, 2000);

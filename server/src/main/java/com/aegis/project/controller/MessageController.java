@@ -13,9 +13,9 @@ public class MessageController {
     private MessageService messageService;
 
     @PostMapping("/add")
-    public ResponseEntity<?> addMessage(@RequestParam int chatID, @RequestParam int senderID, @RequestParam String content) {
+    public ResponseEntity<?> addMessage(@RequestParam int chatID, @RequestParam String content) {
         try {
-            messageService.addMessage(chatID, senderID, content);
+            messageService.addMessage(chatID, content);
             return ResponseEntity.ok("Message added successfully");
         } catch (Exception e) {
             if (e.getMessage().contains("Chat not found with id")) {

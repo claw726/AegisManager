@@ -91,4 +91,17 @@ public class ChatController {
             }
         }
     }
+
+    @GetMapping("/getMessageableUsers")
+    public ResponseEntity<?> getMessageableUsers() {
+        try {
+            return ResponseEntity.ok(chatService.getMessageableUsers());
+        } catch (Exception e) {
+            if (e.getMessage().contains("User not found with email")) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            } else {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+            }
+        }
+    }
 }

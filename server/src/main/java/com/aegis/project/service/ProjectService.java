@@ -1,14 +1,12 @@
 package com.aegis.project.service;
 
+import com.aegis.project.controller.SocketIOController;
 import com.aegis.project.dto.ProjectDTO;
 import com.aegis.project.dto.TaskDTO;
 import com.aegis.project.dto.UserDTO;
 import com.aegis.project.exception.ProjectFetchException;
 import com.aegis.project.exception.UserNotFoundException;
-import com.aegis.project.model.OrgModel;
-import com.aegis.project.model.ProjectModel;
-import com.aegis.project.model.TaskModel;
-import com.aegis.project.model.UserModel;
+import com.aegis.project.model.*;
 import com.aegis.project.repository.OrgRepository;
 import com.aegis.project.repository.ProjectRepository;
 import com.aegis.project.repository.TaskRepository;
@@ -48,7 +46,7 @@ public class ProjectService {
   private UserService userService;
 
   @Autowired
-  private SimpMessagingTemplate simpMessageTemplate;
+  private SocketIOController socketIOController;
 
   public void editProject(int projectID) {
     ProjectModel project = projectRepository
@@ -363,10 +361,13 @@ public class ProjectService {
           new RuntimeException("User not found with id: " + userID)
         );
       project.getAssignedUsers().add(userToAdd);
-      simpMessageTemplate.convertAndSendToUser(
-        userToAdd.getEmail(),
-        "/queue/project-updates",
-        "User added to project with ID: " + projectID
+      socketIOController.sendMessage(
+        new SocketMessageModel(
+          "server",
+          userToAdd.getEmail(),
+          "project-" + projectID,
+          "User added to project with ID: " + projectID
+        )
       );
     }
     projectRepository.save(project);
@@ -402,10 +403,13 @@ public class ProjectService {
       );
     }
     project.getAssignedUsers().add(userToAdd);
-    simpMessageTemplate.convertAndSendToUser(
-      userToAdd.getEmail(),
-      "/queue/project-updates",
-      "User added to project with ID: " + projectID
+    socketIOController.sendMessage(
+      new SocketMessageModel(
+        "server",
+        userToAdd.getEmail(),
+        "project-" + projectID,
+        "User added to project with ID: " + projectID
+      )
     );
     projectRepository.save(project);
   }
@@ -441,10 +445,14 @@ public class ProjectService {
     }
 
     project.getAssignedUsers().remove(userToRemove);
-    simpMessageTemplate.convertAndSendToUser(
-      userToRemove.getEmail(),
-      "/queue/project-updates",
-      "User removed from project with ID: " + projectID
+
+    socketIOController.sendMessage(
+      new SocketMessageModel(
+        "server",
+        userToRemove.getEmail(),
+        "project-" + projectID,
+        "User removed from project with ID: " + projectID
+      )
     );
     projectRepository.save(project);
   }

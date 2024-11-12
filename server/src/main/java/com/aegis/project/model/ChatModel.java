@@ -3,10 +3,7 @@ package com.aegis.project.model;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
-import java.util.HashMap;
-import java.util.HashSet;
-import java.util.Map;
-import java.util.Set;
+import java.util.*;
 
 @Entity
 @Table(name = "chats")
@@ -32,7 +29,7 @@ public class ChatModel {
     private Map<Integer, Integer> unreadCountPerUser = new HashMap<>();
 
     @OneToMany(mappedBy = "chat", cascade = CascadeType.ALL)
-    private Set<MessageModel> messages = new HashSet<>();
+    private List<MessageModel> messages = new ArrayList<>();
 
     @Column(name = "created_date")
     private LocalDateTime createdDate;
@@ -107,11 +104,11 @@ public class ChatModel {
         this.unreadCountPerUser = unreadCountPerUser;
     }
 
-    public Set<MessageModel> getMessages() {
+    public List<MessageModel> getMessages() {
         return messages;
     }
 
-    public void setMessages(Set<MessageModel> messages) {
+    public void setMessages(List<MessageModel> messages) {
         this.messages = messages;
     }
 
@@ -129,5 +126,10 @@ public class ChatModel {
 
     public void setLastMessage(String lastMessage) {
         this.lastMessage = lastMessage;
+    }
+
+    public void addMessage(MessageModel message) {
+        lastMessage = message.getContent();
+        messages.addLast(message);
     }
 }

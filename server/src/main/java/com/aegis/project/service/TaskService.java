@@ -1,8 +1,10 @@
 package com.aegis.project.service;
 
+import com.aegis.project.controller.SocketIOController;
 import com.aegis.project.dto.TaskDTO;
 import com.aegis.project.exception.TaskNotFoundException;
 import com.aegis.project.model.ProjectModel;
+import com.aegis.project.model.SocketMessageModel;
 import com.aegis.project.model.TaskModel;
 import com.aegis.project.model.UserModel;
 import com.aegis.project.repository.OrgRepository;
@@ -41,7 +43,7 @@ public class TaskService {
   private UserService userService;
 
   @Autowired
-  private SimpMessagingTemplate simpMessageTemplate;
+  private SocketIOController socketIOController;
 
   private static final Logger logger = LoggerFactory.getLogger(
     TaskService.class
@@ -77,12 +79,8 @@ public class TaskService {
       );
     }
 
-    simpMessageTemplate.convertAndSendToUser(
-      newAssignerEmail,
-      "/queue/task-updates",
-      "User has been invited to become the task assigner for task with ID: " +
-      taskID
-    );
+    socketIOController.sendMessage(new SocketMessageModel("server", newAssignerEmail, "task-" + taskID,
+            "User has has been invited to become the task assigner"));
 
     return "Assigner invite sent successfully";
   }
@@ -139,11 +137,7 @@ public class TaskService {
       result = "Assigner switch declined for task with ID: " + taskID;
     }
 
-    simpMessageTemplate.convertAndSendToUser(
-      oldAssigner.getEmail(),
-      "/queue/task-updates",
-      result
-    );
+    socketIOController.sendMessage(new SocketMessageModel("server", oldAssigner.getEmail(), "task-" + taskID, result));
 
     return result;
   }
@@ -184,10 +178,13 @@ public class TaskService {
     Set<UserModel> assignedUsers = task.getAssignedUsers();
 
     for (UserModel user : assignedUsers) {
-      simpMessageTemplate.convertAndSendToUser(
-        user.getEmail(),
-        "/queue/task-updates",
-        getTask(taskID)
+      socketIOController.sendMessage(
+        new SocketMessageModel(
+          "server",
+          user.getEmail(),
+          "task-" + taskID,
+          "Task updated with ID: " + taskID
+        )
       );
     }
   }
@@ -202,10 +199,13 @@ public class TaskService {
     Set<UserModel> assignedUsers = task.getAssignedUsers();
 
     for (UserModel user : assignedUsers) {
-      simpMessageTemplate.convertAndSendToUser(
-        user.getEmail(),
-        "/queue/task-updates",
-        "Task deleted with ID: " + taskID
+      socketIOController.sendMessage(
+        new SocketMessageModel(
+          "server",
+          user.getEmail(),
+          "task-" + taskID,
+          "Task deleted with ID: " + taskID
+        )
       );
     }
   }

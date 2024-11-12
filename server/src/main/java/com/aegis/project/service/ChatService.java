@@ -1,7 +1,9 @@
 package com.aegis.project.service;
 
 import com.aegis.project.dto.ChatDTO;
+import com.aegis.project.dto.UserDTO;
 import com.aegis.project.model.ChatModel;
+import com.aegis.project.model.OrgModel;
 import com.aegis.project.model.UserModel;
 import com.aegis.project.repository.ChatRepository;
 import com.aegis.project.repository.UserRepository;
@@ -58,6 +60,7 @@ public class ChatService {
         if (chats.isEmpty()) {
             throw new RuntimeException("Chat not found with user id: " + userID);
         }
+        chats.sort((c1, c2) -> (c2.getMessages().getLast().getTimestamp()).compareTo(c1.getMessages().getLast().getTimestamp()));
         return chats.stream().map(ChatDTO::new).collect(Collectors.toSet());
     }
 
@@ -84,5 +87,28 @@ public class ChatService {
 
         chat.removeParticipant(userID);
         chatRepository.save(chat);
+    }
+
+    public Set<UserDTO> getMessageableUsers() {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUsername = ((UserDetails) authentication.getPrincipal()).getUsername();
+
+        UserModel currentUser = userRepository.findByEmail(currentUsername).orElseThrow(() ->
+                new RuntimeException("User not found with email: " + currentUsername));
+
+        List<UserModel> users = new java.util.ArrayList<>(List.of());
+
+        Set<OrgModel> orgs = currentUser.getOrgs();
+
+        for (OrgModel org : orgs) {
+            Set<UserModel> orgUsers = org.getUsers();
+            for (UserModel user : orgUsers) {
+                if (user.getUserID() != currentUser.getUserID() && !users.contains(user)) {
+                    users.add(user);
+                }
+            }
+        }
+
+        return users.stream().map(UserDTO::new).collect(Collectors.toSet());
     }
 }
