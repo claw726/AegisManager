@@ -1,5 +1,6 @@
 <template>
   <div class="flex flex-col h-full min-h-0">
+    <ConnectionStatus />
     <!-- Chat Header -->
     <div class="border-b p-4 flex items-center bg-white flex-shrink-0">
       <div class="flex-1 flex items-center">
@@ -33,7 +34,36 @@
       ref="messageContainer"
       class="flex-1 overflow-y-auto p-4 space-y-2 bg-[#ffffff] min-h-0"
     >
-      <TransitionGroup name="message" tag="div" class="flex flex-col flex-grow">
+      <!-- Loading State -->
+      <div v-if="loading" class="flex justify-center items-center h-full">
+        <div
+          class="animate-spin rounded-full h-8 w-8 border-b-2 border-blue-500"
+        ></div>
+      </div>
+
+      <!-- Error State -->
+      <div
+        v-else-if="error"
+        class="flex justify-center items-center h-full text-red-500"
+      >
+        <div class="text-center">
+          <p>{{ error }}</p>
+          <button
+            @click="loadChatMessages(activeChat?.id)"
+            class="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+          >
+            Retry
+          </button>
+        </div>
+      </div>
+
+      <!-- Messages -->
+      <TransitionGroup
+        v-else
+        name="message"
+        tag="div"
+        class="flex flex-col flex-grow"
+      >
         <div
           v-for="(message, index) in chatMessages"
           :key="message.id"
@@ -48,6 +78,14 @@
           />
         </div>
       </TransitionGroup>
+
+      <!-- Empty State -->
+      <div
+        v-if="!loading && !error && chatMessages.length === 0"
+        class="flex justify-center items-center h-full text-gray-500"
+      >
+        <p>No messages yet. Start the conversation!</p>
+      </div>
     </div>
 
     <!-- Message Input -->
@@ -81,11 +119,13 @@
 <script>
 import { mapState, mapGetters, mapActions } from "vuex";
 import MessageBubble from "./MessageBubble.vue";
+import ConnectionStatus from "@/components/ConnectionStatus.vue";
 
 export default {
   name: "ChatWindow",
   components: {
     MessageBubble,
+    ConnectionStatus,
   },
 
   props: {
@@ -102,15 +142,22 @@ export default {
     };
   },
 
+  async created() {
+    if (this.activeChat?.id) {
+      await this.loadChatMessages(this.activeChat.id);
+    }
+  },
+
   computed: {
     ...mapState("chat", {
       activeChat: (state) => state.activeChat,
       currentUser: (state) => state.currentUser,
+      loading: (state) => state.loading,
     }),
     ...mapGetters("chat", ["getChatMessages"]),
     chatMessages() {
-      if (!this.activeChat) return [];
-      return this.$store.state.chat.messages[this.activeChat.id] || [];
+      if (!this.activeChat?.id) return [];
+      return this.getChatMessages(this.activeChat.id) || [];
     },
     chatTypeIcon() {
       if (!this.activeChat) return "fas fa-comment";
@@ -149,16 +196,29 @@ export default {
           return "fas fa-comment";
       }
     },
+    wsConnected() {
+      return this.$store.state.chat.wsConnected;
+    },
   },
 
   watch: {
-    chatMessages: {
-      handler() {
-        this.$nextTick(() => {
-          this.scrollToBottom();
-        });
+    "activeChat.id": {
+      immediate: true,
+      async handler(newChatId, oldChatId) {
+        if (oldChatId) {
+          this.$store.dispatch("chat/leaveChatRoom", oldChatId);
+        }
+
+        if (newChatId) {
+          try {
+            await this.loadChatMessages(newChatId);
+            this.$store.dispatch("chat/joinChatRoom", newChatId);
+          } catch (error) {
+            console.error("Error loading chat messages:", error);
+            this.error = "Failed to load messages";
+          }
+        }
       },
-      deep: true,
     },
   },
 
@@ -170,27 +230,35 @@ export default {
     this.scrollToBottom();
   },
 
+  beforeUnmount() {
+    if (this.activeChat) {
+      this.$store.dispatch("chat/leaveChatRoom", this.activeChat.id);
+    }
+  },
+
   methods: {
     ...mapActions("chat", ["sendMessage"]),
 
     async handleSendMessage() {
-      if (!this.newMessage.trim() || !this.activeChat) return;
+      if (!this.newMessage.trim() || !this.activeChat?.id) return;
 
       try {
         await this.sendMessage({
           chatId: this.activeChat.id,
-          content: this.newMessage,
+          content: this.newMessage.trim(),
         });
 
         this.newMessage = "";
+        // Scroll to bottom after sending
         this.$nextTick(() => {
           this.scrollToBottom();
         });
       } catch (error) {
         console.error("Error sending message:", error);
+        // Show error to user
+        this.error = "Failed to send message";
       }
     },
-
     scrollToBottom() {
       const container = this.$refs.messageContainer;
       if (container) {
@@ -198,6 +266,22 @@ export default {
       }
     },
 
+    async loadChatMessages(chatId) {
+      if (!chatId) return;
+
+      this.loading = true;
+      this.error = null;
+
+      try {
+        await this.$store.dispatch("chat/getMessages", chatId);
+        this.scrollToBottom();
+      } catch (error) {
+        console.error("Error loading messages:", error);
+        this.error = error.response?.data?.message || "Failed to load messages";
+      } finally {
+        this.loading = false;
+      }
+    },
     shouldShowSenderName(message, index) {
       // Don't show sender name for direct chats
       if (this.activeChat?.type === "direct") return false;

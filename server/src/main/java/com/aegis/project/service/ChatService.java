@@ -5,84 +5,134 @@ import com.aegis.project.model.ChatModel;
 import com.aegis.project.model.UserModel;
 import com.aegis.project.repository.ChatRepository;
 import com.aegis.project.repository.UserRepository;
+import java.util.ArrayList;
+import java.util.List;
+import java.util.Set;
+import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
-
 @Service
 public class ChatService {
 
-    @Autowired
-    private ChatRepository chatRepository;
-    @Autowired
-    private UserRepository userRepository;
+  private static final Logger logger = LoggerFactory.getLogger(
+    ChatService.class
+  );
 
-    public void createChat(String type, Set<Integer> participants, String title) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String currentUsername = ((UserDetails) authentication.getPrincipal()).getUsername();
+  @Autowired
+  private ChatRepository chatRepository;
 
-        UserModel currentUser = userRepository.findByEmail(currentUsername).orElseThrow(() ->
-                new RuntimeException("User not found with email: " + currentUsername));
+  @Autowired
+  private UserRepository userRepository;
 
-        ChatModel chat = new ChatModel(type, title, participants);
-        chat.addParticipant(currentUser.getUserID());
-        chatRepository.save(chat);
+  @Autowired
+  private SimpMessagingTemplate messagingTemplate;
+
+  public ChatDTO createChat(
+    String type,
+    Set<Integer> participants,
+    String title
+  ) {
+    ChatModel chat = new ChatModel(type, title, participants);
+    chat = chatRepository.save(chat);
+
+    ChatDTO chatDTO = new ChatDTO(chat);
+
+    // Notify all participants about the new chat
+    for (Integer participantId : participants) {
+      messagingTemplate.convertAndSend(
+        "/queue/user." + participantId + ".chats",
+        chatDTO
+      );
     }
 
-    public ChatDTO getChat(int chatID) {
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String currentUsername = ((UserDetails) authentication.getPrincipal()).getUsername();
+    return chatDTO;
+  }
 
-        UserModel currentUser = userRepository.findByEmail(currentUsername).orElseThrow(() ->
-                new RuntimeException("User not found with email: " + currentUsername));
+  public ChatDTO getChat(int chatID) {
+    Authentication authentication = SecurityContextHolder.getContext()
+      .getAuthentication();
+    String currentUsername =
+      ((UserDetails) authentication.getPrincipal()).getUsername();
 
-        ChatModel chat = chatRepository.findById(chatID).orElseThrow(() ->
-                new RuntimeException("Chat not found with id: " + chatID));
+    UserModel currentUser = userRepository
+      .findByEmail(currentUsername)
+      .orElseThrow(() ->
+        new RuntimeException("User not found with email: " + currentUsername)
+      );
 
-        for (int participant : chat.getParticipants()) {
-            if (participant != currentUser.getUserID()) {
-                chat.addParticipant(participant);
-            }
-        }
-        return new ChatDTO(chat);
+    ChatModel chat = chatRepository
+      .findById(chatID)
+      .orElseThrow(() ->
+        new RuntimeException("Chat not found with id: " + chatID)
+      );
+
+    for (int participant : chat.getParticipants()) {
+      if (participant != currentUser.getUserID()) {
+        chat.addParticipant(participant);
+      }
+    }
+    return new ChatDTO(chat);
+  }
+
+  public List<ChatDTO> findChatsByParticipant(int userId) {
+    logger.debug("Finding chats for userID: {}", userId);
+    List<ChatModel> userChats = chatRepository.findByParticipantsContaining(
+      userId
+    );
+
+    // Add more detailed logging
+    logger.debug("Found {} chats for user ID: {}", userChats.size(), userId);
+    if (userChats.isEmpty()) {
+      logger.info(
+        "No chats found for user ID: {}. Returning empty list.",
+        userId
+      );
+      return new ArrayList<>();
+    }
+    return userChats.stream().map(ChatDTO::new).collect(Collectors.toList());
+  }
+
+  public void addParticipant(int chatID, int userID) {
+    ChatModel chat = chatRepository
+      .findById(chatID)
+      .orElseThrow(() ->
+        new RuntimeException("Chat not found with id: " + chatID)
+      );
+
+    UserModel user = userRepository
+      .findById(userID)
+      .orElseThrow(() ->
+        new RuntimeException("User not found with id: " + userID)
+      );
+    chat.addParticipant(userID);
+    chatRepository.save(chat);
+  }
+
+  public void removeParticipant(int chatID, int userID) {
+    ChatModel chat = chatRepository
+      .findById(chatID)
+      .orElseThrow(() ->
+        new RuntimeException("Chat not found with id: " + chatID)
+      );
+
+    UserModel user = userRepository
+      .findById(userID)
+      .orElseThrow(() ->
+        new RuntimeException("User not found with id: " + userID)
+      );
+
+    if (!chat.getParticipants().contains(userID)) {
+      throw new RuntimeException("User not found in chat");
     }
 
-    public Set<ChatDTO> findChatsByParticipant(int userID) {
-        List<ChatModel> chats = chatRepository.findByParticipantsContaining(userID);
-        if (chats.isEmpty()) {
-            throw new RuntimeException("Chat not found with user id: " + userID);
-        }
-        return chats.stream().map(ChatDTO::new).collect(Collectors.toSet());
-    }
-
-    public void addParticipant(int chatID, int userID) {
-        ChatModel chat = chatRepository.findById(chatID).orElseThrow(() ->
-                new RuntimeException("Chat not found with id: " + chatID));
-
-        UserModel user = userRepository.findById(userID).orElseThrow(() ->
-                new RuntimeException("User not found with id: " + userID));
-        chat.addParticipant(userID);
-        chatRepository.save(chat);
-    }
-
-    public void removeParticipant(int chatID, int userID) {
-        ChatModel chat = chatRepository.findById(chatID).orElseThrow(() ->
-                new RuntimeException("Chat not found with id: " + chatID));
-
-        UserModel user = userRepository.findById(userID).orElseThrow(() ->
-                new RuntimeException("User not found with id: " + userID));
-
-        if (!chat.getParticipants().contains(userID)) {
-            throw new RuntimeException("User not found in chat");
-        }
-
-        chat.removeParticipant(userID);
-        chatRepository.save(chat);
-    }
+    chat.removeParticipant(userID);
+    chatRepository.save(chat);
+  }
 }

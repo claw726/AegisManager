@@ -88,7 +88,7 @@ export default {
   computed: {
     ...mapState({
       chats: (state) => state.chat.chats,
-      currentUser: (state) => state.chat.currentUser,
+      currentUser: (state) => state.auth.currentUser,
       activeChat: (state) => state.chat.activeChat,
       messages: (state) => state.chat.messages,
     }),
@@ -139,8 +139,18 @@ export default {
       this.selectChat(chatId);
     }
   },
+
+  async mounted() {
+    await this.fetchUserChats();
+  },
+
   methods: {
-    ...mapActions("chat", ["selectChat"]),
+    ...mapActions("chat", [
+      "selectChat",
+      "createChat",
+      "getChat",
+      "fetchUserChats",
+    ]),
     async createNewChat(chatData) {
       try {
         await this.$store.dispatch("chat/createNewChat", chatData);
@@ -184,7 +194,7 @@ export default {
               name: "DirectChat",
               params: {
                 userID: chat.participants.find(
-                  (id) => id !== this.currentUser.id,
+                  (id) => id !== this.currentUser.userID,
                 ),
               },
             };

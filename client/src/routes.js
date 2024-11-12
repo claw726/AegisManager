@@ -203,7 +203,7 @@ const router = createRouter({
       path: "/chat",
       name: "Chat",
       component: () => import("./views/ChatView.vue"),
-      meta: { requiresAuth: false },
+      meta: { requiresAuth: true },
       children: [
         {
           path: "/direct/:userID",

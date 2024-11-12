@@ -124,14 +124,14 @@ export default {
         if (!validImageTypes.includes(file.type)) {
           this.showNotification(
             "error",
-            "Invalid file type. Please select an image file."
+            "Invalid file type. Please select an image file.",
           );
           return;
         }
         try {
           const options = {
-            maxSizeMB: 0.064,
-            maxWidthOrHeight: 512,
+            maxSizeMB: 0.032,
+            maxWidthOrHeight: 256,
             useWebWorker: true,
           };
 
@@ -168,19 +168,19 @@ export default {
                 0,
                 0,
                 newWidth,
-                newHeight
+                newHeight,
               );
 
-              const croppedDataURL = canvas.toDataURL("image/jpeg", 0.92);
+              const croppedDataURL = canvas.toDataURL("image/webp", 0.92);
               const blob = await fetch(croppedDataURL).then((res) =>
-                res.blob()
+                res.blob(),
               );
               const newFile = new File([blob], file.name, {
-                type: "image/jpeg",
+                type: "image/webp",
               });
               const compressedCroppedFile = await imageCompression(
                 newFile,
-                options
+                options,
               );
 
               const reader = new FileReader();
@@ -196,7 +196,7 @@ export default {
           console.error("Error compressing image:", error);
           this.showNotification(
             "error",
-            "An error occurred while compressing the image. Please try again with a new file."
+            "An error occurred while compressing the image. Please try again with a new file.",
           );
         }
       } else {

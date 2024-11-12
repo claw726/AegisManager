@@ -6,61 +6,152 @@ class WebSocketService {
   constructor() {
     this.stompClient = null;
     this.connected = false;
+    this.subscriptions = new Map();
+    this.connectionPromise = null;
+    this.reconnectionAttempts = 0;
+    this.maxReconnectionAttempts = 5;
   }
 
   connect() {
-    this.stompClient = new Client({
-      webSocketFactory: () => new SockJS("https://localhost:8444/ws"),
-      reconnectDelay: 5000,
-      heartbeatIncoming: 4000,
-      heartbeatOutgoing: 4000,
-      onConnect: (frame) => {
-        this.connected = true;
-        console.log("Connected to WebSocket:", frame);
+    if (this.connectionPromise) {
+      return this.connectionPromise;
+    }
 
-        // Subscribe to global messages
-        this.stompClient.subscribe("/topic/messages", (message) => {
-          const messageData = JSON.parse(message.body);
-          store.commit("chat/ADD_MESSAGE", {
-            chatId: messageData.chatId,
-            message: messageData,
-          });
-          store.commit("chat/UPDATE_LAST_MESSAGE", {
-            chatId: messageData.chatId,
-            content: messageData.content,
-          });
-        });
+    console.log("Connecting to WebSocket");
 
-        // Subscribe to specific chat room
-        if (store.state.chat.activeChat) {
-          this.subscribeToChatRoom(store.state.chat.activeChat.id);
-        }
-      },
-      onDisconnect: () => {
-        console.log("Disconnected from WebSocket");
-        this.connected = false;
-      },
-      onStompError: (frame) => {
-        console.error("STOMP error:", frame);
-      },
+    this.connectionPromise = new Promise((resolve, reject) => {
+      const authToken = store.state.auth.authToken;
+      const socket = new SockJS("https://localhost:8443/api/ws");
+
+      console.log("Auth token:", authToken);
+
+      this.stompClient = new Client({
+        webSocketFactory: () => socket,
+        connectHeaders: {
+          Authorization: `Bearer ${authToken}`,
+        },
+        reconnectDelay: 5000,
+        heartbeatIncoming: 4000,
+        heartbeatOutgoing: 4000,
+        debug: function (str) {
+          console.log("STOMP: " + str);
+        },
+
+        beforeConnect: () => {
+          console.log("Attempting to connect to ws.");
+        },
+
+        onConnect: (frame) => {
+          this.connected = true;
+          this.reconnectionAttempts = 0;
+          store.commit("auth/SET_WS_STATUS", true);
+          console.log("WebSocket connected");
+          resolve();
+        },
+
+        onDisconnect: () => {
+          this.connected = false;
+          store.commit("auth/SET_WS_STATUS", false);
+          console.log("WebSocket disconnected");
+          this.handleDisconnect();
+        },
+
+        onStompError: (frame) => {
+          console.error("STOMP error:", frame);
+          this.handleError(frame);
+        },
+
+        onWebSocketClose: () => {
+          console.log("WebSocket closed");
+          this.handleDisconnect();
+        },
+
+        onWebSocketError: (event) => {
+          console.error("WebSocket error:", event);
+          this.handleError(event);
+        },
+      });
+
+      console.log("Activating STOMP client");
+
+      try {
+        this.stompClient.activate();
+      } catch (error) {
+        console.error("Error activating STOMP client:", error);
+        reject(error);
+      }
+
+      console.log("STOMP client activated");
     });
 
-    this.stompClient.activate();
+    console.log("Connection promise:", this.connectionPromise);
+
+    return this.connectionPromise;
   }
 
-  subscribeToChatRoom(chatId) {
-    if (this.stompClient && this.connected) {
-      this.stompClient.subscribe(`/topic/chat.${chatId}`, (message) => {
-        const messageData = JSON.parse(message.body);
-        // Handle chat-specific messages
-      });
+  handleError(error) {
+    console.error("WebSocket error:", error);
+    this.disconnect();
+  }
+
+  handleDisconnect() {
+    this.connected = false;
+    store.commit("auth/SET_WS_STATUS", false);
+    this.connectionPromise = null;
+
+    if (this.reconnectAttempts < this.maxReconnectAttempts) {
+      this.reconnectAttempts++;
+      console.log(
+        `Attempting reconnect ${this.reconnectAttempts}/${this.maxReconnectAttempts}`,
+      );
+      setTimeout(() => this.connect(), 5000);
+    } else {
+      console.error("Max reconnection attempts reached");
+      store.commit("SET_ERROR", "Unable to establish WebSocket connection");
     }
   }
 
-  sendMessage(message) {
+  resubscribeAll() {
+    this.subscriptions.forEach((callback, destination) => {
+      this.subscribe(destination, callback);
+    });
+  }
+
+  subscribe(destination, callback) {
+    if (this.stompClient && this.connected) {
+      const subscription = this.stompClient.subscribe(
+        destination,
+        (message) => {
+          callback(message);
+        },
+      );
+      this.subscriptions.set(destination, callback);
+      return subscription;
+    }
+  }
+
+  unsubscribe(destination) {
+    if (this.subscriptions.has(destination)) {
+      this.subscriptions.delete(destination);
+      // Find and unsubscribe from the STOMP subscription
+      this.stompClient?.unsubscribe(destination);
+    }
+  }
+
+  subscribeToChatRoom(chatId) {
+    return this.subscribe(`/topic/chat.${chatId}`, (message) => {
+      const messageData = JSON.parse(message.body);
+      store.commit("chat/ADD_MESSAGE", {
+        chatId,
+        message: messageData,
+      });
+    });
+  }
+
+  sendMessage(destination, message) {
     if (this.stompClient && this.connected) {
       this.stompClient.publish({
-        destination: "/app/chat.send",
+        destination,
         body: JSON.stringify(message),
       });
     } else {
@@ -70,8 +161,9 @@ class WebSocketService {
 
   disconnect() {
     if (this.stompClient) {
-      this.stompClient.disconnect();
+      this.stompClient.deactivate();
       this.connected = false;
+      this.subscriptions.clear();
     }
   }
 }

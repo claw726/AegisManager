@@ -16,9 +16,12 @@ services:
     volumes:
       - ssl_certs:/etc/nginx/ssl
     depends_on:
-      - backend
+      backend:
+        condition: service_healthy
     networks:
-      - app-network
+      app-network:
+        aliases:
+          - frontend
 
   backend:
     build:
@@ -39,6 +42,8 @@ services:
       - SPRING_JPA_PROPERTIES_HIBERNATE_SHOW_SQL=false
       - MANAGEMENT_ENDPOINTS_WEB_EXPOSURE_INCLUDE=health,info,metrics
       - MANAGEMENT_ENDPOINT_HEALTH_SHOW_DETAILS=when_authorized
+      - SPRING_PROFILES_ACTIVE=docker
+      - SERVER_SLL_ENABLED=true
     healthcheck:
       test: [CMD, curl, -f, -k, https://localhost:8444/actuator/health]
       interval: 30s
@@ -46,11 +51,17 @@ services:
       retries: 3
       start_period: 60s
     networks:
-      - app-network
+      app-network:
+        aliases:
+          - backend
 
 networks:
   app-network:
     driver: bridge
+    ipam:
+      driver: default
+      config:
+        - subnet: 172.20.0.0/16
 
 volumes:
   ssl_certs:

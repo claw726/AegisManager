@@ -165,8 +165,6 @@
 export default {
   name: "ControlPanelComponent",
 
-  emits: ["tasks-filtered"],
-
   props: {
     tasks: {
       type: Array,
@@ -190,6 +188,8 @@ export default {
     },
   },
 
+  emits: ["tasks-filtered"],
+
   data() {
     return {
       isFilterMenuOpen: false,
@@ -204,12 +204,6 @@ export default {
         order: "asc",
       },
     };
-  },
-
-  mounted() {
-    this.$nextTick(() => {
-      this.emitFilteredTasks();
-    });
   },
 
   computed: {
@@ -249,6 +243,12 @@ export default {
         this.emitFilteredTasks();
       },
     },
+  },
+
+  mounted() {
+    this.$nextTick(() => {
+      this.emitFilteredTasks();
+    });
   },
 
   methods: {
