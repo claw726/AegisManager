@@ -142,12 +142,6 @@ export default {
     };
   },
 
-  async created() {
-    if (this.activeChat?.id) {
-      await this.loadChatMessages(this.activeChat.id);
-    }
-  },
-
   computed: {
     ...mapState("chat", {
       activeChat: (state) => state.activeChat,
@@ -220,6 +214,12 @@ export default {
         }
       },
     },
+  },
+
+  async created() {
+    if (this.activeChat?.id) {
+      await this.loadChatMessages(this.activeChat.id);
+    }
   },
 
   async created() {
