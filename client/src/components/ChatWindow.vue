@@ -49,8 +49,8 @@
         <div class="text-center">
           <p>{{ error }}</p>
           <button
-            @click="loadChatMessages(activeChat?.id)"
             class="mt-2 px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+            @click="loadChatMessages(activeChat?.id)"
           >
             Retry
           </button>
@@ -220,6 +220,12 @@ export default {
         }
       },
     },
+  },
+
+  async created() {
+    if (this.activeChat?.id) {
+      await this.loadChatMessages(this.activeChat.id);
+    }
   },
 
   updated() {

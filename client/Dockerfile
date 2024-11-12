@@ -31,9 +31,6 @@ COPY . .
 RUN --mount=type=cache,target=/root/.npm \
     npm run build
 
-# Remove development dependencies
-RUN npm prune --production
-
 # Stage 2: Serve
 FROM nginx:alpine-slim AS production
 

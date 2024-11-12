@@ -76,7 +76,7 @@
             <div v-if="showAddUsers">
               <AvailableUsersTable
                 :users="filteredAvailableUsers"
-                @addUser="addUser"
+                @addUser="sendInvite"
               />
             </div>
             <div v-else>
@@ -177,6 +177,32 @@ export default {
           "Failed to add user to Project: " +
             (error.response?.data || error.message)
         );
+      }
+    },
+    async sendInvite(email) {
+      try {
+
+        const project = await this.$store.dispatch(
+          "projects/fetchProject",
+          this.$route.params.projIndex
+        )
+        const data = {
+          senderEmail: this.currentUser.email,
+          recipientEmail: email,
+          invitationType: 3,
+          message:
+            this.$route.params.projIndex +
+            ": Project Addition Request - " + project.projectName
+        };
+        await this.$store.dispatch("invitations/createInvitation", data);
+        this.showNotification("success", "Successfully sent project invite!");
+        return true;
+      } catch (error) {
+        this.showNotification(
+          "error",
+          "Unexpected error with adding user to project."
+        );
+        return false;
       }
     },
     async removeUser(email) {

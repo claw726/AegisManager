@@ -176,8 +176,8 @@
       <!-- Footer -->
       <div class="mt-4 flex justify-end gap-2">
         <button
-          class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg"
           @click="$emit('close')"
+          class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg"
         >
           Cancel
         </button>
@@ -398,6 +398,9 @@ export default {
           .map((user) => user.userName || user.name)
           .join(", ") + (this.selectedUsers.length > 3 ? "..." : "")
       );
+    },
+    getUserSubtitle(user) {
+      return user.title || user.email;
     },
   },
 };
