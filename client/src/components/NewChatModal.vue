@@ -73,7 +73,26 @@
           :key="user.id"
           class="bg-blue-100 text-blue-700 px-3 py-1 rounded-full flex items-center gap-2"
         >
-          <span>{{ user.name }}</span>
+          <!-- Small Profile Picture in Pill -->
+          <div class="w-6 h-6 rounded-full overflow-hidden flex-shrink-0">
+            <img
+              v-if="user.profilePicture"
+              :src="user.profilePicture"
+              :alt="user.userName || user.name"
+              class="w-full h-full object-cover"
+              @error="handleImageError"
+            />
+            <div
+              v-else
+              class="w-full h-full bg-blue-200 flex items-center justify-center text-blue-700"
+            >
+              <span class="text-xs font-medium">
+                {{ getInitials(user.userName || user.name) }}
+              </span>
+            </div>
+          </div>
+
+          <span class="truncate">{{ user.userName || user.name }}</span>
           <button
             class="text-blue-500 hover:text-blue-700"
             @click="removeUser(user)"
@@ -113,22 +132,40 @@
         <div v-else class="divide-y">
           <div
             v-for="user in filteredUsers"
-            :key="user.id"
+            :key="user.userID"
             :class="[
               'p-3 flex items-center gap-3 cursor-pointer hover:bg-gray-50',
               isSelected(user) ? 'bg-blue-50' : '',
             ]"
             @click="toggleUser(user)"
           >
-            <div
-              class="w-10 h-10 rounded-full bg-gray-200 flex items-center justify-center"
-            >
-              <i class="fas fa-user text-gray-600"></i>
+            <!-- Profile Picture -->
+            <div class="w-10 h-10 rounded-full overflow-hidden flex-shrink-0">
+              <img
+                v-if="user.profilePicture"
+                :src="user.profilePicture"
+                :alt="user.userName || user.name"
+                class="w-full h-full object-cover"
+                @error="handleImageError"
+              />
+              <div
+                v-else
+                class="w-full h-full bg-gray-200 flex items-center justify-center text-gray-600"
+              >
+                <span class="text-lg font-medium">
+                  {{ getInitials(user.userName || user.name) }}
+                </span>
+              </div>
             </div>
-            <div class="flex-1">
-              <div class="font-medium">{{ user.name }}</div>
-              <div class="text-sm text-gray-500">{{ user.email }}</div>
+            <!-- User Info -->
+            <div class="flex-1 min-w-0">
+              <div class="font-medium truncate">
+                {{ user.userName || user.name }}
+              </div>
+              <div class="text-sm text-gray-500 truncate">{{ user.email }}</div>
             </div>
+
+            <!-- Selected Check Icon -->
             <div v-if="isSelected(user)" class="text-blue-500">
               <i class="fas fa-check-circle"></i>
             </div>
@@ -152,7 +189,7 @@
               ? 'bg-blue-500 text-white hover:bg-blue-600'
               : 'bg-gray-200 text-gray-500 cursor-not-allowed',
           ]"
-          @click="createChat"
+          @click="handleCreateChat"
         >
           Create Chat
         </button>
@@ -190,12 +227,30 @@ export default {
   },
 
   computed: {
-    ...mapState("chat", ["users", "currentUser", "organizations"]),
-    ...mapGetters("chat", ["getFilteredUsers"]),
+    ...mapState("chat", ["users", "organizations"]),
+    ...mapState("auth", ["currentUser"]),
     filteredUsers() {
-      return this.getFilteredUsers(this.searchQuery, this.selectedOrg).filter(
-        (user) => user.id !== this.currentUser?.id,
+      // Start with all users except current user
+      let filtered = (this.users || []).filter(
+        (user) => user.userID !== this.currentUser?.userID,
       );
+
+      // Filter by organization if selected
+      if (this.selectedOrg) {
+        filtered = filtered.filter((user) => user.orgId === this.selectedOrg);
+      }
+
+      // Filter by search query
+      if (this.searchQuery.trim()) {
+        const query = this.searchQuery.toLowerCase();
+        filtered = filtered.filter(
+          (user) =>
+            user.userName?.toLowerCase().includes(query) ||
+            user.email?.toLowerCase().includes(query),
+        );
+      }
+
+      return filtered;
     },
 
     isValid() {
@@ -203,6 +258,17 @@ export default {
         return this.selectedUsers.length === 1;
       }
       return this.selectedUsers.length >= 2;
+    },
+
+    chatTitleComputed() {
+      if (this.chatType === "direct") {
+        // For direct messages, use the other user's name
+        return (
+          this.selectedUsers[0]?.userName || this.selectedUsers[0]?.name || ""
+        );
+      }
+      // For group chats, use the user-entered title or generate one from participants
+      return this.chatTitle || this.generateDefaultGroupTitle();
     },
   },
 
@@ -215,15 +281,14 @@ export default {
     console.log("Users in store:", this.users);
   },
   methods: {
-    ...mapActions("chat", ["fetchUsers"]),
+    ...mapActions("chat", ["fetchUsers", "createNewChat"]),
 
     async loadUsers() {
-      if (this.loading) return;
-
       try {
         this.loading = true;
         this.error = null;
         await this.fetchUsers();
+        console.log("Users loaded:", this.users);
       } catch (error) {
         this.error = "Failed to load users. Please try again.";
         console.log("Error loading users:", error);
@@ -253,23 +318,86 @@ export default {
     },
 
     removeUser(user) {
-      this.selectedUsers = this.selectedUsers.filter((u) => u.id !== user.id);
+      this.selectedUsers = this.selectedUsers.filter(
+        (u) => u.userID !== user.userID,
+      );
     },
 
     isSelected(user) {
-      return this.selectedUsers.some((u) => u.id === user.id);
+      return this.selectedUsers.some((u) => u.userID === user.userID);
     },
 
-    createChat() {
+    async handleCreateChat() {
       if (!this.isValid) return;
 
-      this.$emit("create", {
-        type: this.chatType,
-        participants: this.selectedUsers.map((user) => user.id),
-      });
+      try {
+        this.loading = true;
+        this.error = null;
+
+        const chatData = {
+          type: this.chatType,
+          participants: new Set([
+            ...this.selectedUsers.map((u) => Number(u.userID)),
+            this.currentUser.userID,
+          ]),
+          title: this.chatTitleComputed,
+        };
+
+        console.log("Creating chat with data:", chatData);
+
+        await this.createNewChat(chatData);
+
+        // Close modal and reset form
+        this.$emit("close");
+        this.resetForm();
+      } catch (error) {
+        console.error("Failed to create chat:", error);
+        this.error =
+          error.response?.data || "Failed to create chat. Please try again.";
+      } finally {
+        this.loading = false;
+      }
     },
+
+    resetForm() {
+      this.chatType = "direct";
+      this.selectedUsers = [];
+      this.chatTitle = "";
+      this.searchQuery = "";
+      this.selectedOrg = "";
+      this.error = null;
+    },
+
     getUserSubtitle(user) {
       return user.title || user.email;
+    },
+
+    getInitials(name) {
+      if (!name) return "?";
+      return name
+        .split(" ")
+        .map((word) => word[0])
+        .join("")
+        .toUpperCase()
+        .slice(0, 2);
+    },
+
+    handleImageError(event) {
+      // Replace broken image with default avatar background
+      event.target.style.display = "none";
+      event.target.parentElement.innerHTML = `
+            <div class="w-full h-full bg-gray-200 flex items-center justify-center text-gray-600">
+              <i class="fas fa-user"></i>
+            </div>
+          `;
+    },
+    generateDefaultGroupTitle() {
+      return (
+        this.selectedUsers
+          .slice(0, 3)
+          .map((user) => user.userName || user.name)
+          .join(", ") + (this.selectedUsers.length > 3 ? "..." : "")
+      );
     },
   },
 };

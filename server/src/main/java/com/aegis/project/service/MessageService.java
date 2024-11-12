@@ -65,9 +65,15 @@ public class MessageService {
     return messageDTO;
   }
 
-  public Set<MessageDTO> getMessages(int chatID) {
+  public List<MessageDTO> getMessages(String chatID) {
+    int numericChatID;
+    try {
+      numericChatID = Integer.parseInt(chatID.replaceAll("\\D+", ""));
+    } catch (NumberFormatException e) {
+      throw new RuntimeException("Invalid chat id: " + chatID);
+    }
     List<MessageModel> messages =
-      messageRepository.findByChat_ChatIDOrderByTimestamp(chatID);
+      messageRepository.findByChat_ChatIDOrderByTimestamp(numericChatID);
     if (messages.isEmpty()) {
       throw new RuntimeException("Messages not found with chat id: " + chatID);
     }
@@ -78,7 +84,7 @@ public class MessageService {
       ((UserDetails) authentication.getPrincipal()).getUsername();
 
     ChatModel chat = chatRepository
-      .findById(chatID)
+      .findById(numericChatID)
       .orElseThrow(() ->
         new RuntimeException("Chat not found with id: " + chatID)
       );
@@ -102,7 +108,7 @@ public class MessageService {
       }
     }
 
-    return messages.stream().map(MessageDTO::new).collect(Collectors.toSet());
+    return messages.stream().map(MessageDTO::new).collect(Collectors.toList());
   }
 
   private String getUserName(int userId) {

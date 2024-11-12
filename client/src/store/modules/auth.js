@@ -1,5 +1,6 @@
 import axios from "@/utils/axios.js";
 import { Buffer } from "buffer";
+import WebSocketService from "@/services/websocket.js";
 
 const state = {
   isLoggedIn: false,
@@ -117,16 +118,14 @@ const actions = {
         commit("setCurrentUser", user);
 
         console.log("User 2fa status:", user.has2fa);
-        if (user.has2fa) {
-          return { has2fa: true };
+        if (!user.has2fa) {
+          commit("setLogin", true);
         }
-        commit("setLogin", true);
+        return { has2fa: user.has2fa };
       } else {
         console.error("Login Failed:", data ? data : "No data received!");
         throw new Error("Login Failed!");
       }
-      commit("SET_ERROR", null);
-      return { has2fa: false };
     } catch (error) {
       let errorMessage = "An unexpected error occurred. Please try again.";
 
@@ -206,6 +205,7 @@ const actions = {
     }
   },
   async logout({ commit }) {
+    WebSocketService.disconnect();
     commit("clearAuth");
     commit("setLogin", false);
   },
@@ -241,7 +241,7 @@ const actions = {
       throw new Error("Failed to disable 2FA");
     }
   },
-  async verify2fa({ commit, state }, code) {
+  async verify2fa({ commit, state, dispatch }, code) {
     try {
       const params = new URLSearchParams();
       params.append("userID", state.currentUser.userID);
@@ -253,6 +253,7 @@ const actions = {
       });
       console.log("2FA verified:", response.data);
       commit("setLogin", true);
+
       return response.data;
     } catch (error) {
       console.error("Failed to verify 2FA:", error.response.data);

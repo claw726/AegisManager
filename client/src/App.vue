@@ -4,19 +4,9 @@
 </template>
 
 <script>
-import WebSocketService from "@/services/websocket.js";
-
 export default {
   name: "App",
   components: {},
-
-  created() {
-    WebSocketService.connect();
-  },
-
-  beforeDestroy() {
-    WebSocketService.disconnect();
-  },
 };
 </script>
 

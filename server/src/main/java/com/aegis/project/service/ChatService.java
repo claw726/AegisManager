@@ -5,9 +5,12 @@ import com.aegis.project.model.ChatModel;
 import com.aegis.project.model.UserModel;
 import com.aegis.project.repository.ChatRepository;
 import com.aegis.project.repository.UserRepository;
+import java.util.ArrayList;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.Authentication;
@@ -17,6 +20,10 @@ import org.springframework.stereotype.Service;
 
 @Service
 public class ChatService {
+
+  private static final Logger logger = LoggerFactory.getLogger(
+    ChatService.class
+  );
 
   @Autowired
   private ChatRepository chatRepository;
@@ -74,12 +81,22 @@ public class ChatService {
     return new ChatDTO(chat);
   }
 
-  public Set<ChatDTO> findChatsByParticipant(int userID) {
-    List<ChatModel> chats = chatRepository.findByParticipantsContaining(userID);
-    if (chats.isEmpty()) {
-      throw new RuntimeException("Chat not found with user id: " + userID);
+  public List<ChatDTO> findChatsByParticipant(int userId) {
+    logger.debug("Finding chats for userID: {}", userId);
+    List<ChatModel> userChats = chatRepository.findByParticipantsContaining(
+      userId
+    );
+
+    // Add more detailed logging
+    logger.debug("Found {} chats for user ID: {}", userChats.size(), userId);
+    if (userChats.isEmpty()) {
+      logger.info(
+        "No chats found for user ID: {}. Returning empty list.",
+        userId
+      );
+      return new ArrayList<>();
     }
-    return chats.stream().map(ChatDTO::new).collect(Collectors.toSet());
+    return userChats.stream().map(ChatDTO::new).collect(Collectors.toList());
   }
 
   public void addParticipant(int chatID, int userID) {

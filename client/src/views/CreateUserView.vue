@@ -172,8 +172,8 @@ export default {
         try {
           // options for image compression
           const options = {
-            maxSizeMB: 0.064,
-            maxWidthOrHeight: 512,
+            maxSizeMB: 0.032,
+            maxWidthOrHeight: 256,
             useWebWorker: true,
           };
 
@@ -215,26 +215,26 @@ export default {
                 0,
                 0,
                 newWidth,
-                newHeight
+                newHeight,
               );
 
               // Convert the Canvas to a URL
-              const croppedDataURL = canvas.toDataURL("image/jpeg", 0.92);
+              const croppedDataURL = canvas.toDataURL("image/webp", 0.92);
 
               // Convert the data URL to a BLOB
               const blob = await fetch(croppedDataURL).then((res) =>
-                res.blob()
+                res.blob(),
               );
 
               // Create a new file from the BLOB
               const newFile = new File([blob], file.name, {
-                type: "image/jpeg",
+                type: "image/webp",
               });
 
               // Compress the cropped image
               const compressedCroppedFile = await imageCompression(
                 newFile,
-                options
+                options,
               );
 
               // Read the compressed file as a data URL
