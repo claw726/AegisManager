@@ -38,7 +38,12 @@ public class InvitationService {
             int invitationType,
             String message
     ) {
-        if (invitationRepository.existsInvitationByMessage(message)) {
+        if (invitationType >= 1 && invitationType <= 3 && invitationRepository.existsInvitationByMessageAndRecipient(message, recipientEmail)) {
+            throw new RuntimeException(
+                    "Invitation with given message has already been sent"
+            );
+        }
+        if (invitationType == 4 && invitationRepository.existsInvitationByMessage(message)) {
             throw new RuntimeException(
                     "Invitation with given message has already been sent"
             );
@@ -111,6 +116,9 @@ public class InvitationService {
             );
         } //Invitation to add a user to an organization
         else if (invitation.getInvitationType() == 2) {
+            String message = invitation.getMessage();
+            int orgID = Integer.parseInt(message.substring(0, message.indexOf(":")));
+            orgService.directlyAddUser(orgID, invitation.getRecipientEmail());
 
         } //Invitation to add a user to a project
         else if (invitation.getInvitationType() == 3) {
