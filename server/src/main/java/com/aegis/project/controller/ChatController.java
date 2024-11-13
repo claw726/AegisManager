@@ -103,23 +103,24 @@ public class ChatController {
   public ResponseEntity<?> findChatsByParticipant(@PathVariable int userID) {
     logger.info("Attempting to fetch chats for user ID: {}", userID);
     try {
-      Set<ChatDTO> chats = chatService.findChatsByParticipant(userID);
+      List<ChatDTO> chats = chatService.findChatsByParticipant(userID);
       // Even if the list is empty, return OK with empty list
       return ResponseEntity.ok(chats);
     } catch (Exception e) {
-        if (e.getMessage().contains("Chat not found with user id")) {
-            return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-        } else {
-          logger.error(
-            "Error fetching chats for user - ID: {}, Error: {}",
-            userID,
-            e.getMessage(),
-            e
-          );
-        return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
-            e.getMessage()
-        );
-        }
+      String errorMessage = e.getMessage();
+      if (errorMessage != null && errorMessage.contains("Chat not found with user id")) {
+        logger.warn("Chat not found for user ID: {}", userID);
+        return ResponseEntity.status(HttpStatus.NOT_FOUND).body(errorMessage);
+      }
+      logger.error(
+        "Error fetching chats for user ID: {}, Error: {}",
+        userID,
+        e.getMessage(),
+        e
+      );
+      return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+        e.getMessage()
+      );
     }
   }
 
