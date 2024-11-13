@@ -2,6 +2,7 @@ package com.aegis.project.service;
 
 import com.aegis.project.controller.SocketIOController;
 import com.aegis.project.dto.MessageDTO;
+import com.aegis.project.exception.UserNotFoundException;
 import com.aegis.project.model.ChatModel;
 import com.aegis.project.model.MessageModel;
 import com.aegis.project.model.SocketMessageModel;
@@ -63,31 +64,36 @@ public class MessageService {
         return new MessageDTO(message);
     }
 
-    public Set<MessageDTO> getMessages(int chatID) {
-        List<MessageModel> messages = messageRepository.findByChat_ChatIDOrderByTimestamp(chatID);
-        if (messages.isEmpty()) {
-            throw new RuntimeException("Messages not found with chat id: " + chatID);
-        }
-
-        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
-        String currentUsername = ((UserDetails) authentication.getPrincipal()).getUsername();
+    public List<MessageDTO> getMessages(int chatID) {
 
         ChatModel chat = chatRepository.findById(chatID).orElseThrow(() ->
                 new RuntimeException("Chat not found with id: " + chatID));
 
-        UserModel currentUser = userRepository.findByEmail(currentUsername).orElseThrow(() ->
-                new RuntimeException("User not found with email: " + currentUsername));
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUsername = ((UserDetails) authentication.getPrincipal()).getUsername();
 
+        List<MessageModel> messages = messageRepository.findByChat_ChatIDOrderByTimestamp(chatID);
+
+        UserModel currentUser = userRepository.findByEmail(currentUsername).orElseThrow(() ->
+                new UserNotFoundException("User not found with email {}" + currentUsername));
+
+        // Check authorization before proceeding
         if (!chat.getParticipants().contains(currentUser.getUserID())) {
             throw new RuntimeException("User not authorized to view messages in chat: " + chatID);
         }
 
-        for (MessageModel message : messages) {
-            message.markAsRead(currentUser.getUserID());
-            messageRepository.save(message);
+        // Mark any existing messages as read
+        if (!messages.isEmpty()) {
+            for (MessageModel message : messages) {
+                message.markAsRead(currentUser.getUserID());
+                messageRepository.save(message);
+            }
         }
 
-        return messages.stream().map(MessageDTO::new).collect(Collectors.toSet());
+        // Return empty list if no messages, otherwise return DTOs
+        return messages.stream()
+                .map(MessageDTO::new)
+                .collect(Collectors.toList());
     }
 
 

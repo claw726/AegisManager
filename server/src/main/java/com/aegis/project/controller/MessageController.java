@@ -39,11 +39,11 @@ public class MessageController {
         }
     }
 
-  @GetMapping("{chatID}/getMessages")
+  @GetMapping("{chatId}/getMessages")
   public ResponseEntity<?> getMessages(@PathVariable int chatId) {
     logger.info("Attempting to fetch messages for chat ID: {}", chatId);
     try {
-      Set<MessageDTO> messages = messageService.getMessages(chatId);
+      List<MessageDTO> messages = messageService.getMessages(chatId);
       logger.info(
         "Successfully retrieved {} messages for chat ID: {}",
         messages.size(),
@@ -51,9 +51,10 @@ public class MessageController {
       );
       return ResponseEntity.ok(messages);
     } catch (Exception e) {
-      if (e.getMessage().contains("not found")) {
+      String errorMessage = e.getMessage() != null ? e.getMessage() : "An error occurred while fetching messages";
+      if (errorMessage.contains("not found")) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-      } else if (e.getMessage().contains("User not authorized")) {
+      } else if (errorMessage.contains("User not authorized")) {
         return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
           e.getMessage()
         );
