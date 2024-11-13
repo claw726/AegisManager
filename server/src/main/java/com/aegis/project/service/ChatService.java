@@ -45,7 +45,6 @@ public class ChatService {
                 new RuntimeException("User not found with email: " + currentUsername));
 
         ChatModel chat = new ChatModel(type, title, participants);
-        chat.addParticipant(currentUser.getUserID());
         chatRepository.save(chat);
     }
 

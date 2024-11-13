@@ -16,6 +16,7 @@ public class ProjectDTO {
   private Set<TaskDTO> projectTasks = new HashSet<>();
   private String encodedImage;
   private boolean isArchived;
+  private int chatID;
 
   public ProjectDTO(
     int projectID,
@@ -26,7 +27,8 @@ public class ProjectDTO {
     String encodedImage,
     Set<UserDTO> assignedUsers,
     Set<TaskDTO> projectTasks,
-    boolean isArchived
+    boolean isArchived,
+    int chatID
   ) {
     this.projectID = projectID;
     this.parentOrgID = parentOrgID;
@@ -37,6 +39,7 @@ public class ProjectDTO {
     this.projectOwnerID = projectOwnerID;
     this.encodedImage = encodedImage;
     this.isArchived = isArchived;
+    this.chatID = chatID;
   }
 
   public ProjectDTO(ProjectModel project) {
@@ -57,6 +60,7 @@ public class ProjectDTO {
     this.projectOwnerID = project.getProjectOwnerID();
     this.encodedImage = project.getEncodedImage();
     this.isArchived = project.isArchived();
+    this.chatID = project.getChatID();
   }
 
   public ProjectDTO() {}
@@ -131,5 +135,13 @@ public class ProjectDTO {
 
   public void setIsArchived(boolean isArchived) {
     this.isArchived = isArchived;
+  }
+
+  public int getChatID() {
+      return chatID;
+  }
+
+  public void setChatID(int chatID) {
+      this.chatID = chatID;
   }
 }

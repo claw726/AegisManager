@@ -3,15 +3,11 @@ package com.aegis.project.service;
 import com.aegis.project.controller.SocketIOController;
 import com.aegis.project.dto.TaskDTO;
 import com.aegis.project.exception.TaskNotFoundException;
-import com.aegis.project.model.ProjectModel;
-import com.aegis.project.model.SocketMessageModel;
-import com.aegis.project.model.TaskModel;
-import com.aegis.project.model.UserModel;
-import com.aegis.project.repository.OrgRepository;
-import com.aegis.project.repository.ProjectRepository;
-import com.aegis.project.repository.TaskRepository;
-import com.aegis.project.repository.UserRepository;
+import com.aegis.project.model.*;
+import com.aegis.project.repository.*;
+
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -48,6 +44,8 @@ public class TaskService {
   private static final Logger logger = LoggerFactory.getLogger(
     TaskService.class
   );
+    @Autowired
+    private ChatRepository chatRepository;
 
   public String switchTaskAssigner(int taskID, String newAssignerEmail) {
     TaskModel task = taskRepository
@@ -253,6 +251,13 @@ public class TaskService {
     task.setDueDate(dueDate);
     task.setParentProject(parentProject);
 
+    Set<Integer> participants = new HashSet<>();
+    participants.add(assignerID);
+
+    ChatModel chat = new ChatModel("task", taskName, participants);
+    task.setChatID(chat.getChatID());
+
+    chatRepository.save(chat);
     taskRepository.save(task);
 
     Set<TaskModel> projectTasks = parentProject.getProjectTasks();
@@ -292,20 +297,7 @@ public class TaskService {
 
       return tasks
         .stream()
-        .map(task ->
-          new TaskDTO(
-            task.getTaskID(),
-            task.getParentProjectID(),
-            task.getParentOrgID(),
-            task.getTaskName(),
-            task.getTaskDescription(),
-            task.getAssignerID(),
-            task.getTaskPriority(),
-            task.getDueDate(),
-            task.isComplete(),
-            task.getAssignedUsers()
-          )
-        )
+        .map(TaskDTO::new)
         .collect(Collectors.toSet());
     } else {
       throw new RuntimeException(
@@ -482,6 +474,12 @@ public class TaskService {
       );
     }
     task.getAssignedUsers().add(userToAdd);
+
+    ChatModel chat = chatRepository.findById(task.getChatID()).orElseThrow(() ->
+        new RuntimeException("Chat not found with id: " + task.getChatID()));
+
+    chat.addParticipant(userToAdd.getUserID());
+    chatRepository.save(chat);
     taskRepository.save(task);
   }
 
@@ -515,6 +513,11 @@ public class TaskService {
       );
     }
     task.getAssignedUsers().remove(userToRemove);
+    ChatModel chat = chatRepository.findById(task.getChatID()).orElseThrow(() ->
+            new RuntimeException("Chat not found with id: " + task.getChatID()));
+
+    chat.removeParticipant(userToRemove.getUserID());
+    chatRepository.save(chat);
     taskRepository.save(task);
   }
 
@@ -567,20 +570,7 @@ public class TaskService {
 
     return tasks
       .stream()
-      .map(task ->
-        new TaskDTO(
-          task.getTaskID(),
-          task.getParentProjectID(),
-          task.getParentOrgID(),
-          task.getTaskName(),
-          task.getTaskDescription(),
-          task.getAssignerID(),
-          task.getTaskPriority(),
-          task.getDueDate(),
-          task.isComplete(),
-          task.getAssignedUsers()
-        )
-      )
+      .map(TaskDTO::new)
       .collect(Collectors.toSet());
   }
 }
