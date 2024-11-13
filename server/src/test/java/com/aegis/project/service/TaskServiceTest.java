@@ -3,6 +3,7 @@ package com.aegis.project.service;
 import static org.junit.jupiter.api.Assertions.*;
 import static org.mockito.Mockito.*;
 
+import com.aegis.project.controller.SocketIOController;
 import com.aegis.project.dto.TaskDTO;
 import com.aegis.project.exception.TaskNotFoundException;
 import com.aegis.project.model.OrgModel;
@@ -45,7 +46,7 @@ public class TaskServiceTest {
   private UserService userService;
 
   @Mock
-  private SimpMessagingTemplate simpMessageTemplate;
+  private SocketIOController socketIOController;
 
   @InjectMocks
   private TaskService taskService;
@@ -228,11 +229,7 @@ public class TaskServiceTest {
 
     taskService.sendTaskInfoToUsers(taskID);
 
-    verify(simpMessageTemplate, times(1)).convertAndSendToUser(
-      anyString(),
-      eq("/queue/task-updates"),
-      any()
-    );
+    verify(socketIOController, times(1)).sendMessage(any());
   }
 
   @Test
@@ -265,11 +262,7 @@ public class TaskServiceTest {
 
     taskService.notifyTaskDeletion(taskID);
 
-    verify(simpMessageTemplate, times(1)).convertAndSendToUser(
-      eq("user@example.com"),
-      eq("/queue/task-updates"),
-      any()
-    );
+    verify(socketIOController, times(1)).sendMessage(any());
   }
 
   @Test

@@ -12,16 +12,14 @@ public class ChatDTO {
     Set<Integer> participants;
     String title;
     String lastMessage;
-    Map<Integer, Integer> unreadCountPerUser;
     LocalDateTime createdDate;
 
-    public ChatDTO(String id, String type, Set<Integer> participants, String title, String lastMessage, Map<Integer, Integer> unreadCountPerUser, LocalDateTime createdDate) {
+    public ChatDTO(String id, String type, Set<Integer> participants, String title, String lastMessage, LocalDateTime createdDate) {
         this.id = id;
         this.type = type;
         this.participants = participants;
         this.title = title;
         this.lastMessage = lastMessage;
-        this.unreadCountPerUser = unreadCountPerUser;
         this.createdDate = createdDate;
     }
 
@@ -31,7 +29,6 @@ public class ChatDTO {
         this.participants = chat.getParticipants();
         this.title = chat.getTitle();
         this.lastMessage = chat.getLastMessage();
-        this.unreadCountPerUser = chat.getUnreadCountPerUser();
         this.createdDate = chat.getCreatedDate();
     }
 
@@ -76,14 +73,6 @@ public class ChatDTO {
 
     public void setLastMessage(String lastMessage) {
         this.lastMessage = lastMessage;
-    }
-
-    public Map<Integer, Integer> getUnreadCountPerUser() {
-        return unreadCountPerUser;
-    }
-
-    public void setUnreadCountPerUser(Map<Integer, Integer> unreadCountPerUser) {
-        this.unreadCountPerUser = unreadCountPerUser;
     }
 
     public LocalDateTime getCreatedDate() {
