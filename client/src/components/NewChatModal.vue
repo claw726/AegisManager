@@ -176,8 +176,8 @@
       <!-- Footer -->
       <div class="mt-4 flex justify-end gap-2">
         <button
-          @click="$emit('close')"
           class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded-lg"
+          @click="$emit('close')"
         >
           Cancel
         </button>

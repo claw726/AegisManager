@@ -100,11 +100,12 @@ const actions = {
       console.warn("Chat ID is required to select a chat");
       return;
     }
+    const numericChatId = parseInt(chatId.match(/\d+/)[0]);
     commit("SET_LOADING", true);
     try {
       console.log(`Fetching messages for chat ${chatId}`);
 
-      const response = await axios.get(`/api/messages/${chatId}/getMessages`, {
+      const response = await axios.get(`/api/messages/${numericChatId}/getMessages`, {
         headers: {
           Authorization: `Bearer ${rootState.auth.authToken}`,
         },
@@ -135,6 +136,8 @@ const actions = {
     try {
       console.log(`Selecting chat ${chatId}`);
 
+      const numericChatId = parseInt(chatId.match(/\d+/)[0]);
+
       // Get chat and messages in parallel
       const [chat, messages] = await Promise.all([
         dispatch("getChat", chatId),
@@ -142,9 +145,6 @@ const actions = {
       ]);
 
       commit("SET_ACTIVE_CHAT", chat);
-
-      // Subscribe to WebSocket updates
-      WebSocketService.subscribeToChatRoom(chatId);
 
       return { chat, messages };
     } catch (error) {
@@ -157,24 +157,35 @@ const actions = {
     }
   },
 
-  sendMessage({ state }, { chatId, content }) {
+  sendMessage({ rootState, commit }, { chatId, content }) {
     if (!chatId || !content) return;
 
-    const message = {
-      chatId,
-      content,
-      senderId: state.currentUser.id,
-      senderName: state.currentUser.name,
-      timestamp: new Date().toISOString(),
-    };
-
-    WebSocketService.sendMessage("/app/chat.message", message);
+    const numericChatId = parseInt(chatId.match(/\d+/)[0]);
+    // Send message to server
+    try {
+      axios.post("/api/messages/add",
+        {
+          chatId: numericChatId,
+          content: content,
+        },
+        {
+        headers: {
+          Authorization: `Bearer ${rootState.auth.authToken}`,
+        },
+      });
+      return;
+    } catch (error) {
+      console.error("Error sending message:", error);
+      commit("SET_ERROR", "Failed to send message");
+      throw error;
+    }
   },
 
   async getChat({ rootState, commit }, chatId) {
     commit("SET_LOADING", true);
+    const numericChatId = parseInt(chatId.match(/\d+/)[0]);
     try {
-      const response = await axios.get(`/api/chats/${chatId}/get`, {
+      const response = await axios.get(`/api/chats/${numericChatId}/get`, {
         headers: {
           Authorization: `Bearer ${rootState.auth.authToken}`,
         },
