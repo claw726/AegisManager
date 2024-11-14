@@ -157,17 +157,28 @@ const actions = {
     }
   },
 
-  sendMessage({ state }, { chatId, content }) {
+  sendMessage({ rootState, commit }, { chatId, content }) {
     if (!chatId || !content) return;
 
-    const message = {
-      chatId,
-      content,
-      senderId: state.currentUser.id,
-      senderName: state.currentUser.name,
-      timestamp: new Date().toISOString(),
-    };
-
+    const numericChatId = parseInt(chatId.match(/\d+/)[0]);
+    // Send message to server
+    try {
+      axios.post("/api/messages/add",
+        {
+          chatId: numericChatId,
+          content: content,
+        },
+        {
+        headers: {
+          Authorization: `Bearer ${rootState.auth.authToken}`,
+        },
+      });
+      return;
+    } catch (error) {
+      console.error("Error sending message:", error);
+      commit("SET_ERROR", "Failed to send message");
+      throw error;
+    }
   },
 
   async getChat({ rootState, commit }, chatId) {

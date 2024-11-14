@@ -49,8 +49,28 @@ public class MessageDTO {
     return chatId;
   }
 
+  public int getId() {
+    return id;
+  }
+
+  public String getSenderName() {
+    return senderName;
+  }
+
   public void setChatId(int chatId) {
     this.chatId = chatId;
+  }
+
+  public String getTimestamp() {
+    return timestamp;
+  }
+
+  public boolean isDeleted() {
+    return isDeleted;
+  }
+
+  public Set<Integer> getReadBy() {
+    return readBy;
   }
 
   public int getSenderId() {

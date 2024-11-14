@@ -2,32 +2,43 @@
   <div class="flex flex-col h-full min-h-0">
     <ConnectionStatus />
     <!-- Chat Header -->
-    <div class="border-b p-4 flex items-center bg-white flex-shrink-0">
-      <div class="flex-1 flex items-center">
-        <div
-          class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center mr-3"
-        >
-          <i :class="[chatTypeIcon, 'text-gray-600']"></i>
-        </div>
-        <div>
-          <div class="flex items-center">
-            <h2 class="text-xl font-semibold">{{ activeChat?.title }}</h2>
-            <i :class="[chatTypeIconSmall, 'ml-2 text-gray-400']"></i>
-          </div>
-          <p class="text-sm text-gray-500 flex items-center">
-            <i class="fas fa-users mr-1"></i>
-            {{ activeChat?.participants?.length || 0 }} members
-          </p>
-        </div>
-      </div>
-      <div>
-        <button
-          class="text-gray-500 hover:text-gray-700 p-2 rounded-full hover:bg-gray-100"
-        >
-          <i class="fas fa-ellipsis-v"></i>
-        </button>
-      </div>
+<div class="border-b p-4 flex items-center bg-white flex-shrink-0">
+  <div class="flex-1 flex items-center">
+    <div
+      class="w-10 h-10 rounded-full flex items-center justify-center mr-3 overflow-hidden"
+      :class="[!otherUser?.profilePicture || imageLoadError ? 'bg-gray-100' : '']"
+    >
+      <img
+        v-if="activeChat?.type === 'direct' && otherUser?.profilePicture && !imageLoadError"
+        :src="otherUser.profilePicture"
+        :alt="displayTitle"
+        class="w-full h-full object-cover"
+        @error="imageLoadError = true"
+      />
+      <i
+        v-else
+        :class="[chatTypeIcon, 'text-gray-600']"
+      />
     </div>
+    <div>
+      <div class="flex items-center">
+        <h2 class="text-xl font-semibold">{{ displayTitle }}</h2>
+        <i :class="[chatTypeIconSmall, 'ml-2 text-gray-400']"></i>
+      </div>
+      <p class="text-sm text-gray-500 flex items-center">
+        <i class="fas fa-users mr-1"></i>
+        {{ activeChat?.participants?.length || 0 }} members
+      </p>
+    </div>
+  </div>
+  <div>
+    <button
+      class="text-gray-500 hover:text-gray-700 p-2 rounded-full hover:bg-gray-100"
+    >
+      <i class="fas fa-ellipsis-v"></i>
+    </button>
+  </div>
+</div>
 
     <!-- Messages Area -->
     <div
@@ -71,7 +82,7 @@
         >
           <MessageBubble
             :message="message"
-            :isOwn="message.senderId === currentUser?.id"
+            :isOwn="message.senderId === currentUser?.userID"
             :showSender="shouldShowSenderName(message, index)"
             :showTimestamp="shouldShowTimestamp(message, index)"
             class="w-full"
@@ -137,17 +148,20 @@ export default {
   },
 
   data() {
-    return {
-      newMessage: "",
-    };
-  },
+  return {
+    newMessage: "",
+    resolvedTitle: "",
+    profilePicture: null,
+    imageLoadError: false,
+  };
+},
 
   computed: {
     ...mapState("chat", {
       activeChat: (state) => state.activeChat,
-      currentUser: (state) => state.currentUser,
       loading: (state) => state.loading,
     }),
+    ...mapState("auth", ["currentUser"]),
     ...mapGetters("chat", ["getChatMessages"]),
     chatMessages() {
       if (!this.activeChat?.id) return [];
@@ -171,6 +185,30 @@ export default {
           return "fas fa-comment";
       }
     },
+
+    otherUser() {
+    if (!this.activeChat?.type === 'direct' || !this.activeChat?.participants) {
+      return null;
+    }
+
+    const otherUserId = this.activeChat.participants.find(
+      id => id !== this.currentUser?.userID
+    );
+
+    return this.$store.state.chat.users.find(
+      user => user.userID === otherUserId
+    );
+  },
+
+    displayTitle() {
+  if (!this.activeChat) return '';
+
+  if (this.activeChat.type === 'direct') {
+    return this.otherUser?.userName || this.resolvedTitle || 'Loading...';
+  }
+
+  return this.activeChat.title;
+},
 
     chatTypeIconSmall() {
       if (!this.activeChat) return "fas fa-comment";
@@ -214,18 +252,31 @@ export default {
         }
       },
     },
+    'activeChat': {
+      immediate: true,
+      handler() {
+        this.updateDisplayTitle();
+      }
+    },
   },
 
   async created() {
-    if (this.activeChat?.id) {
-      await this.loadChatMessages(this.activeChat.id);
+    if (this.activeChat?.type === "direct") {
+      const otherUserId = this.activeChat.participants.find(
+        (id) => id !== this.currentUser?.userID
+      );
+
+      if (otherUserId) {
+        await this.$store.dispatch("chat/fetchUsers", otherUserId);
+      }
     }
   },
 
-  async created() {
+  async mounted() {
     if (this.activeChat?.id) {
       await this.loadChatMessages(this.activeChat.id);
     }
+    console.log("Chat window mounted: ", this.activeChat);
   },
 
   updated() {
@@ -272,6 +323,26 @@ export default {
       }
     },
 
+    async updateDisplayTitle() {
+      if (!this.activeChat?.type === "direct") return;
+
+      const otherUserId = this.activeChat.participants.find(
+        (id) => id !== this.currentUser?.userID
+      );
+      if (otherUserId) {
+        try {
+          await this.$store.dispatch("chat/fetchUsers", otherUserId);
+          const otherUser = this.$store.state.chat.users.find(
+            (user) => user.userID === otherUserId
+          );
+          this.resolvedTitle = otherUser?.userName || "Unknown User";
+        } catch (error) {
+          console.error("Error loading chat title:", error);
+          this.resolvedTitle = "Error loading name";
+        }
+      }
+    },
+
     async loadChatMessages(chatId) {
       if (!chatId) return;
 
@@ -280,6 +351,7 @@ export default {
 
       try {
         await this.$store.dispatch("chat/getMessages", chatId);
+        console.log("Messages loaded:", this.chatMessages);
         this.scrollToBottom();
       } catch (error) {
         console.error("Error loading messages:", error);
@@ -342,5 +414,23 @@ export default {
 
 .message-move {
   transition: all 0.3s ease;
+}
+
+.profile-picture-enter-active,
+.profile-picture-leave-active {
+  transition: opacity 0.3s ease;
+}
+
+.profile-picture-enter-from,
+.profile-picture-leave-to {
+  opacity: 0;
+}
+
+img {
+  transition: transform 0.3s ease;
+}
+
+img:hover {
+  transform: scale(1.05);
 }
 </style>

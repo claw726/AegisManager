@@ -7,15 +7,28 @@
     @click="handleClick"
   >
     <div class="flex items-center">
+      <!-- Updated Avatar Section -->
       <div
-        class="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center mr-3"
+        class="w-10 h-10 rounded-full flex items-center justify-center mr-3 overflow-hidden"
+        :class="[!profilePicture ? 'bg-gray-300' : '']"
       >
-        <i :class="[chatTypeIcon, 'text-gray-600']" />
+        <img
+          v-if="profilePicture && chat.type === 'direct'"
+          :src="profilePicture"
+          :alt="displayTitle"
+          class="w-full h-full object-cover"
+          @error="handleImageError"
+        />
+        <i
+          v-else
+          :class="[chatTypeIcon, 'text-gray-600']"
+        />
       </div>
+
       <div class="flex-1 min-w-0">
         <div class="font-semibold truncate flex items-center">
           <i :class="[chatTypeIconSmall, 'mr-2 text-gray-400 text-sm']" />
-          <span v-html="highlightText(chat.title)"></span>
+          <span :class="titleClass" v-html="highlightText(displayTitle)"></span>
         </div>
         <div
           class="text-sm text-gray-500 truncate"
@@ -33,6 +46,8 @@
 </template>
 
 <script>
+import { mapState } from 'vuex';
+
 export default {
   name: "ChatListItem",
   props: {
@@ -49,7 +64,39 @@ export default {
       default: "",
     },
   },
+  
+  data() {
+    return {
+      resolvedTitle: "",
+      titleError: null,
+      profilePicture: null,
+      imageLoadError: false,
+    };
+  },
+
   computed: {
+    ...mapState("auth", ["currentUser"]),
+    
+    displayTitle() {
+      if (!this.chat) return '';
+
+      if (this.chat.type === 'direct') {
+        if (this.titleError) {
+          return 'Error loading name';
+        }
+        return this.resolvedTitle || 'Loading...';
+      }
+
+      return this.chat.title;
+    },
+
+    titleClass() {
+      return {
+        'text-gray-400': !this.resolvedTitle && this.chat.type === 'direct',
+        'text-red-500': this.titleError,
+      };
+    },
+
     chatTypeIcon() {
       switch (this.chat.type) {
         case "direct":
@@ -66,6 +113,7 @@ export default {
           return "fas fa-comment";
       }
     },
+
     chatTypeIconSmall() {
       switch (this.chat.type) {
         case "direct":
@@ -83,14 +131,27 @@ export default {
       }
     },
   },
+
+  watch: {
+    chat: {
+      immediate: true,
+      deep: true,
+      handler() {
+        this.updateDisplayTitle();
+        this.updateProfilePicture();
+      }
+    },
+  },
+
   methods: {
     handleClick(event) {
       event.stopPropagation();
       console.log("ChatListItem clicked:", this.chat);
       this.$emit("select", this.chat);
     },
+
     highlightText(text) {
-      if (!this.searchQuery.trim()) {
+      if (!this.searchQuery.trim() || !text) {
         return text;
       }
 
@@ -107,10 +168,77 @@ export default {
 
       return `${before}<span class="highlight">${match}</span>${after}`;
     },
+
+    handleImageError() {
+      this.imageLoadError = true;
+      this.profilePicture = null;
+    },
+
+    async updateProfilePicture() {
+      if (this.chat?.type !== "direct" || this.imageLoadError) {
+        this.profilePicture = null;
+        return;
+      }
+
+      const otherUserId = this.chat.participants.find(
+        (id) => id !== this.currentUser?.userID
+      );
+
+      if (otherUserId) {
+        try {
+          // Fetch user data if needed
+          await this.$store.dispatch("chat/fetchUsers", otherUserId);
+          
+          // Get user from store
+          const otherUser = this.$store.state.chat.users.find(
+            (user) => user.userID === otherUserId
+          );
+          
+          if (otherUser?.profilePicture) {
+            this.profilePicture = otherUser.profilePicture;
+            this.imageLoadError = false;
+          }
+        } catch (error) {
+          console.error("Error loading profile picture:", error);
+          this.handleImageError();
+        }
+      }
+    },
+
+    async updateDisplayTitle() {
+      this.titleError = null;
+      
+      if (this.chat?.type !== "direct") {
+        this.resolvedTitle = this.chat?.title;
+        return;
+      }
+
+      const otherUserId = this.chat.participants.find(
+        (id) => id !== this.currentUser?.userID
+      );
+
+      if (otherUserId) {
+        try {
+          await this.$store.dispatch("chat/fetchUsers", otherUserId);
+          const otherUser = this.$store.state.chat.users.find(
+            (user) => user.userID === otherUserId
+          );
+          
+          if (!otherUser) {
+            throw new Error('User not found');
+          }
+          
+          this.resolvedTitle = otherUser.name || otherUser.userName || "Unknown User";
+        } catch (error) {
+          console.error("Error loading chat title:", error);
+          this.titleError = error;
+          this.resolvedTitle = "Error loading name";
+        }
+      }
+    },
   },
 };
 </script>
-
 <style scoped>
 .chat-list-item {
   transition: all 0.3s ease;
@@ -178,6 +306,20 @@ i {
   background-color: rgba(59, 130, 246, 0.2);
   padding: 0 2px;
   border-radius: 2px;
+
+  .profile-picture-container {
+  position: relative;
+  overflow: hidden;
+  transition: all 0.3s ease;
+}
+
+.profile-picture-container img {
+  transition: transform 0.3s ease;
+}
+
+.chat-list-item:hover .profile-picture-container img {
+  transform: scale(1.1);
+}
 }
 </style>
 ```
