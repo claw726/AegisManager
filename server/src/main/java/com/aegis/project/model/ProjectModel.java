@@ -51,8 +51,8 @@ public class ProjectModel {
   )
   private Set<TaskModel> projectTasks = new HashSet<>();
 
-  //TODO: implement project chat table
-  //private int ProjectChatID;
+  @Column(name = "chatID")
+  private int chatID;
 
   @ManyToOne(fetch = FetchType.LAZY)
   @JoinColumn(name = "parent_org") // Foreign key column in ProjectModel table
@@ -142,5 +142,13 @@ public class ProjectModel {
 
   public void setArchived(boolean isArchived) {
     this.isArchived = isArchived;
+  }
+
+  public int getChatID() {
+      return chatID;
+  }
+
+  public void setChatID(int chatID) {
+      this.chatID = chatID;
   }
 }

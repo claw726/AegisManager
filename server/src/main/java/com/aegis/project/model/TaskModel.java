@@ -59,10 +59,8 @@ public class TaskModel {
   @Column(name = "is_complete")
   private boolean isComplete;
 
-  //TODO: implement task chat table and task files table
-
-  //private Integer TaskChatID;
-  //private String TaskFilesTableName;
+  @Column(name = "chatID")
+  private int chatID;
 
   public int getTaskID() {
     return taskID;
@@ -150,5 +148,13 @@ public class TaskModel {
 
   public void setComplete(boolean isComplete) {
     this.isComplete = isComplete;
+  }
+
+  public int getChatID() {
+    return chatID;
+  }
+
+  public void setChatID(int chatID) {
+    this.chatID = chatID;
   }
 }

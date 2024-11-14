@@ -1,9 +1,12 @@
 package com.aegis.project.service;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.aegis.project.model.*;
+import com.aegis.project.repository.*;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -18,15 +21,6 @@ import com.aegis.project.dto.TaskDTO;
 import com.aegis.project.dto.UserDTO;
 import com.aegis.project.exception.ProjectFetchException;
 import com.aegis.project.exception.UserNotFoundException;
-import com.aegis.project.model.OrgModel;
-import com.aegis.project.model.ProjectModel;
-import com.aegis.project.model.SocketMessageModel;
-import com.aegis.project.model.TaskModel;
-import com.aegis.project.model.UserModel;
-import com.aegis.project.repository.OrgRepository;
-import com.aegis.project.repository.ProjectRepository;
-import com.aegis.project.repository.TaskRepository;
-import com.aegis.project.repository.UserRepository;
 
 @Service
 public class ProjectService {
@@ -52,6 +46,8 @@ public class ProjectService {
 
     @Autowired
     private SocketIOController socketIOController;
+    @Autowired
+    private ChatRepository chatRepository;
 
     public void editProject(int projectID) {
         ProjectModel project = projectRepository
@@ -127,6 +123,13 @@ public class ProjectService {
         project.setEncodedImage(encodedImage);
         project.setParentOrgID(parentOrgID);
         project.setArchived(false);
+
+        Set<Integer> participants = new HashSet<>();
+        participants.add(projectOwnerID);
+        ChatModel chat = new ChatModel("project", projectName, participants);
+        project.setChatID(chat.getChatID());
+
+        chatRepository.save(chat);
         projectRepository.save(project);
 
         try {
@@ -150,6 +153,7 @@ public class ProjectService {
 
         Set<ProjectModel> orgProjects = parentOrg.getOrgProjects();
         orgProjects.add(project);
+
         orgRepository.save(parentOrg);
         return true;
     }
@@ -244,20 +248,7 @@ public class ProjectService {
         Set<TaskModel> tasks = project.getProjectTasks();
         return tasks
                 .stream()
-                .map(task
-                        -> new TaskDTO(
-                        task.getTaskID(),
-                        task.getParentProjectID(),
-                        task.getParentOrgID(),
-                        task.getTaskName(),
-                        task.getTaskDescription(),
-                        task.getAssignerID(),
-                        task.getTaskPriority(),
-                        task.getDueDate(),
-                        task.isComplete(),
-                        task.getAssignedUsers()
-                )
-                )
+                .map(TaskDTO::new)
                 .collect(Collectors.toSet());
     }
 
@@ -357,6 +348,9 @@ public class ProjectService {
             );
         }
 
+        ChatModel chat = chatRepository.findById(project.getChatID()).orElseThrow(() ->
+                new RuntimeException("Chat not found with id: " + project.getChatID()));
+
         for (int userID : userIDs) {
             UserModel userToAdd = userRepository
                     .findById(userID)
@@ -364,6 +358,7 @@ public class ProjectService {
                             -> new RuntimeException("User not found with id: " + userID)
                     );
             project.getAssignedUsers().add(userToAdd);
+            chat.addParticipant(userID);
             socketIOController.sendMessage(
                     new SocketMessageModel(
                             "server",
@@ -373,6 +368,7 @@ public class ProjectService {
                     )
             );
         }
+        chatRepository.save(chat);
         projectRepository.save(project);
     }
 
@@ -414,6 +410,12 @@ public class ProjectService {
                         "User added to project with ID: " + projectID
                 )
         );
+
+        ChatModel chat = chatRepository.findById(project.getChatID()).orElseThrow(() ->
+                new RuntimeException("Chat not found with id: " + project.getChatID()));
+        chat.addParticipant(userToAdd.getUserID());
+
+        chatRepository.save(chat);
         projectRepository.save(project);
     }
 
@@ -438,6 +440,12 @@ public class ProjectService {
                         "User added to project with ID: " + projectID
                 )
         );
+
+        ChatModel chat = chatRepository.findById(project.getChatID()).orElseThrow(() ->
+                new RuntimeException("Chat not found with id: " + project.getChatID()));
+        chat.addParticipant(userToAdd.getUserID());
+
+        chatRepository.save(chat);
         projectRepository.save(project);
     }
 
@@ -481,6 +489,12 @@ public class ProjectService {
                         "User removed from project with ID: " + projectID
                 )
         );
+
+        ChatModel chat = chatRepository.findById(project.getChatID()).orElseThrow(() ->
+                new RuntimeException("Chat not found with id: " + project.getChatID()));
+        chat.removeParticipant(userToRemove.getUserID());
+
+        chatRepository.save(chat);
         projectRepository.save(project);
     }
 
@@ -518,20 +532,7 @@ public class ProjectService {
         List<TaskModel> allTasks = taskRepository.findByParentProjectID(projectID);
         return allTasks
                 .stream()
-                .map(task
-                        -> new TaskDTO(
-                        task.getTaskID(),
-                        task.getParentProjectID(),
-                        task.getParentOrgID(),
-                        task.getTaskName(),
-                        task.getTaskDescription(),
-                        task.getAssignerID(),
-                        task.getTaskPriority(),
-                        task.getDueDate(),
-                        task.isComplete(),
-                        task.getAssignedUsers()
-                )
-                )
+                .map(TaskDTO::new)
                 .collect(Collectors.toSet());
     }
 
@@ -573,20 +574,7 @@ public class ProjectService {
         );
         return allTasks
                 .stream()
-                .map(task
-                        -> new TaskDTO(
-                        task.getTaskID(),
-                        task.getParentProjectID(),
-                        task.getParentOrgID(),
-                        task.getTaskName(),
-                        task.getTaskDescription(),
-                        task.getAssignerID(),
-                        task.getTaskPriority(),
-                        task.getDueDate(),
-                        task.isComplete(),
-                        task.getAssignedUsers()
-                )
-                )
+                .map(TaskDTO::new)
                 .collect(Collectors.toSet());
     }
 

@@ -18,6 +18,7 @@ public class TaskDTO {
   private String taskPriority;
   private Date dueDate;
   private boolean isComplete;
+  private int chatID;
 
   public TaskDTO(TaskModel task) {
     this.taskID = task.getTaskID();
@@ -34,6 +35,7 @@ public class TaskDTO {
       .stream()
       .map(user -> new UserDTO(user))
       .collect(Collectors.toSet());
+    this.chatID = task.getChatID();
   }
 
   public TaskDTO(
@@ -46,7 +48,8 @@ public class TaskDTO {
     String TaskPriority,
     Date DueDate,
     boolean IsComplete,
-    Set<UserModel> assignedUsers
+    Set<UserModel> assignedUsers,
+    int chatID
   ) {
     this.taskID = taskID;
     this.parentProjectID = parentProjectID;
@@ -62,6 +65,7 @@ public class TaskDTO {
       .stream()
       .map(user -> new UserDTO(user))
       .collect(Collectors.toSet());
+    this.chatID = chatID;
   }
 
   public TaskDTO() {}
