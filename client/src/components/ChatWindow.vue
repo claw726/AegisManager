@@ -2,43 +2,96 @@
   <div class="flex flex-col h-full min-h-0">
     <ConnectionStatus />
     <!-- Chat Header -->
-<div class="border-b p-4 flex items-center bg-white flex-shrink-0">
-  <div class="flex-1 flex items-center">
-    <div
-      class="w-10 h-10 rounded-full flex items-center justify-center mr-3 overflow-hidden"
-      :class="[!otherUser?.profilePicture || imageLoadError ? 'bg-gray-100' : '']"
-    >
-      <img
-        v-if="activeChat?.type === 'direct' && otherUser?.profilePicture && !imageLoadError"
-        :src="otherUser.profilePicture"
-        :alt="displayTitle"
-        class="w-full h-full object-cover"
-        @error="imageLoadError = true"
-      />
-      <i
-        v-else
-        :class="[chatTypeIcon, 'text-gray-600']"
-      />
-    </div>
-    <div>
-      <div class="flex items-center">
-        <h2 class="text-xl font-semibold">{{ displayTitle }}</h2>
-        <i :class="[chatTypeIconSmall, 'ml-2 text-gray-400']"></i>
+    <div class="border-b p-4 flex items-center bg-white flex-shrink-0">
+      <div class="flex-1 flex items-center">
+        <!-- Updated Avatar Section -->
+        <div class="relative w-12 h-10 mr-3 flex-shrink-0">
+          <!-- Single Avatar for Direct Messages -->
+          <div
+            v-if="activeChat?.type === 'direct'"
+            class="w-10 h-10 rounded-full flex items-center justify-center overflow-hidden"
+            :class="[!otherUser?.profilePicture || imageLoadError ? 'bg-gray-300' : '']"
+          >
+            <img
+              v-if="otherUser?.profilePicture && !imageLoadError"
+              :src="otherUser.profilePicture"
+              :alt="displayTitle"
+              class="w-full h-full object-cover"
+              @error="handleImageError"
+            />
+            <i v-else :class="[chatTypeIcon, 'text-gray-600']" />
+          </div>
+
+          <!-- Overlapping Avatars for Group Chats -->
+          <div
+            v-else-if="activeChat?.type === 'group'"
+            class="relative w-full h-full group"
+          >
+            <template v-for="(participant, index) in groupParticipants" :key="participant.userID">
+              <div
+                v-if="index < 4"
+                class="absolute rounded-full border-2 border-white overflow-hidden bg-gray-300 group-hover:scale-95 transition-transform"
+                :class="[
+                  'w-7 h-7',
+                  getAvatarPosition(index),
+                  {'z-20': index === 0},
+                  {'z-10': index === 1},
+                  {'z-0': index >= 2}
+                ]"
+                :title="participant.userName"
+              >
+                <img
+                  v-if="participant.profilePicture"
+                  :src="participant.profilePicture"
+                  :alt="participant.userName"
+                  class="w-full h-full object-cover"
+                  @error="participant.imageError = true"
+                />
+                <span
+                  v-else
+                  class="w-full h-full flex items-center justify-center text-xs text-gray-600 font-medium bg-gray-200"
+                >
+                  {{ getInitials(participant.userName) }}
+                </span>
+              </div>
+            </template>
+            <!-- Additional count indicator -->
+            <div
+              v-if="remainingParticipantsCount > 0"
+              class="absolute bottom-0 right-0 bg-gray-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center z-30"
+            >
+              +{{ remainingParticipantsCount }}
+            </div>
+          </div>
+
+          <!-- Default Icon for Other Chat Types -->
+          <div
+            v-else
+            class="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center"
+          >
+            <i :class="[chatTypeIcon, 'text-gray-600']" />
+          </div>
+        </div>
+
+        <div>
+          <div class="flex items-center">
+            <h2 class="text-xl font-semibold">{{ displayTitle }}</h2>
+            <i :class="[chatTypeIconSmall, 'ml-2 text-gray-400']"></i>
+          </div>
+          <p class="text-sm text-gray-500 flex items-center">
+            <i class="fas fa-users mr-1"></i>
+            {{ activeChat?.participants?.length || 0 }} members
+          </p>
+        </div>
       </div>
-      <p class="text-sm text-gray-500 flex items-center">
-        <i class="fas fa-users mr-1"></i>
-        {{ activeChat?.participants?.length || 0 }} members
-      </p>
+      <div>
+        <button
+          class="text-gray-500 hover:text-gray-700 p-2 rounded-full hover:bg-gray-100"
+        >
+          <i class="fas fa-ellipsis-v"></i>
+        </button>
+      </div>
     </div>
-  </div>
-  <div>
-    <button
-      class="text-gray-500 hover:text-gray-700 p-2 rounded-full hover:bg-gray-100"
-    >
-      <i class="fas fa-ellipsis-v"></i>
-    </button>
-  </div>
-</div>
 
     <!-- Messages Area -->
     <div
@@ -186,31 +239,39 @@ export default {
       }
     },
 
-    otherUser() {
-    if (!this.activeChat?.type === 'direct' || !this.activeChat?.participants) {
-      return null;
+    groupParticipants() {
+      if (!this.activeChat?.participants) return [];
+      return this.activeChat.participants
+        .filter(id => id !== this.currentUser?.userID) // Exclude current user
+        .map(id => this.$store.state.chat.users.find(user => user.userID === id))
+        .filter(user => user); // Filter out undefined users
+    },
+
+    remainingParticipantsCount() {
+      return Math.max(0, this.groupParticipants.length - 4);
+    },
+
+     otherUser() {
+      if (this.activeChat?.type !== 'direct') return null;
+      const otherUserId = this.activeChat.participants.find(
+        id => id !== this.currentUser?.userID
+      );
+      return this.$store.state.chat.users.find(
+        user => user.userID === otherUserId
+      );
+    },
+
+  displayTitle() {
+    if (!this.activeChat) return '';
+
+    if (this.activeChat.type === 'direct') {
+      return this.otherUser?.userName || this.resolvedTitle || 'Loading...';
     }
 
-    const otherUserId = this.activeChat.participants.find(
-      id => id !== this.currentUser?.userID
-    );
-
-    return this.$store.state.chat.users.find(
-      user => user.userID === otherUserId
-    );
+    return this.activeChat.title;
   },
 
-    displayTitle() {
-  if (!this.activeChat) return '';
-
-  if (this.activeChat.type === 'direct') {
-    return this.otherUser?.userName || this.resolvedTitle || 'Loading...';
-  }
-
-  return this.activeChat.title;
-},
-
-    chatTypeIconSmall() {
+  chatTypeIconSmall() {
       if (!this.activeChat) return "fas fa-comment";
 
       switch (this.activeChat.type) {
@@ -232,6 +293,7 @@ export default {
       return this.$store.state.chat.wsConnected;
     },
   },
+
 
   watch: {
     "activeChat.id": {
@@ -385,6 +447,29 @@ export default {
       // Show timestamp if more than 15 minutes have passed
       const timeDifference = currentTime - previousTime;
       return timeDifference > 15 * 60 * 1000; // 15 minutes in milliseconds
+    },
+    getAvatarPosition(index) {
+      const positions = {
+        0: 'top-0 left-0',
+        1: 'top-0 right-0',
+        2: 'bottom-0 left-0',
+        3: 'bottom-0 right-0'
+      };
+      return positions[index] || '';
+    },
+
+    getInitials(name) {
+      if (!name) return '?';
+      return name
+        .split(' ')
+        .map(word => word[0])
+        .join('')
+        .toUpperCase()
+        .slice(0, 2);
+    },
+
+    handleImageError() {
+      this.imageLoadError = true;
     },
   },
 };
