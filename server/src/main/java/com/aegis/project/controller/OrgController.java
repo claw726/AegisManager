@@ -68,14 +68,13 @@ public class OrgController {
         org.getOrgName(),
         org.getOrgDescription(),
         org.getOrgOwnerID(),
-        //org.getEncodedImage()
         org.getEncodedImage(), // Ensure this is set correctly
         org
           .getUsers()
           .stream()
           .map(user -> new UserDTO(user)) // Convert UserModel to UserDTO
-          .collect(Collectors.toSet())
-      );
+          .collect(Collectors.toSet()),
+        org.getChatID());
 
       return ResponseEntity.ok(orgDTO); // Return the DTO
     } catch (RuntimeException e) {

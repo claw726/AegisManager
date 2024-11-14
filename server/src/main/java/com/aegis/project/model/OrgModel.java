@@ -42,6 +42,9 @@ public class OrgModel {
   @Column(name = "encoded_image")
   private String encodedImage;
 
+  @Column(name = "chatID")
+  private int chatID;
+
   public int getOrgID() {
     return OrgID;
   }
@@ -97,6 +100,14 @@ public class OrgModel {
   public void setEncodedImage(String encodedImage) {
     this.encodedImage = encodedImage;
   }
-  //    @OneToMany(mappedBy = "Org", cascade = CascadeType.ALL, orphanRemoval = true)
-  //    private String OrgChatsTableName;
+
+  public int getChatID() {
+      return chatID;
+  }
+
+  public void setChatID(int chatID) {
+      this.chatID = chatID;
+  }
 }
+
+
