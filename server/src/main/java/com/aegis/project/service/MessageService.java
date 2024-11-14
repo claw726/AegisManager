@@ -26,7 +26,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
-@Transactional
 public class MessageService {
     @Autowired
     private MessageRepository messageRepository;
@@ -58,6 +57,9 @@ public class MessageService {
             if (!chat.getParticipants().contains(currentUser.getUserID())) {
                 throw new RuntimeException("User not authorized to add messages to chat: " + chatID);
             }
+
+            chat.setLastMessage(content);
+            chatRepository.save(chat);
 
             // 4. Create and save message
             MessageModel message = new MessageModel(chat, currentUser.getUserID(), currentUser.getUserName(), content);
