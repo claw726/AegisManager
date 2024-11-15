@@ -129,6 +129,14 @@ public class OrgService {
         return org; // Return the OrgModel directly
     }
 
+    public OrgModel directlyGetOrg(int orgID) {
+        OrgModel org = orgRepository
+                .findById(orgID)
+                .orElseThrow(() -> new RuntimeException("Org not found with id: " + orgID)
+                );
+        return org; // Return the OrgModel directly
+    }
+
     public Set<ProjectDTO> getAllProjectsFromOrg(int orgID) {
         OrgModel org = orgRepository
                 .findById(orgID)
