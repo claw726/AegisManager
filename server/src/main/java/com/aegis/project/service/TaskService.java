@@ -1,6 +1,13 @@
 package com.aegis.project.service;
 
+import com.aegis.project.controller.SocketIOController;
+import com.aegis.project.dto.TaskDTO;
+import com.aegis.project.exception.TaskNotFoundException;
+import com.aegis.project.model.*;
+import com.aegis.project.repository.*;
+
 import java.util.Date;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -46,9 +53,11 @@ public class TaskService {
     @Autowired
     private SocketIOController socketIOController;
 
-    private static final Logger logger = LoggerFactory.getLogger(
-            TaskService.class
-    );
+  private static final Logger logger = LoggerFactory.getLogger(
+    TaskService.class
+  );
+    @Autowired
+    private ChatRepository chatRepository;
 
     public String switchTaskAssigner(int taskID, String newAssignerEmail) {
         TaskModel task = taskRepository

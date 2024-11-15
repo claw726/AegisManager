@@ -11,6 +11,7 @@ public class OrgDTO {
   private int orgOwnerID;
   private Set<UserDTO> users = new HashSet<>();
   private String encodedImage;
+  private int chatID;
 
   public OrgDTO(
     int orgID,
@@ -18,7 +19,8 @@ public class OrgDTO {
     String orgDescription,
     int orgOwnerID,
     String encodedImage,
-    Set<UserDTO> users
+    Set<UserDTO> users,
+    int chatID
   ) {
     this.orgID = orgID;
     this.orgName = orgName;
@@ -26,7 +28,7 @@ public class OrgDTO {
     this.orgOwnerID = orgOwnerID;
     this.encodedImage = encodedImage;
     this.users = users;
-    //this.users = orgService.getOrgMembers(orgID);
+    this.chatID = chatID;
   }
 
   public OrgDTO() {}
@@ -78,4 +80,6 @@ public class OrgDTO {
   public void setEncodedImage(String encodedImage) {
     this.encodedImage = encodedImage;
   }
+
+
 }

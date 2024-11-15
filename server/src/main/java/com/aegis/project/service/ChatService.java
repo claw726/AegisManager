@@ -7,22 +7,17 @@ import com.aegis.project.model.OrgModel;
 import com.aegis.project.model.UserModel;
 import com.aegis.project.repository.ChatRepository;
 import com.aegis.project.repository.UserRepository;
-import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.messaging.simp.SimpMessagingTemplate;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
-
-import java.util.List;
-import java.util.Set;
-import java.util.stream.Collectors;
 
 @Service
 public class ChatService {
@@ -45,7 +40,6 @@ public class ChatService {
                 new RuntimeException("User not found with email: " + currentUsername));
 
         ChatModel chat = new ChatModel(type, title, participants);
-        chat.addParticipant(currentUser.getUserID());
         chatRepository.save(chat);
     }
 
@@ -75,14 +69,29 @@ public class ChatService {
     return new ChatDTO(chat);
   }
 
-    public Set<ChatDTO> findChatsByParticipant(int userID) {
-        List<ChatModel> chats = chatRepository.findByParticipantsContaining(userID);
-        if (chats.isEmpty()) {
-            throw new RuntimeException("Chat not found with user id: " + userID);
-        }
-        chats.sort((c1, c2) -> (c2.getMessages().getLast().getTimestamp()).compareTo(c1.getMessages().getLast().getTimestamp()));
-        return chats.stream().map(ChatDTO::new).collect(Collectors.toSet());
+  public List<ChatDTO> findChatsByParticipant(int userID) {
+    List<ChatModel> chats = chatRepository.findByParticipantsContaining(userID);
+    if (chats.isEmpty()) {
+      logger.info("No chats found for user with id: " + userID);
+      return Collections.emptyList();
     }
+
+    // Sort chats, handling the case where there might be no messages
+    chats.sort((c1, c2) -> {
+        List<?> messages1 = c1.getMessages();
+        List<?> messages2 = c2.getMessages();
+
+        // If either chat has no messages, handle accordingly
+        if (messages1.isEmpty() && messages2.isEmpty()) return 0;
+        if (messages1.isEmpty()) return 1;  // Put chats with no messages last
+        if (messages2.isEmpty()) return -1;
+
+        // Both chats have messages, compare their timestamps
+        return c2.getMessages().getLast().getTimestamp()
+            .compareTo(c1.getMessages().getLast().getTimestamp());
+    });
+    return chats.stream().map(ChatDTO::new).collect(Collectors.toList());
+  }
 
   public void addParticipant(int chatID, int userID) {
     ChatModel chat = chatRepository
@@ -91,7 +100,7 @@ public class ChatService {
         new RuntimeException("Chat not found with id: " + chatID)
       );
 
-    UserModel user = userRepository
+    userRepository
       .findById(userID)
       .orElseThrow(() ->
         new RuntimeException("User not found with id: " + userID)
@@ -107,7 +116,7 @@ public class ChatService {
         new RuntimeException("Chat not found with id: " + chatID)
       );
 
-    UserModel user = userRepository
+    userRepository
       .findById(userID)
       .orElseThrow(() ->
         new RuntimeException("User not found with id: " + userID)

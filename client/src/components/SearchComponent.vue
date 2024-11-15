@@ -2,8 +2,8 @@
   <div :class="['relative', width]">
     <div class="relative">
       <input
-        type="text"
         v-model="localSearchQuery"
+        type="text"
         :placeholder="placeholder"
         class="w-full px-4 py-2 pl-10 pr-4 text-gray-700 bg-white border border-gray-300 rounded-lg focus:outline-none focus:border-blue-500 focus:ring-2 focus:ring-blue-200"
         @input="handleInput"
@@ -15,8 +15,8 @@
       </div>
       <button
         v-if="localSearchQuery"
-        @click="clearSearch"
         class="absolute inset-y-0 right-0 flex items-center pr-3 text-gray-400 hover:text-gray-600"
+        @click="clearSearch"
       >
         <i class="fas fa-times"></i>
       </button>

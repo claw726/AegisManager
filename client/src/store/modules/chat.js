@@ -1,5 +1,5 @@
-import WebSocketService from "@/services/websocket.js";
 import axios from "axios";
+import { emitEvent } from "../../utils/websocket";
 
 const state = {
   currentUser: null,
@@ -10,6 +10,7 @@ const state = {
   organizations: [],
   loading: false,
   error: null,
+  wsConnected: false,
 };
 
 const mutations = {
@@ -38,11 +39,20 @@ const mutations = {
       state.messages = {};
     }
   },
+  CLEAR_UNREAD_COUNT(state, chatId) {
+    const chat = state.chats.find((chat) => chat.id === chatId);
+    if (chat) {
+      chat.unreadCount = 0;
+    }
+  },
   ADD_MESSAGE(state, { chatId, message }) {
     if (!state.messages[chatId]) {
       state.messages[chatId] = [];
     }
-    state.messages[chatId].push(message);
+    // Check for duplicate messages
+    if (!state.messages[chatId].find((msg) => msg.id === message.id)) {
+      state.messages[chatId].push(message);
+    }
   },
   SET_ACTIVE_CHAT(state, chat) {
     state.activeChat = chat;
@@ -67,6 +77,9 @@ const mutations = {
     if (index !== -1) {
       state.chats.splice(index, 1, updatedChat);
     }
+  },
+  SET_WS_CONNECTED(state, connected) {
+    state.wsConnected = connected;
   },
 };
 
@@ -100,11 +113,12 @@ const actions = {
       console.warn("Chat ID is required to select a chat");
       return;
     }
+    const numericChatId = parseInt(chatId.match(/\d+/)[0]);
     commit("SET_LOADING", true);
     try {
       console.log(`Fetching messages for chat ${chatId}`);
 
-      const response = await axios.get(`/api/messages/${chatId}/getMessages`, {
+      const response = await axios.get(`/api/messages/${numericChatId}/getMessages`, {
         headers: {
           Authorization: `Bearer ${rootState.auth.authToken}`,
         },
@@ -134,7 +148,6 @@ const actions = {
 
     try {
       console.log(`Selecting chat ${chatId}`);
-
       // Get chat and messages in parallel
       const [chat, messages] = await Promise.all([
         dispatch("getChat", chatId),
@@ -142,9 +155,6 @@ const actions = {
       ]);
 
       commit("SET_ACTIVE_CHAT", chat);
-
-      // Subscribe to WebSocket updates
-      WebSocketService.subscribeToChatRoom(chatId);
 
       return { chat, messages };
     } catch (error) {
@@ -157,24 +167,43 @@ const actions = {
     }
   },
 
-  sendMessage({ state }, { chatId, content }) {
+  async sendMessage({ rootState, commit }, { chatId, content }) {
     if (!chatId || !content) return;
 
-    const message = {
-      chatId,
-      content,
-      senderId: state.currentUser.id,
-      senderName: state.currentUser.name,
-      timestamp: new Date().toISOString(),
-    };
+    const numericChatId = parseInt(chatId.match(/\d+/)[0]);
+    // Send message to server
+    try {
+      await axios.post("/api/messages/add",
+        {
+          chatId: numericChatId,
+          content: content,
+        },
+        {
+        headers: {
+          Authorization: `Bearer ${rootState.auth.authToken}`,
+        },
+      });
 
-    WebSocketService.sendMessage("/app/chat.message", message);
+      // emit through socket
+      await emitEvent('messageSendToUser', {
+        chatId: numericChatId,
+        content: content,
+        senderEmail: rootState.auth.currentUser.email,
+        targetEmail: state.activeChat.participants.find(p => p !== rootState.auth.currentUser.userID),
+      });
+      return;
+    } catch (error) {
+      console.error("Error sending message:", error);
+      commit("SET_ERROR", "Failed to send message");
+      throw error;
+    }
   },
 
   async getChat({ rootState, commit }, chatId) {
     commit("SET_LOADING", true);
+    const numericChatId = parseInt(chatId.match(/\d+/)[0]);
     try {
-      const response = await axios.get(`/api/chats/${chatId}/get`, {
+      const response = await axios.get(`/api/chats/${numericChatId}/get`, {
         headers: {
           Authorization: `Bearer ${rootState.auth.authToken}`,
         },
@@ -247,15 +276,60 @@ const actions = {
     }
   },
 
-  handleNewMessage({ commit }, messageData) {
-    commit("ADD_MESSAGE", {
-      chatId: messageData.chatId,
-      message: messageData,
-    });
-    commit("UPDATE_CHAT_LAST_MESSAGE", {
-      chatId: messageData.chatId,
-      lastMessaeg: messageData.content,
-    });
+  handleNewMessage({ commit, state, rootState }, messageData) {
+    try {
+      // Validate message
+      if (!messageData || !messageData.chatId) {
+        console.warn("Invalid message data:", messageData);
+        return;
+      }
+
+      // Create a formatted message object
+      const formattedMessage = {
+        id: messageData.id || `temp-${Date.now()}`,
+        chatId: messageData.chatId,
+        content: messageData.content,
+        senderId: messageData.senderId,
+        senderEmail: messageData.senderEmail,
+        timestamp: messageData.timestamp || new Date().toISOString(),
+        status: messageData.status || "delivered",
+        type: messageData.type || "text",
+      };
+
+      // Add message to chat messages
+      commit("ADD_MESSAGE", {
+        chatId: messageData.chatId,
+        message: formattedMessage,
+      });
+      
+      // Update chat last message
+      commit("UPDATE_CHAT_LAST_MESSAGE", {
+        chatId: messageData.chatId,
+        lastMessage: formattedMessage.content,
+      });
+
+      // If this is a new chat, add it to the chats list
+      if (!state.chats.find(chat => chat.id === messageData.chatId)) {
+        commit("ADD_CHAT", {
+          id: messageData.chatId,
+          title: messageData.chatTitle,
+          lastMessage: formattedMessage.content,
+          participants: messageData.participants || [],
+          type: messageData.chatType || "direct",
+        });
+      }
+
+      // Update the unread count
+      if (messageData.senderId !== rootState.auth.currentUser.userID) {
+        const chat = state.chats.find(chat => chat.id === messageData.chatId);
+        if (chat) {
+          chat.unreadCount = chat.unreadCount ? chat.unreadCount + 1 : 1;
+        }
+      }
+    } catch (error) {
+      console.error("Error handling new message:", error);
+      commit("SET_ERROR", "Failed to handle new message");
+    }
   },
 
   handleGlobalMessage({ commit }, data) {

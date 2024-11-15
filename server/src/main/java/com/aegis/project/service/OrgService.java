@@ -1,10 +1,13 @@
 package com.aegis.project.service;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import com.aegis.project.model.ChatModel;
+import com.aegis.project.repository.*;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.security.core.Authentication;
 import org.springframework.security.core.context.SecurityContextHolder;
@@ -17,10 +20,6 @@ import com.aegis.project.dto.UserDTO;
 import com.aegis.project.model.OrgModel;
 import com.aegis.project.model.ProjectModel;
 import com.aegis.project.model.UserModel;
-import com.aegis.project.repository.OrgRepository;
-import com.aegis.project.repository.ProjectRepository;
-import com.aegis.project.repository.TaskRepository;
-import com.aegis.project.repository.UserRepository;
 
 import jakarta.transaction.Transactional;
 
@@ -42,6 +41,10 @@ public class OrgService {
     @Autowired
     private UserService userService;
 
+    @Autowired
+    private ChatRepository chatRepository;
+
+
     public boolean createOrg(
             String name,
             String description,
@@ -53,6 +56,14 @@ public class OrgService {
         org.setOrgDescription(description);
         org.setOrgOwnerID(ownerID);
         org.setEncodedImage(encodedImage);
+
+        Set<Integer> participants = new HashSet<>();
+        participants.add(ownerID);
+
+        ChatModel chat = new ChatModel("organization", name, participants);
+        chatRepository.save(chat);
+
+        org.setChatID(chat.getChatID());
         orgRepository.save(org);
         try {
             addUser(
@@ -78,7 +89,8 @@ public class OrgService {
                         org.getOrgDescription(),
                         org.getOrgOwnerID(),
                         org.getEncodedImage(),
-                        getOrgMembers(org.getOrgID())
+                        getOrgMembers(org.getOrgID()),
+                        org.getChatID()
                 )
                 )
                 .collect(Collectors.toSet());
@@ -221,6 +233,11 @@ public class OrgService {
             userRepository.save(user);
         }
 
+        ChatModel chat = chatRepository.findById(org.getChatID()).orElseThrow(() ->
+                new RuntimeException("Chat not found with id: " + org.getChatID()));
+
+        chatRepository.delete(chat);
+
         taskRepository.deleteByParentOrgID(orgID);
         projectRepository.deleteByParentOrgID(orgID);
         orgRepository.deleteById(orgID);
@@ -268,6 +285,9 @@ public class OrgService {
             );
         }
         org.getUsers().add(userToAdd);
+        ChatModel chat = chatRepository.findById(org.getChatID()).orElseThrow(() ->
+                new RuntimeException("Chat not found with id: " + org.getChatID()));
+        chat.addParticipant(userToAdd.getUserID());
         orgRepository.save(org);
 
         userToAdd.getOrgs().add(org);
@@ -287,6 +307,9 @@ public class OrgService {
                 );
 
         org.getUsers().add(userToAdd);
+        ChatModel chat = chatRepository.findById(org.getChatID()).orElseThrow(() ->
+                new RuntimeException("Chat not found with id: " + org.getChatID()));
+        chat.addParticipant(userToAdd.getUserID());
         orgRepository.save(org);
 
         userToAdd.getOrgs().add(org);
@@ -323,6 +346,9 @@ public class OrgService {
         }
 
         org.getUsers().remove(userToRemove);
+        ChatModel chat = chatRepository.findById(org.getChatID()).orElseThrow(() ->
+                new RuntimeException("Chat not found with id: " + org.getChatID()));
+        chat.removeParticipant(userToRemove.getUserID());
         orgRepository.save(org);
 
         userToRemove.getOrgs().remove(org);

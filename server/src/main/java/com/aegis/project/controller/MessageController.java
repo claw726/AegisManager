@@ -3,6 +3,7 @@ package com.aegis.project.controller;
 import com.aegis.project.dto.MessageDTO;
 import com.aegis.project.service.MessageService;
 import java.util.List;
+import java.util.Map;
 import java.util.Set;
 
 import org.slf4j.Logger;
@@ -24,8 +25,12 @@ public class MessageController {
   private MessageService messageService;
 
     @PostMapping("/add")
-    public ResponseEntity<?> addMessage(@RequestParam int chatID, @RequestParam String content) {
+    public ResponseEntity<?> addMessage(@RequestBody Map<String, Object> payload) {
+        logger.info("Received message request with payload: {}", payload);
         try {
+            int chatID = (Integer) payload.get("chatId");
+            String content = (String) payload.get("content");
+            logger.info("Processing message for chat {} with content: {}", chatID, content);
             messageService.addMessage(chatID, content);
             return ResponseEntity.ok("Message added successfully");
         } catch (Exception e) {
@@ -39,11 +44,11 @@ public class MessageController {
         }
     }
 
-  @GetMapping("{chatID}/getMessages")
+  @GetMapping("{chatId}/getMessages")
   public ResponseEntity<?> getMessages(@PathVariable int chatId) {
     logger.info("Attempting to fetch messages for chat ID: {}", chatId);
     try {
-      Set<MessageDTO> messages = messageService.getMessages(chatId);
+      List<MessageDTO> messages = messageService.getMessages(chatId);
       logger.info(
         "Successfully retrieved {} messages for chat ID: {}",
         messages.size(),
@@ -51,10 +56,11 @@ public class MessageController {
       );
       return ResponseEntity.ok(messages);
     } catch (Exception e) {
-      if (e.getMessage().contains("not found")) {
+      String errorMessage = e.getMessage() != null ? e.getMessage() : "An error occurred while fetching messages";
+      if (errorMessage.contains("not found")) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
-      } else if (e.getMessage().contains("User not authorized")) {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
+      } else if (errorMessage.contains("User not authorized")) {
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(
           e.getMessage()
         );
       } else {
@@ -64,4 +70,21 @@ public class MessageController {
       }
     }
   }
+
+    @DeleteMapping("/{messageID}/delete")
+    public ResponseEntity<?> deleteMessage(@PathVariable int messageID) {
+        logger.info("Attempting to delete message with ID: {}", messageID);
+        try {
+            messageService.markDeleted(messageID);
+            return ResponseEntity.ok("Message deleted successfully");
+        } catch (Exception e) {
+            if (e.getMessage().contains("not found")) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            } else if (e.getMessage().contains("User not authorized")) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+            } else {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+            }
+        }
+    }
 }
