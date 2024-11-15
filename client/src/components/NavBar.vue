@@ -3,16 +3,9 @@
     <div class="container mx-auto px-4 h-full">
       <div class="flex justify-between items-center h-full">
         <!-- Brand Logo & Name -->
-        <div
-          class="flex items-center space-x-2 cursor-pointer group"
-          @click="goToHome"
-        >
-          <i
-            class="fa-solid fa-check text-2xl text-emerald-400 group-hover:text-blue-300 transition-colors"
-          ></i>
-          <span
-            class="text-white text-xl font-bold tracking-wide group-hover:text-blue-300 transition-colors"
-          >
+        <div class="flex items-center space-x-2 cursor-pointer group" @click="goToHome">
+          <i class="fa-solid fa-check text-2xl text-emerald-400 group-hover:text-blue-300 transition-colors"></i>
+          <span class="text-white text-xl font-bold tracking-wide group-hover:text-blue-300 transition-colors">
             Ægis Manager
           </span>
         </div>
@@ -22,75 +15,54 @@
           <!-- Logged In State -->
           <div v-if="isLoggedIn" class="flex items-center space-x-4">
             <!-- Dashboard Button -->
-            <button
-              class="flex items-center space-x-2 px-4 py-2 text-gray-300 hover:text-white transition-colors"
-              @click="goToDashboard"
-            >
+            <button class="flex items-center space-x-2 px-4 py-2 text-gray-300 hover:text-white transition-colors"
+              @click="goToDashboard">
               <i class="fas fa-chart-line"></i>
               <span>Dashboard</span>
             </button>
 
             <!-- Chat Button -->
-            <button
-              class="flex items-center space-x-2 px-4 py-2 text-gray-300 hover:text-white transition-colors"
-              @click="goToChat"
-            >
+            <button class="flex items-center space-x-2 px-4 py-2 text-gray-300 hover:text-white transition-colors"
+              @click="goToChat">
               <i class="fas fa-comments"></i>
               <span>Messages</span>
               <!-- Optional: Add unread message count badge -->
-              <span
-                v-if="unreadCount"
-                class="ml-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center"
-              >
+              <span v-if="unreadCount"
+                class="ml-2 bg-red-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center">
                 {{ unreadCount }}
               </span>
             </button>
 
             <!-- Settings Dropdown -->
             <div v-click-outside="closeDropdown" class="relative">
-              <button
-                class="flex items-center space-x-2"
-                @click.stop="toggleDropdown"
-              >
-                <img
-                  :src="currentUser?.profilePicture || defaultProfilePicture"
-                  :alt="currentUser?.name || 'User'"
-                  class="w-10 h-10 rounded-full border-2 border-transparent hover:border-blue-400 transition-all duration-300 object-cover"
-                />
-                <i
-                  :class="[
-                    'fas fa-chevron-down text-gray-300 transition-transform duration-300',
-                    { 'transform rotate-180': isDropdownOpen },
-                  ]"
-                ></i>
+              <button class="flex items-center space-x-2" @click.stop="toggleDropdown">
+                <img :src="currentUser?.profilePicture || defaultProfilePicture" :alt="currentUser?.name || 'User'"
+                  class="w-10 h-10 rounded-full border-2 border-transparent hover:border-blue-400 transition-all duration-300 object-cover" />
+                <i :class="[
+                  'fas fa-chevron-down text-gray-300 transition-transform duration-300',
+                  { 'transform rotate-180': isDropdownOpen },
+                ]"></i>
               </button>
 
               <!-- Dropdown Menu -->
-              <div
-                v-if="isDropdownOpen"
-                class="absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-50"
-              >
-                <a
-                  href="#"
+              <div v-if="isDropdownOpen"
+                class="absolute right-0 mt-2 w-48 rounded-md shadow-lg py-1 bg-white ring-1 ring-black ring-opacity-5 focus:outline-none z-50">
+                <a href="#"
                   class="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
-                  @click.prevent.stop="handleInvitationsClick"
-                >
-                  <i class="fa fa-envelope" aria-hidden="true"></i>
+                  @click.prevent.stop="handleInvitationsClick">
+                  <i :class="iconClass" aria-hidden="true"></i>
                   <span>Invitations</span>
                 </a>
-                <a
-                  href="#"
+
+                <a href="#"
                   class="flex items-center space-x-2 px-4 py-2 text-sm text-gray-700 hover:bg-gray-100 w-full text-left"
-                  @click.prevent.stop="handleSettingsClick"
-                >
+                  @click.prevent.stop="handleSettingsClick">
                   <i class="fas fa-cog"></i>
                   <span>Settings</span>
                 </a>
-                <a
-                  href="#"
+                <a href="#"
                   class="flex items-center space-x-2 px-4 py-2 text-sm text-red-600 hover:bg-gray-100 w-full text-left"
-                  @click.prevent.stop="handleLogout"
-                >
+                  @click.prevent.stop="handleLogout">
                   <i class="fas fa-sign-out-alt"></i>
                   <span>Log Out</span>
                 </a>
@@ -100,17 +72,13 @@
 
           <!-- Logged Out State -->
           <template v-else>
-            <button
-              class="px-4 py-2 text-white hover:text-blue-300 transition-colors"
-              @click="goToLogin"
-            >
+            <button class="px-4 py-2 text-white hover:text-blue-300 transition-colors" @click="goToLogin">
               <i class="fas fa-sign-in-alt mr-2"></i>
               Log In
             </button>
             <button
               class="px-4 py-2 bg-blue-500 hover:bg-blue-600 text-white rounded-md transition-colors shadow-md hover:shadow-lg"
-              @click="goToCreateAcct"
-            >
+              @click="goToCreateAcct">
               <i class="fas fa-user-plus mr-2"></i>
               Sign Up
             </button>
@@ -124,11 +92,15 @@
 <script>
 import { ref } from "vue";
 import { mapState, mapActions } from "vuex";
-import {disconnect} from "@/utils/websocket";
+import { disconnect } from "@/utils/websocket";
 
 export default {
   name: "NavBar",
-
+  data() {
+    return {
+      invitationCount: 0, // Default value
+    };
+  },
   directives: {
     "click-outside": {
       mounted(el, binding) {
@@ -173,6 +145,10 @@ export default {
       unreadCount: (state) =>
         Object.values(state.unreadCounts || {}).reduce((a, b) => a + b, 0),
     }),
+    iconClass() {
+      // Dynamically determine the icon class based on invitation count
+      return this.invitationCount > 0 ? 'fa fa-envelope-open' : 'fa fa-envelope';
+    },
   },
 
   methods: {
@@ -217,6 +193,27 @@ export default {
         console.error("Logout failed:", error);
       }
     },
+
+    async countNumberInvitations() {
+      try {
+        const rawInvitations = await this.$store.dispatch(
+          "invitations/getRecipientInvitations",
+          this.currentUser.userID
+        );
+        return rawInvitations.length;
+      } catch (error) {
+        this.showNotification("error", "Error getting invitations");
+      }
+    },
+    async updateInvitationCount() {
+      // Update invitation count by calling countNumberInvitations
+      this.invitationCount = await this.countNumberInvitations();
+    },
+
+  },
+  async created() {
+    // Initialize the invitation count when the component is created
+    await this.updateInvitationCount();
   },
 };
 </script>

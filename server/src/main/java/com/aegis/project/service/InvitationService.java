@@ -8,7 +8,10 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
 import com.aegis.project.dto.InvitationDTO;
+import com.aegis.project.dto.ProjectDTO;
+import com.aegis.project.dto.TaskDTO;
 import com.aegis.project.model.InvitationModel;
+import com.aegis.project.model.OrgModel;
 import com.aegis.project.model.UserModel;
 import com.aegis.project.repository.InvitationRepository;
 import com.aegis.project.repository.UserRepository;
@@ -110,38 +113,72 @@ public class InvitationService {
         if (invitation.getInvitationType() == 1) {
             String message = invitation.getMessage();
             int taskID = Integer.parseInt(message.substring(0, message.indexOf(":")));
+            TaskDTO task = taskService.getTask(taskID);
             taskService.directlySwitchTaskAssigner(
                     taskID,
                     invitation.getRecipientEmail()
             );
+            createInvitation(invitation.getRecipientEmail(), invitation.getSenderEmail(), 0, invitation.getRecipientEmail() + " has accepted your request to become the task assigner of " + task.getTaskName());
         } //Invitation to add a user to an organization
         else if (invitation.getInvitationType() == 2) {
             String message = invitation.getMessage();
             int orgID = Integer.parseInt(message.substring(0, message.indexOf(":")));
+            OrgModel org = orgService.directlyGetOrg(orgID);
             orgService.directlyAddUser(orgID, invitation.getRecipientEmail());
+            createInvitation(invitation.getRecipientEmail(), invitation.getSenderEmail(), 0, invitation.getRecipientEmail() + " has accepted your request to join the organization " + org.getOrgName());
 
         } //Invitation to add a user to a project
         else if (invitation.getInvitationType() == 3) {
             String message = invitation.getMessage();
             int projectID = Integer.parseInt(message.substring(0, message.indexOf(":")));
+            ProjectDTO project = projectService.directlyGetProject(projectID);
             projectService.directlyAddUser(projectID, invitation.getRecipientEmail());
+            createInvitation(invitation.getRecipientEmail(), invitation.getSenderEmail(), 0, invitation.getRecipientEmail() + " has accepted your request to join the project " + project.getProjectName());
 
         } //Invitation to add a user to a task
         else if (invitation.getInvitationType() == 4) {
             String message = invitation.getMessage();
-            int orgID = Integer.parseInt(message.substring(0, message.indexOf(":")));
-            orgService.directlyAddUser(orgID, invitation.getRecipientEmail());
+            int taskID = Integer.parseInt(message.substring(0, message.indexOf(":")));
+            TaskDTO task = taskService.getTask(taskID);
+            taskService.directlyAddUser(taskID, invitation.getRecipientEmail());
+            createInvitation(invitation.getRecipientEmail(), invitation.getSenderEmail(), 0, invitation.getRecipientEmail() + " has accepted your request to join the task " + task.getTaskName());
         }
         deleteInvitation(invitationID);
         return true;
     }
 
     public boolean rejectInvitation(int invitationID) {
-        invitationRepository
+        InvitationModel invitation = invitationRepository
                 .findById(invitationID)
                 .orElseThrow(()
                         -> new RuntimeException("Invitation not found with id: " + invitationID)
                 );
+        if (invitation.getInvitationType() == 1) {
+            String message = invitation.getMessage();
+            int taskID = Integer.parseInt(message.substring(0, message.indexOf(":")));
+            TaskDTO task = taskService.getTask(taskID);
+            createInvitation(invitation.getRecipientEmail(), invitation.getSenderEmail(), 0, invitation.getRecipientEmail() + " has rejected your request to become the task assigner of " + task.getTaskName());
+        } else if (invitation.getInvitationType() == 2) {
+            String message = invitation.getMessage();
+            int orgID = Integer.parseInt(message.substring(0, message.indexOf(":")));
+            OrgModel org = orgService.directlyGetOrg(orgID);
+            createInvitation(invitation.getRecipientEmail(), invitation.getSenderEmail(), 0, invitation.getRecipientEmail() + " has rejected your request to join the organization " + org.getOrgName());
+
+        } //Invitation to add a user to a project
+        else if (invitation.getInvitationType() == 3) {
+            String message = invitation.getMessage();
+            int projectID = Integer.parseInt(message.substring(0, message.indexOf(":")));
+            ProjectDTO project = projectService.directlyGetProject(projectID);
+            createInvitation(invitation.getRecipientEmail(), invitation.getSenderEmail(), 0, invitation.getRecipientEmail() + " has rejected your request to join the project " + project.getProjectName());
+
+        } //Invitation to add a user to a task
+        else if (invitation.getInvitationType() == 4) {
+            String message = invitation.getMessage();
+            int taskID = Integer.parseInt(message.substring(0, message.indexOf(":")));
+            TaskDTO task = taskService.getTask(taskID);
+            createInvitation(invitation.getRecipientEmail(), invitation.getSenderEmail(), 0, invitation.getRecipientEmail() + " has rejected your request to join the task " + task.getTaskName());
+        }
+
         deleteInvitation(invitationID);
         return true;
     }

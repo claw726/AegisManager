@@ -8,20 +8,13 @@
       <div class="w-full max-w-6xl">
         <h1 class="text-5xl font-extrabold text-primary mb-12">Invitations</h1>
         <!--Notification component-->
-        <NotificationComponent
-          class="flex"
-          :show="notification.show"
-          :type="notification.type"
-          @close="closeNotification"
-        >
+        <NotificationComponent class="flex" :show="notification.show" :type="notification.type"
+          @close="closeNotification">
           {{ notification.message }}
         </NotificationComponent>
 
-        <div
-          v-for="invitation in invitations"
-          :key="invitation.id"
-          class="border border-gray-300 rounded-lg shadow-lg p-8 mb-12"
-        >
+        <div v-for="invitation in invitations" :key="invitation.id"
+          class="border border-gray-300 rounded-lg shadow-lg p-8 mb-12">
           <!-- Invitation Details -->
           <div class="flex justify-between items-center">
             <div>
@@ -31,48 +24,33 @@
               <p class="text-lg text-gray-700">
                 From: {{ invitation.fromUser }}
               </p>
-              <p class="text-lg text-gray-700">Type: {{ invitation.type }}</p>
+              <p class="text-lg text-gray-700">Type: {{ convertNumberToType(invitation.invitationType) }}</p>
             </div>
 
             <!-- Icons: Accept and Reject -->
-            <div class="flex space-x-6">
-              <button
-                class="p-3 bg-green-600 text-white rounded-full"
-                @click="acceptInvitation(invitation.id)"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  class="h-6 w-6"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M5 13l4 4L19 7"
-                  />
+            <div class="flex space-x-6" v-if="invitation.invitationType !== 0">
+              <button class="p-3 bg-green-600 text-white rounded-full" @click="acceptInvitation(invitation.id)">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                  stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
                 </svg>
               </button>
 
-              <button
-                class="p-3 bg-brown-600 text-white rounded-full"
-                @click="rejectInvitation(invitation.id)"
-              >
-                <svg
-                  xmlns="http://www.w3.org/2000/svg"
-                  class="h-6 w-6"
-                  fill="none"
-                  viewBox="0 0 24 24"
-                  stroke="currentColor"
-                >
-                  <path
-                    stroke-linecap="round"
-                    stroke-linejoin="round"
-                    stroke-width="2"
-                    d="M6 18L18 6M6 6l12 12"
-                  />
+              <button class="p-3 bg-brown-600 text-white rounded-full" @click="rejectInvitation(invitation.id)">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                  stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
+                </svg>
+              </button>
+            </div>
+            <div class="flex space-x-6" v-if="invitation.invitationType === 0">
+              <button class="p-3 bg-blue-600 text-white rounded-full" @click="markAsRead(invitation.id)">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
+                  stroke="currentColor">
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8h18" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l9 6 9-6" />
+                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M21 8v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8" />
                 </svg>
               </button>
             </div>
@@ -130,6 +108,15 @@ export default {
         this.showNotification("error", "Error rejecting invitation");
       }
     },
+    async markAsRead(id) {
+      try {
+        await this.$store.dispatch("invitations/reject", id);
+        this.showNotification("success", "Notification marked as read!");
+        this.getRecipientInvitations();
+      } catch (error) {
+        this.showNotification("error", "Error marking invitation as read");
+      }
+    },
     async getRecipientInvitations() {
       try {
         const rawInvitations = await this.$store.dispatch(
@@ -141,7 +128,7 @@ export default {
           id: invitation.invitationID,
           source: invitation.message,
           fromUser: invitation.senderEmail,
-          type: this.convertNumberToType(invitation.invitationType),
+          invitationType: invitation.invitationType,
         }));
       } catch (error) {
         this.showNotification("error", "Error getting invitations");
@@ -151,6 +138,16 @@ export default {
       if (invitationType === 1) {
         return "Task Assigner Delegation";
       }
+      else if (invitationType === 2) {
+        return "Organization Invite"
+      }
+      else if (invitationType === 3) {
+        return "Project Invite"
+      }
+      else if (invitationType === 4) {
+        return "Task Invite"
+      }
+      return "Notification"
     },
     showNotification(type, message) {
       this.notification = {
