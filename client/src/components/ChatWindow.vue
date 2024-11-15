@@ -363,7 +363,7 @@ export default {
 
       try {
         await this.sendMessage({
-          chatId: this.activeChat.id,
+          chatId: this.activeChat?.id,
           content: this.newMessage.trim(),
         });
 
@@ -375,7 +375,7 @@ export default {
       } catch (error) {
         console.error("Error sending message:", error);
         // Show error to user
-        this.error = "Failed to send message";
+        this.$store.commit("chat/SET_ERROR", "Failed to send message");
       }
     },
     scrollToBottom() {

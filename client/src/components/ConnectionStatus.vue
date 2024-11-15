@@ -15,7 +15,7 @@ export default {
   name: "ConnectionStatus",
   computed: {
     ...mapState({
-      wsConnected: (state) => state.auth.wsConnected,
+      wsConnected: (state) => state.chat.wsConnected,
     }),
   },
 };
