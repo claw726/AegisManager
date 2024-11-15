@@ -27,6 +27,7 @@ import com.aegis.project.model.ProjectModel;
 import com.aegis.project.model.SocketMessageModel;
 import com.aegis.project.model.TaskModel;
 import com.aegis.project.model.UserModel;
+import com.aegis.project.repository.ChatRepository;
 import com.aegis.project.repository.OrgRepository;
 import com.aegis.project.repository.ProjectRepository;
 import com.aegis.project.repository.TaskRepository;
@@ -53,9 +54,9 @@ public class TaskService {
     @Autowired
     private SocketIOController socketIOController;
 
-  private static final Logger logger = LoggerFactory.getLogger(
-    TaskService.class
-  );
+    private static final Logger logger = LoggerFactory.getLogger(
+            TaskService.class
+    );
     @Autowired
     private ChatRepository chatRepository;
 
@@ -302,20 +303,7 @@ public class TaskService {
 
             return tasks
                     .stream()
-                    .map(task
-                            -> new TaskDTO(
-                            task.getTaskID(),
-                            task.getParentProjectID(),
-                            task.getParentOrgID(),
-                            task.getTaskName(),
-                            task.getTaskDescription(),
-                            task.getAssignerID(),
-                            task.getTaskPriority(),
-                            task.getDueDate(),
-                            task.isComplete(),
-                            task.getAssignedUsers()
-                    )
-                    )
+                    .map(TaskDTO::new)
                     .collect(Collectors.toSet());
         } else {
             throw new RuntimeException(
@@ -591,20 +579,7 @@ public class TaskService {
 
         return tasks
                 .stream()
-                .map(task
-                        -> new TaskDTO(
-                        task.getTaskID(),
-                        task.getParentProjectID(),
-                        task.getParentOrgID(),
-                        task.getTaskName(),
-                        task.getTaskDescription(),
-                        task.getAssignerID(),
-                        task.getTaskPriority(),
-                        task.getDueDate(),
-                        task.isComplete(),
-                        task.getAssignedUsers()
-                )
-                )
+                .map(TaskDTO::new)
                 .collect(Collectors.toSet());
     }
 }
