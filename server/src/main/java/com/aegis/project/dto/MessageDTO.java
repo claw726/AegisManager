@@ -12,7 +12,7 @@ public class MessageDTO {
   String timestamp;
   boolean isDeleted;
   Set<Integer> readBy;
-  private int chatId;
+  private String chatId;
 
   public MessageDTO(
     int id,
@@ -40,7 +40,7 @@ public class MessageDTO {
     this.timestamp = message.getTimestamp().toString();
     this.isDeleted = message.isDeleted();
     this.readBy = message.getReadBy();
-    this.chatId = message.getChat().getChatID();
+    this.chatId = message.getChat().getType() + "-" + message.getChat().getChatID();
   }
 
   public MessageDTO() {}
@@ -49,7 +49,7 @@ public class MessageDTO {
     return id;
   }
 
-  public int getChatId() {
+  public String getChatId() {
     return chatId;
   }
 
@@ -61,7 +61,7 @@ public class MessageDTO {
     return senderName;
   }
 
-  public void setChatId(int chatId) {
+  public void setChatId(String chatId) {
     this.chatId = chatId;
   }
 
