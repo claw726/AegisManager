@@ -1,6 +1,5 @@
 import axios from "axios";
 import { sendMessage } from "../../utils/websocket";
-import store from "@/store/index.js";
 
 const state = {
   currentUser: null,
@@ -11,7 +10,6 @@ const state = {
   organizations: [],
   loading: false,
   error: null,
-  wsConnected: false,
   wsConnected: false,
 };
 
@@ -47,19 +45,9 @@ const mutations = {
       chat.unreadCount = 0;
     }
   },
-  CLEAR_UNREAD_COUNT(state, chatId) {
-    const chat = state.chats.find((chat) => chat.id === chatId);
-    if (chat) {
-      chat.unreadCount = 0;
-    }
-  },
   ADD_MESSAGE(state, { chatId, message }) {
     if (!state.messages[chatId]) {
       state.messages[chatId] = [];
-    }
-    // Check for duplicate messages
-    if (!state.messages[chatId].find((msg) => msg.id === message.id)) {
-      state.messages[chatId].push(message);
     }
     // Check for duplicate messages
     if (!state.messages[chatId].find((msg) => msg.id === message.id)) {
@@ -89,9 +77,6 @@ const mutations = {
     if (index !== -1) {
       state.chats.splice(index, 1, updatedChat);
     }
-  },
-  SET_WS_CONNECTED(state, connected) {
-    state.wsConnected = connected;
   },
   SET_WS_CONNECTED(state, connected) {
     state.wsConnected = connected;
@@ -182,21 +167,12 @@ const actions = {
     }
   },
 
-  async sendMessage({ rootState, state, commit }, { chatId, content }) {
+  async sendMessage({ rootState, commit }, { chatId, content }) {
     if (!chatId || !content) return;
 
     const numericChatId = parseInt(chatId.match(/\d+/)[0]);
     // Send message to server
     try {
-
-      const targetUserId = state.activeChat.participants.find(p => p !== rootState.auth.currentUser.userID);
-
-      const targetUser = await store.dispatch("users/fetchUserAccountByID", targetUserId);
-
-      if (!targetUser || !targetUserId) {
-        throw new Error("Could not fetch target user email");
-      }
-
       await axios.post("/api/messages/add",
         {
           chatId: numericChatId,
@@ -213,7 +189,7 @@ const actions = {
         chatId: chatId,
         content: content,
         senderEmail: rootState.auth.currentUser.email,
-        targetEmail: targetUser.email,
+        targetEmail: state.activeChat.participants.find(p => p !== rootState.auth.currentUser.userID),
       });
       return;
     } catch (error) {
@@ -322,67 +298,13 @@ const actions = {
 
       // Add message to chat messages
       commit("ADD_MESSAGE", {
-        chatId: messageData.chatId,
+        chatId: state.activeChat.chatId,
         message: formattedMessage,
       });
       
       // Update chat last message
       commit("UPDATE_CHAT_LAST_MESSAGE", {
-        chatId: messageData.chatId,
-        lastMessage: formattedMessage.content,
-      });
-
-      // If this is a new chat, add it to the chats list
-      if (!state.chats.find(chat => chat.id === messageData.chatId)) {
-        commit("ADD_CHAT", {
-          id: messageData.chatId,
-          title: messageData.chatTitle,
-          lastMessage: formattedMessage.content,
-          participants: messageData.participants || [],
-          type: messageData.chatType || "direct",
-        });
-      }
-
-      // Update the unread count
-      if (messageData.senderId !== rootState.auth.currentUser.userID) {
-        const chat = state.chats.find(chat => chat.id === messageData.chatId);
-        if (chat) {
-          chat.unreadCount = chat.unreadCount ? chat.unreadCount + 1 : 1;
-        }
-      }
-    } catch (error) {
-      console.error("Error handling new message:", error);
-      commit("SET_ERROR", "Failed to handle new message");
-    }
-  handleNewMessage({ commit, state, rootState }, messageData) {
-    try {
-      // Validate message
-      if (!messageData || !messageData.chatId) {
-        console.warn("Invalid message data:", messageData);
-        return;
-      }
-
-      // Create a formatted message object
-      const formattedMessage = {
-        id: messageData.id || `temp-${Date.now()}`,
-        chatId: messageData.chatId,
-        content: messageData.content,
-        senderId: messageData.senderId,
-        senderEmail: messageData.senderEmail,
-        timestamp: messageData.timestamp || new Date().toISOString(),
-        status: messageData.status || "delivered",
-        type: messageData.type || "text",
-      };
-
-      // Add message to chat messages
-      commit("ADD_MESSAGE", {
-        chatId: messageData.chatId,
-        message: formattedMessage,
-      });
-      
-      // Update chat last message
-      commit("UPDATE_CHAT_LAST_MESSAGE", {
-        chatId: messageData.chatId,
+        chatId: state.activeChat.chatId,
         lastMessage: formattedMessage.content,
       });
 
