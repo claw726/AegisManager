@@ -75,12 +75,12 @@ public class MessageService {
                         new RuntimeException("User not found with id: " + participant));
 
                 if (socketIOController.isUserConnected(user.getEmail())) {
-                    socketIOController.sendMessage(new SocketMessageModel(
+                    socketIOController.sendMessageWithDTO(new SocketMessageModel(
                         currentUsername,
                         user.getEmail(),
                         "message-" + chatID,
-                        content
-                    ));
+                        content),
+                        new MessageDTO(message));
                 }
             }
 
@@ -167,12 +167,12 @@ public class MessageService {
                     new RuntimeException("User not found with id: " + participant));
 
             if (socketIOController.isUserConnected(user.getEmail())) {
-                socketIOController.sendMessage(new SocketMessageModel(
+                socketIOController.sendMessageWithDTO(new SocketMessageModel(
                         currentUsername,
                         user.getEmail(),
                         "message-" + chat.getChatID(),
-                        "Message with ID " + messageID + " has been deleted"
-                ));
+                        "Message with ID " + messageID + " has been deleted"),
+                        new MessageDTO(message));
             }
         }
 

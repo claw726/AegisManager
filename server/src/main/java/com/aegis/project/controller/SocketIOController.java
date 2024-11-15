@@ -1,5 +1,6 @@
 package com.aegis.project.controller;
 
+import com.aegis.project.dto.MessageDTO;
 import com.aegis.project.model.SocketMessageModel;
 import com.corundumstudio.socketio.AckRequest;
 import com.corundumstudio.socketio.SocketIOClient;
@@ -65,5 +66,10 @@ public class SocketIOController {
     public void sendMessage(SocketMessageModel message) {
         logger.info(message.getSenderEmail() + " sent message to " + message.getTargetEmail() + ": " + message.getMessage());
         socketServer.getRoomOperations(message.getTargetEmail()).sendEvent("message", message);
+    }
+
+    public void sendMessageWithDTO(SocketMessageModel message, MessageDTO messageDTO) {
+        logger.info(message.getSenderEmail() + " sent message to " + message.getTargetEmail() + ": " + message.getMessage());
+        socketServer.getRoomOperations(message.getTargetEmail()).sendEvent("message", messageDTO);
     }
 }

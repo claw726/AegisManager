@@ -61,10 +61,8 @@ public class ChatService {
         new RuntimeException("Chat not found with id: " + chatID)
       );
 
-    for (int participant : chat.getParticipants()) {
-      if (participant != currentUser.getUserID()) {
-        chat.addParticipant(participant);
-      }
+    if (!chat.getParticipants().contains(currentUser.getUserID())) {
+        throw new RuntimeException("User not found in chat");
     }
     return new ChatDTO(chat);
   }

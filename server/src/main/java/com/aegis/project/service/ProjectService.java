@@ -192,6 +192,15 @@ public class ProjectService {
         return new ProjectDTO(project);
     }
 
+    public ProjectDTO directlyGetProject(int projectID) {
+        ProjectModel project = projectRepository
+                .findById(projectID)
+                .orElseThrow(()
+                        -> new RuntimeException("Project not found with id: " + projectID)
+                );
+        return new ProjectDTO(project);
+    }
+
     public void updateProject(
             int projectID,
             String projectName,
