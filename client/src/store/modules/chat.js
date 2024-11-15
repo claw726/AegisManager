@@ -1,5 +1,6 @@
 import axios from "axios";
-import { emitEvent } from "../../utils/websocket";
+import { sendMessage } from "../../utils/websocket";
+import store from "@/store/index.js";
 
 const state = {
   currentUser: null,
@@ -167,12 +168,21 @@ const actions = {
     }
   },
 
-  async sendMessage({ rootState, commit }, { chatId, content }) {
+  async sendMessage({ rootState, state, commit }, { chatId, content }) {
     if (!chatId || !content) return;
 
     const numericChatId = parseInt(chatId.match(/\d+/)[0]);
     // Send message to server
     try {
+
+      const targetUserId = state.activeChat.participants.find(p => p !== rootState.auth.currentUser.userID);
+
+      const targetUser = await store.dispatch("users/fetchUserAccountByID", targetUserId);
+
+      if (!targetUser || !targetUserId) {
+        throw new Error("Could not fetch target user email");
+      }
+
       await axios.post("/api/messages/add",
         {
           chatId: numericChatId,
@@ -185,11 +195,11 @@ const actions = {
       });
 
       // emit through socket
-      await emitEvent('messageSendToUser', {
-        chatId: numericChatId,
+      await sendMessage({
+        chatId: chatId,
         content: content,
         senderEmail: rootState.auth.currentUser.email,
-        targetEmail: state.activeChat.participants.find(p => p !== rootState.auth.currentUser.userID),
+        targetEmail: targetUser.email,
       });
       return;
     } catch (error) {

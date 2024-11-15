@@ -201,13 +201,13 @@ export default {
   },
 
   data() {
-  return {
-    newMessage: "",
-    resolvedTitle: "",
-    profilePicture: null,
-    imageLoadError: false,
-  };
-},
+    return {
+      newMessage: "",
+      resolvedTitle: "",
+      profilePicture: null,
+      imageLoadError: false,
+    };
+  },
 
   computed: {
     ...mapState("chat", {
