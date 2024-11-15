@@ -60,7 +60,7 @@ public class MessageController {
       if (errorMessage.contains("not found")) {
         return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
       } else if (errorMessage.contains("User not authorized")) {
-        return ResponseEntity.status(HttpStatus.UNAUTHORIZED).body(
+        return ResponseEntity.status(HttpStatus.FORBIDDEN).body(
           e.getMessage()
         );
       } else {
@@ -70,4 +70,21 @@ public class MessageController {
       }
     }
   }
+
+    @DeleteMapping("/{messageID}/delete")
+    public ResponseEntity<?> deleteMessage(@PathVariable int messageID) {
+        logger.info("Attempting to delete message with ID: {}", messageID);
+        try {
+            messageService.markDeleted(messageID);
+            return ResponseEntity.ok("Message deleted successfully");
+        } catch (Exception e) {
+            if (e.getMessage().contains("not found")) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            } else if (e.getMessage().contains("User not authorized")) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+            } else {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+            }
+        }
+    }
 }

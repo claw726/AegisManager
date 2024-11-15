@@ -26,7 +26,6 @@ import java.util.Set;
 import java.util.stream.Collectors;
 
 @Service
-@Transactional
 public class MessageService {
     @Autowired
     private MessageRepository messageRepository;
@@ -58,6 +57,9 @@ public class MessageService {
             if (!chat.getParticipants().contains(currentUser.getUserID())) {
                 throw new RuntimeException("User not authorized to add messages to chat: " + chatID);
             }
+
+            chat.setLastMessage(content);
+            chatRepository.save(chat);
 
             // 4. Create and save message
             MessageModel message = new MessageModel(chat, currentUser.getUserID(), currentUser.getUserName(), content);
@@ -129,5 +131,51 @@ public class MessageService {
         }
     }
 
+    public void markDeleted(int messageID) {
+        MessageModel message = messageRepository.findById(messageID).orElseThrow(() ->
+                new RuntimeException("Message not found with id: " + messageID));
 
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUsername = ((UserDetails) authentication.getPrincipal()).getUsername();
+
+        UserModel currentUser = userRepository.findByEmail(currentUsername).orElseThrow(() ->
+                new RuntimeException("User not found with email: " + currentUsername));
+
+        if (message.getSenderID() != currentUser.getUserID()) {
+            throw new RuntimeException("User not authorized to delete message with id: " + messageID);
+        }
+
+        message.setDeleted(true);
+        messageRepository.save(message);
+
+        ChatModel chat = message.getChat();
+        if (chat.getLastMessage().equals(message.getContent())) {
+            List<MessageModel> messages = messageRepository.findByChat_ChatIDOrderByTimestamp(chat.getChatID());
+            if (!messages.isEmpty()) {
+                chat.setLastMessage(messages.get(messages.size() - 1).getContent());
+            } else {
+                chat.setLastMessage("This message has been deleted");
+            }
+            chatRepository.save(chat);
+        }
+
+        Set<Integer> participants = chat.getParticipants();
+        for (int participant : participants) {
+            if (participant == currentUser.getUserID()) continue; // Skip current user
+
+            UserModel user = userRepository.findById(participant).orElseThrow(() ->
+                    new RuntimeException("User not found with id: " + participant));
+
+            if (socketIOController.isUserConnected(user.getEmail())) {
+                socketIOController.sendMessage(new SocketMessageModel(
+                        currentUsername,
+                        user.getEmail(),
+                        "message-" + chat.getChatID(),
+                        "Message with ID " + messageID + " has been deleted"
+                ));
+            }
+        }
+
+        logger.info("Message with ID {} has been deleted", messageID);
+    }
 }
