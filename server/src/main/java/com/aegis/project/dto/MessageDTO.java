@@ -45,6 +45,10 @@ public class MessageDTO {
 
   public MessageDTO() {}
 
+  public int getMessageID() {
+    return id;
+  }
+
   public int getChatId() {
     return chatId;
   }

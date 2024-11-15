@@ -10,7 +10,7 @@ import users from "@/store/modules/users.js";
 import invitations from "@/store/modules/invitations.js";
 import chat from "@/store/modules/chat.js";
 
-export default new Vuex.Store({
+export const store = new Vuex.Store({
   modules: {
     auth,
     tasks,
@@ -21,3 +21,5 @@ export default new Vuex.Store({
     chat,
   },
 });
+
+export default store;
