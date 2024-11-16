@@ -1,51 +1,67 @@
 <template>
   <div class="w-full">
-    <!-- Timestamp -->
-    <div v-if="showTimestamp" class="flex justify-center mb-4">
-      <div class="bg-gray-100 rounded-full px-3 py-1 text-xs text-gray-500">
-        {{ formatTimestamp(message.timestamp) }}
-      </div>
-    </div>
+    <div :class="['w-full flex', isOwn ? 'justify-end' : 'justify-start mb-2']">
+      <div class="flex items-end gap-2 max-w-[85%]"> <!-- Increased max-width -->
+        <!-- Sender Avatar (for non-own messages) -->
+        <div v-if="!isOwn && showSender" class="w-8 h-8 flex-shrink-0">
+          <div 
+            class="w-8 h-8 rounded-full flex items-center justify-center overflow-hidden"
+            :class="[!senderProfilePicture ? 'bg-gray-300' : '']"
+          >
+            <img
+              v-if="senderProfilePicture"
+              :src="senderProfilePicture"
+              :alt="message.senderName"
+              class="w-full h-full object-cover"
+              @error="handleImageError"
+            />
+            <i v-else class="fas fa-user text-gray-600"></i>
+          </div>
+        </div>
 
-  <div :class="['w-full flex', isOwn ? 'justify-end' : 'justify-start mb-2']">
-      <div class="flex items-end gap-2 message-container">
-        <!-- ... existing avatar code ... -->
-        
-        <div class="relative group"> <!-- Add this wrapper -->
+        <!-- Message Content -->
+        <div class="min-w-0 max-w-full"> <!-- Changed from max-w-[70%] to max-w-full -->
+          <!-- Sender Name -->
+          <div v-if="!isOwn && showSender" class="text-sm text-gray-600 mb-1 ml-1">
+            {{ message.senderName }}
+          </div>
+
+          <!-- Message Bubble -->
           <div
             :class="[
-              'max-w-[50%]',
-              'min-w-[100%]',
-              'rounded-2xl px-4 py-2 message-content',
+              'rounded-2xl px-4 py-2 relative group inline-block max-w-full', // Added inline-block
               isOwn
-                ? 'bg-blue-500 text-white ml-auto rounded-tr-sm own-message'
-                : 'bg-[#e9e9eb] text-black mr-auto rounded-tl-sm other-message',
+                ? 'bg-blue-500 text-white rounded-tr-sm'
+                : 'bg-[#e9e9eb] text-black rounded-tl-sm'
             ]"
           >
-            <!-- Message content -->
-            <div
-              v-if="showSender"
-              class="text-xs font-medium mb-1 sender-name"
-              :class="isOwn ? 'text-white/90' : 'text-gray-500'"
+            <!-- Delete Button (only show for own messages) -->
+            <button
+              v-if="isOwn && !message.deleted"
+              @click="onDeleteClick"
+              class="absolute -right-2 -top-2 opacity-0 group-hover:opacity-100 transition-opacity p-2 bg-white rounded-full shadow-md hover:bg-gray-100"
             >
-              {{ message.senderName }}
-            </div>
+              <i class="fas fa-trash-alt text-red-500 text-sm"></i>
+            </button>
+
+            <!-- Message Content -->
             <div class="whitespace-pre-wrap break-words">
-              {{ message.content }}
+              <span v-if="message.deleted" class="italic text-gray-500">
+                This message has been deleted
+              </span>
+              <span v-else>
+                {{ message.content }}
+              </span>
             </div>
 
-            <!-- Delete button (only shows on hover for own messages) -->
+            <!-- Timestamp -->
             <div
-              v-if="isOwn"
-              class="absolute top-2 right-2 opacity-0 group-hover:opacity-100 transition-opacity"
+              :class="[
+                'text-xs mt-1',
+                isOwn ? 'text-blue-100' : 'text-gray-500'
+              ]"
             >
-              <button
-                @click.stop="confirmDelete"
-                class="p-1 hover:bg-blue-600 rounded-full transition-colors"
-                title="Delete message"
-              >
-                <i class="fas fa-trash-alt text-xs text-white/80 hover:text-white"></i>
-              </button>
+              {{ formatTimestamp(message.timestamp) }}
             </div>
           </div>
         </div>
@@ -56,15 +72,11 @@
     <div
       v-if="showDeleteModal"
       class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-      @click="showDeleteModal = false"
     >
-      <div
-        class="bg-white rounded-lg p-6 max-w-sm mx-4"
-        @click.stop
-      >
-        <h3 class="text-lg font-semibold mb-4">Delete Message</h3>
-        <p class="text-gray-600 mb-6">Are you sure you want to delete this message?</p>
-        <div class="flex justify-end gap-4">
+      <div class="bg-white rounded-lg p-4 max-w-sm w-full mx-4">
+        <h3 class="text-lg font-semibold mb-2">Delete Message?</h3>
+        <p class="text-gray-600 mb-4">This action cannot be undone.</p>
+        <div class="flex justify-end gap-2">
           <button
             @click="showDeleteModal = false"
             class="px-4 py-2 text-gray-600 hover:bg-gray-100 rounded"
@@ -92,6 +104,9 @@ export default {
     message: {
       type: Object,
       required: true,
+      validator: function(obj) {
+        return typeof obj.deleted !== "undefined";
+      }
     },
     isOwn: {
       type: Boolean,
@@ -142,14 +157,19 @@ export default {
       this.imageLoadError = true;
     },
 
-    confirmDelete() {
+    onDeleteClick() {
+      console.log("Confirm delete");
       this.showDeleteModal = true;
     },
 
     async handleDelete() {
       try {
-        await this.deleteMessage(this.message.messageId);
+        await this.deleteMessage({
+          chatId: this.message.chatId,
+          messageId: this.message.id,
+        });
         this.showDeleteModal = false;
+        this.$emit('message-deleted');
       } catch (error) {
         console.error("Error deleting message:", error);
       }
@@ -159,215 +179,14 @@ export default {
 </script>
 
 <style scoped>
-.bg-gray-100 {
-  animation: timestamp-appear 0.3s ease forwards;
-}
-
-@keyframes timestamp-appear {
-  from {
-    opacity: 0;
-    transform: translateY(-10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-.message-container {
-  animation: message-appear 0.3s ease forwards;
-}
-
-.message-content {
+.message-bubble {
+  position: relative;
   transition: all 0.2s ease;
-  position: relative;
-  transform-origin: bottom;
+  word-wrap: break-word;
+  word-break: break-word;
 }
 
-/* Different animations for own vs other messages */
-.own-message {
-  animation: slide-left 0.3s ease forwards;
-}
-
-.other-message {
-  animation: slide-right 0.3s ease forwards;
-}
-
-.avatar {
-  animation: fade-in 0.3s ease forwards;
-}
-
-.sender-name {
-  animation: fade-in 0.3s ease 0.1s forwards;
-}
-
-.timestamp {
-  animation: fade-in 0.3s ease 0.2s forwards;
-  opacity: 0;
-  animation-fill-mode: forwards;
-}
-
-@keyframes message-appear {
-  from {
-    opacity: 0;
-    transform: translateY(10px);
-  }
-  to {
-    opacity: 1;
-    transform: translateY(0);
-  }
-}
-
-@keyframes slide-left {
-  from {
-    opacity: 0;
-    transform: translateX(20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-@keyframes slide-right {
-  from {
-    opacity: 0;
-    transform: translateX(-20px);
-  }
-  to {
-    opacity: 1;
-    transform: translateX(0);
-  }
-}
-
-@keyframes fade-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-/* Hover effects */
-.message-content:hover {
-  transform: scale(1.01);
-}
-
-/* Add a subtle shadow effect */
-.message-content {
-  box-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
-}
-
-.message-content:hover {
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.15);
-}
-
-/* Optional: Add a shine effect on hover */
-.message-content::after {
-  content: "";
-  position: absolute;
-  top: 0;
-  left: 0;
-  right: 0;
-  bottom: 0;
-  background: linear-gradient(
-    45deg,
-    transparent,
-    rgba(255, 255, 255, 0.1),
-    transparent
-  );
-  opacity: 0;
-  transition: opacity 0.3s ease;
-}
-
-.message-content:hover::after {
-  opacity: 1;
-}
-
-.avatar {
-  transition: all 0.3s ease;
-  border: 2px solid transparent;
-}
-
-.avatar:hover {
-  transform: scale(1.1);
-  border-color: #e5e7eb;
-}
-
-.avatar img {
-  transition: transform 0.3s ease;
-}
-
-.avatar:hover img {
-  transform: scale(1.1);
-}
-
-/* Optional: Add a subtle glow effect on hover */
-.avatar:hover {
-  box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
-}
-
-/* Adjust message container spacing */
-.message-container {
-  gap: 8px;
-}
-
-/* Make avatar size consistent */
-.avatar {
-  min-width: 2rem;
-  min-height: 2rem;
-}
-
-/* Add smooth transition for image loading */
-.avatar img {
-  opacity: 0;
-  animation: image-fade-in 0.3s ease forwards;
-}
-
-@keyframes image-fade-in {
-  from {
-    opacity: 0;
-  }
-  to {
-    opacity: 1;
-  }
-}
-
-/* Optional: Add hover tooltip for sender name */
-.avatar {
-  position: relative;
-}
-
-.avatar::before {
-  content: attr(data-sender-name);
-  position: absolute;
-  bottom: -20px;
-  left: 50%;
-  transform: translateX(-50%) scale(0);
-  background: rgba(0, 0, 0, 0.8);
-  color: white;
-  padding: 4px 8px;
-  border-radius: 4px;
-  font-size: 12px;
-  opacity: 0;
-  transition: all 0.3s ease;
-  pointer-events: none;
-  white-space: nowrap;
-}
-
-.avatar:hover::before {
-  opacity: 1;
-  transform: translateX(-50%) scale(1);
-}
-
-.group:hover .message-content {
-  transform: scale(1.01);
-}
-
-/* Ensure the delete button container doesn't affect message padding */
-.message-content {
-  position: relative;
-  padding-right: 2.5rem;
+.delete-button {
+  transition: opacity 0.2s ease;
 }
 </style>

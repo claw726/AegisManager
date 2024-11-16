@@ -81,9 +81,30 @@ const mutations = {
   SET_WS_CONNECTED(state, connected) {
     state.wsConnected = connected;
   },
+  DELETE_MESSAGE(state, { chatId, messageId, deleted }) {
+    if (state.messages[chatId]) {
+      const message = state.messages[chatId].find(msg => msg.id === messageId);
+      if (message) {
+        message.deleted = deleted;
+      }
+    }
+  },
+  REFRESH_CHAT_MESSAGES(state, chatId) {
+    const messages = state.messages[chatId] || [];
+    state.messages = {
+      ...state.messages,
+      [chatId]: [...messages],
+    };
+  }
 };
 
 const actions = {
+
+  async refreshChatMessages({ commit, dispatch}, chatId) {
+    await dispatch('getMessages', chatId);
+    commit('REFRESH_CHAT_MESSAGES', chatId);
+  },
+
   async fetchUsers({ rootState, commit }) {
     try {
       commit("SET_LOADING", true);
@@ -218,6 +239,22 @@ const actions = {
     }
   },
 
+  async deleteMessage({ rootState, commit }, { chatId, messageId }) {
+    try {
+      await axios.delete(`/api/messages/${messageId}/delete`, {
+        headers: {
+          Authorization: `Bearer ${rootState.auth.authToken}`,
+        },
+      });
+      commit("DELETE_MESSAGE", { chatId, messageId });
+      return true;
+    } catch (error) {
+      console.error("Error deleting message:", error);
+      commit("SET_ERROR", "Failed to delete message");
+      throw error;
+    }
+  },
+
   async fetchUserChats({ rootState, commit }) {
     commit("SET_LOADING", true);
     try {
@@ -298,13 +335,13 @@ const actions = {
 
       // Add message to chat messages
       commit("ADD_MESSAGE", {
-        chatId: state.activeChat.chatId,
+        chatId: messageData.chatId,
         message: formattedMessage,
       });
       
       // Update chat last message
       commit("UPDATE_CHAT_LAST_MESSAGE", {
-        chatId: state.activeChat.chatId,
+        chatId: messageData.chatId,
         lastMessage: formattedMessage.content,
       });
 
