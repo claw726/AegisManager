@@ -3,12 +3,10 @@ package com.aegis.project.service;
 import com.aegis.project.controller.SocketIOController;
 import com.aegis.project.dto.MessageDTO;
 import com.aegis.project.exception.UserNotFoundException;
-import com.aegis.project.model.ChatModel;
-import com.aegis.project.model.MessageModel;
-import com.aegis.project.model.SocketMessageModel;
-import com.aegis.project.model.UserModel;
+import com.aegis.project.model.*;
 import com.aegis.project.repository.ChatRepository;
 import com.aegis.project.repository.MessageRepository;
+import com.aegis.project.repository.OrgRepository;
 import com.aegis.project.repository.UserRepository;
 
 import jakarta.transaction.Transactional;
@@ -21,6 +19,8 @@ import org.springframework.security.core.context.SecurityContextHolder;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
+import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -35,6 +35,9 @@ public class MessageService {
 
     @Autowired
     private UserRepository userRepository;
+
+    @Autowired
+    private OrgRepository orgRepository;
 
     @Autowired
     private SocketIOController socketIOController;
@@ -177,5 +180,50 @@ public class MessageService {
         }
 
         logger.info("Message with ID {} has been deleted", messageID);
+    }
+
+    public List<MessageDTO> getOrgMessages(int orgID) {
+        Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
+        String currentUsername = ((UserDetails) authentication.getPrincipal()).getUsername();
+
+        UserModel currentUser = userRepository.findByEmail(currentUsername).orElseThrow(() ->
+                new RuntimeException("User not found with email: " + currentUsername));
+
+        OrgModel org = orgRepository.findById(orgID).orElseThrow(() ->
+                new RuntimeException("Organization not found with id: " + orgID));
+
+        if (currentUser.getUserID() != org.getOrgOwnerID()) {
+            throw new RuntimeException("User not authorized to view messages in organization: " + orgID);
+        }
+
+        Set<UserModel> users = org.getUsers();
+
+        List<MessageDTO> messageDTOs = new ArrayList<>();
+
+        for (UserModel user : users) {
+            List<ChatModel> chats = chatRepository.findByParticipantsContaining(user.getUserID());
+            for (ChatModel chat : chats) {
+                boolean allParticipantsInOrg = true;
+                for (int participant : chat.getParticipants()) {
+                    if (!users.contains(userRepository.findById(participant).orElseThrow(() ->
+                            new RuntimeException("User not found with id: " + participant)))) {
+                        allParticipantsInOrg = false;
+                        break;
+                    }
+                }
+                if (!allParticipantsInOrg) {
+                    continue;
+                }
+                List<MessageModel> messages = chat.getMessages();
+                for (MessageModel message : messages) {
+                    MessageDTO messageDTO = new MessageDTO(message);
+                    if (!messageDTOs.contains(messageDTO)) {
+                        messageDTOs.add(messageDTO);
+                    }
+                }
+            }
+        }
+
+        return messageDTOs;
     }
 }

@@ -87,4 +87,23 @@ public class MessageController {
             }
         }
     }
+
+    @GetMapping("/history/{orgID}")
+    public ResponseEntity<?> getOrgMessages(@PathVariable int orgID) {
+        logger.info("Attempting to fetch messages for org ID: {}", orgID);
+        try {
+            List<MessageDTO> messages = messageService.getOrgMessages(orgID);
+            logger.info("Successfully retrieved {} messages for org ID: {}", messages.size(), orgID);
+            return ResponseEntity.ok(messages);
+        } catch (Exception e) {
+            String errorMessage = e.getMessage() != null ? e.getMessage() : "An error occurred while fetching messages";
+            if (errorMessage.contains("not found")) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            } else if (errorMessage.contains("User not authorized")) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+            } else {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
+            }
+        }
+    }
 }
