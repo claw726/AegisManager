@@ -139,6 +139,7 @@
             :showSender="shouldShowSenderName(message, index)"
             :showTimestamp="shouldShowTimestamp(message, index)"
             class="w-full"
+            @message-deleted="handleMessageUpdate"
           />
         </div>
       </TransitionGroup>
@@ -201,13 +202,14 @@ export default {
   },
 
   data() {
-  return {
-    newMessage: "",
-    resolvedTitle: "",
-    profilePicture: null,
-    imageLoadError: false,
-  };
-},
+    return {
+      newMessage: "",
+      resolvedTitle: "",
+      profilePicture: null,
+      imageLoadError: false,
+      refreshKey: 0,
+    };
+  },
 
   computed: {
     ...mapState("chat", {
@@ -218,7 +220,7 @@ export default {
     ...mapGetters("chat", ["getChatMessages"]),
     chatMessages() {
       if (!this.activeChat?.id) return [];
-      return this.getChatMessages(this.activeChat.id) || [];
+      return this.refreshKey && this.getChatMessages(this.activeChat.id) || [];
     },
     chatTypeIcon() {
       if (!this.activeChat) return "fas fa-comment";
@@ -320,6 +322,30 @@ export default {
         this.updateDisplayTitle();
       }
     },
+
+    chatMessages: {
+      deep: true,
+      handler(newMessages, oldMessages) {
+        if (!newMessages || !oldMessages) return;
+
+        // Check if messages were added or removed
+        if (newMessages.length !== oldMessages.length) {
+          this.$nextTick(() => {
+            this.handleMessageUpdate();
+          });
+        } else {
+          // Check for soft deletions
+          const hasChanges = newMessages.some((msg, index) => {
+            return msg.deleted !== oldMessages[index]?.deleted;
+          });
+          if (hasChanges) {
+            this.$nextTick(() => {
+              this.handleMessageUpdate();
+            });
+          }
+        }
+      }
+    }
   },
 
   async created() {
@@ -358,6 +384,23 @@ export default {
   methods: {
     ...mapActions("chat", ["sendMessage"]),
 
+    async handleMessageUpdate() {
+      if (!this.activeChat?.id) return;
+
+      try {
+        await this.$store.dispatch("chat/refreshChatMessages", this.activeChat.id);
+
+        this.refreshKey += 1;
+
+        this.$nextTick(() => {
+          this.scrollToBottom();
+        });
+      } catch (error) {
+        console.error("Error refreshing messages:", error);
+        this.$store.commit("chat/SET_ERROR", "Failed to refresh messages");
+      }
+    },
+
     async handleSendMessage() {
       if (!this.newMessage.trim() || !this.activeChat?.id) return;
 
@@ -369,9 +412,7 @@ export default {
 
         this.newMessage = "";
         // Scroll to bottom after sending
-        this.$nextTick(() => {
-          this.scrollToBottom();
-        });
+        await this.handleMessageUpdate();
       } catch (error) {
         console.error("Error sending message:", error);
         // Show error to user
@@ -413,8 +454,11 @@ export default {
 
       try {
         await this.$store.dispatch("chat/getMessages", chatId);
+        this.refreshKey += 1;
+        this.$nextTick(() => {
+          this.scrollToBottom();
+        });
         console.log("Messages loaded:", this.chatMessages);
-        this.scrollToBottom();
       } catch (error) {
         console.error("Error loading messages:", error);
         this.error = error.response?.data?.message || "Failed to load messages";
