@@ -63,12 +63,25 @@
           </div>
         </div>
 
-        <!-- Default Icon for Other Chat Types -->
+        <!-- Organization Logo or Default Icon -->
         <div
           v-else
-          class="w-10 h-10 rounded-full bg-gray-300 flex items-center justify-center"
+          class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden"
         >
-          <i :class="[chatTypeIcon, 'text-gray-600']" />
+          <img
+            v-if="chat.type === 'organization' && organizationLogo"
+            :src="organizationLogo"
+            :alt="displayTitle"
+            class="w-full h-full object-cover"
+            @error="handleImageError"
+          />
+          <i
+            v-else
+            :class="[
+              chatTypeIcon,
+              'text-gray-600 transition-colors duration-300 ease-in-out'
+            ]"
+          />
         </div>
       </div>
 
@@ -124,6 +137,7 @@ export default {
 
   computed: {
     ...mapState("auth", ["currentUser"]),
+    ...mapState("chat", ["organizations"]),
     
     groupParticipants() {
       if (!this.chat?.participants) return [];
@@ -189,6 +203,18 @@ export default {
           return "fas fa-comment";
       }
     },
+
+    organizationLogo() {
+    if (this.chat.type === 'organization') {
+      // Find matching organization by name
+      const matchingOrg = this.organizations.find(
+        org => org.orgName.toLowerCase() === this.chat.title.toLowerCase()
+      );
+      return matchingOrg?.encodedImage || null;
+    }
+    return null;
+  }
+
   },
 
   watch: {

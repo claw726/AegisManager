@@ -95,6 +95,9 @@ const mutations = {
       ...state.messages,
       [chatId]: [...messages],
     };
+  },
+  SET_ORGANIZATIONS(state, organizations) {
+    state.organizations = organizations;
   }
 };
 
@@ -377,6 +380,15 @@ const actions = {
       case "CHAT_UPDATE":
         commit("UPDATE_CHAT", data.chat);
         break;
+    }
+  },
+  async fetchAndStoreOrganizations({ dispatch, commit }) {
+    try {
+      const organizations = await dispatch("organizations/fetchOrganizations", null, { root: true });
+      commit("SET_ORGANIZATIONS", organizations);
+    } catch (error) {
+      console.error("Error fetching organizations: ", error);
+      commit("SET_ERROR", "Failed to fetch organizations");
     }
   },
 };

@@ -63,6 +63,25 @@
               +{{ remainingParticipantsCount }}
             </div>
           </div>
+          <!-- Organization Logo -->
+          <div
+            v-else-if="activeChat?.type === 'organization'"
+            class="w-10 h-10 rounded-full shadow-sm overflow-hidden border border-gray-200 hover:shadow-md transition-all duration-300"
+          >
+            <img
+              v-if="organizationLogo"
+              :src="organizationLogo"
+              :alt="displayTitle"
+              class="w-full h-full object-cover" 
+              @error="handleImageError"
+            />
+            <div
+              v-else
+              class="w-full h-full flex items-center justify-center bg-gray-50"
+            >
+              <i :class="[chatTypeIcon, 'text-gray-400 text-xl']" />
+            </div>
+          </div>
 
           <!-- Default Icon for Other Chat Types -->
           <div
@@ -215,6 +234,7 @@ export default {
     ...mapState("chat", {
       activeChat: (state) => state.activeChat,
       loading: (state) => state.loading,
+      organizations: (state) => state.organizations,
     }),
     ...mapState("auth", ["currentUser"]),
     ...mapGetters("chat", ["getChatMessages"]),
@@ -294,6 +314,15 @@ export default {
     wsConnected() {
       return this.$store.state.chat.wsConnected;
     },
+    organizationLogo() {
+    if (this.activeChat?.type === 'organization') {
+      const matchingOrg = this.organizations.find(
+        org => org.orgName.toLowerCase() === this.activeChat.title.toLowerCase()
+      );
+      return matchingOrg?.encodedImage || null;
+    }
+    return null;
+  },
   },
 
 
@@ -561,5 +590,21 @@ img {
 
 img:hover {
   transform: scale(1.05);
+}
+.organization-logo {
+  transition: all 0.3s ease;
+}
+
+.organization-logo:hover {
+  transform: scale(1.05);
+  box-shadow: 0 4px 6px rgba(0, 0, 0, 0.1);
+}
+
+.organization-logo img {
+  transition: transform 0.3s ease;
+}
+
+.organization-logo:hover img {
+  transform: scale(1.1);
 }
 </style>
