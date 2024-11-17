@@ -11,7 +11,9 @@ class WebSocketService {
             autoConnect: true,
             reconnection: true,
             reconnectionDelay: 1000,
-            reconnectionAttempts: 5
+            reconnectionAttempts: 5,
+            secure: true,
+            rejectUnauthorized: true,
         }
     };
 
@@ -21,7 +23,7 @@ class WebSocketService {
     #log(type, ...args) {
         const timestamp = new Date().toISOString();
         const prefix = `[WebSocket ${type}] ${timestamp}:`;
-        
+
         switch(type.toLowerCase()) {
             case 'error':
                 console.error(prefix, ...args);
@@ -46,10 +48,10 @@ class WebSocketService {
         try {
             const socketUrl = `${this.#config.SOCKET_URL}?email=${email}`;
             this.#log('info', 'Attempting connection to', socketUrl);
-            
+
             this.#socket = io(socketUrl, this.#config.SOCKET_OPTIONS);
             this.#setupEventListeners();
-            
+
             this.#log('info', 'Socket instance created');
             return this.#socket;
         } catch (error) {
@@ -76,7 +78,7 @@ class WebSocketService {
         // Message events
         this.#socket.on('message', (messageData) => {
             this.#log('info', 'Received message:', messageData);
-            
+
             try {
                 store.dispatch('chat/handleNewMessage', {
                     id: messageData.id,
@@ -193,9 +195,9 @@ class WebSocketService {
             this.#log('error', 'Cannot send message:', error);
             throw error;
         }
-        
+
         this.#log('info', 'Sending message:', message);
-        
+
         return new Promise((resolve, reject) => {
             this.#socket.emit('messageSendToUser', message, (response) => {
                 if (response?.error) {
@@ -203,7 +205,7 @@ class WebSocketService {
                     reject(new Error(response.error));
                 } else {
                     this.#log('info', 'Message sent successfully:', response);
-                    
+
                     // Add to store
                     try {
                         store.dispatch('chat/handleNewMessage', {
@@ -216,7 +218,7 @@ class WebSocketService {
                     } catch (error) {
                         this.#log('error', 'Failed to add message to store:', error);
                     }
-                    
+
                     resolve(response);
                 }
             });

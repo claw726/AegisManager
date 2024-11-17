@@ -123,14 +123,7 @@ export default {
     },
   },
 
-  created() {
-    // Add debug logging
-    console.log("Current state:", {
-      chats: this.chats,
-      currentUser: this.currentUser,
-      activeChat: this.activeChat,
-    });
-  },
+
   created() {
     console.log("ChatView created");
     const chatId = this.getChatIdFromRoute();
@@ -142,6 +135,7 @@ export default {
 
   async mounted() {
     await this.fetchUserChats();
+    await this.fetchAndStoreOrganizations();
   },
 
   methods: {
@@ -150,6 +144,7 @@ export default {
       "createChat",
       "getChat",
       "fetchUserChats",
+      "fetchAndStoreOrganizations",
     ]),
     async createNewChat(chatData) {
       try {
