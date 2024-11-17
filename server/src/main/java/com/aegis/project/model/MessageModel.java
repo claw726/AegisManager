@@ -10,7 +10,6 @@ import java.util.Set;
 public class MessageModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "message_id")
     private int messageID;
 
     @ManyToOne

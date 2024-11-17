@@ -10,7 +10,6 @@ import java.util.*;
 public class ChatModel {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
-    @Column(name = "chat_id")
     private int chatID;
 
     @Column(name = "type")

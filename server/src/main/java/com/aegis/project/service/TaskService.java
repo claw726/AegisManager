@@ -264,13 +264,32 @@ public class TaskService {
         task.setDueDate(dueDate);
         task.setParentProject(parentProject);
 
+        Set<Integer> participants = new HashSet<>();
+        participants.add(assignerID);
+
+        ChatModel chat = new ChatModel("task", taskName, participants);
+        chatRepository.save(chat);
+
+        task.setChatID(chat.getChatID());
         taskRepository.save(task);
 
         Set<TaskModel> projectTasks = parentProject.getProjectTasks();
         projectTasks.add(task);
         projectRepository.save(parentProject);
 
-        addUser(task.getTaskID(), currentUsername);
+        try {
+            addUser(task.getTaskID(), currentUsername);
+        } catch (Exception e) {
+            projectTasks.remove(task);
+            projectRepository.save(parentProject);
+            taskRepository.deleteById(task.getTaskID());
+            chatRepository.deleteById(task.getChatID());
+
+            throw new RuntimeException(
+                    "Error adding task assigner to task"
+            );
+        }
+
 
         return true;
     }
@@ -478,6 +497,12 @@ public class TaskService {
             );
         }
         task.getAssignedUsers().add(userToAdd);
+
+        ChatModel chat = chatRepository.findById(task.getChatID()).orElseThrow(() ->
+                new RuntimeException("Chat not found with id: " + task.getChatID()));
+
+        chat.addParticipant(userToAdd.getUserID());
+        chatRepository.save(chat);
         taskRepository.save(task);
     }
 
@@ -527,6 +552,11 @@ public class TaskService {
             );
         }
         task.getAssignedUsers().remove(userToRemove);
+        ChatModel chat = chatRepository.findById(task.getChatID()).orElseThrow(() ->
+                new RuntimeException("Chat not found with id: " + task.getChatID()));
+
+        chat.removeParticipant(userToRemove.getUserID());
+        chatRepository.save(chat);
         taskRepository.save(task);
     }
 

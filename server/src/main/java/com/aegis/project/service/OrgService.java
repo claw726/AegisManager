@@ -72,6 +72,7 @@ public class OrgService {
             );
         } catch (Exception e) {
             orgRepository.deleteById(org.getOrgID());
+            chatRepository.deleteById(chat.getChatID());
             throw new RuntimeException("Error adding owner to org");
         }
         return true;
