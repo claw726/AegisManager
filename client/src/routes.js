@@ -230,7 +230,7 @@ const router = createRouter({
           props: true,
         },
         {
-          path: "tasks/:taskID/chat",
+          path: "tasks/:taskIndex/chat",
           name: "TaskChat",
           component: () => import("./components/ChatWindow.vue"),
           props: true,

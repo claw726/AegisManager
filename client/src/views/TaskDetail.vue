@@ -12,6 +12,8 @@
         Back
       </button>
 
+      
+
       <button
         v-if="!fetchedTask.complete && showLeftButton"
         class="px-4 py-2 complete-btn text-white rounded-lg hover:bg-green-600"
@@ -199,6 +201,16 @@
             <!-- Right-aligned buttons -->
             <div class="flex space-x-4">
               <!-- Align buttons to the right -->
+
+               <!-- Task Chat Button -->
+              <button
+                class="px-4 py-2 text-white rounded-lg hover:bg-blue-600"
+                style="background-color: #3B82F6"
+                @click="goToTaskChat"
+              >
+                <i class="fas fa-comments mr-2"></i>
+                Task Chat
+              </button>
 
               <button
                 v-if="!fetchedTask.complete && showLeftButton"
@@ -608,7 +620,15 @@ export default {
         },
       });
     },
+    goToTaskChat() {
+    this.$router.push({
+      name: 'TaskChat',
+      params: {
+        taskIndex: `task-${this.fetchedTask.chatID}`,
+      }
+    });
   },
+},
 };
 </script>
 
@@ -676,5 +696,31 @@ export default {
   background-color: rgb(15, 54, 38);
   margin-left: 10px;
   padding-left: 20px;
+}
+.chat-btn {
+  background-color: #3B82F6;
+  transition: all 0.2s ease;
+}
+
+.chat-btn:hover {
+  background-color: #2563EB;
+  transform: translateY(-1px);
+}
+
+.chat-btn:active {
+  transform: translateY(0);
+}
+
+/* Optional: Add a pulsing effect for new messages */
+@keyframes pulse {
+  0% {
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0.5);
+  }
+  70% {
+    box-shadow: 0 0 0 10px rgba(59, 130, 246, 0);
+  }
+  100% {
+    box-shadow: 0 0 0 0 rgba(59, 130, 246, 0);
+  }
 }
 </style>

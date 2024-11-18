@@ -135,13 +135,25 @@
                 class="fas fa-search text-gray-400 absolute left-3 top-3.5"
               ></i>
             </div>
-            <button
-              class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200"
-              @click="viewUsersInOrg"
-            >
-              <i class="fas fa-users mr-2"></i>
-              View Organization Users
-            </button>
+            <div class="flex-1 w-full space-y-4">
+              <div class="flex gap-4">
+                <button
+                  class="inline-flex items-center px-4 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-200"
+                  @click="viewUsersInOrg"
+                >
+                  <i class="fas fa-users mr-2"></i>
+                  View Organization Users
+                </button>
+                <!-- New Chat Button -->
+                <button
+                  class="inline-flex items-center px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors duration-200"
+                  @click="goToOrgChat"
+                >
+                  <i class="fas fa-comments mr-2"></i>
+                  Organization Chat
+                </button>
+              </div>
+              </div>
           </div>
           <div v-if="org && currentUser.userID === org.orgOwnerID">
             <DropdownMenu :items="projectToggleOpts" symbol="fas fa-archive">
@@ -378,6 +390,13 @@ export default {
         params: { orgIndex: this.index },
       });
     },
+    goToOrgChat() {
+      this.$router.push({
+        name: 'OrgChat',
+        params: { orgIndex: `organization-${this.org.chatID}` },
+        
+      });
+    },
     editOrg() {
       // Check if user has permission
       if (this.org.orgOwnerID !== this.currentUser.userID) {
@@ -466,3 +485,39 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+.org-chat-button {
+  position: relative;
+  overflow: hidden;
+}
+
+.org-chat-button::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 5px;
+  height: 5px;
+  background: rgba(59, 130, 246, 0.5);
+  opacity: 0;
+  border-radius: 100%;
+  transform: scale(1, 1) translate(-50%);
+  transform-origin: 50% 50%;
+}
+
+.org-chat-button:hover::after {
+  animation: ripple 1s ease-out;
+}
+
+@keyframes ripple {
+  0% {
+    transform: scale(0, 0);
+    opacity: 0.5;
+  }
+  100% {
+    transform: scale(20, 20);
+    opacity: 0;
+  }
+}
+</style>
