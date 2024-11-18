@@ -224,13 +224,13 @@ const router = createRouter({
           props: true,
         },
         {
-          path: "/organization/:orgIndex/project/:projectIndex/chat",
+          path: "project/:projectIndex/chat",
           name: "ProjectChat",
           component: () => import("./components/ChatWindow.vue"),
           props: true,
         },
         {
-          path: "/organization/:orgIndex/project/:projectIndex/tasks/:taskID/chat",
+          path: "tasks/:taskID/chat",
           name: "TaskChat",
           component: () => import("./components/ChatWindow.vue"),
           props: true,

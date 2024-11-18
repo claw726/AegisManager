@@ -295,6 +295,7 @@ export default {
           "projects/fetchTasksFromProject",
           this.$route.params.projIndex
         );
+        console.log("Tasks:", this.tasks);
       } catch (error) {
         this.showNotification(
           "error",
@@ -336,6 +337,7 @@ export default {
           "projects/fetchTasksFromProject",
           projID
         );
+        console.log("Tasks:", this.tasks);
       } catch (error) {
         this.showNotification("error", "Error getting project tasks");
       }

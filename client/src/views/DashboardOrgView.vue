@@ -349,6 +349,7 @@ export default {
           return isAssignedUser || isProjectOwner;
         });
         this.projects = filteredProjects;
+        console.log("Projects:", this.projects);
       } catch (error) {
         console.error("Error fetching projects:", error);
         this.showNotification(
