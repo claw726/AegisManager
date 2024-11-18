@@ -149,4 +149,12 @@ public class TaskDTO {
   public void setComplete(boolean isComplete) {
     this.isComplete = isComplete;
   }
+
+  public int getChatID() {
+    return chatID;
+  }
+
+  public void setChatID(int chatID) {
+    this.chatID = chatID;
+  }
 }

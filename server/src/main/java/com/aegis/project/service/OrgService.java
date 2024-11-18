@@ -83,17 +83,7 @@ public class OrgService {
 
         return orgs
                 .stream()
-                .map(org
-                        -> new OrgDTO(
-                        org.getOrgID(),
-                        org.getOrgName(),
-                        org.getOrgDescription(),
-                        org.getOrgOwnerID(),
-                        org.getEncodedImage(),
-                        getOrgMembers(org.getOrgID()),
-                        org.getChatID()
-                )
-                )
+                .map(OrgDTO::new)
                 .collect(Collectors.toSet());
     }
 

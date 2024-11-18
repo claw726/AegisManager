@@ -63,18 +63,7 @@ public class OrgController {
       OrgModel org = orgService.getOrg(orgID); // Fetch the organization model
 
       // Create the OrgDTO using the constructor
-      OrgDTO orgDTO = new OrgDTO(
-        org.getOrgID(),
-        org.getOrgName(),
-        org.getOrgDescription(),
-        org.getOrgOwnerID(),
-        org.getEncodedImage(), // Ensure this is set correctly
-        org
-          .getUsers()
-          .stream()
-          .map(user -> new UserDTO(user)) // Convert UserModel to UserDTO
-          .collect(Collectors.toSet()),
-        org.getChatID());
+      OrgDTO orgDTO = new OrgDTO(org);
 
       return ResponseEntity.ok(orgDTO); // Return the DTO
     } catch (RuntimeException e) {
