@@ -355,7 +355,6 @@ export default {
             route = {
               name: "ProjectChat",
               params: {
-                orgIndex: chat.orgId,
                 projectIndex: chat.id,
               },
             };
@@ -364,9 +363,7 @@ export default {
             route = {
               name: "TaskChat",
               params: {
-                orgIndex: chat.orgId,
-                projectIndex: chat.projectId,
-                taskID: chat.id,
+                taskIndex: chat.id,
               },
             };
             break;

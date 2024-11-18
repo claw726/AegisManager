@@ -1,60 +1,129 @@
 <template>
-  <div class="relative w-full min-h-screen h-full bg-background">
-    <!-- Navbar -->
+  <div class="min-h-screen bg-gray-50">
     <NavBar />
 
-    <!-- Invitations List -->
-    <div class="flex justify-center items-center h-full px-28">
-      <div class="w-full max-w-6xl">
-        <h1 class="text-5xl font-extrabold text-primary mb-12">Invitations</h1>
-        <!--Notification component-->
-        <NotificationComponent class="flex" :show="notification.show" :type="notification.type"
-          @close="closeNotification">
-          {{ notification.message }}
-        </NotificationComponent>
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      <!-- Header Section -->
+      <div class="mb-8">
+        <h1 class="text-3xl font-bold text-gray-900 flex items-center">
+          <i class="fas fa-envelope-open-text mr-3 text-blue-600"></i>
+          Invitations & Notifications
+        </h1>
+        <p class="mt-2 text-sm text-gray-600">
+          Manage your pending invitations and notifications
+        </p>
+      </div>
 
-        <div v-for="invitation in invitations" :key="invitation.id"
-          class="border border-gray-300 rounded-lg shadow-lg p-8 mb-12">
-          <!-- Invitation Details -->
-          <div class="flex justify-between items-center">
-            <div>
-              <p class="text-2xl font-semibold text-gray-900">
-                {{ invitation.source }}
-              </p>
-              <p class="text-lg text-gray-700">
-                From: {{ invitation.fromUser }}
-              </p>
-              <p class="text-lg text-gray-700">Type: {{ convertNumberToType(invitation.invitationType) }}</p>
-            </div>
+      <!-- Notification Component -->
+      <NotificationComponent
+        class="mb-6"
+        :show="notification.show"
+        :type="notification.type"
+        @close="closeNotification"
+      >
+        {{ notification.message }}
+      </NotificationComponent>
 
-            <!-- Icons: Accept and Reject -->
-            <div class="flex space-x-6" v-if="invitation.invitationType !== 0">
-              <button class="p-3 bg-green-600 text-white rounded-full" @click="acceptInvitation(invitation.id)">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
-                  stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M5 13l4 4L19 7" />
-                </svg>
-              </button>
+      <!-- Invitations List -->
+      <div class="space-y-4">
+        <div
+          v-for="invitation in invitations"
+          :key="invitation.id"
+          class="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow duration-200"
+        >
+          <div class="p-6">
+            <div class="flex items-center justify-between">
+              <!-- Invitation Content -->
+              <div class="flex-1 min-w-0">
+                <div class="flex items-center mb-2">
+                  <!-- Invitation Type Icon -->
+                  <span
+                    class="inline-flex items-center justify-center w-10 h-10 rounded-full mr-3"
+                    :class="{
+                      'bg-blue-100 text-blue-600': invitation.invitationType === 2,
+                      'bg-green-100 text-green-600': invitation.invitationType === 1,
+                      'bg-purple-100 text-purple-600': invitation.invitationType === 3,
+                      'bg-yellow-100 text-yellow-600': invitation.invitationType === 4,
+                      'bg-gray-100 text-gray-600': invitation.invitationType === 0
+                    }"
+                  >
+                    <i
+                      :class="{
+                        'fas fa-building': invitation.invitationType === 2,
+                        'fas fa-tasks': invitation.invitationType === 1,
+                        'fas fa-project-diagram': invitation.invitationType === 3,
+                        'fas fa-clipboard-check': invitation.invitationType === 4,
+                        'fas fa-bell': invitation.invitationType === 0
+                      }"
+                    ></i>
+                  </span>
 
-              <button class="p-3 bg-brown-600 text-white rounded-full" @click="rejectInvitation(invitation.id)">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
-                  stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M6 18L18 6M6 6l12 12" />
-                </svg>
-              </button>
-            </div>
-            <div class="flex space-x-6" v-if="invitation.invitationType === 0">
-              <button class="p-3 bg-blue-600 text-white rounded-full" @click="markAsRead(invitation.id)">
-                <svg xmlns="http://www.w3.org/2000/svg" class="h-6 w-6" fill="none" viewBox="0 0 24 24"
-                  stroke="currentColor">
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8h18" />
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M3 8l9 6 9-6" />
-                  <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
-                    d="M21 8v8a2 2 0 0 1-2 2H5a2 2 0 0 1-2-2V8" />
-                </svg>
-              </button>
+                  <!-- Invitation Details -->
+                  <div class="flex-1 min-w-0">
+                    <p class="text-lg font-semibold text-gray-900 truncate">
+                      {{ invitation.source }}
+                    </p>
+                    <div class="flex items-center text-sm text-gray-500 mt-1">
+                      <i class="fas fa-user mr-2"></i>
+                      <span>{{ invitation.fromUser }}</span>
+                      <span class="mx-2">•</span>
+                      <span
+                        class="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium"
+                        :class="{
+                          'bg-blue-100 text-blue-800': invitation.invitationType === 2,
+                          'bg-green-100 text-green-800': invitation.invitationType === 1,
+                          'bg-purple-100 text-purple-800': invitation.invitationType === 3,
+                          'bg-yellow-100 text-yellow-800': invitation.invitationType === 4,
+                          'bg-gray-100 text-gray-800': invitation.invitationType === 0
+                        }"
+                      >
+                        {{ convertNumberToType(invitation.invitationType) }}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+              </div>
+
+              <!-- Action Buttons -->
+              <div class="ml-4 flex-shrink-0">
+                <div v-if="invitation.invitationType !== 0" class="flex space-x-3">
+                  <button
+                    class="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-green-600 hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200"
+                    @click="acceptInvitation(invitation.id)"
+                  >
+                    <i class="fas fa-check mr-2"></i>
+                    Accept
+                  </button>
+                  <button
+                    class="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-red-600 hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200"
+                    @click="rejectInvitation(invitation.id)"
+                  >
+                    <i class="fas fa-times mr-2"></i>
+                    Reject
+                  </button>
+                </div>
+                <div v-else>
+                  <button
+                    class="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+                    @click="markAsRead(invitation.id)"
+                  >
+                    <i class="fas fa-check-double mr-2"></i>
+                    Mark as Read
+                  </button>
+                </div>
+              </div>
             </div>
           </div>
+        </div>
+
+        <!-- Empty State -->
+        <div
+          v-if="invitations.length === 0"
+          class="text-center py-12 bg-white rounded-xl shadow-sm border border-gray-200"
+        >
+          <i class="fas fa-inbox text-gray-400 text-5xl mb-4"></i>
+          <h3 class="text-lg font-medium text-gray-900 mb-2">No Invitations</h3>
+          <p class="text-gray-500">You don't have any pending invitations or notifications.</p>
         </div>
       </div>
     </div>
@@ -168,44 +237,17 @@ export default {
 </script>
 
 <style scoped>
-.bg-background {
-  background-color: #f9fafb;
+/* Animation for notification badges */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: .5;
+  }
 }
 
-.text-primary {
-  color: #1f2937;
-}
-
-.shadow-lg {
-  box-shadow:
-    0 10px 15px -3px rgba(0, 0, 0, 0.1),
-    0 4px 6px -2px rgba(0, 0, 0, 0.05);
-}
-
-.border {
-  border-width: 1px;
-}
-
-.mb-12 {
-  margin-bottom: 50px;
-}
-
-.bg-green-600 {
-  background-color: #08471f;
-}
-
-.bg-brown-600 {
-  background-color: #7b341e;
-}
-
-button {
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-}
-
-svg {
-  width: 24px;
-  height: 24px;
+.notification-badge {
+  animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
 }
 </style>
