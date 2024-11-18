@@ -127,9 +127,9 @@ public class ProjectService {
         Set<Integer> participants = new HashSet<>();
         participants.add(projectOwnerID);
         ChatModel chat = new ChatModel("project", projectName, participants);
-        project.setChatID(chat.getChatID());
-
         chatRepository.save(chat);
+
+        project.setChatID(chat.getChatID());
         projectRepository.save(project);
 
         try {
@@ -139,6 +139,7 @@ public class ProjectService {
             );
         } catch (Exception e) {
             projectRepository.deleteById(project.getProjectID());
+            chatRepository.deleteById(chat.getChatID());
             LOGGER.error("Error adding project owner to project");
             throw new RuntimeException("Error adding project owner to project");
         }

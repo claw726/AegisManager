@@ -72,6 +72,7 @@ public class OrgService {
             );
         } catch (Exception e) {
             orgRepository.deleteById(org.getOrgID());
+            chatRepository.deleteById(chat.getChatID());
             throw new RuntimeException("Error adding owner to org");
         }
         return true;
@@ -82,17 +83,7 @@ public class OrgService {
 
         return orgs
                 .stream()
-                .map(org
-                        -> new OrgDTO(
-                        org.getOrgID(),
-                        org.getOrgName(),
-                        org.getOrgDescription(),
-                        org.getOrgOwnerID(),
-                        org.getEncodedImage(),
-                        getOrgMembers(org.getOrgID()),
-                        org.getChatID()
-                )
-                )
+                .map(OrgDTO::new)
                 .collect(Collectors.toSet());
     }
 

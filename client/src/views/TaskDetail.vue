@@ -1,249 +1,216 @@
 <template>
   <NavBar />
 
-  <div class="min-h-screen bg-gray-50 p-8">
-    <!-- Moving buttons up to clear up space -->
-    <div v-if="fetchedTask" class="max-w-4xl mx-auto bg-white rounded-lg p-6">
-      <button
-        class="px-4 py-2 text-white rounded-lg hover:bg-gray-300"
-        style="background-color: #555"
-        @click="goBack"
-      >
-        Back
-      </button>
+  <div class="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
+    <div v-if="fetchedTask" class="max-w-4xl mx-auto">
+      <!-- Breadcrumb Navigation -->
+      <div class="mb-6 flex items-center space-x-2 text-sm text-gray-500">
+        <button
+          class="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-white rounded-lg border border-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+          @click="goBack"
+        >
+          <i class="fas fa-arrow-left mr-2"></i>
+          Back
+        </button>
+        <span>/</span>
+        <span>Task Details</span>
+      </div>
 
-      <button
-        v-if="!fetchedTask.complete && showLeftButton"
-        class="px-4 py-2 complete-btn text-white rounded-lg hover:bg-green-600"
-        @click="markAsComplete"
-      >
-        Mark Complete
-      </button>
-
-      <div class="max-w-4xl mx-auto bg-white rounded-lg shadow-lg p-6">
-        <div v-if="fetchedTask" class="space-y-6">
-          <!-- Task Header -->
+      <!-- Main Content Card -->
+      <div class="bg-white rounded-xl shadow-lg border border-gray-100 overflow-hidden">
+        <!-- Task Header -->
+        <div class="p-6 border-b border-gray-200">
           <div class="flex justify-between items-start">
-            <h1 class="text-2xl font-bold text-primary">
-              {{ fetchedTask.taskName }}
-            </h1>
-            <div class="flex space-x-4">
+            <div class="space-y-1">
+              <h1 class="text-2xl font-bold text-gray-900">
+                {{ fetchedTask.taskName }}
+              </h1>
+              <div class="flex items-center space-x-2 text-sm text-gray-500">
+                <i class="fas fa-user-circle"></i>
+                <span>Assigned by {{ creator?.userName || 'Unknown' }}</span>
+              </div>
+            </div>
+            <div class="flex items-center space-x-3">
               <!-- Status Badge -->
               <span
-                class="px-3 py-1 rounded-full text-sm font-semibold"
+                class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium"
                 :class="{
-                  'bg-green-800 text-white': fetchedTask.complete,
-                  'bg-orange-800 text-white': !fetchedTask.complete,
+                  'bg-green-100 text-green-800': fetchedTask.complete,
+                  'bg-yellow-100 text-yellow-800': !fetchedTask.complete
                 }"
               >
-                {{ fetchedTask.complete ? "Complete" : "Incomplete" }}
+                <i :class="[
+                  'mr-1.5',
+                  fetchedTask.complete ? 'fas fa-check' : 'fas fa-clock'
+                ]"></i>
+                {{ fetchedTask.complete ? 'Completed' : 'In Progress' }}
+              </span>
+
+              <!-- Complete Button -->
+              <button
+                v-if="!fetchedTask.complete && showLeftButton"
+                class="inline-flex items-center px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200"
+                @click="markAsComplete"
+              >
+                <i class="fas fa-check mr-2"></i>
+                Mark Complete
+              </button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Task Details Grid -->
+        <div class="p-6 grid grid-cols-1 md:grid-cols-2 gap-6">
+          <!-- Description -->
+          <div class="space-y-2">
+            <h2 class="text-sm font-medium text-gray-500 uppercase tracking-wider">
+              Description
+            </h2>
+            <p class="text-gray-900">{{ fetchedTask.taskDescription }}</p>
+          </div>
+
+          <!-- Priority -->
+          <div class="space-y-2">
+            <h2 class="text-sm font-medium text-gray-500 uppercase tracking-wider">
+              Priority
+            </h2>
+            <span
+              class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium"
+              :class="{
+                'bg-red-100 text-red-800': fetchedTask.taskPriority === 'High',
+                'bg-yellow-100 text-yellow-800': fetchedTask.taskPriority === 'Medium',
+                'bg-blue-100 text-blue-800': fetchedTask.taskPriority === 'Low'
+              }"
+            >
+              <i :class="[
+                'mr-1.5',
+                fetchedTask.taskPriority === 'High' ? 'fas fa-exclamation-circle' :
+                fetchedTask.taskPriority === 'Medium' ? 'fas fa-arrow-circle-up' :
+                'fas fa-arrow-circle-down'
+              ]"></i>
+              {{ fetchedTask.taskPriority }}
+            </span>
+          </div>
+
+          <!-- Due Date -->
+          <div class="space-y-2">
+            <h2 class="text-sm font-medium text-gray-500 uppercase tracking-wider">
+              Due Date
+            </h2>
+            <div class="flex items-center text-gray-900">
+              <i class="fas fa-calendar-alt mr-2 text-gray-400"></i>
+              {{ formatDate(fetchedTask.dueDate) }}
+            </div>
+          </div>
+
+          <!-- Assignees -->
+          <div class="space-y-2">
+            <h2 class="text-sm font-medium text-gray-500 uppercase tracking-wider">
+              Assignees
+            </h2>
+            <div class="flex flex-wrap gap-2">
+              <span
+                v-for="user in fetchedTask.assignedUsers"
+                :key="user.userID"
+                class="inline-flex items-center px-3 py-1 rounded-full bg-blue-100 text-blue-800 text-sm"
+              >
+                <i class="fas fa-user mr-2"></i>
+                {{ user.userName }}
               </span>
             </div>
           </div>
+        </div>
 
-          <!-- Task Details -->
-          <div v-if="fetchedTask.complete" class="greyed-out space-y-4">
-            <div class="grid grid-cols-2 gap-4">
-              <div>
-                <h2 class="text-lg font-semibold mb-2">Description</h2>
-                <p>{{ fetchedTask.taskDescription }}</p>
-              </div>
-
-              <div>
-                <h2 class="text-lg font-semibold mb-2">Priority</h2>
-                <span
-                  class="px-2 py-1 rounded-md text-sm font-medium"
-                  :class="{
-                    'bg-red-100 text-red-800':
-                      fetchedTask.taskPriority === 'High',
-                    'bg-yellow-100 text-yellow-800':
-                      fetchedTask.taskPriority === 'Medium',
-                    'bg-blue-100 text-blue-800':
-                      fetchedTask.taskPriority === 'Low',
-                  }"
-                >
-                  {{ fetchedTask.taskPriority }}
-                </span>
-              </div>
-
-              <div>
-                <h2 class="text-lg font-semibold mb-2">Due Date</h2>
-                <p>{{ formatDate(fetchedTask.dueDate) }}</p>
-              </div>
-
-              <div>
-                <h2 class="text-lg font-semibold mb-2">Assignees:</h2>
-                <p>
-                  {{
-                    makeNameListofAssignees(
-                      fetchedTask.assignedUsers
-                    ).toString()
-                  }}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div v-else class="space-y-4">
-            <div class="grid grid-cols-2 gap-4">
-              <div>
-                <h2 class="text-lg font-semibold mb-2">Description</h2>
-                <p>{{ fetchedTask.taskDescription }}</p>
-              </div>
-
-              <div>
-                <h2 class="text-lg font-semibold mb-2">Priority</h2>
-                <span
-                  class="px-2 py-1 rounded-md text-sm font-medium"
-                  :class="{
-                    'bg-red-100 text-red-800':
-                      fetchedTask.taskPriority === 'High',
-                    'bg-yellow-100 text-yellow-800':
-                      fetchedTask.taskPriority === 'Medium',
-                    'bg-blue-100 text-blue-800':
-                      fetchedTask.taskPriority === 'Low',
-                  }"
-                >
-                  {{ fetchedTask.taskPriority }}
-                </span>
-              </div>
-
-              <div>
-                <h2 class="text-lg font-semibold mb-2">Due Date</h2>
-                <p>{{ formatDate(fetchedTask.dueDate) }}</p>
-              </div>
-
-              <div>
-                <h2 class="text-lg font-semibold mb-2">Assignees:</h2>
-                <p>
-                  {{
-                    makeNameListofAssignees(
-                      fetchedTask.assignedUsers
-                    ).toString()
-                  }}
-                </p>
-              </div>
-            </div>
-          </div>
-
-          <div class="flex justify-between mt-6">
-            <!--Notification component-->
-            <NotificationComponent
-              class="flex"
-              :show="notification.show"
-              :type="notification.type"
-              @close="closeNotification"
-            >
-              {{ notification.message }}
-            </NotificationComponent>
-          </div>
-
-          <div
-            :class="fetchedTask.complete ? 'greyed-out' : ''"
-            class="text-lg font-semibold mb-2 space-y-4"
-          >
-            <div class="flex justify-between mt-6">
-              <label
-                v-if="
-                  !fetchedTask.complete &&
-                  showLeftButton &&
-                  taskUsers.length > 0
-                "
-                for="assignerSelect"
-                class="font-semibold text-gray-800"
-                >Select Assigner</label
-              >
-            </div>
-          </div>
-
-          <!-- Task Actions Container -->
-          <div class="flex justify-between mt-6">
-            <!-- Left-aligned dropdown and button -->
-            <div class="flex items-center">
-              <!-- Text above the dropdown -->
-
-              <!-- Dropdown menu -->
-              <select
-                v-if="
-                  !fetchedTask.complete &&
-                  showLeftButton &&
-                  taskUsers.length > 0
-                "
-                id="assignerSelect"
-                v-model="selectedAssigner"
-                class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300"
-              >
-                <option
-                  v-for="user in taskUsers"
-                  :key="user.email"
-                  :value="user.email"
-                >
-                  {{ user.label }}
-                </option>
-              </select>
-
-              <!-- Button, visible only if showLeftButton is true -->
-              <button
-                v-if="
-                  !fetchedTask.complete &&
-                  showLeftButton &&
-                  taskUsers.length > 0
-                "
-                class="px-4 py-2 complete-btn text-white rounded-lg hover:bg-green-600"
-                @click="sendAssignerInvite"
-              >
-                Confirm Reassignment
-              </button>
-            </div>
-
-            <!-- Right-aligned buttons -->
-            <div class="flex space-x-4">
-              <!-- Align buttons to the right -->
-
+        <!-- Action Buttons -->
+        <div class="px-6 py-4 bg-gray-50 border-t border-gray-200">
+          <div class="flex justify-between items-center">
+            <!-- Left side buttons -->
+            <div class="flex items-center space-x-3">
               <button
                 v-if="!fetchedTask.complete && showLeftButton"
-                class="px-4 py-2 add-btn text-white rounded-lg hover:bg-green-600"
+                class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
+                @click="goToTaskChat"
+              >
+                <i class="fas fa-comments mr-2"></i>
+                Task Chat
+              </button>
+              <button
+                v-if="!fetchedTask.complete && showLeftButton"
+                class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200"
                 @click="goToAddUsers"
               >
+                <i class="fas fa-user-plus mr-2"></i>
                 Add Users
               </button>
+            </div>
 
+            <!-- Right side buttons -->
+            <div class="flex items-center space-x-3">
               <button
                 v-if="!fetchedTask.complete && showLeftButton"
-                class="px-4 py-2 remove-user-btn text-white rounded-lg hover:bg-green-600"
-                @click="goToRemoveUsers"
-              >
-                Remove Users
-              </button>
-
-              <button
-                v-if="!fetchedTask.complete && showLeftButton"
-                class="px-4 py-2 edit-btn text-white rounded-lg hover:bg-green-600"
+                class="inline-flex items-center px-4 py-2 bg-yellow-600 text-white text-sm font-medium rounded-lg hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition-colors duration-200"
                 @click="goToEditTask"
               >
+                <i class="fas fa-edit mr-2"></i>
                 Edit Task
               </button>
-
               <button
                 v-if="showLeftButton"
-                class="px-4 py-2 remove-btn text-gray-700 rounded-lg hover:bg-gray-300"
+                class="inline-flex items-center px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200"
                 @click="showPopup = true"
               >
+                <i class="fas fa-trash-alt mr-2"></i>
                 Delete Task
               </button>
-
-              <div v-if="showPopup" class="popup">
-                <div class="popup-content">
-                  <p>Are you sure you want to delete this task?</p>
-                  <button class="remove-btn" @click="handleYes">Yes</button>
-                  <button class="remove-btn" @click="handleNo">No</button>
-                </div>
-              </div>
             </div>
           </div>
         </div>
       </div>
+
+      <!-- Delete Confirmation Modal -->
+      <div
+        v-if="showPopup"
+        class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
+      >
+        <div class="bg-white rounded-lg p-6 max-w-sm w-full mx-4">
+          <h3 class="text-lg font-medium text-gray-900 mb-4">
+            <i class="fas fa-exclamation-triangle text-yellow-500 mr-2"></i>
+            Confirm Deletion
+          </h3>
+          <p class="text-gray-500 mb-6">
+            Are you sure you want to delete this task? This action cannot be undone.
+          </p>
+          <div class="flex justify-end space-x-3">
+            <button
+              class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors duration-200"
+              @click="handleNo"
+            >
+              Cancel
+            </button>
+            <button
+              class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200"
+              @click="handleYes"
+            >
+              Delete
+            </button>
+          </div>
+        </div>
+      </div>
     </div>
+
+    <!-- Loading State -->
+    <div v-else class="flex justify-center items-center h-64">
+      <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
+    </div>
+
+    <!-- Notification Component -->
+    <NotificationComponent
+      v-model:show="notification.show"
+      :type="notification.type"
+      @close="closeNotification"
+    >
+      {{ notification.message }}
+    </NotificationComponent>
   </div>
 </template>
 
@@ -608,73 +575,37 @@ export default {
         },
       });
     },
+    goToTaskChat() {
+    this.$router.push({
+      name: 'TaskChat',
+      params: {
+        taskIndex: `task-${this.fetchedTask.chatID}`,
+      }
+    });
   },
+},
 };
 </script>
 
 <style scoped>
-.greyed-out {
-  opacity: 0.3;
-  /* Adjust the opacity as needed */
+/* Remove most custom CSS as we're using Tailwind classes */
+.fade-enter-active,
+.fade-leave-active {
+  transition: opacity 0.3s ease;
 }
 
-.remove-btn {
-  cursor: pointer;
-  background-color: rgb(2, 2, 58);
-  color: white;
-  border: none;
-  padding: 5px 10px;
-  margin-left: 63px;
+.fade-enter-from,
+.fade-leave-to {
+  opacity: 0;
 }
 
-.popup {
-  position: fixed;
-  top: 0;
-  left: 0;
-  width: 100%;
-  height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  display: flex;
-  justify-content: center;
-  align-items: center;
-}
-
-.popup-content {
-  background-color: white;
-  padding: 20px;
-  border-radius: 5px;
-}
-
-.edit-btn {
-  cursor: pointer;
-  background-color: rgb(77, 12, 23);
-  color: white;
-  border: none;
-  padding: 5px 10px;
-  margin-left: 10px;
-}
-
-.add-btn {
-  cursor: pointer;
-  background-color: rgb(73, 116, 99);
-  color: white;
-  border: none;
-  padding: 5px 10px;
-  margin-left: 10px;
-}
-
-.remove-user-btn {
-  cursor: pointer;
-  background-color: rgb(109, 73, 57);
-  color: white;
-  border: none;
-  padding: 5px 10px;
-}
-
-.complete-btn {
-  cursor: pointer;
-  background-color: rgb(15, 54, 38);
-  margin-left: 10px;
-  padding-left: 20px;
+/* Only keep transitions and animations that aren't easily done with Tailwind */
+@keyframes pulse {
+  0%, 100% {
+    opacity: 1;
+  }
+  50% {
+    opacity: .5;
+  }
 }
 </style>

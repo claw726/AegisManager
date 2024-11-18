@@ -3,6 +3,7 @@
     :class="[
       'p-4 hover:bg-gray-100 cursor-pointer border-b',
       active ? 'bg-gray-100' : '',
+      `chat-type-${chat.type}`
     ]"
     @click="handleClick"
   >
@@ -484,6 +485,25 @@ i {
 
 .remaining-count:hover {
   transform: scale(1.1);
+}
+.chat-type-organization {
+  border-left: 3px solid theme('colors.blue.500');
+}
+
+.chat-type-project {
+  border-left: 3px solid theme('colors.green.500');
+}
+
+.chat-type-task {
+  border-left: 3px solid theme('colors.purple.500');
+}
+
+.chat-type-direct {
+  border-left: 3px solid theme('colors.gray.500');
+}
+
+.chat-type-group {
+  border-left: 3px solid theme('colors.yellow.500');
 }
 </style>
 ```
