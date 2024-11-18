@@ -21,14 +21,130 @@
         <!-- Chat List -->
         <div class="flex-1 overflow-y-auto min-h-0">
           <TransitionGroup name="chat-list" tag="div">
-            <ChatListItem
-              v-for="chat in filteredChats"
-              :key="chat.id"
-              :chat="chat"
-              :active="activeChat?.id === chat.id"
-              :searchQuery="searchQuery"
-              @select="handleChatSelect"
-            />
+            <!-- Organizations -->
+            <template v-if="categorizedChats.organizations.length">
+              <div 
+                class="px-4 py-2 text-sm font-semibold text-gray-500 bg-gray-50 cursor-pointer hover:bg-gray-100 transition-colors flex items-center justify-between"
+                @click="toggleCategory('organizations')"
+              >
+                <div class="flex items-center">
+                  <i class="fas fa-building mr-2"></i>
+                  Organizations
+                  <span class="ml-2 text-xs text-gray-400">({{ categorizedChats.organizations.length }})</span>
+                </div>
+                <i :class="['fas', expandedCategories.organizations ? 'fa-chevron-down' : 'fa-chevron-right', 'text-xs transition-transform duration-200']"></i>
+              </div>
+              <TransitionGroup name="list" tag="div" v-show="expandedCategories.organizations">
+                <ChatListItem
+                  v-for="chat in categorizedChats.organizations"
+                  :key="chat.id"
+                  :chat="chat"
+                  :active="activeChat?.id === chat.id"
+                  :searchQuery="searchQuery"
+                  @select="handleChatSelect"
+                />
+              </TransitionGroup>
+            </template>
+
+            <!-- Projects -->
+            <template v-if="categorizedChats.projects.length">
+              <div 
+                class="px-4 py-2 text-sm font-semibold text-gray-500 bg-gray-50 cursor-pointer hover:bg-gray-100 transition-colors flex items-center justify-between"
+                @click="toggleCategory('projects')"
+              >
+                <div class="flex items-center">
+                  <i class="fas fa-project-diagram mr-2"></i>
+                  Projects
+                  <span class="ml-2 text-xs text-gray-400">({{ categorizedChats.projects.length }})</span>
+                </div>
+                <i :class="['fas', expandedCategories.projects ? 'fa-chevron-down' : 'fa-chevron-right', 'text-xs transition-transform duration-200']"></i>
+              </div>
+              <TransitionGroup name="list" tag="div" v-show="expandedCategories.projects">
+                <ChatListItem
+                  v-for="chat in categorizedChats.projects"
+                  :key="chat.id"
+                  :chat="chat"
+                  :active="activeChat?.id === chat.id"
+                  :searchQuery="searchQuery"
+                  @select="handleChatSelect"
+                />
+              </TransitionGroup>
+            </template>
+
+            <!-- Tasks -->
+            <template v-if="categorizedChats.tasks.length">
+              <div 
+                class="px-4 py-2 text-sm font-semibold text-gray-500 bg-gray-50 cursor-pointer hover:bg-gray-100 transition-colors flex items-center justify-between"
+                @click="toggleCategory('tasks')"
+              >
+                <div class="flex items-center">
+                  <i class="fas fa-tasks mr-2"></i>
+                  Tasks
+                  <span class="ml-2 text-xs text-gray-400">({{ categorizedChats.tasks.length }})</span>
+                </div>
+                <i :class="['fas', expandedCategories.tasks ? 'fa-chevron-down' : 'fa-chevron-right', 'text-xs transition-transform duration-200']"></i>
+              </div>
+              <TransitionGroup name="list" tag="div" v-show="expandedCategories.tasks">
+                <ChatListItem
+                  v-for="chat in categorizedChats.tasks"
+                  :key="chat.id"
+                  :chat="chat"
+                  :active="activeChat?.id === chat.id"
+                  :searchQuery="searchQuery"
+                  @select="handleChatSelect"
+                />
+              </TransitionGroup>
+            </template>
+
+            <!-- Direct Messages -->
+            <template v-if="categorizedChats.direct.length">
+              <div 
+                class="px-4 py-2 text-sm font-semibold text-gray-500 bg-gray-50 cursor-pointer hover:bg-gray-100 transition-colors flex items-center justify-between"
+                @click="toggleCategory('direct')"
+              >
+                <div class="flex items-center">
+                  <i class="fas fa-user mr-2"></i>
+                  Direct Messages
+                  <span class="ml-2 text-xs text-gray-400">({{ categorizedChats.direct.length }})</span>
+                </div>
+                <i :class="['fas', expandedCategories.direct ? 'fa-chevron-down' : 'fa-chevron-right', 'text-xs transition-transform duration-200']"></i>
+              </div>
+              <TransitionGroup name="list" tag="div" v-show="expandedCategories.direct">
+                <ChatListItem
+                  v-for="chat in categorizedChats.direct"
+                  :key="chat.id"
+                  :chat="chat"
+                  :active="activeChat?.id === chat.id"
+                  :searchQuery="searchQuery"
+                  @select="handleChatSelect"
+                />
+              </TransitionGroup>
+            </template>
+
+            <!-- Groups -->
+            <template v-if="categorizedChats.groups.length">
+              <div 
+                class="px-4 py-2 text-sm font-semibold text-gray-500 bg-gray-50 cursor-pointer hover:bg-gray-100 transition-colors flex items-center justify-between"
+                @click="toggleCategory('groups')"
+              >
+                <div class="flex items-center">
+                  <i class="fas fa-users mr-2"></i>
+                  Groups
+                  <span class="ml-2 text-xs text-gray-400">({{ categorizedChats.groups.length }})</span>
+                </div>
+                <i :class="['fas', expandedCategories.groups ? 'fa-chevron-down' : 'fa-chevron-right', 'text-xs transition-transform duration-200']"></i>
+              </div>
+              <TransitionGroup name="list" tag="div" v-show="expandedCategories.groups">
+                <ChatListItem
+                  v-for="chat in categorizedChats.groups"
+                  :key="chat.id"
+                  :chat="chat"
+                  :active="activeChat?.id === chat.id"
+                  :searchQuery="searchQuery"
+                  @select="handleChatSelect"
+                />
+              </TransitionGroup>
+            </template>
           </TransitionGroup>
         </div>
 
@@ -83,6 +199,13 @@ export default {
     return {
       showNewChatModal: false,
       searchQuery: "",
+      expandedCategories: {
+        organizations: true,
+        projects: true,
+        tasks: true,
+        direct: true,
+        groups: true
+      }
     };
   },
   computed: {
@@ -92,6 +215,20 @@ export default {
       activeChat: (state) => state.chat.activeChat,
       messages: (state) => state.chat.messages,
     }),
+
+    categorizedChats() {
+    const filtered = this.searchQuery.trim() 
+      ? this.filteredChats 
+      : this.chats;
+
+    return {
+      organizations: filtered.filter(chat => chat.type === 'organization'),
+      projects: filtered.filter(chat => chat.type === 'project'),
+      tasks: filtered.filter(chat => chat.type === 'task'),
+      direct: filtered.filter(chat => chat.type === 'direct'),
+      groups: filtered.filter(chat => chat.type === 'group')
+    };
+  },
 
     filteredChats() {
       if (!this.searchQuery.trim()) {
@@ -121,6 +258,13 @@ export default {
     $route() {
       this.searchQuery = "";
     },
+    searchQuery(newValue) {
+    if (newValue.trim()) {
+      Object.keys(this.expandedCategories).forEach(category => {
+        this.expandedCategories[category] = true;
+      });
+    }
+  }
   },
 
 
@@ -131,6 +275,7 @@ export default {
       console.log("Initial chat selection:", chatId);
       this.selectChat(chatId);
     }
+    this.restoreExpandedState();
   },
 
   async mounted() {
@@ -210,7 +355,6 @@ export default {
             route = {
               name: "ProjectChat",
               params: {
-                orgIndex: chat.orgId,
                 projectIndex: chat.id,
               },
             };
@@ -219,9 +363,7 @@ export default {
             route = {
               name: "TaskChat",
               params: {
-                orgIndex: chat.orgId,
-                projectIndex: chat.projectId,
-                taskID: chat.id,
+                taskIndex: chat.id,
               },
             };
             break;
@@ -252,6 +394,19 @@ export default {
           return null;
       }
     },
+    toggleCategory(category) {
+      this.expandedCategories[category] = !this.expandedCategories[category];
+      // Save state to localStorage
+      localStorage.setItem('chatExpandedCategories', JSON.stringify(this.expandedCategories));
+    },
+
+    // Add this method to restore the expanded state
+    restoreExpandedState() {
+      const savedState = localStorage.getItem('chatExpandedCategories');
+      if (savedState) {
+        this.expandedCategories = JSON.parse(savedState);
+      }
+    }
   },
 };
 </script>
@@ -280,5 +435,71 @@ export default {
   background-color: yellow;
   padding: 0 2px;
   border-radius: 2px;
+}
+
+.category-header {
+  position: sticky;
+  top: 0;
+  z-index: 10;
+  backdrop-filter: blur(8px);
+  border-bottom: 1px solid theme('colors.gray.200');
+}
+
+/* Smooth transitions for category sections */
+.chat-list-enter-active .category-header,
+.chat-list-leave-active .category-header {
+  transition: all 0.5s ease;
+}
+
+.chat-list-enter-from .category-header {
+  opacity: 0;
+  transform: translateY(-20px);
+}
+
+.chat-list-leave-to .category-header {
+  opacity: 0;
+  transform: translateY(20px);
+}
+.list-enter-active,
+.list-leave-active {
+  transition: all 0.3s ease;
+  overflow: hidden;
+}
+
+.list-enter-from,
+.list-leave-to {
+  opacity: 0;
+  transform: translateY(-20px);
+  max-height: 0;
+}
+
+.list-enter-to,
+.list-leave-from {
+  opacity: 1;
+  transform: translateY(0);
+  max-height: 1000px;
+}
+
+/* Chevron rotation animation */
+.fa-chevron-down,
+.fa-chevron-right {
+  transition: transform 0.2s ease;
+}
+
+.fa-chevron-down {
+  transform: rotate(0deg);
+}
+
+.fa-chevron-right {
+  transform: rotate(-90deg);
+}
+
+/* Category header hover effect */
+.category-header {
+  transition: background-color 0.2s ease;
+}
+
+.category-header:hover {
+  background-color: theme('colors.gray.100');
 }
 </style>
