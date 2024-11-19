@@ -7,6 +7,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
+import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -380,6 +381,7 @@ public class TaskService {
         sendTaskInfoToUsers(taskID);
     }
 
+    @Transactional
     public void deleteTask(int taskID) {
         TaskModel task = taskRepository
                 .findById(taskID)

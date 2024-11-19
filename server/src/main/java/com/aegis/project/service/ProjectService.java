@@ -7,6 +7,7 @@ import java.util.stream.Collectors;
 
 import com.aegis.project.model.*;
 import com.aegis.project.repository.*;
+import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -74,6 +75,7 @@ public class ProjectService {
         }
     }
 
+    @Transactional
     public void deleteProject(int projectID) {
         ProjectModel project = projectRepository
                 .findById(projectID)
@@ -98,9 +100,23 @@ public class ProjectService {
             );
         }
 
+        Set<UserModel> users = project.getAssignedUsers();
+        for (UserModel user : users) {
+            socketIOController.sendMessage(
+                    new SocketMessageModel(
+                            "server",
+                            user.getEmail(),
+                            "project-" + projectID,
+                            "Deleted project with ID: " + projectID
+                    )
+            );
+        }
+
         taskRepository.deleteByParentProjectID(projectID);
 
         projectRepository.deleteById(projectID);
+
+
     }
 
     public boolean createProject(
