@@ -120,7 +120,6 @@
             </div>
           </div>
         </div>
-
         <!-- Action Buttons -->
         <div class="px-6 py-4 bg-gray-50 border-t border-gray-200">
           <div class="flex justify-between items-center">
@@ -144,25 +143,32 @@
               </button>
             </div>
 
-            <!-- Right side buttons -->
-            <div class="flex items-center space-x-3">
-              <button
-                v-if="!fetchedTask.complete && showLeftButton"
-                class="inline-flex items-center px-4 py-2 bg-yellow-600 text-white text-sm font-medium rounded-lg hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition-colors duration-200"
-                @click="goToEditTask"
-              >
-                <i class="fas fa-edit mr-2"></i>
+              <button v-if="!fetchedTask.complete && showLeftButton"
+                class="px-4 py-2 edit-btn text-white rounded-lg hover:bg-green-600" @click="goToEditTask">
                 Edit Task
               </button>
-              <button
-                v-if="showLeftButton"
-                class="inline-flex items-center px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200"
-                @click="showPopup = true"
-              >
-                <i class="fas fa-trash-alt mr-2"></i>
+
+              <button v-if="showLeftButton" class="px-4 py-2 remove-btn text-gray-700 rounded-lg hover:bg-gray-300"
+                @click="showPopup = true">
                 Delete Task
               </button>
+
+              <div v-if="showPopup" class="popup">
+                <div class="popup-content">
+                  <p>Are you sure you want to delete this task?</p>
+                  <button class="remove-btn" @click="handleYes">Yes</button>
+                  <button class="remove-btn" @click="handleNo">No</button>
+                </div>
+              </div>
+
+              <!-- New button for file explorer -->
+              <label v-if="showLeftButton"
+                class="px-4 py-2 upload-btn text-white rounded-lg bg-blue-600 hover:bg-blue-700 cursor-pointer">
+                Upload File
+                <input type="file" class="hidden" @change="handleFileUpload" />
+              </label>
             </div>
+
           </div>
         </div>
       </div>
@@ -450,8 +456,6 @@ export default {
             ": Task Assigner Request - " +
             this.fetchedTask.taskName,
         };
-        console.log("DATA");
-        console.log(data);
         await this.$store.dispatch("invitations/createInvitation", data);
         this.showNotification("success", "Successfully sent assigner invite!");
       } catch (error) {
@@ -575,6 +579,39 @@ export default {
         },
       });
     },
+    async handleFileUpload(event) {
+      try {
+        const file = event.target.files[0];
+        const fileContents = await this.readFileAsBase64(file);
+        if (file) {
+          const data = {
+            taskID: this.fetchedTask.taskID,
+            fileName: file.name,
+            fileType: file.type,
+            fileContents: fileContents.replace(/ /g, '+').trim(),
+            uploaderID: this.currentUser.userID,
+          };
+          await this.$store.dispatch("tasks/addFile", data);
+          console.log("File successfully added to the task!");
+          this.showNotification("success", "File successfully added to the task");
+
+        }
+      } catch (error) {
+        console.error("Error adding file to task:", error);
+        this.showNotification("error", "Error adding file to the task");
+
+      }
+    },
+
+    readFileAsBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result); // Resolve with file contents
+        reader.onerror = (error) => reject(error); // Reject in case of an error
+        reader.readAsDataURL(file); // Read the file as a Base64 string
+      });
+    },
+
     goToTaskChat() {
     this.$router.push({
       name: 'TaskChat',
