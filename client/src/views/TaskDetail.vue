@@ -4,19 +4,12 @@
   <div class="min-h-screen bg-gray-50 p-8">
     <!-- Moving buttons up to clear up space -->
     <div v-if="fetchedTask" class="max-w-4xl mx-auto bg-white rounded-lg p-6">
-      <button
-        class="px-4 py-2 text-white rounded-lg hover:bg-gray-300"
-        style="background-color: #555"
-        @click="goBack"
-      >
+      <button class="px-4 py-2 text-white rounded-lg hover:bg-gray-300" style="background-color: #555" @click="goBack">
         Back
       </button>
 
-      <button
-        v-if="!fetchedTask.complete && showLeftButton"
-        class="px-4 py-2 complete-btn text-white rounded-lg hover:bg-green-600"
-        @click="markAsComplete"
-      >
+      <button v-if="!fetchedTask.complete && showLeftButton"
+        class="px-4 py-2 complete-btn text-white rounded-lg hover:bg-green-600" @click="markAsComplete">
         Mark Complete
       </button>
 
@@ -29,13 +22,10 @@
             </h1>
             <div class="flex space-x-4">
               <!-- Status Badge -->
-              <span
-                class="px-3 py-1 rounded-full text-sm font-semibold"
-                :class="{
-                  'bg-green-800 text-white': fetchedTask.complete,
-                  'bg-orange-800 text-white': !fetchedTask.complete,
-                }"
-              >
+              <span class="px-3 py-1 rounded-full text-sm font-semibold" :class="{
+                'bg-green-800 text-white': fetchedTask.complete,
+                'bg-orange-800 text-white': !fetchedTask.complete,
+              }">
                 {{ fetchedTask.complete ? "Complete" : "Incomplete" }}
               </span>
             </div>
@@ -51,17 +41,14 @@
 
               <div>
                 <h2 class="text-lg font-semibold mb-2">Priority</h2>
-                <span
-                  class="px-2 py-1 rounded-md text-sm font-medium"
-                  :class="{
-                    'bg-red-100 text-red-800':
-                      fetchedTask.taskPriority === 'High',
-                    'bg-yellow-100 text-yellow-800':
-                      fetchedTask.taskPriority === 'Medium',
-                    'bg-blue-100 text-blue-800':
-                      fetchedTask.taskPriority === 'Low',
-                  }"
-                >
+                <span class="px-2 py-1 rounded-md text-sm font-medium" :class="{
+                  'bg-red-100 text-red-800':
+                    fetchedTask.taskPriority === 'High',
+                  'bg-yellow-100 text-yellow-800':
+                    fetchedTask.taskPriority === 'Medium',
+                  'bg-blue-100 text-blue-800':
+                    fetchedTask.taskPriority === 'Low',
+                }">
                   {{ fetchedTask.taskPriority }}
                 </span>
               </div>
@@ -93,17 +80,14 @@
 
               <div>
                 <h2 class="text-lg font-semibold mb-2">Priority</h2>
-                <span
-                  class="px-2 py-1 rounded-md text-sm font-medium"
-                  :class="{
-                    'bg-red-100 text-red-800':
-                      fetchedTask.taskPriority === 'High',
-                    'bg-yellow-100 text-yellow-800':
-                      fetchedTask.taskPriority === 'Medium',
-                    'bg-blue-100 text-blue-800':
-                      fetchedTask.taskPriority === 'Low',
-                  }"
-                >
+                <span class="px-2 py-1 rounded-md text-sm font-medium" :class="{
+                  'bg-red-100 text-red-800':
+                    fetchedTask.taskPriority === 'High',
+                  'bg-yellow-100 text-yellow-800':
+                    fetchedTask.taskPriority === 'Medium',
+                  'bg-blue-100 text-blue-800':
+                    fetchedTask.taskPriority === 'Low',
+                }">
                   {{ fetchedTask.taskPriority }}
                 </span>
               </div>
@@ -128,31 +112,19 @@
 
           <div class="flex justify-between mt-6">
             <!--Notification component-->
-            <NotificationComponent
-              class="flex"
-              :show="notification.show"
-              :type="notification.type"
-              @close="closeNotification"
-            >
+            <NotificationComponent class="flex" :show="notification.show" :type="notification.type"
+              @close="closeNotification">
               {{ notification.message }}
             </NotificationComponent>
           </div>
 
-          <div
-            :class="fetchedTask.complete ? 'greyed-out' : ''"
-            class="text-lg font-semibold mb-2 space-y-4"
-          >
+          <div :class="fetchedTask.complete ? 'greyed-out' : ''" class="text-lg font-semibold mb-2 space-y-4">
             <div class="flex justify-between mt-6">
-              <label
-                v-if="
-                  !fetchedTask.complete &&
-                  showLeftButton &&
-                  taskUsers.length > 0
-                "
-                for="assignerSelect"
-                class="font-semibold text-gray-800"
-                >Select Assigner</label
-              >
+              <label v-if="
+                !fetchedTask.complete &&
+                showLeftButton &&
+                taskUsers.length > 0
+              " for="assignerSelect" class="font-semibold text-gray-800">Select Assigner</label>
             </div>
           </div>
 
@@ -163,72 +135,47 @@
               <!-- Text above the dropdown -->
 
               <!-- Dropdown menu -->
-              <select
-                v-if="
-                  !fetchedTask.complete &&
-                  showLeftButton &&
-                  taskUsers.length > 0
-                "
-                id="assignerSelect"
-                v-model="selectedAssigner"
-                class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300"
-              >
-                <option
-                  v-for="user in taskUsers"
-                  :key="user.email"
-                  :value="user.email"
-                >
+              <select v-if="
+                !fetchedTask.complete &&
+                showLeftButton &&
+                taskUsers.length > 0
+              " id="assignerSelect" v-model="selectedAssigner"
+                class="px-4 py-2 bg-gray-200 text-gray-700 rounded-lg hover:bg-gray-300">
+                <option v-for="user in taskUsers" :key="user.email" :value="user.email">
                   {{ user.label }}
                 </option>
               </select>
 
               <!-- Button, visible only if showLeftButton is true -->
-              <button
-                v-if="
-                  !fetchedTask.complete &&
-                  showLeftButton &&
-                  taskUsers.length > 0
-                "
-                class="px-4 py-2 complete-btn text-white rounded-lg hover:bg-green-600"
-                @click="sendAssignerInvite"
-              >
+              <button v-if="
+                !fetchedTask.complete &&
+                showLeftButton &&
+                taskUsers.length > 0
+              " class="px-4 py-2 complete-btn text-white rounded-lg hover:bg-green-600" @click="sendAssignerInvite">
                 Confirm Reassignment
               </button>
             </div>
 
             <!-- Right-aligned buttons -->
             <div class="flex space-x-4">
-              <!-- Align buttons to the right -->
-
-              <button
-                v-if="!fetchedTask.complete && showLeftButton"
-                class="px-4 py-2 add-btn text-white rounded-lg hover:bg-green-600"
-                @click="goToAddUsers"
-              >
+              <!-- Existing buttons -->
+              <button v-if="!fetchedTask.complete && showLeftButton"
+                class="px-4 py-2 add-btn text-white rounded-lg hover:bg-green-600" @click="goToAddUsers">
                 Add Users
               </button>
 
-              <button
-                v-if="!fetchedTask.complete && showLeftButton"
-                class="px-4 py-2 remove-user-btn text-white rounded-lg hover:bg-green-600"
-                @click="goToRemoveUsers"
-              >
+              <button v-if="!fetchedTask.complete && showLeftButton"
+                class="px-4 py-2 remove-user-btn text-white rounded-lg hover:bg-green-600" @click="goToRemoveUsers">
                 Remove Users
               </button>
 
-              <button
-                v-if="!fetchedTask.complete && showLeftButton"
-                class="px-4 py-2 edit-btn text-white rounded-lg hover:bg-green-600"
-                @click="goToEditTask"
-              >
+              <button v-if="!fetchedTask.complete && showLeftButton"
+                class="px-4 py-2 edit-btn text-white rounded-lg hover:bg-green-600" @click="goToEditTask">
                 Edit Task
               </button>
 
-              <button
-                v-if="showLeftButton"
-                class="px-4 py-2 remove-btn text-gray-700 rounded-lg hover:bg-gray-300"
-                @click="showPopup = true"
-              >
+              <button v-if="showLeftButton" class="px-4 py-2 remove-btn text-gray-700 rounded-lg hover:bg-gray-300"
+                @click="showPopup = true">
                 Delete Task
               </button>
 
@@ -239,7 +186,15 @@
                   <button class="remove-btn" @click="handleNo">No</button>
                 </div>
               </div>
+
+              <!-- New button for file explorer -->
+              <label v-if="showLeftButton"
+                class="px-4 py-2 upload-btn text-white rounded-lg bg-blue-600 hover:bg-blue-700 cursor-pointer">
+                Upload File
+                <input type="file" class="hidden" @change="handleFileUpload" />
+              </label>
             </div>
+
           </div>
         </div>
       </div>
@@ -483,8 +438,6 @@ export default {
             ": Task Assigner Request - " +
             this.fetchedTask.taskName,
         };
-        console.log("DATA");
-        console.log(data);
         await this.$store.dispatch("invitations/createInvitation", data);
         this.showNotification("success", "Successfully sent assigner invite!");
       } catch (error) {
@@ -608,6 +561,43 @@ export default {
         },
       });
     },
+    async handleFileUpload(event) {
+      try {
+        const file = event.target.files[0];
+        const fileContents = await this.readFileAsBase64(file);
+        if (file) {
+          const data = {
+            taskID: this.fetchedTask.taskID,
+            fileName: file.name,
+            fileType: file.type,
+            fileContents: fileContents.replace(/ /g, '+').trim(),
+            uploaderID: this.currentUser.userID,
+          };
+          await this.$store.dispatch("tasks/addFile", data);
+          console.log("File successfully added to the task!");
+          this.showNotification("success", "File successfully added to the task");
+
+        }
+      } catch (error) {
+        console.error("Error adding file to task:", error);
+        this.showNotification("error", "Error adding file to the task");
+
+      }
+    },
+
+    readFileAsBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result); // Resolve with file contents
+        reader.onerror = (error) => reject(error); // Reject in case of an error
+        reader.readAsDataURL(file); // Read the file as a Base64 string
+      });
+    },
+
+
+
+
+
   },
 };
 </script>

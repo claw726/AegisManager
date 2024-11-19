@@ -1,11 +1,6 @@
 package com.aegis.project.service;
 
-import com.aegis.project.controller.SocketIOController;
-import com.aegis.project.dto.TaskDTO;
-import com.aegis.project.exception.TaskNotFoundException;
-import com.aegis.project.model.*;
-import com.aegis.project.repository.*;
-
+import java.util.Base64;
 import java.util.Date;
 import java.util.HashSet;
 import java.util.List;
@@ -23,6 +18,8 @@ import org.springframework.stereotype.Service;
 import com.aegis.project.controller.SocketIOController;
 import com.aegis.project.dto.TaskDTO;
 import com.aegis.project.exception.TaskNotFoundException;
+import com.aegis.project.model.ChatModel;
+import com.aegis.project.model.FileModel;
 import com.aegis.project.model.ProjectModel;
 import com.aegis.project.model.SocketMessageModel;
 import com.aegis.project.model.TaskModel;
@@ -290,7 +287,6 @@ public class TaskService {
             );
         }
 
-
         return true;
     }
 
@@ -498,8 +494,8 @@ public class TaskService {
         }
         task.getAssignedUsers().add(userToAdd);
 
-        ChatModel chat = chatRepository.findById(task.getChatID()).orElseThrow(() ->
-                new RuntimeException("Chat not found with id: " + task.getChatID()));
+        ChatModel chat = chatRepository.findById(task.getChatID()).orElseThrow(()
+                -> new RuntimeException("Chat not found with id: " + task.getChatID()));
 
         chat.addParticipant(userToAdd.getUserID());
         chatRepository.save(chat);
@@ -552,8 +548,8 @@ public class TaskService {
             );
         }
         task.getAssignedUsers().remove(userToRemove);
-        ChatModel chat = chatRepository.findById(task.getChatID()).orElseThrow(() ->
-                new RuntimeException("Chat not found with id: " + task.getChatID()));
+        ChatModel chat = chatRepository.findById(task.getChatID()).orElseThrow(()
+                -> new RuntimeException("Chat not found with id: " + task.getChatID()));
 
         chat.removeParticipant(userToRemove.getUserID());
         chatRepository.save(chat);
@@ -600,6 +596,16 @@ public class TaskService {
             }
             ret += userService.createUserJson(user);
         }
+        ret += "],\"files\": [";
+        first = true;
+        for (FileModel file : task.getFiles()) {
+            if (first) {
+                first = false;
+            } else {
+                ret += ",";
+            }
+            ret += file.toString();
+        }
         ret += "]}";
         return ret;
     }
@@ -611,5 +617,56 @@ public class TaskService {
                 .stream()
                 .map(TaskDTO::new)
                 .collect(Collectors.toSet());
+    }
+
+    public String addFile(int taskID, String fileName, String fileType, String fileContents, int uploaderID) {
+        TaskModel task = taskRepository
+                .findById(taskID)
+                .orElseThrow(()
+                        -> new RuntimeException("Task not found with id: " + taskID)
+                );
+        UserModel user = userRepository.findById(uploaderID).orElseThrow(() -> new RuntimeException("User not found with id: " + uploaderID));
+        Set<UserModel> assignedUsers = getAssignedUsers(taskID);
+        if (!(uploaderID == task.getAssignerID() || assignedUsers.contains(user))) {
+            throw new RuntimeException("User with id: " + uploaderID + " does not belong to the task with id: " + taskID);
+        }
+        Set<FileModel> files = task.getFiles();
+
+        String[] parts = fileContents.split(",");
+        if (parts.length != 2) {
+            throw new IllegalArgumentException("Invalid Data URL format");
+        }
+        String base64Content = parts[1].replaceAll(" ", "+"); // Extract Base64 content
+        // Decode the Base64 content
+        String base64Encoded = "";
+        try {
+            byte[] decodedBytes = Base64.getDecoder().decode(base64Content);
+            base64Encoded = Base64.getEncoder().encodeToString(decodedBytes);
+        } catch (Exception e) {
+            throw new RuntimeException("Error parsing file contents: " + e.getMessage());
+        }
+
+        //System.out.println("FILE NAME: " + fileName);
+        //System.out.println("FILE TYPE: " + fileType);
+        //System.out.println("DECODED FILE CONTENTS: " + base64Encoded);
+        FileModel file = new FileModel();
+
+        if (taskRepository.existsIdenticalFile(taskID, fileName, fileType, base64Encoded)) {
+            throw new RuntimeException("File already exists with the same name, type and contents as file: " + fileName + " in task with id: " + taskID);
+        }
+
+        file.setFileName(fileName);
+        file.setFileType(fileType);
+        file.setFileData(base64Encoded);
+        file.setTaskID(taskID);
+        file.setTask(task);
+        file.setUploaderID(uploaderID);
+
+        files.add(file);
+        task.setFiles(files);
+        taskRepository.save(task);
+        logger.info("The file has been saved into the task and the tasks contents have been saved to taskRepository");
+
+        return "OK";
     }
 }
