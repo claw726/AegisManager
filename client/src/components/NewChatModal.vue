@@ -44,7 +44,11 @@
           class="w-full border-gray-300 rounded-lg shadow-sm focus:border-blue-500 focus:ring-blue-500"
         >
           <option value="">All Organizations</option>
-          <option v-for="org in organizations" :key="org.orgID" :value="org.orgID">
+          <option
+            v-for="org in organizations"
+            :key="org.orgID"
+            :value="org.orgID"
+          >
             {{ org.orgName }}
           </option>
         </select>
@@ -232,31 +236,36 @@ export default {
     filteredUsers() {
       // Start with all users except current user
       let filtered = [];
-      
+
       if (this.selectedOrg) {
         // If an organization is selected, get users from that organization
-        const selectedOrganization = this.organizations.find(org => org.orgID === this.selectedOrg);
+        const selectedOrganization = this.organizations.find(
+          (org) => org.orgID === this.selectedOrg,
+        );
         if (selectedOrganization && selectedOrganization.users) {
           filtered = selectedOrganization.users.filter(
-            user => user.userID !== this.currentUser?.userID
+            (user) => user.userID !== this.currentUser?.userID,
           );
         }
       } else {
         // If no organization selected, get all users from all organizations
-        filtered = this.organizations.flatMap(org => org.users || [])
-          .filter(user => user.userID !== this.currentUser?.userID)
+        filtered = this.organizations
+          .flatMap((org) => org.users || [])
+          .filter((user) => user.userID !== this.currentUser?.userID)
           // Remove duplicates based on userID
-          .filter((user, index, self) => 
-            index === self.findIndex(u => u.userID === user.userID)
+          .filter(
+            (user, index, self) =>
+              index === self.findIndex((u) => u.userID === user.userID),
           );
       }
 
       // Filter by search query
       if (this.searchQuery.trim()) {
         const query = this.searchQuery.toLowerCase();
-        filtered = filtered.filter(user =>
-          user.userName?.toLowerCase().includes(query) ||
-          user.email?.toLowerCase().includes(query)
+        filtered = filtered.filter(
+          (user) =>
+            user.userName?.toLowerCase().includes(query) ||
+            user.email?.toLowerCase().includes(query),
         );
       }
 

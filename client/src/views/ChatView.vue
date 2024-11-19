@@ -23,18 +23,32 @@
           <TransitionGroup name="chat-list" tag="div">
             <!-- Organizations -->
             <template v-if="categorizedChats.organizations.length">
-              <div 
+              <div
                 class="px-4 py-2 text-sm font-semibold text-gray-500 bg-gray-50 cursor-pointer hover:bg-gray-100 transition-colors flex items-center justify-between"
                 @click="toggleCategory('organizations')"
               >
                 <div class="flex items-center">
                   <i class="fas fa-building mr-2"></i>
                   Organizations
-                  <span class="ml-2 text-xs text-gray-400">({{ categorizedChats.organizations.length }})</span>
+                  <span class="ml-2 text-xs text-gray-400"
+                    >({{ categorizedChats.organizations.length }})</span
+                  >
                 </div>
-                <i :class="['fas', expandedCategories.organizations ? 'fa-chevron-down' : 'fa-chevron-right', 'text-xs transition-transform duration-200']"></i>
+                <i
+                  :class="[
+                    'fas',
+                    expandedCategories.organizations
+                      ? 'fa-chevron-down'
+                      : 'fa-chevron-right',
+                    'text-xs transition-transform duration-200',
+                  ]"
+                ></i>
               </div>
-              <TransitionGroup name="list" tag="div" v-show="expandedCategories.organizations">
+              <TransitionGroup
+                name="list"
+                tag="div"
+                v-show="expandedCategories.organizations"
+              >
                 <ChatListItem
                   v-for="chat in categorizedChats.organizations"
                   :key="chat.id"
@@ -48,18 +62,32 @@
 
             <!-- Projects -->
             <template v-if="categorizedChats.projects.length">
-              <div 
+              <div
                 class="px-4 py-2 text-sm font-semibold text-gray-500 bg-gray-50 cursor-pointer hover:bg-gray-100 transition-colors flex items-center justify-between"
                 @click="toggleCategory('projects')"
               >
                 <div class="flex items-center">
                   <i class="fas fa-project-diagram mr-2"></i>
                   Projects
-                  <span class="ml-2 text-xs text-gray-400">({{ categorizedChats.projects.length }})</span>
+                  <span class="ml-2 text-xs text-gray-400"
+                    >({{ categorizedChats.projects.length }})</span
+                  >
                 </div>
-                <i :class="['fas', expandedCategories.projects ? 'fa-chevron-down' : 'fa-chevron-right', 'text-xs transition-transform duration-200']"></i>
+                <i
+                  :class="[
+                    'fas',
+                    expandedCategories.projects
+                      ? 'fa-chevron-down'
+                      : 'fa-chevron-right',
+                    'text-xs transition-transform duration-200',
+                  ]"
+                ></i>
               </div>
-              <TransitionGroup name="list" tag="div" v-show="expandedCategories.projects">
+              <TransitionGroup
+                name="list"
+                tag="div"
+                v-show="expandedCategories.projects"
+              >
                 <ChatListItem
                   v-for="chat in categorizedChats.projects"
                   :key="chat.id"
@@ -73,18 +101,32 @@
 
             <!-- Tasks -->
             <template v-if="categorizedChats.tasks.length">
-              <div 
+              <div
                 class="px-4 py-2 text-sm font-semibold text-gray-500 bg-gray-50 cursor-pointer hover:bg-gray-100 transition-colors flex items-center justify-between"
                 @click="toggleCategory('tasks')"
               >
                 <div class="flex items-center">
                   <i class="fas fa-tasks mr-2"></i>
                   Tasks
-                  <span class="ml-2 text-xs text-gray-400">({{ categorizedChats.tasks.length }})</span>
+                  <span class="ml-2 text-xs text-gray-400"
+                    >({{ categorizedChats.tasks.length }})</span
+                  >
                 </div>
-                <i :class="['fas', expandedCategories.tasks ? 'fa-chevron-down' : 'fa-chevron-right', 'text-xs transition-transform duration-200']"></i>
+                <i
+                  :class="[
+                    'fas',
+                    expandedCategories.tasks
+                      ? 'fa-chevron-down'
+                      : 'fa-chevron-right',
+                    'text-xs transition-transform duration-200',
+                  ]"
+                ></i>
               </div>
-              <TransitionGroup name="list" tag="div" v-show="expandedCategories.tasks">
+              <TransitionGroup
+                name="list"
+                tag="div"
+                v-show="expandedCategories.tasks"
+              >
                 <ChatListItem
                   v-for="chat in categorizedChats.tasks"
                   :key="chat.id"
@@ -98,18 +140,32 @@
 
             <!-- Direct Messages -->
             <template v-if="categorizedChats.direct.length">
-              <div 
+              <div
                 class="px-4 py-2 text-sm font-semibold text-gray-500 bg-gray-50 cursor-pointer hover:bg-gray-100 transition-colors flex items-center justify-between"
                 @click="toggleCategory('direct')"
               >
                 <div class="flex items-center">
                   <i class="fas fa-user mr-2"></i>
                   Direct Messages
-                  <span class="ml-2 text-xs text-gray-400">({{ categorizedChats.direct.length }})</span>
+                  <span class="ml-2 text-xs text-gray-400"
+                    >({{ categorizedChats.direct.length }})</span
+                  >
                 </div>
-                <i :class="['fas', expandedCategories.direct ? 'fa-chevron-down' : 'fa-chevron-right', 'text-xs transition-transform duration-200']"></i>
+                <i
+                  :class="[
+                    'fas',
+                    expandedCategories.direct
+                      ? 'fa-chevron-down'
+                      : 'fa-chevron-right',
+                    'text-xs transition-transform duration-200',
+                  ]"
+                ></i>
               </div>
-              <TransitionGroup name="list" tag="div" v-show="expandedCategories.direct">
+              <TransitionGroup
+                name="list"
+                tag="div"
+                v-show="expandedCategories.direct"
+              >
                 <ChatListItem
                   v-for="chat in categorizedChats.direct"
                   :key="chat.id"
@@ -123,18 +179,32 @@
 
             <!-- Groups -->
             <template v-if="categorizedChats.groups.length">
-              <div 
+              <div
                 class="px-4 py-2 text-sm font-semibold text-gray-500 bg-gray-50 cursor-pointer hover:bg-gray-100 transition-colors flex items-center justify-between"
                 @click="toggleCategory('groups')"
               >
                 <div class="flex items-center">
                   <i class="fas fa-users mr-2"></i>
                   Groups
-                  <span class="ml-2 text-xs text-gray-400">({{ categorizedChats.groups.length }})</span>
+                  <span class="ml-2 text-xs text-gray-400"
+                    >({{ categorizedChats.groups.length }})</span
+                  >
                 </div>
-                <i :class="['fas', expandedCategories.groups ? 'fa-chevron-down' : 'fa-chevron-right', 'text-xs transition-transform duration-200']"></i>
+                <i
+                  :class="[
+                    'fas',
+                    expandedCategories.groups
+                      ? 'fa-chevron-down'
+                      : 'fa-chevron-right',
+                    'text-xs transition-transform duration-200',
+                  ]"
+                ></i>
               </div>
-              <TransitionGroup name="list" tag="div" v-show="expandedCategories.groups">
+              <TransitionGroup
+                name="list"
+                tag="div"
+                v-show="expandedCategories.groups"
+              >
                 <ChatListItem
                   v-for="chat in categorizedChats.groups"
                   :key="chat.id"
@@ -204,8 +274,8 @@ export default {
         projects: true,
         tasks: true,
         direct: true,
-        groups: true
-      }
+        groups: true,
+      },
     };
   },
   computed: {
@@ -217,18 +287,18 @@ export default {
     }),
 
     categorizedChats() {
-    const filtered = this.searchQuery.trim() 
-      ? this.filteredChats 
-      : this.chats;
+      const filtered = this.searchQuery.trim()
+        ? this.filteredChats
+        : this.chats;
 
-    return {
-      organizations: filtered.filter(chat => chat.type === 'organization'),
-      projects: filtered.filter(chat => chat.type === 'project'),
-      tasks: filtered.filter(chat => chat.type === 'task'),
-      direct: filtered.filter(chat => chat.type === 'direct'),
-      groups: filtered.filter(chat => chat.type === 'group')
-    };
-  },
+      return {
+        organizations: filtered.filter((chat) => chat.type === "organization"),
+        projects: filtered.filter((chat) => chat.type === "project"),
+        tasks: filtered.filter((chat) => chat.type === "task"),
+        direct: filtered.filter((chat) => chat.type === "direct"),
+        groups: filtered.filter((chat) => chat.type === "group"),
+      };
+    },
 
     filteredChats() {
       if (!this.searchQuery.trim()) {
@@ -259,14 +329,13 @@ export default {
       this.searchQuery = "";
     },
     searchQuery(newValue) {
-    if (newValue.trim()) {
-      Object.keys(this.expandedCategories).forEach(category => {
-        this.expandedCategories[category] = true;
-      });
-    }
-  }
+      if (newValue.trim()) {
+        Object.keys(this.expandedCategories).forEach((category) => {
+          this.expandedCategories[category] = true;
+        });
+      }
+    },
   },
-
 
   created() {
     console.log("ChatView created");
@@ -397,16 +466,19 @@ export default {
     toggleCategory(category) {
       this.expandedCategories[category] = !this.expandedCategories[category];
       // Save state to localStorage
-      localStorage.setItem('chatExpandedCategories', JSON.stringify(this.expandedCategories));
+      localStorage.setItem(
+        "chatExpandedCategories",
+        JSON.stringify(this.expandedCategories),
+      );
     },
 
     // Add this method to restore the expanded state
     restoreExpandedState() {
-      const savedState = localStorage.getItem('chatExpandedCategories');
+      const savedState = localStorage.getItem("chatExpandedCategories");
       if (savedState) {
         this.expandedCategories = JSON.parse(savedState);
       }
-    }
+    },
   },
 };
 </script>
@@ -442,7 +514,7 @@ export default {
   top: 0;
   z-index: 10;
   backdrop-filter: blur(8px);
-  border-bottom: 1px solid theme('colors.gray.200');
+  border-bottom: 1px solid theme("colors.gray.200");
 }
 
 /* Smooth transitions for category sections */
@@ -500,6 +572,6 @@ export default {
 }
 
 .category-header:hover {
-  background-color: theme('colors.gray.100');
+  background-color: theme("colors.gray.100");
 }
 </style>
