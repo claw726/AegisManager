@@ -1,18 +1,22 @@
 import globals from "globals";
 import js from "@eslint/js";
 import eslintPluginVue from "eslint-plugin-vue";
-import * as parser from "vue-eslint-parser";
 
 export default [
   {
     files: ["**/*.vue"],
     languageOptions: {
-      parser: parser,
+      parser: "vue-eslint-parser",
       parserOptions: {
         ecmaVersion: "latest",
         sourceType: "module",
         ecmaFeatures: {
           jsx: true,
+        },
+        parser: {
+          js: "@babel/eslint-parser",
+          ts: "@typescript-eslint/parser",
+          "<template>": "vue-eslint-parser",
         },
       },
       globals: {

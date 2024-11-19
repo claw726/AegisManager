@@ -83,7 +83,9 @@ const mutations = {
   },
   DELETE_MESSAGE(state, { chatId, messageId, deleted }) {
     if (state.messages[chatId]) {
-      const message = state.messages[chatId].find(msg => msg.id === messageId);
+      const message = state.messages[chatId].find(
+        (msg) => msg.id === messageId,
+      );
       if (message) {
         message.deleted = deleted;
       }
@@ -98,14 +100,13 @@ const mutations = {
   },
   SET_ORGANIZATIONS(state, organizations) {
     state.organizations = organizations;
-  }
+  },
 };
 
 const actions = {
-
-  async refreshChatMessages({ commit, dispatch}, chatId) {
-    await dispatch('getMessages', chatId);
-    commit('REFRESH_CHAT_MESSAGES', chatId);
+  async refreshChatMessages({ commit, dispatch }, chatId) {
+    await dispatch("getMessages", chatId);
+    commit("REFRESH_CHAT_MESSAGES", chatId);
   },
 
   async fetchUsers({ rootState, commit }) {
@@ -142,11 +143,14 @@ const actions = {
     try {
       console.log(`Fetching messages for chat ${chatId}`);
 
-      const response = await axios.get(`/api/messages/${numericChatId}/getMessages`, {
-        headers: {
-          Authorization: `Bearer ${rootState.auth.authToken}`,
+      const response = await axios.get(
+        `/api/messages/${numericChatId}/getMessages`,
+        {
+          headers: {
+            Authorization: `Bearer ${rootState.auth.authToken}`,
+          },
         },
-      });
+      );
 
       if (!state.messages[chatId]) {
         commit("SET_MESSAGES", { chatId, messages: [] });
@@ -197,23 +201,27 @@ const actions = {
     const numericChatId = parseInt(chatId.match(/\d+/)[0]);
     // Send message to server
     try {
-      await axios.post("/api/messages/add",
+      await axios.post(
+        "/api/messages/add",
         {
           chatId: numericChatId,
           content: content,
         },
         {
-        headers: {
-          Authorization: `Bearer ${rootState.auth.authToken}`,
+          headers: {
+            Authorization: `Bearer ${rootState.auth.authToken}`,
+          },
         },
-      });
+      );
 
       // emit through socket
       await sendMessage({
         chatId: chatId,
         content: content,
         senderEmail: rootState.auth.currentUser.email,
-        targetEmail: state.activeChat.participants.find(p => p !== rootState.auth.currentUser.userID),
+        targetEmail: state.activeChat.participants.find(
+          (p) => p !== rootState.auth.currentUser.userID,
+        ),
       });
       return;
     } catch (error) {
@@ -341,7 +349,7 @@ const actions = {
         chatId: messageData.chatId,
         message: formattedMessage,
       });
-      
+
       // Update chat last message
       commit("UPDATE_CHAT_LAST_MESSAGE", {
         chatId: messageData.chatId,
@@ -349,7 +357,7 @@ const actions = {
       });
 
       // If this is a new chat, add it to the chats list
-      if (!state.chats.find(chat => chat.id === messageData.chatId)) {
+      if (!state.chats.find((chat) => chat.id === messageData.chatId)) {
         commit("ADD_CHAT", {
           id: messageData.chatId,
           title: messageData.chatTitle,
@@ -361,7 +369,7 @@ const actions = {
 
       // Update the unread count
       if (messageData.senderId !== rootState.auth.currentUser.userID) {
-        const chat = state.chats.find(chat => chat.id === messageData.chatId);
+        const chat = state.chats.find((chat) => chat.id === messageData.chatId);
         if (chat) {
           chat.unreadCount = chat.unreadCount ? chat.unreadCount + 1 : 1;
         }
@@ -384,7 +392,11 @@ const actions = {
   },
   async fetchAndStoreOrganizations({ dispatch, commit }) {
     try {
-      const organizations = await dispatch("organizations/fetchOrganizations", null, { root: true });
+      const organizations = await dispatch(
+        "organizations/fetchOrganizations",
+        null,
+        { root: true },
+      );
       commit("SET_ORGANIZATIONS", organizations);
     } catch (error) {
       console.error("Error fetching organizations: ", error);

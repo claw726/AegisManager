@@ -58,52 +58,59 @@ export default {
     NavBar,
   },
   data() {
-    return {
-      buttons: [
-        {
-          label: "Organizations",
-          description: "Manage your organizations",
-          icon: "building",
-          color: "red",
-          action: this.goToViewOrgs,
-        },
-        {
-          label: "Tasks",
-          description: "Manage your daily tasks",
-          icon: "tasks",
-          color: "blue",
-          action: this.goToTDList,
-        },
-        {
-          label: "Kanban Board",
-          description: "Manage your projects visually",
-          icon: "columns",
-          color: "yellow",
-          action: this.goToKanban,
-        },
-        {
-          label: "Calendar",
-          description: "View your schedule",
-          icon: "calendar-alt",
-          color: "purple",
-          action: this.goToCalendar,
-        },
-        {
-          label: "Settings",
-          description: "Customize your preferences",
-          icon: "cog",
-          color: "green",
-          action: this.goToSettings,
-        },
-        {
-          label: "Archived Projects",
-          description: "View your archived projects",
-          icon: "archive",
-          color: "red",
-          action: this.goToArchivedProjects,
-        },
-      ],
-    };
+  return {
+    buttons: [
+      {
+        label: "Tasks",
+        description: "Manage your daily tasks",
+        icon: "tasks",
+        color: "blue",
+        action: this.goToTDList,
+      },
+      {
+        label: "Chats",
+        description: "View your messages and conversations",
+        icon: "comments",
+        color: "indigo", // or "purple"
+        action: this.goToChats,
+      },
+      {
+        label: "Organizations",
+        description: "Manage your organizations",
+        icon: "building",
+        color: "red",
+        action: this.goToViewOrgs,
+      },
+      {
+        label: "Kanban Board",
+        description: "Manage your projects visually",
+        icon: "columns",
+        color: "yellow",
+        action: this.goToKanban,
+      },
+      {
+        label: "Calendar",
+        description: "View your schedule",
+        icon: "calendar-alt",
+        color: "green",
+        action: this.goToCalendar,
+      },
+      {
+        label: "Archived Projects",
+        description: "View your archived projects",
+        icon: "archive",
+        color: "gray",
+        action: this.goToArchivedProjects,
+      },
+      {
+        label: "Settings",
+        description: "Customize your preferences",
+        icon: "cog",
+        color: "slate",
+        action: this.goToSettings,
+      },
+    ],
+  };
   },
   computed: {
     ...mapState("auth", ["isLoggedIn", "currentUser"]),
@@ -129,6 +136,9 @@ export default {
     },
     goToArchivedProjects() {
       this.$router.push({ name: "ArchivedProjects" });
+    },
+    goToChats() {
+      this.$router.push({ name: 'Chat' });
     },
   },
 };

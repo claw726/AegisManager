@@ -3,6 +3,7 @@
     :class="[
       'p-4 hover:bg-gray-100 cursor-pointer border-b',
       active ? 'bg-gray-100' : '',
+      `chat-type-${chat.type}`,
     ]"
     @click="handleClick"
   >
@@ -27,16 +28,19 @@
 
         <!-- Overlapping Avatars for Group Chats -->
         <div v-else-if="chat.type === 'group'" class="relative w-full h-full">
-          <template v-for="(participant, index) in groupParticipants" :key="participant.userID">
+          <template
+            v-for="(participant, index) in groupParticipants"
+            :key="participant.userID"
+          >
             <div
               v-if="index < 4"
               class="absolute rounded-full border-2 border-white overflow-hidden bg-gray-300"
               :class="[
                 'w-7 h-7',
                 getAvatarPosition(index),
-                {'z-20': index === 0},
-                {'z-10': index === 1},
-                {'z-0': index >= 2}
+                { 'z-20': index === 0 },
+                { 'z-10': index === 1 },
+                { 'z-0': index >= 2 },
               ]"
             >
               <img
@@ -79,7 +83,7 @@
             v-else
             :class="[
               chatTypeIcon,
-              'text-gray-600 transition-colors duration-300 ease-in-out'
+              'text-gray-600 transition-colors duration-300 ease-in-out',
             ]"
           />
         </div>
@@ -107,7 +111,7 @@
 </template>
 
 <script>
-import { mapState } from 'vuex';
+import { mapState } from "vuex";
 
 export default {
   name: "ChatListItem",
@@ -125,7 +129,7 @@ export default {
       default: "",
     },
   },
-  
+
   data() {
     return {
       resolvedTitle: "",
@@ -138,12 +142,14 @@ export default {
   computed: {
     ...mapState("auth", ["currentUser"]),
     ...mapState("chat", ["organizations"]),
-    
+
     groupParticipants() {
       if (!this.chat?.participants) return [];
       return this.chat.participants
-        .map(id => this.$store.state.chat.users.find(user => user.userID === id))
-        .filter(user => user); // Filter out undefined users
+        .map((id) =>
+          this.$store.state.chat.users.find((user) => user.userID === id),
+        )
+        .filter((user) => user); // Filter out undefined users
     },
 
     remainingParticipantsCount() {
@@ -151,13 +157,13 @@ export default {
     },
 
     displayTitle() {
-      if (!this.chat) return '';
+      if (!this.chat) return "";
 
-      if (this.chat.type === 'direct') {
+      if (this.chat.type === "direct") {
         if (this.titleError) {
-          return 'Error loading name';
+          return "Error loading name";
         }
-        return this.resolvedTitle || 'Loading...';
+        return this.resolvedTitle || "Loading...";
       }
 
       return this.chat.title;
@@ -165,8 +171,8 @@ export default {
 
     titleClass() {
       return {
-        'text-gray-400': !this.resolvedTitle && this.chat.type === 'direct',
-        'text-red-500': this.titleError,
+        "text-gray-400": !this.resolvedTitle && this.chat.type === "direct",
+        "text-red-500": this.titleError,
       };
     },
 
@@ -205,16 +211,15 @@ export default {
     },
 
     organizationLogo() {
-    if (this.chat.type === 'organization') {
-      // Find matching organization by name
-      const matchingOrg = this.organizations.find(
-        org => org.orgName.toLowerCase() === this.chat.title.toLowerCase()
-      );
-      return matchingOrg?.encodedImage || null;
-    }
-    return null;
-  }
-
+      if (this.chat.type === "organization") {
+        // Find matching organization by name
+        const matchingOrg = this.organizations.find(
+          (org) => org.orgName.toLowerCase() === this.chat.title.toLowerCase(),
+        );
+        return matchingOrg?.encodedImage || null;
+      }
+      return null;
+    },
   },
 
   watch: {
@@ -224,7 +229,7 @@ export default {
       handler() {
         this.updateDisplayTitle();
         this.updateProfilePicture();
-      }
+      },
     },
   },
 
@@ -237,20 +242,20 @@ export default {
 
     getAvatarPosition(index) {
       const positions = {
-        0: 'top-0 left-0',
-        1: 'top-0 right-0',
-        2: 'bottom-0 left-0',
-        3: 'bottom-0 right-0'
+        0: "top-0 left-0",
+        1: "top-0 right-0",
+        2: "bottom-0 left-0",
+        3: "bottom-0 right-0",
       };
-      return positions[index] || '';
+      return positions[index] || "";
     },
 
     getInitials(name) {
-      if (!name) return '?';
+      if (!name) return "?";
       return name
-        .split(' ')
-        .map(word => word[0])
-        .join('')
+        .split(" ")
+        .map((word) => word[0])
+        .join("")
         .toUpperCase()
         .slice(0, 2);
     },
@@ -286,19 +291,19 @@ export default {
       }
 
       const otherUserId = this.chat.participants.find(
-        (id) => id !== this.currentUser?.userID
+        (id) => id !== this.currentUser?.userID,
       );
 
       if (otherUserId) {
         try {
           // Fetch user data if needed
           await this.$store.dispatch("chat/fetchUsers", otherUserId);
-          
+
           // Get user from store
           const otherUser = this.$store.state.chat.users.find(
-            (user) => user.userID === otherUserId
+            (user) => user.userID === otherUserId,
           );
-          
+
           if (otherUser?.profilePicture) {
             this.profilePicture = otherUser.profilePicture;
             this.imageLoadError = false;
@@ -312,28 +317,29 @@ export default {
 
     async updateDisplayTitle() {
       this.titleError = null;
-      
+
       if (this.chat?.type !== "direct") {
         this.resolvedTitle = this.chat?.title;
         return;
       }
 
       const otherUserId = this.chat.participants.find(
-        (id) => id !== this.currentUser?.userID
+        (id) => id !== this.currentUser?.userID,
       );
 
       if (otherUserId) {
         try {
           await this.$store.dispatch("chat/fetchUsers", otherUserId);
           const otherUser = this.$store.state.chat.users.find(
-            (user) => user.userID === otherUserId
+            (user) => user.userID === otherUserId,
           );
-          
+
           if (!otherUser) {
-            throw new Error('User not found');
+            throw new Error("User not found");
           }
-          
-          this.resolvedTitle = otherUser.name || otherUser.userName || "Unknown User";
+
+          this.resolvedTitle =
+            otherUser.name || otherUser.userName || "Unknown User";
         } catch (error) {
           console.error("Error loading chat title:", error);
           this.titleError = error;
@@ -459,14 +465,24 @@ i {
 }
 
 /* Staggered animation delay for group avatars */
-.rounded-full:nth-child(1) { animation-delay: 0s; }
-.rounded-full:nth-child(2) { animation-delay: 0.1s; }
-.rounded-full:nth-child(3) { animation-delay: 0.2s; }
-.rounded-full:nth-child(4) { animation-delay: 0.3s; }
+.rounded-full:nth-child(1) {
+  animation-delay: 0s;
+}
+.rounded-full:nth-child(2) {
+  animation-delay: 0.1s;
+}
+.rounded-full:nth-child(3) {
+  animation-delay: 0.2s;
+}
+.rounded-full:nth-child(4) {
+  animation-delay: 0.3s;
+}
 
 /* Hover effect for individual avatars */
 .rounded-full {
-  transition: transform 0.2s ease, box-shadow 0.2s ease;
+  transition:
+    transform 0.2s ease,
+    box-shadow 0.2s ease;
 }
 
 .rounded-full:hover {
@@ -484,6 +500,25 @@ i {
 
 .remaining-count:hover {
   transform: scale(1.1);
+}
+.chat-type-organization {
+  border-left: 3px solid theme("colors.blue.500");
+}
+
+.chat-type-project {
+  border-left: 3px solid theme("colors.green.500");
+}
+
+.chat-type-task {
+  border-left: 3px solid theme("colors.purple.500");
+}
+
+.chat-type-direct {
+  border-left: 3px solid theme("colors.gray.500");
+}
+
+.chat-type-group {
+  border-left: 3px solid theme("colors.yellow.500");
 }
 </style>
 ```

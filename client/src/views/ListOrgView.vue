@@ -186,6 +186,7 @@ export default {
             3000
           );
         }
+        console.log("Organizations: ", organizations);
       } catch (error) {
         console.error("Error Loading Organizations:", error.message);
         this.showNotification(

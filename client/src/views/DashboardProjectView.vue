@@ -140,31 +140,41 @@
       </div>
     </div>
 
-    <!-- Search and Create Section with improved styling -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-6">
       <div class="bg-white rounded-xl shadow-md p-6 border border-gray-100">
-        <div
-          class="flex flex-col md:flex-row items-center justify-between gap-4"
-        >
-          <div class="flex-1 w-full">
+        <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+          <div class="flex-1 w-full space-y-4">
+            <!-- Search input -->
             <div class="relative">
               <input
                 type="text"
                 class="w-full pl-10 pr-4 py-3 border border-gray-300 rounded-lg focus:ring-2 focus:ring-blue-500 focus:border-transparent transition duration-200"
                 placeholder="Search tasks..."
               />
-              <i
-                class="fas fa-search text-gray-400 absolute left-3 top-3.5"
-              ></i>
+              <i class="fas fa-search text-gray-400 absolute left-3 top-3.5"></i>
+            </div>
+            
+            <!-- Action Buttons -->
+            <div class="flex flex-wrap gap-4">
+              <!-- Project Chat Button -->
+              <button
+                class="inline-flex items-center px-4 py-2 text-sm font-medium text-blue-600 bg-blue-50 border border-blue-200 rounded-lg hover:bg-blue-100 transition-colors duration-200"
+                @click="goToProjectChat"
+              >
+                <i class="fas fa-comments mr-2"></i>
+                Project Chat
+              </button>
+              
+              <!-- Create Task Button -->
+              <button
+                class="inline-flex items-center px-6 py-3 bg-primary text-white font-medium rounded-lg hover:bg-green-700 transition duration-200 shadow-sm"
+                @click="goToCreateTask"
+              >
+                <i class="fas fa-plus mr-2"></i>
+                Create New Task
+              </button>
             </div>
           </div>
-          <button
-            class="inline-flex items-center px-6 py-3 bg-primary text-white font-medium rounded-lg hover:bg-green-700 transition duration-200 shadow-sm"
-            @click="goToCreateTask"
-          >
-            <i class="fas fa-plus mr-2"></i>
-            Create New Task
-          </button>
         </div>
       </div>
     </div>
@@ -274,6 +284,15 @@ export default {
       console.log(this.currentUser.userID);
     },
 
+    goToProjectChat() {
+      this.$router.push({
+        name: 'ProjectChat',
+        params: {
+          projectIndex: `project-${this.proj.chatID}`,
+        },
+      });
+    },
+
     showNotification(type, message, duration = 5000) {
       this.notification = {
         show: true,
@@ -295,6 +314,7 @@ export default {
           "projects/fetchTasksFromProject",
           this.$route.params.projIndex
         );
+        console.log("Tasks:", this.tasks);
       } catch (error) {
         this.showNotification(
           "error",
@@ -336,6 +356,7 @@ export default {
           "projects/fetchTasksFromProject",
           projID
         );
+        console.log("Tasks:", this.tasks);
       } catch (error) {
         this.showNotification("error", "Error getting project tasks");
       }
@@ -434,3 +455,53 @@ export default {
   },
 };
 </script>
+<style scoped>
+/* Add to your existing styles */
+.project-chat-button {
+  position: relative;
+  overflow: hidden;
+}
+
+.project-chat-button::after {
+  content: '';
+  position: absolute;
+  top: 50%;
+  left: 50%;
+  width: 5px;
+  height: 5px;
+  background: rgba(59, 130, 246, 0.5);
+  opacity: 0;
+  border-radius: 100%;
+  transform: scale(1, 1) translate(-50%);
+  transform-origin: 50% 50%;
+}
+
+.project-chat-button:hover::after {
+  animation: ripple 1s ease-out;
+}
+
+/* Notification badge for new messages */
+.new-message-badge {
+  position: absolute;
+  top: -8px;
+  right: -8px;
+  background-color: #EF4444;
+  color: white;
+  border-radius: 9999px;
+  padding: 2px 6px;
+  font-size: 0.75rem;
+  font-weight: 600;
+  animation: bounce 1s infinite;
+}
+
+@keyframes bounce {
+  0%, 100% {
+    transform: translateY(-25%);
+    animation-timing-function: cubic-bezier(0.8, 0, 1, 1);
+  }
+  50% {
+    transform: translateY(0);
+    animation-timing-function: cubic-bezier(0, 0, 0.2, 1);
+  }
+}
+</style>

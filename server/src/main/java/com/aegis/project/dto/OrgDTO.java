@@ -1,5 +1,7 @@
 package com.aegis.project.dto;
 
+import com.aegis.project.model.OrgModel;
+
 import java.util.HashSet;
 import java.util.Set;
 
@@ -29,6 +31,20 @@ public class OrgDTO {
     this.encodedImage = encodedImage;
     this.users = users;
     this.chatID = chatID;
+  }
+
+  public OrgDTO(OrgModel org ) {
+    this.orgID = org.getOrgID();
+    this.orgName = org.getOrgName();
+    this.orgDescription = org.getOrgDescription();
+    this.orgOwnerID = org.getOrgOwnerID();
+    this.encodedImage = org.getEncodedImage();
+    this.users = org
+      .getUsers()
+      .stream()
+      .map(UserDTO::new)
+      .collect(java.util.stream.Collectors.toSet());
+    this.chatID = org.getChatID();
   }
 
   public OrgDTO() {}
@@ -81,5 +97,11 @@ public class OrgDTO {
     this.encodedImage = encodedImage;
   }
 
+  public int getChatID() {
+    return chatID;
+  }
 
+  public void setChatID(int chatID) {
+    this.chatID = chatID;
+  }
 }

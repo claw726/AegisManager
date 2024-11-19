@@ -515,6 +515,12 @@ public class TaskService {
                         -> new RuntimeException("Task not found with id: " + taskID)
                 );
         task.getAssignedUsers().add(userToAdd);
+
+        ChatModel chat = chatRepository.findById(task.getChatID()).orElseThrow(() ->
+                new RuntimeException("Chat not found with id: " + task.getChatID()));
+
+        chat.addParticipant(userToAdd.getUserID());
+        chatRepository.save(chat);
         taskRepository.save(task);
     }
 
