@@ -206,6 +206,78 @@ const actions = {
       throw error;
     }
   },
+
+  async fetchProjectFromOrgs({ dispatch, commit}, orgIDs) {
+    commit("SET_LOADING", true);
+    commit("SET_ERROR", null);
+    try {
+      // check if orgIDs exists and is not empty
+      if (!orgIDs || !Array.isArray(orgIDs) || orgIDs.length === 0) {
+        console.log("No orgIDs provided");
+        commit("SET_PROJECTS", []);
+        return [];
+      }
+
+      const projectPromises = orgIDs.map(orgID => dispatch("fetchOrgProjects", orgID));
+      const projectArrays = await Promise.all(projectPromises);
+
+      // Flatten the array of arrays
+      const allProjects = Array.from(new Set(projectArrays.flat()));
+      console.log("All projects: ", allProjects);
+      commit("SET_PROJECTS", allProjects);
+      return allProjects;
+    } catch (error) {
+      commit("SET_ERROR", error.message);
+      throw error;
+  } finally {
+    commit("SET_LOADING", false);
+  }
+},
+
+  async fetchProjectsWithTasks({ dispatch }, orgIDs) {
+    try {
+      console.log('Starting fetchProjectsWithTasks with orgIDs:', orgIDs);
+      // Check if orgIDs exists and is not empty
+      if (!orgIDs || !Array.isArray(orgIDs) || orgIDs.length === 0) {
+        console.log('No organizations to fetch projects from');
+        return [];
+      }
+      const projects = await dispatch('fetchProjectFromOrgs', orgIDs);
+      console.log('Received projects from fetchProjectFromOrgs:', projects);
+
+      if (!projects || projects.length === 0) {
+        console.log('No projects received');
+        return [];
+      }
+
+      // Fetch tasks for each project
+      const projectsWithTasks = await Promise.all(
+        projects.map(async (project) => {
+          try {
+            console.log(`Fetching tasks for project ${project.projectID}`);
+            const tasks = await dispatch('fetchTasksFromProject', project.projectID);
+            console.log(`Received tasks for project ${project.projectID}:`, tasks);
+            return {
+              ...project,
+              tasks: tasks || []
+            };
+          } catch (error) {
+            console.error(`Error fetching tasks for project ${project.projectID}:`, error);
+            return {
+              ...project,
+              tasks: []
+            };
+          }
+        })
+      );
+      console.log('Final projectsWithTasks:', projectsWithTasks);
+      return projectsWithTasks;
+    } catch (error) {
+      console.error("Error fetching projects with tasks: ", error.message);
+      throw error;
+    }
+  },
+
   async fetchTasksFromProject({ rootState }, projectID) {
     try {
       const response = await axios.get(
