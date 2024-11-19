@@ -1,5 +1,10 @@
 package com.aegis.project.model;
 
+import java.util.Date;
+import java.util.HashSet;
+import java.util.Set;
+
+import jakarta.persistence.CascadeType;
 import jakarta.persistence.Column;
 import jakarta.persistence.Entity;
 import jakarta.persistence.FetchType;
@@ -10,151 +15,160 @@ import jakarta.persistence.JoinColumn;
 import jakarta.persistence.JoinTable;
 import jakarta.persistence.ManyToMany;
 import jakarta.persistence.ManyToOne;
+import jakarta.persistence.OneToMany;
 import jakarta.persistence.Table;
-import java.util.Date;
-import java.util.HashSet;
-import java.util.Set;
 
 @Entity
 @Table(name = "tasks")
 public class TaskModel {
 
-  @Id
-  @GeneratedValue(strategy = GenerationType.IDENTITY)
-  private int taskID;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private int taskID;
 
-  @Column(name = "parent_project_ID")
-  private int parentProjectID;
+    @Column(name = "parent_project_ID")
+    private int parentProjectID;
 
-  @ManyToOne(fetch = FetchType.LAZY)
-  @JoinColumn(name = "parent_project") // Foreign key column in ProjectModel table
-  private ProjectModel parentProject;
+    @ManyToOne(fetch = FetchType.LAZY)
+    @JoinColumn(name = "parent_project") // Foreign key column in ProjectModel table
+    private ProjectModel parentProject;
 
-  @Column(name = "parent_org_ID")
-  private int parentOrgID;
+    @Column(name = "parent_org_ID")
+    private int parentOrgID;
 
-  @Column(name = "task_name")
-  private String taskName;
+    @Column(name = "task_name")
+    private String taskName;
 
-  @Column(name = "task_description")
-  private String taskDescription;
+    @Column(name = "task_description")
+    private String taskDescription;
 
-  @Column(name = "assigner_ID")
-  private Integer assignerID;
+    @Column(name = "assigner_ID")
+    private Integer assignerID;
 
-  @ManyToMany
-  @JoinTable(
-    name = "task_assignees",
-    joinColumns = @JoinColumn(name = "task_id"),
-    inverseJoinColumns = @JoinColumn(name = "user_id")
-  )
-  private Set<UserModel> assignedUsers = new HashSet<>();
+    @ManyToMany
+    @JoinTable(
+            name = "task_assignees",
+            joinColumns = @JoinColumn(name = "task_id"),
+            inverseJoinColumns = @JoinColumn(name = "user_id")
+    )
+    private Set<UserModel> assignedUsers = new HashSet<>();
 
-  @Column(name = "task_priority")
-  private String taskPriority;
+    @OneToMany(mappedBy = "task", cascade = CascadeType.ALL, fetch = FetchType.EAGER)
+    private Set<FileModel> files = new HashSet<>();
 
-  @Column(name = "due_date")
-  private Date dueDate;
+    @Column(name = "task_priority")
+    private String taskPriority;
 
-  @Column(name = "is_complete")
-  private boolean isComplete;
+    @Column(name = "due_date")
+    private Date dueDate;
 
-  @Column(name = "chatID")
-  private int chatID;
+    @Column(name = "is_complete")
+    private boolean isComplete;
 
-  public int getTaskID() {
-    return taskID;
-  }
+    @Column(name = "chatID")
+    private int chatID;
 
-  public void setTaskID(Integer taskID) {
-    this.taskID = taskID;
-  }
+    public int getTaskID() {
+        return taskID;
+    }
 
-  public ProjectModel getParentProject() {
-    return parentProject;
-  }
+    public void setTaskID(Integer taskID) {
+        this.taskID = taskID;
+    }
 
-  public void setParentProject(ProjectModel parentProject) {
-    this.parentProject = parentProject;
-  }
+    public ProjectModel getParentProject() {
+        return parentProject;
+    }
 
-  public int getParentProjectID() {
-    return parentProjectID;
-  }
+    public void setParentProject(ProjectModel parentProject) {
+        this.parentProject = parentProject;
+    }
 
-  public void setParentProjectID(Integer parentProjectID) {
-    this.parentProjectID = parentProjectID;
-  }
+    public int getParentProjectID() {
+        return parentProjectID;
+    }
 
-  public int getParentOrgID() {
-    return parentOrgID;
-  }
+    public void setParentProjectID(Integer parentProjectID) {
+        this.parentProjectID = parentProjectID;
+    }
 
-  public void setParentOrgID(Integer parentOrgID) {
-    this.parentOrgID = parentOrgID;
-  }
+    public int getParentOrgID() {
+        return parentOrgID;
+    }
 
-  public String getTaskName() {
-    return taskName;
-  }
+    public void setParentOrgID(Integer parentOrgID) {
+        this.parentOrgID = parentOrgID;
+    }
 
-  public void setTaskName(String taskName) {
-    this.taskName = taskName;
-  }
+    public String getTaskName() {
+        return taskName;
+    }
 
-  public String getTaskDescription() {
-    return taskDescription;
-  }
+    public void setTaskName(String taskName) {
+        this.taskName = taskName;
+    }
 
-  public void setTaskDescription(String taskDescription) {
-    this.taskDescription = taskDescription;
-  }
+    public String getTaskDescription() {
+        return taskDescription;
+    }
 
-  public int getAssignerID() {
-    return assignerID;
-  }
+    public void setTaskDescription(String taskDescription) {
+        this.taskDescription = taskDescription;
+    }
 
-  public void setAssignerID(Integer assignerID) {
-    this.assignerID = assignerID;
-  }
+    public int getAssignerID() {
+        return assignerID;
+    }
 
-  public Set<UserModel> getAssignedUsers() {
-    return assignedUsers;
-  }
+    public void setAssignerID(Integer assignerID) {
+        this.assignerID = assignerID;
+    }
 
-  public void setAssignedUsers(Set<UserModel> assignedUsers) {
-    this.assignedUsers = assignedUsers;
-  }
+    public Set<UserModel> getAssignedUsers() {
+        return assignedUsers;
+    }
 
-  public String getTaskPriority() {
-    return taskPriority;
-  }
+    public void setAssignedUsers(Set<UserModel> assignedUsers) {
+        this.assignedUsers = assignedUsers;
+    }
 
-  public void setTaskPriority(String taskPriority) {
-    this.taskPriority = taskPriority;
-  }
+    public String getTaskPriority() {
+        return taskPriority;
+    }
 
-  public Date getDueDate() {
-    return dueDate;
-  }
+    public void setTaskPriority(String taskPriority) {
+        this.taskPriority = taskPriority;
+    }
 
-  public void setDueDate(Date dueDate) {
-    this.dueDate = dueDate;
-  }
+    public Date getDueDate() {
+        return dueDate;
+    }
 
-  public boolean isComplete() {
-    return isComplete;
-  }
+    public void setDueDate(Date dueDate) {
+        this.dueDate = dueDate;
+    }
 
-  public void setComplete(boolean isComplete) {
-    this.isComplete = isComplete;
-  }
+    public boolean isComplete() {
+        return isComplete;
+    }
 
-  public int getChatID() {
-    return chatID;
-  }
+    public void setComplete(boolean isComplete) {
+        this.isComplete = isComplete;
+    }
 
-  public void setChatID(int chatID) {
-    this.chatID = chatID;
-  }
+    public int getChatID() {
+        return chatID;
+    }
+
+    public void setChatID(int chatID) {
+        this.chatID = chatID;
+    }
+
+    public Set<FileModel> getFiles() {
+        return files;
+    }
+
+    public void setFiles(Set<FileModel> files) {
+        this.files = files;
+    }
 }

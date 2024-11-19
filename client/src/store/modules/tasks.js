@@ -354,6 +354,24 @@ const actions = {
       commit("SET_UPDATE_STATUS", { loading: false });
     }
   },
+  async addFile({ rootState }, data) {
+  try {
+    const response = await axios.post(
+      `/api/tasks/${data.taskID}/addFile`,  // URL without query parameters
+      data,  // Send the data object in the body
+      {
+        headers: {
+          Authorization: `Bearer ${rootState.auth.authToken}`,
+          'Content-Type': 'application/json'  // Ensure the content type is JSON
+        }
+      }
+    );
+    return response.data;
+  } catch (error) {
+    console.error("Failed to add file");
+    throw new Error("Failed to add file");
+  }
+}
 };
 
 const getters = {
