@@ -1,5 +1,6 @@
 package com.aegis.project.controller;
 
+import com.aegis.project.dto.ChatMessagesDTO;
 import com.aegis.project.dto.MessageDTO;
 import com.aegis.project.service.MessageService;
 import java.util.List;
@@ -92,9 +93,9 @@ public class MessageController {
     public ResponseEntity<?> getOrgMessages(@PathVariable int orgID) {
         logger.info("Attempting to fetch messages for org ID: {}", orgID);
         try {
-            List<MessageDTO> messages = messageService.getOrgMessages(orgID);
-            logger.info("Successfully retrieved {} messages for org ID: {}", messages.size(), orgID);
-            return ResponseEntity.ok(messages);
+            List<ChatMessagesDTO> chatMessagesDTOs = messageService.getOrgMessages(orgID);
+            logger.info("Successfully retrieved {} chats for org ID: {}", chatMessagesDTOs.size(), orgID);
+            return ResponseEntity.ok(chatMessagesDTOs);
         } catch (Exception e) {
             String errorMessage = e.getMessage() != null ? e.getMessage() : "An error occurred while fetching messages";
             if (errorMessage.contains("not found")) {
