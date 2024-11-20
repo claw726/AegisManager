@@ -1,7 +1,5 @@
 import requests
-import os
 from typing import List, Dict
-import urllib.parse
 
 class Character:
   def __init__(self, first_name: str, last_name: str, email: str):

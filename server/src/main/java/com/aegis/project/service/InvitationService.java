@@ -41,12 +41,12 @@ public class InvitationService {
             int invitationType,
             String message
     ) {
-        if (invitationType >= 1 && invitationType <= 3 && invitationRepository.existsInvitationByMessageAndRecipient(message, recipientEmail)) {
+        if (invitationType >= 2 && invitationType <= 4 && invitationRepository.existsInvitationByMessageAndRecipient(message, recipientEmail)) {
             throw new RuntimeException(
-                    "Invitation with given message has already been sent"
+                    "Invitation with given message has already been sent to the user"
             );
         }
-        if (invitationType == 4 && invitationRepository.existsInvitationByMessage(message)) {
+        if (invitationType == 1 && invitationRepository.existsInvitationByMessage(message)) {
             throw new RuntimeException(
                     "Invitation with given message has already been sent"
             );

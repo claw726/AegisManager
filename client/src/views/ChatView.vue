@@ -2,7 +2,6 @@
   <div class="h-screen flex flex-col overflow-hidden bg-background">
     <NavBar class="flex-shrink-0" />
     <div class="flex flex-1 min-h-0">
-      <!-- Light gray background -->
       <!-- Sidebar -->
       <div class="w-80 border-r bg-[#f7f7f7] flex flex-col">
         <!-- Search bar -->
@@ -18,8 +17,30 @@
           </div>
         </div>
 
+        <!-- Loading State -->
+        <div v-if="loading" class="flex-1 flex items-center justify-center">
+          <div class="text-center">
+            <i class="fas fa-spinner fa-spin text-2xl text-gray-400 mb-2"></i>
+            <p class="text-gray-600">Loading chats...</p>
+          </div>
+        </div>
+
+        <!-- Error State -->
+        <div v-else-if="error" class="flex-1 flex items-center justify-center">
+          <div class="text-center text-red-600">
+            <i class="fas fa-exclamation-circle text-2xl mb-2"></i>
+            <p>{{ error }}</p>
+            <button
+              @click="retryLoading"
+              class="mt-2 text-sm text-blue-600 hover:underline"
+            >
+              Retry
+            </button>
+          </div>
+        </div>
+
         <!-- Chat List -->
-        <div class="flex-1 overflow-y-auto min-h-0">
+        <div v-else class="flex-1 overflow-y-auto min-h-0">
           <TransitionGroup name="chat-list" tag="div">
             <!-- Organizations -->
             <template v-if="categorizedChats.organizations.length">
@@ -50,15 +71,14 @@
                 v-show="expandedCategories.organizations"
               >
                 <ChatListItem
-                  v-for="chat in categorizedChats.organizations"
-                  :key="chat.id"
-                  :chat="chat"
-                  :active="activeChat?.id === chat.id"
+                  v-if="org.chat"
+                  :key="`orgchat-${org.orgID}`"
+                  :chat="org.chat"
+                  :active="activeChat?.id === org.chat.id"
                   :searchQuery="searchQuery"
                   @select="handleChatSelect"
+                  class="border-l-2 border-gray-200"
                 />
-              </TransitionGroup>
-            </template>
 
             <!-- Projects -->
             <template v-if="categorizedChats.projects.length">
@@ -138,7 +158,7 @@
               </TransitionGroup>
             </template>
 
-            <!-- Direct Messages -->
+            <!-- Direct Messages Section -->
             <template v-if="categorizedChats.direct.length">
               <div
                 class="px-4 py-2 text-sm font-semibold text-gray-500 bg-gray-50 cursor-pointer hover:bg-gray-100 transition-colors flex items-center justify-between"
@@ -177,7 +197,7 @@
               </TransitionGroup>
             </template>
 
-            <!-- Groups -->
+            <!-- Groups Section -->
             <template v-if="categorizedChats.groups.length">
               <div
                 class="px-4 py-2 text-sm font-semibold text-gray-500 bg-gray-50 cursor-pointer hover:bg-gray-100 transition-colors flex items-center justify-between"
@@ -245,11 +265,6 @@
       </div>
     </div>
   </div>
-  <NewChatModal
-    v-if="showNewChatModal"
-    @close="showNewChatModal = false"
-    @create="createNewChat"
-  />
 </template>
 
 <script>
@@ -267,6 +282,8 @@ export default {
   },
   data() {
     return {
+      loading: true,
+      error: null,
       showNewChatModal: false,
       searchQuery: "",
       expandedCategories: {
@@ -284,7 +301,46 @@ export default {
       currentUser: (state) => state.auth.currentUser,
       activeChat: (state) => state.chat.activeChat,
       messages: (state) => state.chat.messages,
+      organizations: (state) => state.chat.organizations,
+      projects: (state) => state.projects.projects,
+      tasks: (state) => state.tasks.tasks,
     }),
+
+    // Filter organizations where user is a member
+    userOrganizations() {
+      return this.organizations.filter(org =>
+        org.users.some(user => user.userID === this.currentUser.userID)
+      );
+    },
+
+    organizationStructure() {
+      if (!this.userOrganizations || !Array.isArray(this.userOrganizations)) {
+        return [];
+      }
+
+      return this.userOrganizations.map(org => ({
+        ...org,
+        chat: this.findChat('organization', org.chatID),
+        projects: (this.projects || [])
+          .filter(project => project && project.parentOrgID === org.orgID)
+          .map(project => ({
+            ...project,
+            chat: this.findChat('project', project.chatID), // Use project.chatID
+            tasks: (project.tasks || project.projectTasks || []).map(task => {
+              // Make sure task exists and has an ID
+              if (!task || !task.taskID) return null;
+
+              // Find the chat for this task using task.chatID
+              const taskChat = this.findChat('task', task.chatID);
+
+              return {
+                ...task,
+                chat: taskChat
+              };
+            }).filter(task => task !== null) // Remove null tasks
+          }))
+      }));
+    },
 
     categorizedChats() {
       const filtered = this.searchQuery.trim()
@@ -338,16 +394,20 @@ export default {
   },
 
   created() {
-    console.log("ChatView created");
-    const chatId = this.getChatIdFromRoute();
-    if (chatId) {
-      console.log("Initial chat selection:", chatId);
-      this.selectChat(chatId);
-    }
+    // Initialize expanded states for organizations and projects
+    this.organizationStructure.forEach(org => {
+      this.expandedCategories[`org-${org.orgID}`] = true;
+      org.projects.forEach(project => {
+        this.expandedCategories[`project-${project.projectID}`] = true;
+        this.expandedCategories[`tasks-${project.projectID}`] = true;
+      });
+    });
     this.restoreExpandedState();
   },
 
+
   async mounted() {
+    await this.loadData();
     await this.fetchUserChats();
     await this.fetchAndStoreOrganizations();
   },
@@ -360,6 +420,27 @@ export default {
       "fetchUserChats",
       "fetchAndStoreOrganizations",
     ]),
+    toggleCategory(categoryId) {
+    this.$set(
+      this.expandedCategories,
+      categoryId,
+      !this.expandedCategories[categoryId]
+    );
+    localStorage.setItem(
+      'chatExpandedCategories',
+      JSON.stringify(this.expandedCategories)
+    );
+  },
+
+  restoreExpandedState() {
+    const savedState = localStorage.getItem('chatExpandedCategories');
+    if (savedState) {
+      const parsed = JSON.parse(savedState);
+      Object.keys(parsed).forEach(key => {
+        this.$set(this.expandedCategories, key, parsed[key]);
+      });
+    }
+  },
     async createNewChat(chatData) {
       try {
         await this.$store.dispatch("chat/createNewChat", chatData);
