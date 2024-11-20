@@ -164,6 +164,7 @@
             </div>
 
             <!-- New button for file explorer -->
+            <!----
             <label v-if="showLeftButton"
               class="px-4 py-2 upload-btn text-white rounded-lg bg-blue-600 hover:bg-blue-700 cursor-pointer">
               Upload File
@@ -603,6 +604,16 @@ export default {
       console.log("Remove Users task actions");
       this.$router.push({
         name: "removeUserTask",
+        params: {
+          orgIndex: this.fetchedTask.parentOrgID,
+          projIndex: this.fetchedTask.parentProjectID,
+          taskId: this.$route.params.taskId,
+        },
+      });
+    },
+    goToFiles() {
+      this.$router.push({
+        name: "Files",
         params: {
           orgIndex: this.fetchedTask.parentOrgID,
           projIndex: this.fetchedTask.parentProjectID,

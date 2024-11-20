@@ -1,6 +1,7 @@
 package com.aegis.project.repository;
 
 import java.util.List;
+import java.util.Optional;
 import java.util.Set;
 
 import org.springframework.data.jpa.repository.JpaRepository;
@@ -9,6 +10,7 @@ import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
 import org.springframework.stereotype.Repository;
 
+import com.aegis.project.model.FileModel;
 import com.aegis.project.model.TaskModel;
 
 import jakarta.transaction.Transactional;
@@ -70,6 +72,12 @@ public interface TaskRepository extends JpaRepository<TaskModel, Integer> {
     )
     boolean existsTaskByProjectAndName(int parentProjectID, String taskName);
 
+    @Query("SELECT f FROM FileModel f WHERE f.task.taskID = :taskID AND f.fileID = :fileID")
+    Optional<FileModel> findFileByTaskIDAndFileID(@Param("taskID") int taskID, @Param("fileID") int fileID);
+
+    @Query("SELECT f FROM FileModel f WHERE f.task.taskID = :taskID")
+    List<FileModel> findFilesByTaskID(@Param("taskID") int taskID);
+
     @Query("SELECT CASE WHEN COUNT(f) > 0 THEN true ELSE false END "
             + "FROM TaskModel t JOIN t.files f "
             + "WHERE f.taskID = :taskID "
@@ -77,4 +85,15 @@ public interface TaskRepository extends JpaRepository<TaskModel, Integer> {
             + "AND f.fileType = :fileType "
             + "AND f.fileData = :fileData")
     boolean existsIdenticalFile(int taskID, String fileName, String fileType, String fileData);
+
+    @Query("SELECT CASE WHEN COUNT(f) > 0 THEN true ELSE false END "
+            + "FROM TaskModel t JOIN t.files f "
+            + "WHERE f.taskID = :taskID "
+            + "AND f.fileID = :fileID")
+    boolean existsFileByID(int taskID, int fileID);
+
+    @Modifying
+    @Transactional
+    @Query("DELETE FROM FileModel f WHERE f.task.taskID = :taskID AND f.fileID = :fileID")
+    void deleteFileByTaskIDAndFileID(int taskID, int fileID);
 }

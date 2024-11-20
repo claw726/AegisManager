@@ -9,8 +9,6 @@ import com.aegis.project.repository.MessageRepository;
 import com.aegis.project.repository.OrgRepository;
 import com.aegis.project.repository.UserRepository;
 
-import jakarta.transaction.Transactional;
-
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -20,7 +18,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -61,13 +58,13 @@ public class MessageService {
                 throw new RuntimeException("User not authorized to add messages to chat: " + chatID);
             }
 
-            chat.setLastMessage(content);
-            chatRepository.save(chat);
-
             // 4. Create and save message
             MessageModel message = new MessageModel(chat, currentUser.getUserID(), currentUser.getUserName(), content);
             message.markAsRead(currentUser.getUserID());
             messageRepository.save(message);
+
+            chat.setLastMessage(message);
+            chatRepository.save(chat);
 
             // 5. Notify other participants
             Set<Integer> participants = chat.getParticipants();
@@ -155,9 +152,10 @@ public class MessageService {
         if (chat.getLastMessage().equals(message.getContent())) {
             List<MessageModel> messages = messageRepository.findByChat_ChatIDOrderByTimestamp(chat.getChatID());
             if (!messages.isEmpty()) {
-                chat.setLastMessage(messages.get(messages.size() - 1).getContent());
+                chat.setLastMessage(messages.getLast());
             } else {
-                chat.setLastMessage("This message has been deleted");
+                MessageModel lastMessage = new MessageModel(chat, message.getSenderID(), message.getSenderName(), "This message has been deleted");
+                chat.setLastMessage(lastMessage);
             }
             chatRepository.save(chat);
         }

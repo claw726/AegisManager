@@ -39,7 +39,30 @@
           </div>
         </div>
 
+        <!-- Loading State -->
+        <div v-if="loading" class="flex-1 flex items-center justify-center">
+          <div class="text-center">
+            <i class="fas fa-spinner fa-spin text-2xl text-gray-400 mb-2"></i>
+            <p class="text-gray-600">Loading chats...</p>
+          </div>
+        </div>
+
+        <!-- Error State -->
+        <div v-else-if="error" class="flex-1 flex items-center justify-center">
+          <div class="text-center text-red-600">
+            <i class="fas fa-exclamation-circle text-2xl mb-2"></i>
+            <p>{{ error }}</p>
+            <button
+              @click="retryLoading"
+              class="mt-2 text-sm text-blue-600 hover:underline"
+            >
+              Retry
+            </button>
+          </div>
+        </div>
+
         <!-- Chat List -->
+        <div v-else class="flex-1 overflow-y-auto min-h-0">
         <div v-else class="flex-1 overflow-y-auto min-h-0">
           <TransitionGroup name="chat-list" tag="div">
             <!-- Organizations -->
@@ -68,8 +91,13 @@
                   :key="`orgchat-${org.orgID}`"
                   :chat="org.chat"
                   :active="activeChat?.id === org.chat.id"
+                  v-if="org.chat"
+                  :key="`orgchat-${org.orgID}`"
+                  :chat="org.chat"
+                  :active="activeChat?.id === org.chat.id"
                   :searchQuery="searchQuery"
                   @select="handleChatSelect"
+                  class="border-l-2 border-gray-200"
                   class="border-l-2 border-gray-200"
                 />
 
@@ -258,6 +286,8 @@ export default {
     return {
       loading: true,
       error: null,
+      loading: true,
+      error: null,
       showNewChatModal: false,
       searchQuery: "",
       expandedCategories: {},
@@ -269,6 +299,46 @@ export default {
       currentUser: (state) => state.auth.currentUser,
       activeChat: (state) => state.chat.activeChat,
       messages: (state) => state.chat.messages,
+      organizations: (state) => state.chat.organizations,
+      projects: (state) => state.projects.projects,
+      tasks: (state) => state.tasks.tasks,
+    }),
+
+    // Filter organizations where user is a member
+    userOrganizations() {
+      return this.organizations.filter(org =>
+        org.users.some(user => user.userID === this.currentUser.userID)
+      );
+    },
+
+    organizationStructure() {
+      if (!this.userOrganizations || !Array.isArray(this.userOrganizations)) {
+        return [];
+      }
+
+      return this.userOrganizations.map(org => ({
+        ...org,
+        chat: this.findChat('organization', org.chatID),
+        projects: (this.projects || [])
+          .filter(project => project && project.parentOrgID === org.orgID)
+          .map(project => ({
+            ...project,
+            chat: this.findChat('project', project.chatID), // Use project.chatID
+            tasks: (project.tasks || project.projectTasks || []).map(task => {
+              // Make sure task exists and has an ID
+              if (!task || !task.taskID) return null;
+
+              // Find the chat for this task using task.chatID
+              const taskChat = this.findChat('task', task.chatID);
+
+              return {
+                ...task,
+                chat: taskChat
+              };
+            }).filter(task => task !== null) // Remove null tasks
+          }))
+      }));
+    },
       organizations: (state) => state.chat.organizations,
       projects: (state) => state.projects.projects,
       tasks: (state) => state.tasks.tasks,
@@ -388,7 +458,9 @@ created() {
   },
 
 
+
   async mounted() {
+    await this.loadData();
     await this.loadData();
     await this.fetchUserChats();
     await this.fetchAndStoreOrganizations();
@@ -402,6 +474,27 @@ created() {
       "fetchUserChats",
       "fetchAndStoreOrganizations",
     ]),
+    toggleCategory(categoryId) {
+    this.$set(
+      this.expandedCategories,
+      categoryId,
+      !this.expandedCategories[categoryId]
+    );
+    localStorage.setItem(
+      'chatExpandedCategories',
+      JSON.stringify(this.expandedCategories)
+    );
+  },
+
+  restoreExpandedState() {
+    const savedState = localStorage.getItem('chatExpandedCategories');
+    if (savedState) {
+      const parsed = JSON.parse(savedState);
+      Object.keys(parsed).forEach(key => {
+        this.$set(this.expandedCategories, key, parsed[key]);
+      });
+    }
+  },
     toggleCategory(categoryId) {
     this.$set(
       this.expandedCategories,

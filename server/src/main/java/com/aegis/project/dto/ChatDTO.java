@@ -1,9 +1,9 @@
 package com.aegis.project.dto;
 
 import com.aegis.project.model.ChatModel;
+import com.aegis.project.model.MessageModel;
 
 import java.time.LocalDateTime;
-import java.util.Map;
 import java.util.Set;
 
 public class ChatDTO {
@@ -11,10 +11,10 @@ public class ChatDTO {
     String type;
     Set<Integer> participants;
     String title;
-    String lastMessage;
+    MessageDTO lastMessage;
     LocalDateTime createdDate;
 
-    public ChatDTO(String id, String type, Set<Integer> participants, String title, String lastMessage, LocalDateTime createdDate) {
+    public ChatDTO(String id, String type, Set<Integer> participants, String title, MessageDTO lastMessage, LocalDateTime createdDate) {
         this.id = id;
         this.type = type;
         this.participants = participants;
@@ -28,7 +28,11 @@ public class ChatDTO {
         this.type = chat.getType();
         this.participants = chat.getParticipants();
         this.title = chat.getTitle();
-        this.lastMessage = chat.getLastMessage();
+        if (chat.getLastMessage() != null) {
+            this.lastMessage = new MessageDTO(chat.getLastMessage());
+        } else {
+            this.lastMessage = null;
+        }
         this.createdDate = chat.getCreatedDate();
     }
 
@@ -67,11 +71,11 @@ public class ChatDTO {
         this.title = title;
     }
 
-    public String getLastMessage() {
+    public MessageDTO getLastMessage() {
         return lastMessage;
     }
 
-    public void setLastMessage(String lastMessage) {
+    public void setLastMessage(MessageDTO lastMessage) {
         this.lastMessage = lastMessage;
     }
 

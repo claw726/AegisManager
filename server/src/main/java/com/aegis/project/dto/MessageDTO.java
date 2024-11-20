@@ -45,39 +45,23 @@ public class MessageDTO {
 
   public MessageDTO() {}
 
-  public int getMessageID() {
-    return id;
-  }
-
-  public String getChatId() {
-    return chatId;
-  }
-
   public int getId() {
     return id;
   }
 
-  public String getSenderName() {
-    return senderName;
+  public void setId(int id) {
+    this.id = id;
   }
 
-  public void setChatId(String chatId) {
-    this.chatId = chatId;
+  public String getContent() {
+    return content;
   }
 
-  public String getTimestamp() {
-    return timestamp;
+  public void setContent(String content) {
+    this.content = content;
   }
 
-  public boolean isDeleted() {
-    return isDeleted;
-  }
-
-  public Set<Integer> getReadBy() {
-    return readBy;
-  }
-
-  public int getSenderId() {
+  public int getSenderID() {
     return senderID;
   }
 
@@ -85,7 +69,43 @@ public class MessageDTO {
     this.senderID = senderID;
   }
 
-  public String getContent() {
-    return content;
+  public String getSenderName() {
+    return senderName;
+  }
+
+  public void setSenderName(String senderName) {
+    this.senderName = senderName;
+  }
+
+  public String getTimestamp() {
+    return timestamp;
+  }
+
+  public void setTimestamp(String timestamp) {
+    this.timestamp = timestamp;
+  }
+
+  public boolean isDeleted() {
+    return isDeleted;
+  }
+
+  public void setDeleted(boolean deleted) {
+    isDeleted = deleted;
+  }
+
+  public Set<Integer> getReadBy() {
+    return readBy;
+  }
+
+  public void setReadBy(Set<Integer> readBy) {
+    this.readBy = readBy;
+  }
+
+  public String getChatId() {
+    return chatId;
+  }
+
+  public void setChatId(String chatId) {
+    this.chatId = chatId;
   }
 }
