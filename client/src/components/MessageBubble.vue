@@ -1,10 +1,11 @@
 <template>
   <div class="w-full">
     <div :class="['w-full flex', isOwn ? 'justify-end' : 'justify-start mb-2']">
-      <div class="flex items-end gap-2 max-w-[85%]"> <!-- Increased max-width -->
+      <div class="flex items-end gap-2 max-w-[85%]">
+        <!-- Increased max-width -->
         <!-- Sender Avatar (for non-own messages) -->
         <div v-if="!isOwn && showSender" class="w-8 h-8 flex-shrink-0">
-          <div 
+          <div
             class="w-8 h-8 rounded-full flex items-center justify-center overflow-hidden"
             :class="[!senderProfilePicture ? 'bg-gray-300' : '']"
           >
@@ -20,9 +21,13 @@
         </div>
 
         <!-- Message Content -->
-        <div class="min-w-0 max-w-full"> <!-- Changed from max-w-[70%] to max-w-full -->
+        <div class="min-w-0 max-w-full">
+          <!-- Changed from max-w-[70%] to max-w-full -->
           <!-- Sender Name -->
-          <div v-if="!isOwn && showSender" class="text-sm text-gray-600 mb-1 ml-1">
+          <div
+            v-if="!isOwn && showSender"
+            class="text-sm text-gray-600 mb-1 ml-1"
+          >
             {{ message.senderName }}
           </div>
 
@@ -32,7 +37,7 @@
               'rounded-2xl px-4 py-2 relative group inline-block max-w-full', // Added inline-block
               isOwn
                 ? 'bg-blue-500 text-white rounded-tr-sm'
-                : 'bg-[#e9e9eb] text-black rounded-tl-sm'
+                : 'bg-[#e9e9eb] text-black rounded-tl-sm',
             ]"
           >
             <!-- Delete Button (only show for own messages) -->
@@ -58,7 +63,7 @@
             <div
               :class="[
                 'text-xs mt-1',
-                isOwn ? 'text-blue-100' : 'text-gray-500'
+                isOwn ? 'text-blue-100' : 'text-gray-500',
               ]"
             >
               {{ formatTimestamp(message.timestamp) }}
@@ -96,7 +101,7 @@
 </template>
 
 <script>
-import { mapState, mapActions } from 'vuex';
+import { mapState, mapActions } from "vuex";
 
 export default {
   name: "MessageBubble",
@@ -104,9 +109,9 @@ export default {
     message: {
       type: Object,
       required: true,
-      validator: function(obj) {
+      validator: function (obj) {
         return typeof obj.deleted !== "undefined";
-      }
+      },
     },
     isOwn: {
       type: Boolean,
@@ -131,9 +136,9 @@ export default {
 
   computed: {
     ...mapState("chat", ["users"]),
-    
+
     sender() {
-      return this.users.find(user => user.userID === this.message.senderId);
+      return this.users.find((user) => user.userID === this.message.senderId);
     },
 
     senderProfilePicture() {
@@ -169,7 +174,7 @@ export default {
           messageId: this.message.id,
         });
         this.showDeleteModal = false;
-        this.$emit('message-deleted');
+        this.$emit("message-deleted");
       } catch (error) {
         console.error("Error deleting message:", error);
       }
