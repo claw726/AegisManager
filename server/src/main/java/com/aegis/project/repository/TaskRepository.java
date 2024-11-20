@@ -75,6 +75,9 @@ public interface TaskRepository extends JpaRepository<TaskModel, Integer> {
     @Query("SELECT f FROM FileModel f WHERE f.task.taskID = :taskID AND f.fileID = :fileID")
     Optional<FileModel> findFileByTaskIDAndFileID(@Param("taskID") int taskID, @Param("fileID") int fileID);
 
+    @Query("SELECT f FROM FileModel f WHERE f.task.taskID = :taskID")
+    List<FileModel> findFilesByTaskID(@Param("taskID") int taskID);
+
     @Query("SELECT CASE WHEN COUNT(f) > 0 THEN true ELSE false END "
             + "FROM TaskModel t JOIN t.files f "
             + "WHERE f.taskID = :taskID "
