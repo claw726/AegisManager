@@ -159,7 +159,7 @@
         >
           <MessageBubble
             :message="message"
-            :isOwn="message.senderId === currentUser?.userID"
+            :isOwn="message.senderID === currentUser?.userID"
             :showSender="shouldShowSenderName(message, index)"
             :showTimestamp="shouldShowTimestamp(message, index)"
             class="w-full"
@@ -512,7 +512,7 @@ export default {
       if (this.activeChat?.type === "direct") return false;
 
       // Don't show sender name for own messages
-      if (message.senderId === this.currentUser?.id) return false;
+      if (message.senderID === this.currentUser?.id) return false;
 
       // Show sender name if it's the first message
       if (index === 0) return true;
@@ -521,7 +521,7 @@ export default {
       const previousMessage = this.chatMessages[index - 1];
 
       // Show sender name if previous message was from a different sender
-      return previousMessage.senderId !== message.senderId;
+      return previousMessage.senderID !== message.senderID;
     },
     shouldShowTimestamp(message, index) {
       if (index === 0) return true;

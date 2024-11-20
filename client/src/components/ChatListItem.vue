@@ -91,14 +91,24 @@
 
       <!-- Rest of the chat item content -->
       <div class="flex-1 min-w-0">
+        <!-- Title -->
         <div class="font-semibold truncate flex items-center">
           <i :class="[chatTypeIconSmall, 'mr-2 text-gray-400 text-sm']" />
           <span :class="titleClass" v-html="highlightText(displayTitle)"></span>
         </div>
-        <div
-          class="text-sm text-gray-500 truncate"
-          v-html="highlightText(chat.lastMessage)"
-        ></div>
+
+        <!-- Last Message -->
+        <div class="flex flex-col">
+          <!-- Message content -->
+          <div class="text-sm text-gray-600 truncate" v-html="highlightText(chat.lastMessage?.content)"></div>
+
+          <!-- Sender and timestamp -->
+          <div class="flex items-center text-xs text-gray-400 mt-1">
+            <span class="font-medium">{{ chat.lastMessage?.senderName }}</span>
+            <span class="mx-1">•</span>
+            <span>{{ formatTimestamp(chat.lastMessage?.timestamp) }}</span>
+          </div>
+        </div>
       </div>
       <div
         v-if="chat.unreadCount"
@@ -277,6 +287,31 @@ export default {
       const after = text.slice(index + query.length);
 
       return `${before}<span class="highlight">${match}</span>${after}`;
+    },
+    formatTimestamp(timestamp) {
+      if (!timestamp) return '';
+
+      const date = new Date(timestamp + 'Z');
+      const now = new Date();
+      const diff = now - date;
+
+      // Less than 24 hours ago
+      if (diff < 24 * 60 * 60 * 1000) {
+        return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone });
+      }
+
+      // Less than 7 days ago
+      if (diff < 7 * 24 * 60 * 60 * 1000) {
+        const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        return days[date.getDay()];
+      }
+
+      // More than 7 days ago
+      return date.toLocaleDateString([], {
+        month: 'short',
+        day: 'numeric',
+        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+      });
     },
 
     handleImageError() {
@@ -519,6 +554,29 @@ i {
 
 .chat-type-group {
   border-left: 3px solid theme("colors.yellow.500");
+}
+.text-xs {
+  font-size: 0.75rem;
+  line-height: 1rem;
+}
+
+.font-medium {
+  font-weight: 500;
+}
+
+/* Optional: Add a hover effect for the timestamp */
+.chat-list-item:hover .text-gray-400 {
+  color: theme('colors.gray.600');
+}
+
+/* Optional: Add ellipsis for long sender names */
+.font-medium {
+  max-width: 120px;
+  display: inline-block;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  vertical-align: bottom;
 }
 </style>
 ```

@@ -107,12 +107,19 @@
             </div>
           </div>
         </div>
+
         <!-- Action Buttons -->
         <div class="px-6 py-4 bg-gray-50 border-t border-gray-200">
           <div class="flex justify-between items-center">
             <!-- Left side buttons -->
             <div class="flex items-center space-x-3">
-              <button v-if="!fetchedTask.complete && showLeftButton"
+              <button
+                class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200"
+                @click="goToFiles">
+                <i class="fas fa-file mr-2"></i>
+                Files
+              </button>
+              <button
                 class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
                 @click="goToTaskChat">
                 <i class="fas fa-comments mr-2"></i>
@@ -126,15 +133,27 @@
               </button>
             </div>
 
-            <button v-if="!fetchedTask.complete && showLeftButton"
-              class="px-4 py-2 edit-btn text-white rounded-lg hover:bg-green-600" @click="goToEditTask">
-              Edit Task
-            </button>
+            <div class="flex items-center space-x-3">
+              <!-- Edit Button -->
+              <button 
+                v-if="!fetchedTask.complete && showLeftButton"
+                class="inline-flex items-center px-4 py-2 bg-amber-600 text-white text-sm font-medium rounded-lg hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 transition-colors duration-200"
+                @click="goToEditTask"
+              >
+                <i class="fas fa-edit mr-2"></i>
+                Edit Task
+              </button>
 
-            <button v-if="showLeftButton" class="px-4 py-2 remove-btn text-gray-700 rounded-lg hover:bg-gray-300"
-              @click="showPopup = true">
-              Delete Task
-            </button>
+              <!-- Delete Button -->
+              <button 
+                v-if="showLeftButton"
+                class="inline-flex items-center px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200"
+                @click="showPopup = true"
+              >
+                <i class="fas fa-trash-alt mr-2"></i>
+                Delete Task
+              </button>
+            </div>
 
             <div v-if="showPopup" class="popup">
               <div class="popup-content">
@@ -150,7 +169,42 @@
               Upload File
               <input type="file" class="hidden" @change="handleFileUpload" />
             </label>
+          -->
 
+
+          </div>
+        </div>
+        <!-- Reassignment Controls -->
+        <div v-if="!fetchedTask.complete && showLeftButton && taskUsers.length > 0"
+            class="mt-6 p-6 bg-gray-50 border-t border-gray-200">
+          <div class="flex items-center space-x-4">
+            <div class="flex-1">
+              <label for="assignerSelect" class="block text-sm font-medium text-gray-700 mb-2">
+                Select New Assigner
+              </label>
+              <select
+                id="assignerSelect"
+                v-model="selectedAssigner"
+                class="block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              >
+                <option value="">Select New Assigner</option>
+                <option
+                  v-for="user in taskUsers"
+                  :key="user.email"
+                  :value="user.email"
+                >
+                  {{ user.label }}
+                </option>
+              </select>
+            </div>
+
+            <button
+              class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200"
+              @click="sendAssignerInvite"
+            >
+              <i class="fas fa-user-plus mr-2"></i>
+              Confirm Reassignment
+            </button>
           </div>
         </div>
       </div>
@@ -240,6 +294,12 @@ export default {
     showLeftButton() {
       return this.IsAssigner();
     },
+    availableAssigners() {
+      return this.taskUsers.filter(user => user.userID !== this.currentUser.userID);
+    },
+    canReassign() {
+      return this.showLeftButton && !this.fetchedTask.complete;
+    }
   },
 
   watch: {

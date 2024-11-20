@@ -112,7 +112,6 @@ const actions = {
   async fetchUsers({ rootState, commit }) {
     try {
       commit("SET_LOADING", true);
-      console.log("Fetching users...");
       const response = await axios.get("/api/users/getAllUsers", {
         headers: {
           Authorization: `Bearer ${rootState.auth.authToken}`,
@@ -122,7 +121,6 @@ const actions = {
       const users = Array.isArray(response.data)
         ? response.data
         : [response.data];
-      console.log("Fetched users:", users);
       commit("SET_USERS", users);
     } catch (error) {
       console.error("Error fetching users:", error);
@@ -141,7 +139,6 @@ const actions = {
     const numericChatId = parseInt(chatId.match(/\d+/)[0]);
     commit("SET_LOADING", true);
     try {
-      console.log(`Fetching messages for chat ${chatId}`);
 
       const response = await axios.get(
         `/api/messages/${numericChatId}/getMessages`,
@@ -156,7 +153,6 @@ const actions = {
         commit("SET_MESSAGES", { chatId, messages: [] });
       }
       const messages = response.data || [];
-      console.log(`Retrieved ${messages.length} messages for chat ${chatId}`);
       commit("SET_MESSAGES", { chatId, messages: messages });
       return messages;
     } catch (error) {
@@ -175,7 +171,6 @@ const actions = {
     }
 
     try {
-      console.log(`Selecting chat ${chatId}`);
       // Get chat and messages in parallel
       const [chat, messages] = await Promise.all([
         dispatch("getChat", chatId),
@@ -218,6 +213,7 @@ const actions = {
       await sendMessage({
         chatId: chatId,
         content: content,
+        senderID: rootState.auth.currentUser.userID,
         senderEmail: rootState.auth.currentUser.email,
         targetEmail: state.activeChat.participants.find(
           (p) => p !== rootState.auth.currentUser.userID,
@@ -300,12 +296,6 @@ const actions = {
         formData.append("participants", participantId);
       });
 
-      console.log("Creating chat with params:", {
-        type,
-        participants: Array.from(participants),
-        title,
-      });
-
       const response = await axios.post("/api/chats/create", formData, {
         headers: {
           Authorization: `Bearer ${rootState.auth.authToken}`,
@@ -337,7 +327,7 @@ const actions = {
         id: messageData.id || `temp-${Date.now()}`,
         chatId: messageData.chatId,
         content: messageData.content,
-        senderId: messageData.senderId,
+        senderID: messageData.senderID,
         senderEmail: messageData.senderEmail,
         timestamp: messageData.timestamp || new Date().toISOString(),
         status: messageData.status || "delivered",
@@ -368,7 +358,7 @@ const actions = {
       }
 
       // Update the unread count
-      if (messageData.senderId !== rootState.auth.currentUser.userID) {
+      if (messageData.senderID !== rootState.auth.currentUser.userID) {
         const chat = state.chats.find((chat) => chat.id === messageData.chatId);
         if (chat) {
           chat.unreadCount = chat.unreadCount ? chat.unreadCount + 1 : 1;
