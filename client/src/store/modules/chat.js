@@ -83,11 +83,25 @@ const mutations = {
   },
   DELETE_MESSAGE(state, { chatId, messageId, deleted }) {
     if (state.messages[chatId]) {
-      const message = state.messages[chatId].find(
+      const messageIndex = state.messages[chatId].findIndex(
         (msg) => msg.id === messageId,
       );
-      if (message) {
-        message.deleted = deleted;
+      if (messageIndex !== -1) {
+        // Create a new message object with the deleted flag
+        const updatedMessage = {
+          ...state.messages[chatId][messageIndex],
+          deleted: deleted,
+        };
+
+        // create a new array with the updated message
+        const updatedMessages = [...state.messages[chatId]];
+        updatedMessages[messageIndex] = updatedMessage;
+
+        // Update the messages in the state
+        state.messages = {
+          ...state.messages,
+          [chatId]: updatedMessages,
+        };
       }
     }
   },
@@ -327,12 +341,15 @@ const actions = {
         id: messageData.id || `temp-${Date.now()}`,
         chatId: messageData.chatId,
         content: messageData.content,
+        deleted: messageData.deleted || false,
         senderID: messageData.senderID,
         senderEmail: messageData.senderEmail,
         timestamp: messageData.timestamp || new Date().toISOString(),
         status: messageData.status || "delivered",
         type: messageData.type || "text",
+
       };
+
 
       // Add message to chat messages
       commit("ADD_MESSAGE", {
@@ -340,10 +357,19 @@ const actions = {
         message: formattedMessage,
       });
 
+      // set the delete flag if the deleted flag is true
+      if (messageData.deleted) {
+        commit("DELETE_MESSAGE", {
+          chatId: messageData.chatId,
+          messageId: messageData.id,
+          deleted: true,
+        });
+      }
+
       // Update chat last message
       commit("UPDATE_CHAT_LAST_MESSAGE", {
         chatId: messageData.chatId,
-        lastMessage: formattedMessage.content,
+        lastMessage: formattedMessage,
       });
 
       // If this is a new chat, add it to the chats list

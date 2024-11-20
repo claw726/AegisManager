@@ -85,6 +85,7 @@ class WebSocketService {
                     chatId: messageData.chatId,
                     content: messageData.content,
                     senderID: messageData.senderID,
+                    deleted: messageData.deleted || false,
                     senderEmail: messageData.senderEmail,
                     timestamp: messageData.timestamp || new Date().toISOString(),
                     status: 'delivered',
