@@ -1,5 +1,6 @@
 package com.aegis.project.model;
 
+import com.aegis.project.dto.MessageDTO;
 import jakarta.persistence.*;
 
 import java.time.LocalDateTime;
@@ -33,8 +34,9 @@ public class ChatModel {
     @Column(name = "created_date")
     private LocalDateTime createdDate;
 
-    @Column(name = "last_message")
-    private String lastMessage;
+    @OneToOne(cascade = CascadeType.ALL)
+    @JoinColumn(name = "last_message_id", referencedColumnName = "messageID")
+    private MessageModel lastMessage;
 
     public ChatModel() {
     }
@@ -44,7 +46,7 @@ public class ChatModel {
         this.title = title;
         this.participants = participants;
         this.createdDate = LocalDateTime.now();
-        this.lastMessage = "";
+        this.lastMessage = null;
     }
 
     public void addParticipant(int userID) {
@@ -119,16 +121,16 @@ public class ChatModel {
         this.createdDate = createdDate;
     }
 
-    public String getLastMessage() {
+    public MessageModel getLastMessage() {
         return lastMessage;
     }
 
-    public void setLastMessage(String lastMessage) {
+    public void setLastMessage(MessageModel lastMessage) {
         this.lastMessage = lastMessage;
     }
 
     public void addMessage(MessageModel message) {
-        lastMessage = message.getContent();
+        lastMessage = message;
         messages.addLast(message);
     }
 }

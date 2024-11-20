@@ -21,6 +21,7 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.server.ResponseStatusException;
 
+import com.aegis.project.dto.FileDTO;
 import com.aegis.project.dto.TaskDTO;
 import com.aegis.project.service.TaskService;
 
@@ -420,6 +421,62 @@ public class TaskController {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
             }
             //"
+        }
+    }
+
+    @GetMapping("/{taskID}/getFile")
+    public ResponseEntity<FileDTO> getFile(@PathVariable int taskID, @RequestParam int fileID) {
+        try {
+            FileDTO file = taskService.getFile(taskID, fileID);
+            logger.info("Got file: " + file);
+            return ResponseEntity.ok(file);
+        } catch (RuntimeException e) {
+            logger.error("Error fetching task with ID: " + taskID, e);
+            if (e.getMessage().contains("Task not found with id:")) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            } else if (e.getMessage().contains("File not found")) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(null);
+            } else {
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+                        null
+                );
+            }
+        }
+    }
+
+    @GetMapping("/{taskID}/getAllFiles")
+    public ResponseEntity<Set<FileDTO>> getAllTaskFiles(@PathVariable int taskID) {
+        try {
+            return ResponseEntity.ok(taskService.getAllTaskFiles(taskID));
+        } catch (RuntimeException e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
+
+    @DeleteMapping("/{taskID}/deleteFile")
+    public ResponseEntity<String> deleteFile(@PathVariable int taskID, @RequestParam int fileID) {
+        try {
+            taskService.deleteFile(taskID, fileID);
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(
+                    "File deleted successfully"
+            );
+        } catch (RuntimeException e) {
+            if (e.getMessage().contains("Task not found with id:")) {
+                logger.info("No task found with ID: {}", taskID);
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            } else if (e.getMessage().contains("User not found with email")) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            } else if (e.getMessage().contains("User does not have permission")) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+            } else if (e.getMessage().contains("File not found with id:")) {
+                logger.info("No file found with ID: {} in task with ID: {}", fileID, taskID);
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            } else {
+                logger.info(e.getMessage());
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+                        e.getMessage()
+                );
+            }
         }
     }
 

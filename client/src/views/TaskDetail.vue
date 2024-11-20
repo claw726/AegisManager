@@ -112,6 +112,12 @@
           <div class="flex justify-between items-center">
             <!-- Left side buttons -->
             <div class="flex items-center space-x-3">
+              <button
+                class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200"
+                @click="goToFiles">
+                <i class="fas fa-file mr-2"></i>
+                Files
+              </button>
               <button v-if="!fetchedTask.complete && showLeftButton"
                 class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
                 @click="goToTaskChat">
@@ -127,7 +133,7 @@
             </div>
 
             <button v-if="!fetchedTask.complete && showLeftButton"
-              class="px-4 py-2 edit-btn text-white rounded-lg hover:bg-green-600" @click="goToEditTask">
+              class="px-4 py-2 edit-btn text-black rounded-lg hover:bg-green-600" @click="goToEditTask">
               Edit Task
             </button>
 
@@ -145,11 +151,14 @@
             </div>
 
             <!-- New button for file explorer -->
+            <!----
             <label v-if="showLeftButton"
               class="px-4 py-2 upload-btn text-white rounded-lg bg-blue-600 hover:bg-blue-700 cursor-pointer">
               Upload File
               <input type="file" class="hidden" @change="handleFileUpload" />
             </label>
+          -->
+
 
           </div>
         </div>
@@ -543,6 +552,16 @@ export default {
       console.log("Remove Users task actions");
       this.$router.push({
         name: "removeUserTask",
+        params: {
+          orgIndex: this.fetchedTask.parentOrgID,
+          projIndex: this.fetchedTask.parentProjectID,
+          taskId: this.$route.params.taskId,
+        },
+      });
+    },
+    goToFiles() {
+      this.$router.push({
+        name: "Files",
         params: {
           orgIndex: this.fetchedTask.parentOrgID,
           projIndex: this.fetchedTask.parentProjectID,

@@ -36,6 +36,9 @@ public class MessageModel {
     @Column(name = "user_id")
     private Set<Integer> readBy = new HashSet<>();
 
+    @OneToOne(mappedBy = "lastMessage")
+    private ChatModel lastMessageChat;
+
     public MessageModel() {
     }
 
@@ -114,5 +117,13 @@ public class MessageModel {
 
     public void setSenderName(String senderName) {
         this.senderName = senderName;
+    }
+
+    public ChatModel getLastMessageChat() {
+        return lastMessageChat;
+    }
+
+    public void setLastMessageChat(ChatModel lastMessageChat) {
+        this.lastMessageChat = lastMessageChat;
     }
 }

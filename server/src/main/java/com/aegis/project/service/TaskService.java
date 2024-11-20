@@ -16,6 +16,7 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import com.aegis.project.controller.SocketIOController;
+import com.aegis.project.dto.FileDTO;
 import com.aegis.project.dto.TaskDTO;
 import com.aegis.project.exception.TaskNotFoundException;
 import com.aegis.project.model.ChatModel;
@@ -29,6 +30,8 @@ import com.aegis.project.repository.OrgRepository;
 import com.aegis.project.repository.ProjectRepository;
 import com.aegis.project.repository.TaskRepository;
 import com.aegis.project.repository.UserRepository;
+
+import jakarta.transaction.Transactional;
 
 @Service
 public class TaskService {
@@ -380,6 +383,7 @@ public class TaskService {
         sendTaskInfoToUsers(taskID);
     }
 
+    @Transactional
     public void deleteTask(int taskID) {
         TaskModel task = taskRepository
                 .findById(taskID)
@@ -516,8 +520,8 @@ public class TaskService {
                 );
         task.getAssignedUsers().add(userToAdd);
 
-        ChatModel chat = chatRepository.findById(task.getChatID()).orElseThrow(() ->
-                new RuntimeException("Chat not found with id: " + task.getChatID()));
+        ChatModel chat = chatRepository.findById(task.getChatID()).orElseThrow(()
+                -> new RuntimeException("Chat not found with id: " + task.getChatID()));
 
         chat.addParticipant(userToAdd.getUserID());
         chatRepository.save(chat);
@@ -674,5 +678,71 @@ public class TaskService {
         logger.info("The file has been saved into the task and the tasks contents have been saved to taskRepository");
 
         return "OK";
+    }
+
+    public FileDTO getFile(int taskID, int fileID) {
+        try {
+            TaskModel task = taskRepository
+                    .findById(taskID)
+                    .orElseThrow(()
+                            -> new TaskNotFoundException("Task not found with id: " + taskID)
+                    );
+
+            // Add null check before creating DTO
+            if (task == null) {
+                throw new TaskNotFoundException("Task is null for id: " + taskID);
+            }
+
+            FileModel file = taskRepository.findFileByTaskIDAndFileID(taskID, fileID).orElseThrow(() -> new RuntimeException("File not found with id: " + fileID));
+            FileDTO fileDTO = new FileDTO(file);
+
+            logger.debug("Created FileDTO for file ID {}: {}", fileID, fileDTO);
+
+            return fileDTO;
+        } catch (TaskNotFoundException e) {
+            logger.error("Task not found: {}", e.getMessage());
+            throw e;
+        } catch (Exception e) {
+            logger.error("Error fetching task: {}", e.getMessage(), e);
+            throw new RuntimeException("Error fetching task: " + e.getMessage());
+        }
+    }
+
+    public Set<FileDTO> getAllTaskFiles(int taskID) {
+        List<FileModel> files = taskRepository.findFilesByTaskID(taskID);
+
+        return files
+                .stream()
+                .map(FileDTO::new)
+                .collect(Collectors.toSet());
+    }
+
+    @Transactional
+    public void deleteFile(int taskID, int fileID) {
+        TaskModel task = taskRepository
+                .findById(taskID)
+                .orElseThrow(()
+                        -> new RuntimeException("Task not found with id: " + taskID)
+                );
+
+        Authentication authentication = SecurityContextHolder.getContext()
+                .getAuthentication();
+        String currentUsername
+                = ((UserDetails) authentication.getPrincipal()).getUsername();
+
+        UserModel currentUser = userRepository
+                .findByEmail(currentUsername)
+                .orElseThrow(()
+                        -> new RuntimeException("User not found with email: " + currentUsername)
+                );
+
+        FileModel file = taskRepository.findFileByTaskIDAndFileID(taskID, fileID).orElseThrow(() -> new RuntimeException("File not found with id: " + fileID));
+
+        if (!(task.getAssignerID() == currentUser.getUserID() || file.getUploaderID() == currentUser.getUserID())) {
+            throw new RuntimeException(
+                    "User does not have permission to delete file"
+            );
+        }
+        taskRepository.deleteFileByTaskIDAndFileID(taskID, fileID);
     }
 }
