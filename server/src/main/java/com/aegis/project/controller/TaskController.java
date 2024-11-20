@@ -423,6 +423,33 @@ public class TaskController {
         }
     }
 
+    @DeleteMapping("/{taskID}/deleteFile")
+    public ResponseEntity<String> deleteFile(@PathVariable int taskID, @RequestParam int fileID) {
+        try {
+            taskService.deleteFile(taskID, fileID);
+            return ResponseEntity.status(HttpStatus.NO_CONTENT).body(
+                    "File deleted successfully"
+            );
+        } catch (RuntimeException e) {
+            if (e.getMessage().contains("Task not found with id:")) {
+                logger.info("No task found with ID: {}", taskID);
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            } else if (e.getMessage().contains("User not found with email")) {
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            } else if (e.getMessage().contains("User does not have permission")) {
+                return ResponseEntity.status(HttpStatus.FORBIDDEN).body(e.getMessage());
+            } else if (e.getMessage().contains("File not found with id:")) {
+                logger.info("No file found with ID: {} in task with ID: {}", fileID, taskID);
+                return ResponseEntity.status(HttpStatus.NOT_FOUND).body(e.getMessage());
+            } else {
+                logger.info(e.getMessage());
+                return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(
+                        e.getMessage()
+                );
+            }
+        }
+    }
+
     private static class FileUploadRequest {
 
         private String fileName;
