@@ -7,7 +7,6 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-import jakarta.transaction.Transactional;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -30,6 +29,8 @@ import com.aegis.project.repository.OrgRepository;
 import com.aegis.project.repository.ProjectRepository;
 import com.aegis.project.repository.TaskRepository;
 import com.aegis.project.repository.UserRepository;
+
+import jakarta.transaction.Transactional;
 
 @Service
 public class TaskService {
@@ -518,8 +519,8 @@ public class TaskService {
                 );
         task.getAssignedUsers().add(userToAdd);
 
-        ChatModel chat = chatRepository.findById(task.getChatID()).orElseThrow(() ->
-                new RuntimeException("Chat not found with id: " + task.getChatID()));
+        ChatModel chat = chatRepository.findById(task.getChatID()).orElseThrow(()
+                -> new RuntimeException("Chat not found with id: " + task.getChatID()));
 
         chat.addParticipant(userToAdd.getUserID());
         chatRepository.save(chat);
@@ -676,5 +677,34 @@ public class TaskService {
         logger.info("The file has been saved into the task and the tasks contents have been saved to taskRepository");
 
         return "OK";
+    }
+
+    @Transactional
+    public void deleteFile(int taskID, int fileID) {
+        TaskModel task = taskRepository
+                .findById(taskID)
+                .orElseThrow(()
+                        -> new RuntimeException("Task not found with id: " + taskID)
+                );
+
+        Authentication authentication = SecurityContextHolder.getContext()
+                .getAuthentication();
+        String currentUsername
+                = ((UserDetails) authentication.getPrincipal()).getUsername();
+
+        UserModel currentUser = userRepository
+                .findByEmail(currentUsername)
+                .orElseThrow(()
+                        -> new RuntimeException("User not found with email: " + currentUsername)
+                );
+
+        FileModel file = taskRepository.findFileByTaskIDAndFileID(taskID, fileID).orElseThrow(() -> new RuntimeException("File not found with id: " + fileID));
+
+        if (!(task.getAssignerID() == currentUser.getUserID() || file.getUploaderID() == currentUser.getUserID())) {
+            throw new RuntimeException(
+                    "User does not have permission to delete file"
+            );
+        }
+        taskRepository.deleteFileByTaskIDAndFileID(taskID, fileID);
     }
 }
