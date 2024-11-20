@@ -125,6 +125,25 @@ const actions = {
     }
   },
 
+  async fetchTasksForProjects({ dispatch, commit }, projectIDs) {
+    commit("SET_LOADING", true);
+    try {
+      const taskPromises = projectIDs.map((projectID) => dispatch("fetchTasksFromProject", projectID));
+      const taskArrays = await Promise.all(taskPromises);
+
+      // Flatten the array of arrays
+      const allTasks = Array.from(new Set(taskArrays.flat()));
+
+      commit("SET_TASKS", allTasks);
+      return allTasks;
+    } catch (error) {
+      commit("SET_ERROR", error.message);
+      throw error;
+    } finally {
+      commit("SET_LOADING", false);
+    }
+  },
+
   async createTask({ commit, rootState }, task) {
     try {
       const params = {
