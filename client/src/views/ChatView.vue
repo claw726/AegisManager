@@ -63,7 +63,6 @@
 
         <!-- Chat List -->
         <div v-else class="flex-1 overflow-y-auto min-h-0">
-        <div v-else class="flex-1 overflow-y-auto min-h-0">
           <TransitionGroup name="chat-list" tag="div">
             <!-- Organizations -->
             <template v-for="org in organizationStructure" :key="`org-${org.orgID}`">
@@ -91,13 +90,8 @@
                   :key="`orgchat-${org.orgID}`"
                   :chat="org.chat"
                   :active="activeChat?.id === org.chat.id"
-                  v-if="org.chat"
-                  :key="`orgchat-${org.orgID}`"
-                  :chat="org.chat"
-                  :active="activeChat?.id === org.chat.id"
                   :searchQuery="searchQuery"
                   @select="handleChatSelect"
-                  class="border-l-2 border-gray-200"
                   class="border-l-2 border-gray-200"
                 />
 
@@ -299,46 +293,6 @@ export default {
       currentUser: (state) => state.auth.currentUser,
       activeChat: (state) => state.chat.activeChat,
       messages: (state) => state.chat.messages,
-      organizations: (state) => state.chat.organizations,
-      projects: (state) => state.projects.projects,
-      tasks: (state) => state.tasks.tasks,
-    }),
-
-    // Filter organizations where user is a member
-    userOrganizations() {
-      return this.organizations.filter(org =>
-        org.users.some(user => user.userID === this.currentUser.userID)
-      );
-    },
-
-    organizationStructure() {
-      if (!this.userOrganizations || !Array.isArray(this.userOrganizations)) {
-        return [];
-      }
-
-      return this.userOrganizations.map(org => ({
-        ...org,
-        chat: this.findChat('organization', org.chatID),
-        projects: (this.projects || [])
-          .filter(project => project && project.parentOrgID === org.orgID)
-          .map(project => ({
-            ...project,
-            chat: this.findChat('project', project.chatID), // Use project.chatID
-            tasks: (project.tasks || project.projectTasks || []).map(task => {
-              // Make sure task exists and has an ID
-              if (!task || !task.taskID) return null;
-
-              // Find the chat for this task using task.chatID
-              const taskChat = this.findChat('task', task.chatID);
-
-              return {
-                ...task,
-                chat: taskChat
-              };
-            }).filter(task => task !== null) // Remove null tasks
-          }))
-      }));
-    },
       organizations: (state) => state.chat.organizations,
       projects: (state) => state.projects.projects,
       tasks: (state) => state.tasks.tasks,
