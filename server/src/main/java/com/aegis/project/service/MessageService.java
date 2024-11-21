@@ -219,7 +219,14 @@ public class MessageService {
                         .collect(Collectors.toList());
                 ChatDTO chatDTO = new ChatDTO(chat);
                 ChatMessagesDTO chatMessagesDTO = new ChatMessagesDTO(chatDTO, messageDTOs);
-                if (!chatMessagesDTOs.contains(chatMessagesDTO)) {
+                boolean chatExists = false;
+                for (ChatMessagesDTO chatMessagesDTO1 : chatMessagesDTOs) {
+                    if (chatMessagesDTO1.getChat().getId().equals(chatDTO.getId())) {
+                        chatExists = true;
+                        break;
+                    }
+                }
+                if (!chatExists) {
                     chatMessagesDTOs.add(chatMessagesDTO);
                 }
             }
