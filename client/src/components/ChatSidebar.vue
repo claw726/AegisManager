@@ -40,8 +40,8 @@
     <div v-else class="flex-1 overflow-y-auto min-h-0">
       <TransitionGroup name="chat-list" tag="div">
         <!-- Organizations -->
-        <template 
-          v-for="org in organizationStructure" 
+        <template
+          v-for="org in organizationStructure"
           :key="`org-${org.orgID}`"
         >
           <!-- Organization Header -->
@@ -53,11 +53,15 @@
               <i class="fas fa-building mr-2"></i>
               {{ org.orgName }}
             </div>
-            <i :class="[
-              'fas',
-              expandedCategories[`org-${org.orgID}`] ? 'fa-chevron-down' : 'fa-chevron-right',
-              'text-xs transition-transform duration-200'
-            ]"></i>
+            <i
+              :class="[
+                'fas',
+                expandedCategories[`org-${org.orgID}`]
+                  ? 'fa-chevron-down'
+                  : 'fa-chevron-right',
+                'text-xs transition-transform duration-200',
+              ]"
+            ></i>
           </div>
 
           <!-- Organization Content -->
@@ -74,8 +78,8 @@
             />
 
             <!-- Projects within Organization -->
-            <template 
-              v-for="project in org.projects" 
+            <template
+              v-for="project in org.projects"
               :key="`project-${project.projectID}`"
             >
               <!-- Project Header -->
@@ -87,11 +91,15 @@
                   <i class="fas fa-project-diagram mr-2"></i>
                   {{ project.projectName }}
                 </div>
-                <i :class="[
-                  'fas',
-                  expandedCategories[`project-${project.projectID}`] ? 'fa-chevron-down' : 'fa-chevron-right',
-                  'text-xs transition-transform duration-200'
-                ]"></i>
+                <i
+                  :class="[
+                    'fas',
+                    expandedCategories[`project-${project.projectID}`]
+                      ? 'fa-chevron-down'
+                      : 'fa-chevron-right',
+                    'text-xs transition-transform duration-200',
+                  ]"
+                ></i>
               </div>
 
               <!-- Project Content -->
@@ -113,20 +121,28 @@
                 <template v-if="project.tasks && project.tasks.length > 0">
                   <div
                     class="px-4 py-2 text-sm font-semibold text-gray-500 bg-gray-50 cursor-pointer hover:bg-gray-100 transition-colors flex items-center justify-between"
-                    @click="$emit('toggleCategory', `tasks-${project.projectID}`)"
+                    @click="
+                      $emit('toggleCategory', `tasks-${project.projectID}`)
+                    "
                   >
                     <div class="flex items-center">
                       <i class="fas fa-tasks mr-2"></i>
                       Tasks
                     </div>
-                    <i :class="[
-                      'fas',
-                      expandedCategories[`tasks-${project.projectID}`] ? 'fa-chevron-down' : 'fa-chevron-right',
-                      'text-xs transition-transform duration-200'
-                    ]"></i>
+                    <i
+                      :class="[
+                        'fas',
+                        expandedCategories[`tasks-${project.projectID}`]
+                          ? 'fa-chevron-down'
+                          : 'fa-chevron-right',
+                        'text-xs transition-transform duration-200',
+                      ]"
+                    ></i>
                   </div>
 
-                  <div v-show="expandedCategories[`tasks-${project.projectID}`]">
+                  <div
+                    v-show="expandedCategories[`tasks-${project.projectID}`]"
+                  >
                     <ChatListItem
                       v-for="task in project.tasks"
                       :key="`task-${task.taskID}`"
@@ -146,7 +162,9 @@
 
         <!-- Direct Messages Section -->
         <template v-if="categorizedChats.direct.length">
-          <div class="category-header px-4 py-2 text-sm font-semibold text-gray-500 bg-gray-100">
+          <div
+            class="category-header px-4 py-2 text-sm font-semibold text-gray-500 bg-gray-100"
+          >
             Direct Messages
           </div>
           <ChatListItem
@@ -161,7 +179,9 @@
 
         <!-- Groups Section -->
         <template v-if="categorizedChats.groups.length">
-          <div class="category-header px-4 py-2 text-sm font-semibold text-gray-500 bg-gray-100">
+          <div
+            class="category-header px-4 py-2 text-sm font-semibold text-gray-500 bg-gray-100"
+          >
             Groups
           </div>
           <ChatListItem
@@ -190,45 +210,45 @@
 </template>
 
 <script>
-import { defineComponent } from 'vue';
-import ChatListItem from './ChatListItem.vue';
+import { defineComponent } from "vue";
+import ChatListItem from "./ChatListItem.vue";
 
 export default defineComponent({
-  name: 'ChatSidebar',
-  
+  name: "ChatSidebar",
+
   components: {
-    ChatListItem
+    ChatListItem,
   },
 
   props: {
     loading: {
       type: Boolean,
-      default: false
+      default: false,
     },
     error: {
       type: String,
-      default: null
+      default: null,
     },
     searchQuery: {
       type: String,
-      required: true
+      required: true,
     },
     organizationStructure: {
       type: Array,
-      required: true
+      required: true,
     },
     expandedCategories: {
       type: Object,
-      required: true
+      required: true,
     },
     activeChat: {
       type: Object,
-      default: null
+      default: null,
     },
     categorizedChats: {
       type: Object,
-      required: true
-    }
+      required: true,
+    },
   },
 
   computed: {
@@ -237,10 +257,10 @@ export default defineComponent({
         return this.searchQuery;
       },
       set(value) {
-        this.$emit('update:searchQuery', value);
-      }
-    }
-  }
+        this.$emit("update:searchQuery", value);
+      },
+    },
+  },
 });
 </script>
 

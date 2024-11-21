@@ -157,7 +157,6 @@ const actions = {
     const numericChatId = parseInt(chatId.match(/\d+/)[0]);
     commit("SET_LOADING", true);
     try {
-
       const response = await axios.get(
         `/api/messages/${numericChatId}/getMessages`,
         {
@@ -276,7 +275,6 @@ const actions = {
       console.log("Response:", response.data);
 
       return response.data;
-
     } catch (error) {
       console.error("Error fetching org messages:", error);
       commit("SET_ERROR", "Failed to fetch organization messages");
@@ -373,9 +371,7 @@ const actions = {
         timestamp: messageData.timestamp || new Date().toISOString(),
         status: messageData.status || "delivered",
         type: messageData.type || "text",
-
       };
-
 
       // Add message to chat messages
       commit("ADD_MESSAGE", {
@@ -463,8 +459,10 @@ const getters = {
 
   getActiveChat: (state) => state.activeChat,
   getAllUsers: (state) => state.users || [],
+  getUserById: (state) => (userId) => {
+    return state.users.find((user) => user.userID === userId);
+  },
 };
-
 
 export default {
   state,

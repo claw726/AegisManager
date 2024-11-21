@@ -23,7 +23,13 @@
             class="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
             @error="handleImageError"
           />
-          <i v-else :class="[chatTypeIcon, 'text-gray-600 transition-colors duration-300']" />
+          <i
+            v-else
+            :class="[
+              chatTypeIcon,
+              'text-gray-600 transition-colors duration-300',
+            ]"
+          />
         </div>
 
         <!-- Group Chat Avatars -->
@@ -97,7 +103,12 @@
       <div class="flex-1 min-w-0">
         <!-- Title -->
         <div class="font-semibold truncate flex items-center">
-          <i :class="[chatTypeIconSmall, 'mr-2 text-gray-400 text-sm transition-colors duration-300']" />
+          <i
+            :class="[
+              chatTypeIconSmall,
+              'mr-2 text-gray-400 text-sm transition-colors duration-300',
+            ]"
+          />
           <span :class="titleClass" v-html="highlightText(displayTitle)"></span>
         </div>
 
@@ -316,27 +327,31 @@ export default {
       return `${before}<span class="highlight">${match}</span>${after}`;
     },
     formatTimestamp(timestamp) {
-      if (!timestamp) return '';
+      if (!timestamp) return "";
 
-      const date = new Date(timestamp + 'Z');
+      const date = new Date(timestamp + "Z");
       const now = new Date();
       const diff = now - date;
 
       // Less than 24 hours ago
       if (diff < 24 * 60 * 60 * 1000) {
-        return date.toLocaleTimeString([], { hour: '2-digit', minute: '2-digit', timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone });
+        return date.toLocaleTimeString([], {
+          hour: "2-digit",
+          minute: "2-digit",
+          timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        });
       }
 
       // Less than 7 days ago
       if (diff < 7 * 24 * 60 * 60 * 1000) {
-        const days = ['Sun', 'Mon', 'Tue', 'Wed', 'Thu', 'Fri', 'Sat'];
+        const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
         return days[date.getDay()];
       }
 
       // More than 7 days ago
       return date.toLocaleDateString([], {
-        month: 'short',
-        day: 'numeric',
+        month: "short",
+        day: "numeric",
         timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
       });
     },
@@ -430,10 +445,18 @@ export default {
   animation: avatar-pop 0.3s ease forwards;
 }
 
-.rounded-full:nth-child(1) { animation-delay: 0s; }
-.rounded-full:nth-child(2) { animation-delay: 0.1s; }
-.rounded-full:nth-child(3) { animation-delay: 0.2s; }
-.rounded-full:nth-child(4) { animation-delay: 0.3s; }
+.rounded-full:nth-child(1) {
+  animation-delay: 0s;
+}
+.rounded-full:nth-child(2) {
+  animation-delay: 0.1s;
+}
+.rounded-full:nth-child(3) {
+  animation-delay: 0.2s;
+}
+.rounded-full:nth-child(4) {
+  animation-delay: 0.3s;
+}
 
 /* Chat type indicators */
 .chat-type-organization {

@@ -105,9 +105,10 @@
               :class="{
                 'bg-gray-100 text-gray-800': activeChat?.type === 'direct',
                 'bg-amber-100 text-amber-800': activeChat?.type === 'group',
-                'bg-blue-100 text-blue-800': activeChat?.type === 'organization',
+                'bg-blue-100 text-blue-800':
+                  activeChat?.type === 'organization',
                 'bg-green-100 text-green-800': activeChat?.type === 'project',
-                'bg-indigo-100 text-indigo-800': activeChat?.type === 'task'
+                'bg-indigo-100 text-indigo-800': activeChat?.type === 'task',
               }"
             >
               {{ formatChatType(activeChat?.type) }}
@@ -445,18 +446,18 @@ export default {
     ...mapActions("chat", ["sendMessage"]),
 
     formatChatType(type) {
-    if (!type) return 'Chat';
+      if (!type) return "Chat";
 
-    const typeMap = {
-      'direct': 'Direct Message',
-      'group': 'Group Chat',
-      'organization': 'Organization',
-      'project': 'Project Chat',
-      'task': 'Task Chat'
-    };
+      const typeMap = {
+        direct: "Direct Message",
+        group: "Group Chat",
+        organization: "Organization",
+        project: "Project Chat",
+        task: "Task Chat",
+      };
 
-    return typeMap[type] || 'Chat';
-  },
+      return typeMap[type] || "Chat";
+    },
 
     async handleMessageUpdate() {
       if (!this.activeChat?.id) return;
