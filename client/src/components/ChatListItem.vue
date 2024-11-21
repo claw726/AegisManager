@@ -1,40 +1,43 @@
 <template>
   <div
     :class="[
-      'p-4 hover:bg-gray-100 cursor-pointer border-b',
+      'p-4 hover:bg-gray-100 cursor-pointer border-b transition-all duration-300 origin-left hover:shadow-sm',
       active ? 'bg-gray-100' : '',
       `chat-type-${chat.type}`,
     ]"
     @click="handleClick"
   >
     <div class="flex items-center">
-      <!-- Updated Avatar Section -->
+      <!-- Avatar Section -->
       <div class="relative w-12 h-10 mr-3 flex-shrink-0">
-        <!-- Single Avatar for Direct Messages -->
+        <!-- Direct Message Avatar -->
         <div
           v-if="chat.type === 'direct'"
-          class="w-10 h-10 rounded-full flex items-center justify-center overflow-hidden"
+          class="w-10 h-10 rounded-full flex items-center justify-center overflow-hidden transition-all duration-300"
           :class="[!profilePicture ? 'bg-gray-300' : '']"
         >
           <img
             v-if="profilePicture"
             :src="profilePicture"
             :alt="displayTitle"
-            class="w-full h-full object-cover"
+            class="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
             @error="handleImageError"
           />
-          <i v-else :class="[chatTypeIcon, 'text-gray-600']" />
+          <i v-else :class="[chatTypeIcon, 'text-gray-600 transition-colors duration-300']" />
         </div>
 
-        <!-- Overlapping Avatars for Group Chats -->
-        <div v-else-if="chat.type === 'group'" class="relative w-full h-full">
+        <!-- Group Chat Avatars -->
+        <div
+          v-else-if="chat.type === 'group'"
+          class="relative w-full h-full group"
+        >
           <template
             v-for="(participant, index) in groupParticipants"
             :key="participant.userID"
           >
             <div
               v-if="index < 4"
-              class="absolute rounded-full border-2 border-white overflow-hidden bg-gray-300"
+              class="absolute rounded-full border-2 border-white overflow-hidden bg-gray-300 transition-all duration-300"
               :class="[
                 'w-7 h-7',
                 getAvatarPosition(index),
@@ -42,12 +45,13 @@
                 { 'z-10': index === 1 },
                 { 'z-0': index >= 2 },
               ]"
+              :title="participant.userName"
             >
               <img
                 v-if="participant.profilePicture"
                 :src="participant.profilePicture"
                 :alt="participant.userName"
-                class="w-full h-full object-cover"
+                class="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
                 @error="participant.imageError = true"
               />
               <span
@@ -61,58 +65,81 @@
           <!-- Additional count indicator -->
           <div
             v-if="remainingParticipantsCount > 0"
-            class="absolute bottom-0 right-0 bg-gray-500 text-white text-xs rounded-full w-5 h-5 flex items-center justify-center z-30"
+            class="absolute bottom-0 right-0 bg-black/60 backdrop-blur text-white text-xs rounded-full w-5 h-5 flex items-center justify-center z-30 transition-transform duration-300 hover:scale-110"
           >
             +{{ remainingParticipantsCount }}
           </div>
         </div>
 
-        <!-- Organization Logo or Default Icon -->
+        <!-- Organization/Other Avatar -->
         <div
           v-else
-          class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden"
+          class="w-10 h-10 rounded-full bg-gray-100 flex items-center justify-center overflow-hidden transition-all duration-300 hover:shadow-md"
         >
           <img
             v-if="chat.type === 'organization' && organizationLogo"
             :src="organizationLogo"
             :alt="displayTitle"
-            class="w-full h-full object-cover"
+            class="w-full h-full object-cover transition-transform duration-300 hover:scale-105"
             @error="handleImageError"
           />
           <i
             v-else
             :class="[
               chatTypeIcon,
-              'text-gray-600 transition-colors duration-300 ease-in-out',
+              'text-gray-600 transition-colors duration-300',
             ]"
           />
         </div>
       </div>
 
-      <!-- Rest of the chat item content -->
+      <!-- Content Section -->
       <div class="flex-1 min-w-0">
         <!-- Title -->
         <div class="font-semibold truncate flex items-center">
-          <i :class="[chatTypeIconSmall, 'mr-2 text-gray-400 text-sm']" />
+          <i :class="[chatTypeIconSmall, 'mr-2 text-gray-400 text-sm transition-colors duration-300']" />
           <span :class="titleClass" v-html="highlightText(displayTitle)"></span>
         </div>
 
         <!-- Last Message -->
         <div class="flex flex-col">
           <!-- Message content -->
-          <div class="text-sm text-gray-600 truncate" v-html="highlightText(chat.lastMessage?.content)"></div>
+          <div class="text-sm text-gray-600 truncate">
+            <template v-if="chat.lastMessage">
+              <span
+                v-if="chat.lastMessage.deleted"
+                class="italic text-gray-400 flex items-center"
+              >
+                <i class="fas fa-ban mr-1 text-xs"></i>
+                Message deleted
+              </span>
+              <span
+                v-else
+                v-html="highlightText(chat.lastMessage.content)"
+                class="transition-colors duration-300"
+              ></span>
+            </template>
+            <span v-else class="text-gray-400 italic">No messages yet</span>
+          </div>
 
           <!-- Sender and timestamp -->
-          <div class="flex items-center text-xs text-gray-400 mt-1">
-            <span class="font-medium">{{ chat.lastMessage?.senderName }}</span>
+          <div
+            v-if="chat.lastMessage"
+            class="flex items-center text-xs text-gray-400 mt-1 transition-colors duration-300 hover:text-gray-600"
+          >
+            <span class="font-medium max-w-[120px] truncate">
+              {{ chat.lastMessage.senderName }}
+            </span>
             <span class="mx-1">•</span>
-            <span>{{ formatTimestamp(chat.lastMessage?.timestamp) }}</span>
+            <span>{{ formatTimestamp(chat.lastMessage.timestamp) }}</span>
           </div>
         </div>
       </div>
+
+      <!-- Unread Count Badge -->
       <div
         v-if="chat.unreadCount"
-        class="bg-blue-500 text-white rounded-full px-2 py-1 text-xs ml-2"
+        class="bg-blue-500 text-white rounded-full px-2 py-1 text-xs ml-2 transition-all duration-300 hover:scale-110"
       >
         {{ chat.unreadCount }}
       </div>
@@ -386,104 +413,7 @@ export default {
 };
 </script>
 <style scoped>
-.chat-list-item {
-  transition: all 0.3s ease;
-  transform-origin: center left;
-}
-
-/* Hover animation */
-.chat-list-item:hover {
-  transform: translateX(4px);
-}
-
-/* Avatar animation */
-.avatar {
-  transition: all 0.3s ease;
-}
-
-.chat-list-item:hover .avatar {
-  transform: scale(1.05);
-  background-color: theme("colors.gray.400");
-}
-
-/* Content animation */
-.content {
-  transition: all 0.3s ease;
-}
-
-.chat-list-item:hover .content {
-  transform: translateX(4px);
-}
-
-/* Badge animation */
-.badge {
-  transition: all 0.3s ease;
-}
-
-.chat-list-item:hover .badge {
-  transform: scale(1.1);
-}
-
-/* Active state animation */
-.chat-list-item.bg-gray-100 {
-  transition: background-color 0.3s ease;
-}
-
-/* Optional: Add a subtle shadow on hover */
-.chat-list-item:hover {
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.05);
-}
-
-/* Optional: Add a ripple effect when clicking */
-.chat-list-item:active {
-  transform: scale(0.99);
-}
-
-/* Optional: Smooth transition for icon colors */
-i {
-  transition: color 0.3s ease;
-}
-
-.chat-list-item:hover i {
-  color: theme("colors.gray.800");
-}
-
-.highlight {
-  background-color: rgba(59, 130, 246, 0.2);
-  padding: 0 2px;
-  border-radius: 2px;
-}
-
-.profile-picture-container {
-  position: relative;
-  overflow: hidden;
-  transition: all 0.3s ease;
-}
-
-.profile-picture-container img {
-  transition: transform 0.3s ease;
-}
-
-.chat-list-item:hover .profile-picture-container img {
-  transform: scale(1.1);
-}
-.group-avatars {
-  position: relative;
-  width: 40px;
-  height: 40px;
-}
-
-/* Smooth transitions for avatars */
-.group-avatars img {
-  transition: all 0.3s ease;
-}
-
-/* Hover effects for group avatars */
-.group-avatars:hover img {
-  transform: scale(1.05);
-}
-
-/* Animation for avatar appearance */
+/* Animation keyframes */
 @keyframes avatar-pop {
   0% {
     transform: scale(0.8);
@@ -495,47 +425,17 @@ i {
   }
 }
 
+/* Animation classes */
 .rounded-full {
   animation: avatar-pop 0.3s ease forwards;
 }
 
-/* Staggered animation delay for group avatars */
-.rounded-full:nth-child(1) {
-  animation-delay: 0s;
-}
-.rounded-full:nth-child(2) {
-  animation-delay: 0.1s;
-}
-.rounded-full:nth-child(3) {
-  animation-delay: 0.2s;
-}
-.rounded-full:nth-child(4) {
-  animation-delay: 0.3s;
-}
+.rounded-full:nth-child(1) { animation-delay: 0s; }
+.rounded-full:nth-child(2) { animation-delay: 0.1s; }
+.rounded-full:nth-child(3) { animation-delay: 0.2s; }
+.rounded-full:nth-child(4) { animation-delay: 0.3s; }
 
-/* Hover effect for individual avatars */
-.rounded-full {
-  transition:
-    transform 0.2s ease,
-    box-shadow 0.2s ease;
-}
-
-.rounded-full:hover {
-  transform: scale(1.1) !important;
-  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
-  z-index: 30 !important;
-}
-
-/* Additional count indicator styling */
-.remaining-count {
-  background: rgba(0, 0, 0, 0.6);
-  backdrop-filter: blur(4px);
-  transition: all 0.3s ease;
-}
-
-.remaining-count:hover {
-  transform: scale(1.1);
-}
+/* Chat type indicators */
 .chat-type-organization {
   border-left: 3px solid theme("colors.blue.500");
 }
@@ -555,28 +455,19 @@ i {
 .chat-type-group {
   border-left: 3px solid theme("colors.yellow.500");
 }
-.text-xs {
-  font-size: 0.75rem;
-  line-height: 1rem;
+
+/* Complex hover interactions */
+.chat-list-item:hover .profile-picture-container img {
+  transform: scale(1.1);
 }
 
-.font-medium {
-  font-weight: 500;
+.group-avatars:hover img {
+  transform: scale(1.05);
 }
 
-/* Optional: Add a hover effect for the timestamp */
-.chat-list-item:hover .text-gray-400 {
-  color: theme('colors.gray.600');
-}
-
-/* Optional: Add ellipsis for long sender names */
-.font-medium {
-  max-width: 120px;
-  display: inline-block;
-  white-space: nowrap;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  vertical-align: bottom;
+.rounded-full:hover {
+  transform: scale(1.1) !important;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+  z-index: 30 !important;
 }
 </style>
-```

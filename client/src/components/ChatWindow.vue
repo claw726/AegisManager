@@ -194,6 +194,11 @@
       </div>
     </div>
 
+    <div class="py-1 text-center text-xs text-gray-400">
+      <i class="fas fa-shield-alt mr-1"></i>
+      Messages may be monitored by organization administrators
+    </div>
+
     <!-- Message Input -->
     <div class="p-3 bg-[#f7f7f7] flex-shrink-0">
       <div class="flex items-center bg-white rounded-full border">
