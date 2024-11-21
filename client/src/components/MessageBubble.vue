@@ -1,5 +1,5 @@
 <template>
-  <div class="w-full">
+  <div class="w-full" v-if="!message.deleted">
     <div :class="['w-full flex', isOwn ? 'justify-end' : 'justify-start mb-2']">
       <div class="flex items-end gap-2 max-w-[85%]">
         <!-- Increased max-width -->
