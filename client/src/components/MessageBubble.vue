@@ -1,5 +1,5 @@
 <template>
-  <div class="w-full">
+  <div class="w-full" v-if="!message.deleted">
     <div :class="['w-full flex', isOwn ? 'justify-end' : 'justify-start mb-2']">
       <div class="flex items-end gap-2 max-w-[85%]">
         <!-- Increased max-width -->
@@ -163,7 +163,6 @@ export default {
     },
 
     onDeleteClick() {
-      console.log("Confirm delete");
       this.showDeleteModal = true;
     },
 
@@ -174,9 +173,10 @@ export default {
           messageId: this.message.id,
         });
         this.showDeleteModal = false;
-        this.$emit("message-deleted");
+        this.$emit("message-deleted", { success: true });
       } catch (error) {
         console.error("Error deleting message:", error);
+        this.$emit("message-deleted", { success: false, error: error.message });
       }
     },
   },
