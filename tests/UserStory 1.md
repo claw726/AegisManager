@@ -1,4 +1,4 @@
-# Vue.js Chat Functionality UI Test Plan
+# User Story 1 Functionality UI Test Plan
 
 ## Test Suite Overview
 
