@@ -2,13 +2,11 @@
   <NavBar />
 
   <div class="min-h-screen bg-gray-50 py-8 px-4 sm:px-6 lg:px-8">
-    <div v-if="fetchedTask" class="max-w-4xl mx-auto">
-      <!-- Breadcrumb Navigation -->
+    <div v-if="fetchedTask" class="max-w-4xl mx-auto"> <!-- Breadcrumb Navigation -->
       <div class="mb-6 flex items-center space-x-2 text-sm text-gray-500">
         <button
           class="inline-flex items-center px-3 py-2 text-sm font-medium text-gray-700 bg-white rounded-lg border border-gray-300 hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
-          @click="goBack"
-        >
+          @click="goBack">
           <i class="fas fa-arrow-left mr-2"></i>
           Back
         </button>
@@ -32,13 +30,10 @@
             </div>
             <div class="flex items-center space-x-3">
               <!-- Status Badge -->
-              <span
-                class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium"
-                :class="{
-                  'bg-green-100 text-green-800': fetchedTask.complete,
-                  'bg-yellow-100 text-yellow-800': !fetchedTask.complete
-                }"
-              >
+              <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium" :class="{
+                'bg-green-100 text-green-800': fetchedTask.complete,
+                'bg-yellow-100 text-yellow-800': !fetchedTask.complete
+              }">
                 <i :class="[
                   'mr-1.5',
                   fetchedTask.complete ? 'fas fa-check' : 'fas fa-clock'
@@ -47,11 +42,9 @@
               </span>
 
               <!-- Complete Button -->
-              <button
-                v-if="!fetchedTask.complete && showLeftButton"
+              <button v-if="!fetchedTask.complete && showLeftButton"
                 class="inline-flex items-center px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200"
-                @click="markAsComplete"
-              >
+                @click="markAsComplete">
                 <i class="fas fa-check mr-2"></i>
                 Mark Complete
               </button>
@@ -74,19 +67,16 @@
             <h2 class="text-sm font-medium text-gray-500 uppercase tracking-wider">
               Priority
             </h2>
-            <span
-              class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium"
-              :class="{
-                'bg-red-100 text-red-800': fetchedTask.taskPriority === 'High',
-                'bg-yellow-100 text-yellow-800': fetchedTask.taskPriority === 'Medium',
-                'bg-blue-100 text-blue-800': fetchedTask.taskPriority === 'Low'
-              }"
-            >
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium" :class="{
+              'bg-red-100 text-red-800': fetchedTask.taskPriority === 'High',
+              'bg-yellow-100 text-yellow-800': fetchedTask.taskPriority === 'Medium',
+              'bg-blue-100 text-blue-800': fetchedTask.taskPriority === 'Low'
+            }">
               <i :class="[
                 'mr-1.5',
                 fetchedTask.taskPriority === 'High' ? 'fas fa-exclamation-circle' :
-                fetchedTask.taskPriority === 'Medium' ? 'fas fa-arrow-circle-up' :
-                'fas fa-arrow-circle-down'
+                  fetchedTask.taskPriority === 'Medium' ? 'fas fa-arrow-circle-up' :
+                    'fas fa-arrow-circle-down'
               ]"></i>
               {{ fetchedTask.taskPriority }}
             </span>
@@ -109,11 +99,8 @@
               Assignees
             </h2>
             <div class="flex flex-wrap gap-2">
-              <span
-                v-for="user in fetchedTask.assignedUsers"
-                :key="user.userID"
-                class="inline-flex items-center px-3 py-1 rounded-full bg-blue-100 text-blue-800 text-sm"
-              >
+              <span v-for="user in fetchedTask.assignedUsers" :key="user.userID"
+                class="inline-flex items-center px-3 py-1 rounded-full bg-blue-100 text-blue-800 text-sm">
                 <i class="fas fa-user mr-2"></i>
                 {{ user.userName }}
               </span>
@@ -127,34 +114,38 @@
             <!-- Left side buttons -->
             <div class="flex items-center space-x-3">
               <button
-                v-if="!fetchedTask.complete && showLeftButton"
+                class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200"
+                @click="goToFiles">
+                <i class="fas fa-file mr-2"></i>
+                Files
+              </button>
+              <button
                 class="inline-flex items-center px-4 py-2 bg-blue-600 text-white text-sm font-medium rounded-lg hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200"
-                @click="goToTaskChat"
-              >
+                @click="goToTaskChat">
                 <i class="fas fa-comments mr-2"></i>
                 Task Chat
               </button>
-              <button
-                v-if="!fetchedTask.complete && showLeftButton"
+              <button v-if="!fetchedTask.complete && showLeftButton"
                 class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200"
-                @click="goToAddUsers"
-              >
+                @click="goToAddUsers">
                 <i class="fas fa-user-plus mr-2"></i>
                 Add Users
               </button>
             </div>
 
-            <!-- Right side buttons -->
             <div class="flex items-center space-x-3">
-              <button
+              <!-- Edit Button -->
+              <button 
                 v-if="!fetchedTask.complete && showLeftButton"
-                class="inline-flex items-center px-4 py-2 bg-yellow-600 text-white text-sm font-medium rounded-lg hover:bg-yellow-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-yellow-500 transition-colors duration-200"
+                class="inline-flex items-center px-4 py-2 bg-amber-600 text-white text-sm font-medium rounded-lg hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 transition-colors duration-200"
                 @click="goToEditTask"
               >
                 <i class="fas fa-edit mr-2"></i>
                 Edit Task
               </button>
-              <button
+
+              <!-- Delete Button -->
+              <button 
                 v-if="showLeftButton"
                 class="inline-flex items-center px-4 py-2 bg-red-600 text-white text-sm font-medium rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200"
                 @click="showPopup = true"
@@ -163,15 +154,63 @@
                 Delete Task
               </button>
             </div>
+
+            <div v-if="showPopup" class="popup">
+              <div class="popup-content">
+                <p>Are you sure you want to delete this task?</p>
+                <button class="remove-btn" @click="handleYes">Yes</button>
+                <button class="remove-btn" @click="handleNo">No</button>
+              </div>
+            </div>
+
+            <!-- New button for file explorer -->
+            <!----
+            <label v-if="showLeftButton"
+              class="px-4 py-2 upload-btn text-white rounded-lg bg-blue-600 hover:bg-blue-700 cursor-pointer">
+              Upload File
+              <input type="file" class="hidden" @change="handleFileUpload" />
+            </label>
+          -->
+
+
+          </div>
+        </div>
+        <!-- Reassignment Controls -->
+        <div v-if="!fetchedTask.complete && showLeftButton && taskUsers.length > 0"
+            class="mt-6 p-6 bg-gray-50 border-t border-gray-200">
+          <div class="flex items-center space-x-4">
+            <div class="flex-1">
+              <label for="assignerSelect" class="block text-sm font-medium text-gray-700 mb-2">
+                Select New Assigner
+              </label>
+              <select
+                id="assignerSelect"
+                v-model="selectedAssigner"
+                class="block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm"
+              >
+                <option value="">Select New Assigner</option>
+                <option
+                  v-for="user in taskUsers"
+                  :key="user.email"
+                  :value="user.email"
+                >
+                  {{ user.label }}
+                </option>
+              </select>
+            </div>
+
+            <button
+              class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200"
+              @click="sendAssignerInvite"
+            >
+              <i class="fas fa-user-plus mr-2"></i>
+              Confirm Reassignment
+            </button>
           </div>
         </div>
       </div>
-
       <!-- Delete Confirmation Modal -->
-      <div
-        v-if="showPopup"
-        class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50"
-      >
+      <div v-if="showPopup" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
         <div class="bg-white rounded-lg p-6 max-w-sm w-full mx-4">
           <h3 class="text-lg font-medium text-gray-900 mb-4">
             <i class="fas fa-exclamation-triangle text-yellow-500 mr-2"></i>
@@ -183,32 +222,25 @@
           <div class="flex justify-end space-x-3">
             <button
               class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors duration-200"
-              @click="handleNo"
-            >
+              @click="handleNo">
               Cancel
             </button>
             <button
               class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200"
-              @click="handleYes"
-            >
+              @click="handleYes">
               Delete
             </button>
           </div>
         </div>
       </div>
     </div>
-
     <!-- Loading State -->
     <div v-else class="flex justify-center items-center h-64">
       <div class="animate-spin rounded-full h-12 w-12 border-b-2 border-blue-500"></div>
     </div>
 
     <!-- Notification Component -->
-    <NotificationComponent
-      v-model:show="notification.show"
-      :type="notification.type"
-      @close="closeNotification"
-    >
+    <NotificationComponent v-model:show="notification.show" :type="notification.type" @close="closeNotification">
       {{ notification.message }}
     </NotificationComponent>
   </div>
@@ -263,6 +295,12 @@ export default {
     showLeftButton() {
       return this.IsAssigner();
     },
+    availableAssigners() {
+      return this.taskUsers.filter(user => user.userID !== this.currentUser.userID);
+    },
+    canReassign() {
+      return this.showLeftButton && !this.fetchedTask.complete;
+    }
   },
 
   watch: {
@@ -450,8 +488,6 @@ export default {
             ": Task Assigner Request - " +
             this.fetchedTask.taskName,
         };
-        console.log("DATA");
-        console.log(data);
         await this.$store.dispatch("invitations/createInvitation", data);
         this.showNotification("success", "Successfully sent assigner invite!");
       } catch (error) {
@@ -575,15 +611,58 @@ export default {
         },
       });
     },
-    goToTaskChat() {
-    this.$router.push({
-      name: 'TaskChat',
-      params: {
-        taskIndex: `task-${this.fetchedTask.chatID}`,
+    goToFiles() {
+      this.$router.push({
+        name: "Files",
+        params: {
+          orgIndex: this.fetchedTask.parentOrgID,
+          projIndex: this.fetchedTask.parentProjectID,
+          taskId: this.$route.params.taskId,
+        },
+      });
+    },
+    async handleFileUpload(event) {
+      try {
+        const file = event.target.files[0];
+        const fileContents = await this.readFileAsBase64(file);
+        if (file) {
+          const data = {
+            taskID: this.fetchedTask.taskID,
+            fileName: file.name,
+            fileType: file.type,
+            fileContents: fileContents.replace(/ /g, '+').trim(),
+            uploaderID: this.currentUser.userID,
+          };
+          await this.$store.dispatch("tasks/addFile", data);
+          console.log("File successfully added to the task!");
+          this.showNotification("success", "File successfully added to the task");
+
+        }
+      } catch (error) {
+        console.error("Error adding file to task:", error);
+        this.showNotification("error", "Error adding file to the task");
+
       }
-    });
+    },
+
+    readFileAsBase64(file) {
+      return new Promise((resolve, reject) => {
+        const reader = new FileReader();
+        reader.onload = () => resolve(reader.result); // Resolve with file contents
+        reader.onerror = (error) => reject(error); // Reject in case of an error
+        reader.readAsDataURL(file); // Read the file as a Base64 string
+      });
+    },
+
+    goToTaskChat() {
+      this.$router.push({
+        name: 'TaskChat',
+        params: {
+          taskIndex: `task-${this.fetchedTask.chatID}`,
+        }
+      });
+    },
   },
-},
 };
 </script>
 
@@ -601,9 +680,12 @@ export default {
 
 /* Only keep transitions and animations that aren't easily done with Tailwind */
 @keyframes pulse {
-  0%, 100% {
+
+  0%,
+  100% {
     opacity: 1;
   }
+
   50% {
     opacity: .5;
   }

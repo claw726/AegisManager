@@ -1,6 +1,8 @@
 package com.aegis.project.service;
 
 import com.aegis.project.controller.SocketIOController;
+import com.aegis.project.dto.ChatDTO;
+import com.aegis.project.dto.ChatMessagesDTO;
 import com.aegis.project.dto.MessageDTO;
 import com.aegis.project.exception.UserNotFoundException;
 import com.aegis.project.model.*;
@@ -8,8 +10,6 @@ import com.aegis.project.repository.ChatRepository;
 import com.aegis.project.repository.MessageRepository;
 import com.aegis.project.repository.OrgRepository;
 import com.aegis.project.repository.UserRepository;
-
-import jakarta.transaction.Transactional;
 
 import org.slf4j.LoggerFactory;
 import org.slf4j.Logger;
@@ -20,7 +20,6 @@ import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
-import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
@@ -61,13 +60,13 @@ public class MessageService {
                 throw new RuntimeException("User not authorized to add messages to chat: " + chatID);
             }
 
-            chat.setLastMessage(content);
-            chatRepository.save(chat);
-
             // 4. Create and save message
             MessageModel message = new MessageModel(chat, currentUser.getUserID(), currentUser.getUserName(), content);
             message.markAsRead(currentUser.getUserID());
             messageRepository.save(message);
+
+            chat.setLastMessage(message);
+            chatRepository.save(chat);
 
             // 5. Notify other participants
             Set<Integer> participants = chat.getParticipants();
@@ -155,9 +154,10 @@ public class MessageService {
         if (chat.getLastMessage().equals(message.getContent())) {
             List<MessageModel> messages = messageRepository.findByChat_ChatIDOrderByTimestamp(chat.getChatID());
             if (!messages.isEmpty()) {
-                chat.setLastMessage(messages.get(messages.size() - 1).getContent());
+                chat.setLastMessage(messages.getLast());
             } else {
-                chat.setLastMessage("This message has been deleted");
+                MessageModel lastMessage = new MessageModel(chat, message.getSenderID(), message.getSenderName(), "This message has been deleted");
+                chat.setLastMessage(lastMessage);
             }
             chatRepository.save(chat);
         }
@@ -182,7 +182,7 @@ public class MessageService {
         logger.info("Message with ID {} has been deleted", messageID);
     }
 
-    public List<MessageDTO> getOrgMessages(int orgID) {
+    public List<ChatMessagesDTO> getOrgMessages(int orgID) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String currentUsername = ((UserDetails) authentication.getPrincipal()).getUsername();
 
@@ -197,8 +197,7 @@ public class MessageService {
         }
 
         Set<UserModel> users = org.getUsers();
-
-        List<MessageDTO> messageDTOs = new ArrayList<>();
+        List<ChatMessagesDTO> chatMessagesDTOs = new ArrayList<>();
 
         for (UserModel user : users) {
             List<ChatModel> chats = chatRepository.findByParticipantsContaining(user.getUserID());
@@ -215,15 +214,24 @@ public class MessageService {
                     continue;
                 }
                 List<MessageModel> messages = chat.getMessages();
-                for (MessageModel message : messages) {
-                    MessageDTO messageDTO = new MessageDTO(message);
-                    if (!messageDTOs.contains(messageDTO)) {
-                        messageDTOs.add(messageDTO);
+                List<MessageDTO> messageDTOs = messages.stream()
+                        .map(MessageDTO::new)
+                        .collect(Collectors.toList());
+                ChatDTO chatDTO = new ChatDTO(chat);
+                ChatMessagesDTO chatMessagesDTO = new ChatMessagesDTO(chatDTO, messageDTOs);
+                boolean chatExists = false;
+                for (ChatMessagesDTO chatMessagesDTO1 : chatMessagesDTOs) {
+                    if (chatMessagesDTO1.getChat().getId().equals(chatDTO.getId())) {
+                        chatExists = true;
+                        break;
                     }
+                }
+                if (!chatExists) {
+                    chatMessagesDTOs.add(chatMessagesDTO);
                 }
             }
         }
 
-        return messageDTOs;
+        return chatMessagesDTOs;
     }
 }

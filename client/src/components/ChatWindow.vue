@@ -10,7 +10,9 @@
           <div
             v-if="activeChat?.type === 'direct'"
             class="w-10 h-10 rounded-full flex items-center justify-center overflow-hidden"
-            :class="[!otherUser?.profilePicture || imageLoadError ? 'bg-gray-300' : '']"
+            :class="[
+              !otherUser?.profilePicture || imageLoadError ? 'bg-gray-300' : '',
+            ]"
           >
             <img
               v-if="otherUser?.profilePicture && !imageLoadError"
@@ -27,16 +29,19 @@
             v-else-if="activeChat?.type === 'group'"
             class="relative w-full h-full group"
           >
-            <template v-for="(participant, index) in groupParticipants" :key="participant.userID">
+            <template
+              v-for="(participant, index) in groupParticipants"
+              :key="participant.userID"
+            >
               <div
                 v-if="index < 4"
                 class="absolute rounded-full border-2 border-white overflow-hidden bg-gray-300 group-hover:scale-95 transition-transform"
                 :class="[
                   'w-7 h-7',
                   getAvatarPosition(index),
-                  {'z-20': index === 0},
-                  {'z-10': index === 1},
-                  {'z-0': index >= 2}
+                  { 'z-20': index === 0 },
+                  { 'z-10': index === 1 },
+                  { 'z-0': index >= 2 },
                 ]"
                 :title="participant.userName"
               >
@@ -72,7 +77,7 @@
               v-if="organizationLogo"
               :src="organizationLogo"
               :alt="displayTitle"
-              class="w-full h-full object-cover" 
+              class="w-full h-full object-cover"
               @error="handleImageError"
             />
             <div
@@ -93,11 +98,29 @@
         </div>
 
         <div>
-          <div class="flex items-center">
+          <div class="flex items-center space-x-2">
+            <!-- Chat Type Badge -->
+            <span
+              class="px-2 py-0.5 text-xs font-medium rounded-full"
+              :class="{
+                'bg-gray-100 text-gray-800': activeChat?.type === 'direct',
+                'bg-amber-100 text-amber-800': activeChat?.type === 'group',
+                'bg-blue-100 text-blue-800':
+                  activeChat?.type === 'organization',
+                'bg-green-100 text-green-800': activeChat?.type === 'project',
+                'bg-indigo-100 text-indigo-800': activeChat?.type === 'task',
+              }"
+            >
+              {{ formatChatType(activeChat?.type) }}
+            </span>
+
+            <!-- Chat Title -->
             <h2 class="text-xl font-semibold">{{ displayTitle }}</h2>
-            <i :class="[chatTypeIconSmall, 'ml-2 text-gray-400']"></i>
+            <i :class="[chatTypeIconSmall, 'text-gray-400']"></i>
           </div>
-          <p class="text-sm text-gray-500 flex items-center">
+
+          <!-- Participant Count -->
+          <p class="text-sm text-gray-500 flex items-center mt-1">
             <i class="fas fa-users mr-1"></i>
             {{ activeChat?.participants?.length || 0 }} members
           </p>
@@ -154,7 +177,7 @@
         >
           <MessageBubble
             :message="message"
-            :isOwn="message.senderId === currentUser?.userID"
+            :isOwn="message.senderID === currentUser?.userID"
             :showSender="shouldShowSenderName(message, index)"
             :showTimestamp="shouldShowTimestamp(message, index)"
             class="w-full"
@@ -170,6 +193,11 @@
       >
         <p>No messages yet. Start the conversation!</p>
       </div>
+    </div>
+
+    <div class="py-1 text-center text-xs text-gray-400">
+      <i class="fas fa-shield-alt mr-1"></i>
+      Messages may be monitored by organization administrators
     </div>
 
     <!-- Message Input -->
@@ -240,7 +268,9 @@ export default {
     ...mapGetters("chat", ["getChatMessages"]),
     chatMessages() {
       if (!this.activeChat?.id) return [];
-      return this.refreshKey && this.getChatMessages(this.activeChat.id) || [];
+      return (
+        (this.refreshKey && this.getChatMessages(this.activeChat.id)) || []
+      );
     },
     chatTypeIcon() {
       if (!this.activeChat) return "fas fa-comment";
@@ -264,36 +294,38 @@ export default {
     groupParticipants() {
       if (!this.activeChat?.participants) return [];
       return this.activeChat.participants
-        .filter(id => id !== this.currentUser?.userID) // Exclude current user
-        .map(id => this.$store.state.chat.users.find(user => user.userID === id))
-        .filter(user => user); // Filter out undefined users
+        .filter((id) => id !== this.currentUser?.userID) // Exclude current user
+        .map((id) =>
+          this.$store.state.chat.users.find((user) => user.userID === id),
+        )
+        .filter((user) => user); // Filter out undefined users
     },
 
     remainingParticipantsCount() {
       return Math.max(0, this.groupParticipants.length - 4);
     },
 
-     otherUser() {
-      if (this.activeChat?.type !== 'direct') return null;
+    otherUser() {
+      if (this.activeChat?.type !== "direct") return null;
       const otherUserId = this.activeChat.participants.find(
-        id => id !== this.currentUser?.userID
+        (id) => id !== this.currentUser?.userID,
       );
       return this.$store.state.chat.users.find(
-        user => user.userID === otherUserId
+        (user) => user.userID === otherUserId,
       );
     },
 
-  displayTitle() {
-    if (!this.activeChat) return '';
+    displayTitle() {
+      if (!this.activeChat) return "";
 
-    if (this.activeChat.type === 'direct') {
-      return this.otherUser?.userName || this.resolvedTitle || 'Loading...';
-    }
+      if (this.activeChat.type === "direct") {
+        return this.otherUser?.userName || this.resolvedTitle || "Loading...";
+      }
 
-    return this.activeChat.title;
-  },
+      return this.activeChat.title;
+    },
 
-  chatTypeIconSmall() {
+    chatTypeIconSmall() {
       if (!this.activeChat) return "fas fa-comment";
 
       switch (this.activeChat.type) {
@@ -315,16 +347,16 @@ export default {
       return this.$store.state.chat.wsConnected;
     },
     organizationLogo() {
-    if (this.activeChat?.type === 'organization') {
-      const matchingOrg = this.organizations.find(
-        org => org.orgName.toLowerCase() === this.activeChat.title.toLowerCase()
-      );
-      return matchingOrg?.encodedImage || null;
-    }
-    return null;
+      if (this.activeChat?.type === "organization") {
+        const matchingOrg = this.organizations.find(
+          (org) =>
+            org.orgName.toLowerCase() === this.activeChat.title.toLowerCase(),
+        );
+        return matchingOrg?.encodedImage || null;
+      }
+      return null;
+    },
   },
-  },
-
 
   watch: {
     "activeChat.id": {
@@ -345,11 +377,11 @@ export default {
         }
       },
     },
-    'activeChat': {
+    activeChat: {
       immediate: true,
       handler() {
         this.updateDisplayTitle();
-      }
+      },
     },
 
     chatMessages: {
@@ -373,14 +405,14 @@ export default {
             });
           }
         }
-      }
-    }
+      },
+    },
   },
 
   async created() {
     if (this.activeChat?.type === "direct") {
       const otherUserId = this.activeChat.participants.find(
-        (id) => id !== this.currentUser?.userID
+        (id) => id !== this.currentUser?.userID,
       );
 
       if (otherUserId) {
@@ -413,11 +445,28 @@ export default {
   methods: {
     ...mapActions("chat", ["sendMessage"]),
 
+    formatChatType(type) {
+      if (!type) return "Chat";
+
+      const typeMap = {
+        direct: "Direct Message",
+        group: "Group Chat",
+        organization: "Organization",
+        project: "Project Chat",
+        task: "Task Chat",
+      };
+
+      return typeMap[type] || "Chat";
+    },
+
     async handleMessageUpdate() {
       if (!this.activeChat?.id) return;
 
       try {
-        await this.$store.dispatch("chat/refreshChatMessages", this.activeChat.id);
+        await this.$store.dispatch(
+          "chat/refreshChatMessages",
+          this.activeChat.id,
+        );
 
         this.refreshKey += 1;
 
@@ -459,13 +508,13 @@ export default {
       if (!this.activeChat?.type === "direct") return;
 
       const otherUserId = this.activeChat.participants.find(
-        (id) => id !== this.currentUser?.userID
+        (id) => id !== this.currentUser?.userID,
       );
       if (otherUserId) {
         try {
           await this.$store.dispatch("chat/fetchUsers", otherUserId);
           const otherUser = this.$store.state.chat.users.find(
-            (user) => user.userID === otherUserId
+            (user) => user.userID === otherUserId,
           );
           this.resolvedTitle = otherUser?.userName || "Unknown User";
         } catch (error) {
@@ -500,7 +549,7 @@ export default {
       if (this.activeChat?.type === "direct") return false;
 
       // Don't show sender name for own messages
-      if (message.senderId === this.currentUser?.id) return false;
+      if (message.senderID === this.currentUser?.id) return false;
 
       // Show sender name if it's the first message
       if (index === 0) return true;
@@ -509,7 +558,7 @@ export default {
       const previousMessage = this.chatMessages[index - 1];
 
       // Show sender name if previous message was from a different sender
-      return previousMessage.senderId !== message.senderId;
+      return previousMessage.senderID !== message.senderID;
     },
     shouldShowTimestamp(message, index) {
       if (index === 0) return true;
@@ -523,20 +572,20 @@ export default {
     },
     getAvatarPosition(index) {
       const positions = {
-        0: 'top-0 left-0',
-        1: 'top-0 right-0',
-        2: 'bottom-0 left-0',
-        3: 'bottom-0 right-0'
+        0: "top-0 left-0",
+        1: "top-0 right-0",
+        2: "bottom-0 left-0",
+        3: "bottom-0 right-0",
       };
-      return positions[index] || '';
+      return positions[index] || "";
     },
 
     getInitials(name) {
-      if (!name) return '?';
+      if (!name) return "?";
       return name
-        .split(' ')
-        .map(word => word[0])
-        .join('')
+        .split(" ")
+        .map((word) => word[0])
+        .join("")
         .toUpperCase()
         .slice(0, 2);
     },

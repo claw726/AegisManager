@@ -125,6 +125,25 @@ const actions = {
     }
   },
 
+  async fetchTasksForProjects({ dispatch, commit }, projectIDs) {
+    commit("SET_LOADING", true);
+    try {
+      const taskPromises = projectIDs.map((projectID) => dispatch("fetchTasksFromProject", projectID));
+      const taskArrays = await Promise.all(taskPromises);
+
+      // Flatten the array of arrays
+      const allTasks = Array.from(new Set(taskArrays.flat()));
+
+      commit("SET_TASKS", allTasks);
+      return allTasks;
+    } catch (error) {
+      commit("SET_ERROR", error.message);
+      throw error;
+    } finally {
+      commit("SET_LOADING", false);
+    }
+  },
+
   async createTask({ commit, rootState }, task) {
     try {
       const params = {
@@ -354,6 +373,110 @@ const actions = {
       commit("SET_UPDATE_STATUS", { loading: false });
     }
   },
+  async addFile({ rootState }, data) {
+    try {
+      const response = await axios.post(
+        `/api/tasks/${data.taskID}/addFile`,
+        data,
+        {
+          headers: {
+            Authorization: `Bearer ${rootState.auth.authToken}`,
+            'Content-Type': 'application/json',
+          },
+        }
+      );
+      return response.data;
+    } catch (error) {
+      let errorMessage = "An unexpected error occurred.";
+      console.log("THE ERROR IS BEING LOGGED");
+      if (error.response) {
+        switch (error.response.status) {
+          case 404:
+            errorMessage = "Task or user not found.";
+            break;
+          case 401:
+            errorMessage = "You do not have permission to add a file to this task.";
+            break;
+          case 400:
+            errorMessage = "The file is malformed.";
+            break;
+          case 409:
+            errorMessage = "An identical file already exists.";
+            break;
+          default:
+            errorMessage = error.response.data || errorMessage;
+        }
+      }
+      console.log(errorMessage);
+      throw new Error(errorMessage);
+    }
+  },
+  async fetchAllFiles({ commit, rootState }, taskID) {
+    try {
+      const response = await axios.get(
+        `/api/tasks/${taskID}/getAllFiles`,
+        {
+          headers: {
+            Authorization: `Bearer ${rootState.auth.authToken}`,
+          },
+        },
+      );
+      console.log("Files response: ", response.data);
+
+      let filesData = response.data;
+      if (typeof filesData === "string") {
+        try {
+          filesData = JSON.parse(tasksData);
+        } catch (error) {
+          console.error("Error parsing tasks data: ", error);
+          filesData = [];
+        }
+      }
+
+      const files = Array.isArray(filesData) ? filesData : [];
+      return files;
+    } catch (error) {
+      let errorMessage = "Error fetching tasks";
+
+      if (error.response) {
+        switch (error.response.status) {
+          case 401:
+            errorMessage = "Please login again";
+            break;
+          case 403:
+            errorMessage = "You are not authorized to view tasks";
+            break;
+          case 404:
+            errorMessage = "User not found";
+            break;
+          default:
+            errorMessage = error.response.data || errorMessage;
+        }
+      } else if (error.request) {
+        errorMessage = "Error connecting to server";
+      }
+      throw new Error(errorMessage);
+    }
+  },
+  async deleteFile({ commit, rootState }, data) {
+    const fileID = data.fileID;
+    const taskID = data.taskID;
+    try {
+      const response = await axios({
+        method: "delete",
+        url: `/api/tasks/${taskID}/deleteFile?fileID=${fileID}`,
+        headers: {
+          Authorization: `Bearer ${rootState.auth.authToken}`,
+          "Content-Type": "application/x-www-form-urlencoded",
+        },
+      });
+      console.log("File deleted");
+      return true;
+    } catch (error) {
+      console.log("error response: ", error);
+    }
+  },
+
 };
 
 const getters = {

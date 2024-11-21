@@ -110,11 +110,11 @@ export default {
       }
 
       let archived = this.projects.filter(
-        (project) => project.isArchived === true
+        (project) => project.isArchived === true,
       );
 
       let ownedArchived = archived.filter(
-        (project) => project.projectOwnerID === this.currentUser.userID
+        (project) => project.projectOwnerID === this.currentUser.userID,
       );
 
       // Then apply search filter
@@ -162,7 +162,7 @@ export default {
 
         await this.$store.dispatch(
           "projects/fetchUserProjects",
-          this.currentUser.email
+          this.currentUser.email,
         );
 
         if (this.errorMessage) {
@@ -174,7 +174,7 @@ export default {
         console.error("Failed to fetch projects:", error);
         this.showNotification(
           "error",
-          "Failed to load projects. Please try again."
+          "Failed to load projects. Please try again.",
         );
       }
     },

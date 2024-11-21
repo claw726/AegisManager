@@ -66,6 +66,13 @@ const router = createRouter({
       meta: { requiresAuth: true },
       props: true, // Allow passing route params as props
     },
+        {
+      path: "/tasks/:taskId/files",
+      name: "Files",
+      component: () => import("./views/TaskFiles.vue"),
+      meta: { requiresAuth: true },
+      props: true, // Allow passing route params as props
+    },
     {
       path: "/organization/:orgIndex/project/:projIndex/createTask",
       name: "createTask",
@@ -237,6 +244,16 @@ const router = createRouter({
         },
       ],
     },
+    {
+      path: "/organization/:orgIndex/monitor",
+      name: "OrgChatMonitor",
+      component: () => import("./views/OrgChatMonitor.vue"),
+      props: route => ({
+        organizationId: Number(route.params.orgIndex),
+        organizationName: route.query.name,
+      }),
+      meta: { requiresAuth: true },
+    }
   ],
 });
 
