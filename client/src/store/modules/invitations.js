@@ -13,8 +13,31 @@ const actions = {
       );
       return response.data;
     } catch (error) {
-      console.error("Failed to create invitation");
-      throw new error("Failed to create invitation");
+      // Initialize a default error message
+      let errorMessage = "An unexpected error occurred. Please try again.";
+
+      if (error.response) {
+        // Customize the message based on the status code
+        switch (error.response.status) {
+          case 409:
+            errorMessage = "This invitation has already been sent to the user.";
+            break;
+          case 404:
+            errorMessage = "User not found.";
+            break;
+          case 400:
+            errorMessage = "Cannot send an invitation to yourself.";
+            break;
+          default:
+            errorMessage = error.response.data || errorMessage;
+        }
+      } else if (error.request) {
+        // Handle network issues
+        errorMessage = "Error connecting to the server.";
+      }
+
+      // Throw an error with the processed message
+      throw new Error(errorMessage);
     }
   },
   async getRecipientInvitations({ rootState }, userID) {

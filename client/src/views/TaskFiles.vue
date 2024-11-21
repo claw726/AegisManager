@@ -40,17 +40,27 @@
               <div class="flex-1 min-w-0">
                 <div class="flex items-center mb-2">
 
-                  <!-- Invitation Details -->
-                  <div class="flex-1 min-w-0">
+                  <div class="flex-1 min-w-0" style="flex: 3 1 55%;">
                     <p class="text-lg font-semibold text-gray-900 truncate">
                       {{ file.fileName }}
                     </p>
                   </div>
-                  <div class="flex-1 min-w-0">
+                  <div class="flex-1 min-w-0" style="flex: 1 1 20%;">
                     <p class="text-lg text-gray-900 truncate">
                       {{ uploaderEmails[file.fileID] || "Loading..." }}
                     </p>
                   </div>
+                  <div class="flex-1 min-w-0" style="flex: 1 1 15%;">
+                    <p class="text-lg text-gray-900 truncate">
+                      {{ getMimeTypeDescription(file.fileType) || "Loading..." }}
+                    </p>
+                  </div>
+                  <div class="flex-1 min-w-0" style="flex: 1 1 10%;">
+                    <p class="text-lg text-gray-900 truncate">
+                      {{ formatFileSize(file.fileSize) || "Loading..." }}
+                    </p>
+                  </div>
+
                 </div>
               </div>
 
@@ -161,6 +171,7 @@ export default {
           fileID: file.fileID,
           fileName: file.fileName,
           fileType: file.fileType,
+          fileSize: file.fileSize,
           taskID: file.taskID,
           uploaderID: file.uploaderID
         }))
@@ -186,12 +197,11 @@ export default {
     async handleFileUpload(event) {
       try {
         const file = event.target.files[0];
-
         const MAX_FILE_SIZE = 50 * 1024 * 1024;
         if (file.size > MAX_FILE_SIZE) {
           this.showNotification("error", "File size exceeds the 50 MB limit.");
           console.error("File size exceeds 50 MB");
-          return; // Exit the function early if the file is too large
+          return;
         }
 
         const fileContents = await this.readFileAsBase64(file);
@@ -200,6 +210,7 @@ export default {
             taskID: this.fetchedTask.taskID,
             fileName: file.name,
             fileType: file.type,
+            fileSize: file.size,
             fileContents: fileContents.replace(/ /g, '+').trim(),
             uploaderID: this.currentUser.userID,
           };
@@ -214,8 +225,8 @@ export default {
           });
         }
       } catch (error) {
-        console.error("Error adding file to task:", error);
-        this.showNotification("error", "Error adding file to the task");
+        console.error("Error adding file to task:", error.message);
+        this.showNotification("error", error.message || "Error adding file to the task");
       }
     },
     readFileAsBase64(file) {
@@ -244,6 +255,7 @@ export default {
     },
     setFileToDelete(file) {
       this.fileToDelete = file;
+      console.log(file.fileSize);
       this.showPopup = true;
     },
     handleYes() {
@@ -254,8 +266,6 @@ export default {
       this.showPopup = false;
     },
     async deleteFile() {
-      console.log("The delete button has been pressed")
-
       try {
         const data = {
           taskID: this.fetchedTask.taskID,
@@ -263,7 +273,7 @@ export default {
         };
         await this.$store.dispatch("tasks/deleteFile", data);
 
-        this.showNotification("success", "Task successfully deleted!");
+        this.showNotification("success", "File successfully deleted!");
         await this.getTaskFiles();
         await this.files.forEach(file => {
           if (!this.uploaderEmails[file.fileID]) {
@@ -271,7 +281,6 @@ export default {
           }
         });
       } catch (error) {
-        //TODO: make sure notification only shows if error shows right status code
         console.error("Failed to delete task:");
         console.error(error);
       }
@@ -308,6 +317,156 @@ export default {
         console.error("Error downloading the file:", error);
       }
     },
+    formatFileSize(fileSize) {
+      if (fileSize < 1000) {
+        return fileSize + " B"
+      }
+      else if (fileSize < 1000000) {
+        return Math.floor(fileSize / 1000) + " KB"
+      }
+      else {
+        return Math.floor(fileSize / 1000000) + " MB"
+      }
+    },
+    getMimeTypeDescription(fileType) {
+      switch (fileType) {
+        // Text Files
+        case "text/plain":
+          return "Plain Text";
+        case "text/html":
+          return "HTML";
+        case "text/css":
+          return "CSS";
+        case "application/javascript":
+          return "JavaScript";
+        case "application/json":
+          return "JSON";
+        case "application/xml":
+          return "XML";
+
+        // Image Files
+        case "image/jpeg":
+          return "JPEG";
+        case "image/png":
+          return "PNG";
+        case "image/gif":
+          return "GIF";
+        case "image/bmp":
+          return "BMP";
+        case "image/webp":
+          return "WebP";
+        case "image/svg+xml":
+          return "SVG";
+        case "image/tiff":
+          return "TIFF";
+        case "image/x-icon":
+          return "Icon File";
+
+        // Audio Files
+        case "audio/mpeg":
+          return "MP3";
+        case "audio/wav":
+          return "WAV";
+        case "audio/ogg":
+          return "OGG";
+        case "audio/aac":
+          return "AAC";
+        case "audio/flac":
+          return "FLAC";
+        case "audio/midi":
+          return "MIDI";
+
+        // Video Files
+        case "video/mp4":
+          return "MP4";
+        case "video/webm":
+          return "WebM";
+        case "video/ogg":
+          return "OGG";
+        case "video/x-msvideo":
+          return "AVI";
+        case "video/mpeg":
+          return "MPEG";
+        case "video/quicktime":
+          return "QuickTime (MOV)";
+
+        // Document Files
+        case "application/pdf":
+          return "PDF";
+        case "application/msword":
+          return "Word";
+        case "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
+          return "Word";
+        case "application/vnd.ms-excel":
+          return "Excel";
+        case "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
+          return "Excel";
+        case "application/vnd.ms-powerpoint":
+          return "PowerPoint";
+        case "application/vnd.openxmlformats-officedocument.presentationml.presentation":
+          return "PowerPoint";
+        case "application/rtf":
+          return "RTF";
+
+        // Compressed Files
+        case "application/zip":
+          return "ZIP";
+        case "application/vnd.rar":
+          return "RAR";
+        case "application/gzip":
+          return "GZIP";
+        case "application/x-7z-compressed":
+          return "7z";
+        case "application/x-tar":
+          return "TAR";
+
+        // Code Files
+        case "text/x-python":
+          return "Python";
+        case "application/javascript":
+          return "JavaScript";
+        case "text/x-java-source":
+          return "Java Source";
+        case "text/x-c":
+          return "C Source";
+        case "text/x-c++src":
+          return "C++ Source";
+
+        // Application and Executable Files
+        case "application/vnd.microsoft.portable-executable":
+          return "Executable";
+        case "application/x-apple-diskimage":
+          return "Disk Image";
+        case "application/vnd.android.package-archive":
+          return "Package";
+
+        // Font Files
+        case "font/ttf":
+          return "TTF";
+        case "font/otf":
+          return "OTF";
+        case "font/woff":
+          return "WOFF";
+        case "font/woff2":
+          return "WOFF2";
+
+        // Other Common Types
+        case "text/csv":
+          return "CSV";
+        case "application/x-yaml":
+        case "text/yaml":
+          return "YAML";
+        case "text/markdown":
+          return "Markdown";
+        case "text/calendar":
+          return "ICS";
+
+        // Default case for unknown types
+        default:
+          return "File";
+      }
+    }
+
   },
 };
 </script>

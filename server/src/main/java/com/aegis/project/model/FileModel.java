@@ -38,6 +38,9 @@ public class FileModel {
     @JoinColumn(name = "task") // Foreign key column in ProjectModel table
     private TaskModel task;
 
+    @Column(name = "file_size")
+    private int fileSize;
+
     @Column(name = "uploader_ID")
     private int uploaderID;
 
@@ -103,6 +106,14 @@ public class FileModel {
         this.task = task;
     }
 
+    public int getFileSize() {
+        return this.fileSize;
+    }
+
+    public void setFileSize(int fileSize) {
+        this.fileSize = fileSize;
+    }
+
     public int getUploaderID() {
         return this.uploaderID;
     }
@@ -123,6 +134,9 @@ public class FileModel {
                 + "\"fileData\": "
                 //+ Arrays.toString(this.getFileData())
                 + this.getAbbreviatedFileData()
+                + ","
+                + "\"fileSize\": "
+                + this.getFileSize()
                 + ","
                 + "\"taskID\": "
                 + this.getTaskID()

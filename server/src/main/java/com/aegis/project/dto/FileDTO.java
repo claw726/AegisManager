@@ -8,6 +8,7 @@ public class FileDTO {
     private String fileName;
     private String fileType;
     private String fileData;
+    public int fileSize;
     private int taskID;
     private int uploaderID;
 
@@ -16,15 +17,17 @@ public class FileDTO {
         this.fileName = file.getFileName();
         this.fileType = file.getFileType();
         this.fileData = file.getFileData();
+        this.fileSize = file.getFileSize();
         this.taskID = file.getTaskID();
         this.uploaderID = file.getUploaderID();
     }
 
-    public FileDTO(int fileID, String fileName, String fileType, /*byte[] fileData,*/ String fileData, int taskID, int uploaderID) {
+    public FileDTO(int fileID, String fileName, String fileType, /*byte[] fileData,*/ String fileData, int fileSize, int taskID, int uploaderID) {
         this.fileID = fileID;
         this.fileName = fileName;
         this.fileType = fileType;
         this.fileData = fileData;
+        this.fileSize = fileSize;
         this.taskID = taskID;
         this.uploaderID = uploaderID;
     }
@@ -70,6 +73,14 @@ public class FileDTO {
 
     public void setFileData(String fileData) {
         this.fileData = fileData;
+    }
+
+    public int getFileSize() {
+        return this.fileSize;
+    }
+
+    public void setFileSize(int fileSize) {
+        this.fileSize = fileSize;
     }
 
     public int getTaskID() {

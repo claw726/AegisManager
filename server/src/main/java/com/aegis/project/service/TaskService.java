@@ -629,7 +629,7 @@ public class TaskService {
                 .collect(Collectors.toSet());
     }
 
-    public String addFile(int taskID, String fileName, String fileType, String fileContents, int uploaderID) {
+    public String addFile(int taskID, String fileName, String fileType, int fileSize, String fileContents, int uploaderID) {
         TaskModel task = taskRepository
                 .findById(taskID)
                 .orElseThrow(()
@@ -669,6 +669,7 @@ public class TaskService {
         file.setFileType(fileType);
         file.setFileData(base64Encoded);
         file.setTaskID(taskID);
+        file.setFileSize(fileSize);
         file.setTask(task);
         file.setUploaderID(uploaderID);
 
