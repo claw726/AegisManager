@@ -163,7 +163,6 @@ export default {
     },
 
     onDeleteClick() {
-      console.log("Confirm delete");
       this.showDeleteModal = true;
     },
 
@@ -174,9 +173,10 @@ export default {
           messageId: this.message.id,
         });
         this.showDeleteModal = false;
-        this.$emit("message-deleted");
+        this.$emit("message-deleted", { success: true });
       } catch (error) {
         console.error("Error deleting message:", error);
+        this.$emit("message-deleted", { success: false, error: error.message });
       }
     },
   },

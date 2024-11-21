@@ -1,6 +1,15 @@
 <template>
   <div class="flex flex-col h-full min-h-0">
     <ConnectionStatus />
+    <div class="fixed top-4 left-1/2 transform -translate-x-1/2 z-50">
+      <NotificationComponent
+        :show="notification.show"
+        :type="notification.type"
+        @close="clearNotification"
+      >
+        {{ notification.message }}
+      </NotificationComponent>
+    </div>
     <!-- Chat Header -->
     <div class="border-b p-4 flex items-center bg-white flex-shrink-0">
       <div class="flex-1 flex items-center">
@@ -232,12 +241,14 @@
 import { mapState, mapGetters, mapActions } from "vuex";
 import MessageBubble from "./MessageBubble.vue";
 import ConnectionStatus from "@/components/ConnectionStatus.vue";
+import NotificationComponent from "@/components/NotificationComponent.vue";
 
 export default {
   name: "ChatWindow",
   components: {
     MessageBubble,
     ConnectionStatus,
+    NotificationComponent,
   },
 
   props: {
@@ -255,6 +266,12 @@ export default {
       profilePicture: null,
       imageLoadError: false,
       refreshKey: 0,
+      notification: {
+        show: false,
+        message: "",
+        type: "success",
+      },
+      notificationTimeout: null,
     };
   },
 
@@ -445,6 +462,22 @@ export default {
   methods: {
     ...mapActions("chat", ["sendMessage"]),
 
+    showNotification(type, message, duration = 3000) {
+      if (this.notificationTimeout) {
+        clearTimeout(this.notificationTimeout);
+      }
+
+      this.notification = { show: true, type, message };
+
+      this.notificationTimeout = setTimeout(() => {
+        this.clearNotification();
+      }, duration);
+    },
+
+    clearNotification() {
+      this.notification = { show: false, message: "", type: "success" };
+    },
+
     formatChatType(type) {
       if (!type) return "Chat";
 
@@ -459,7 +492,14 @@ export default {
       return typeMap[type] || "Chat";
     },
 
-    async handleMessageUpdate() {
+    async handleMessageUpdate(status = {}) {
+
+      if (status?.success) {
+        this.showNotification("success", "Message deleted successfully");
+      } else if (status?.error) {
+        this.showNotification("error", status.error || "Failed to delete message");
+      }
+
       if (!this.activeChat?.id) return;
 
       try {
@@ -476,6 +516,7 @@ export default {
       } catch (error) {
         console.error("Error refreshing messages:", error);
         this.$store.commit("chat/SET_ERROR", "Failed to refresh messages");
+        this.showNotification("error", "Failed to refresh messages");
       }
     },
 
@@ -593,6 +634,11 @@ export default {
     handleImageError() {
       this.imageLoadError = true;
     },
+  },
+  beforeDestroy() {
+    if (this.notificationTimeout) {
+      clearTimeout(this.notificationTimeout);
+    }
   },
 };
 </script>

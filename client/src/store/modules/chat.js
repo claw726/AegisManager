@@ -235,6 +235,7 @@ const actions = {
         targetEmail: state.activeChat.participants.find(
           (p) => p !== rootState.auth.currentUser.userID,
         ),
+        date: new Date().toISOString(),
       });
       return;
     } catch (error) {
