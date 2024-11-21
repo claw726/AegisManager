@@ -253,6 +253,11 @@ export default {
           symbol: "fas fa-users",
           command: this.editOrgUsers,
         },
+        {
+          title: "View All Chat Messages",
+          symbol: "fas fa-comments",
+          command: this.viewOrgChats,
+        },
       ],
       projectToggle: "unarchived",
       projectToggleOpts: [
@@ -326,6 +331,26 @@ export default {
         }, duration);
       }
     },
+    viewOrgChats() {
+        // Check if user has permission
+        if (this.org.orgOwnerID !== this.currentUser.userID) {
+          this.showNotification(
+            "error",
+            "You do not have permission to view organization messages"
+          );
+          return;
+        }
+
+        this.$router.push({
+          name: 'OrgChatMonitor',
+          params: {
+            id: this.org.orgID,
+          },
+          query: {
+            name: this.org.orgName
+          }
+        });
+      },
     clearNotification() {
       this.notification.show = false;
     },

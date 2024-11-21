@@ -11,6 +11,7 @@ const state = {
   loading: false,
   error: null,
   wsConnected: false,
+  chatInfoCache: {},
 };
 
 const mutations = {
@@ -65,6 +66,9 @@ const mutations = {
   },
   SET_ERROR(state, error) {
     state.error = error;
+  },
+  SET_CHAT_INFO(state, { chatId, chatInfo }) {
+    state.chatInfoCache[chatId] = chatInfo;
   },
   UPDATE_CHAT_LAST_MESSAGE(state, { chatId, lastMessage }) {
     const chat = state.chats.find((chat) => chat.id === chatId);
@@ -260,6 +264,28 @@ const actions = {
     }
   },
 
+  async fetchOrgMessages({ rootState, commit }, orgId) {
+    commit("SET_LOADING", true);
+    try {
+      const response = await axios.get(`/api/messages/history/${orgId}`, {
+        headers: {
+          Authorization: `Bearer ${rootState.auth.authToken}`,
+        },
+      });
+
+      console.log("Response:", response.data);
+
+      return response.data;
+
+    } catch (error) {
+      console.error("Error fetching org messages:", error);
+      commit("SET_ERROR", "Failed to fetch organization messages");
+      throw error;
+    } finally {
+      commit("SET_LOADING", false);
+    }
+  },
+
   async deleteMessage({ rootState, commit }, { chatId, messageId }) {
     try {
       await axios.delete(`/api/messages/${messageId}/delete`, {
@@ -438,6 +464,7 @@ const getters = {
   getActiveChat: (state) => state.activeChat,
   getAllUsers: (state) => state.users || [],
 };
+
 
 export default {
   state,

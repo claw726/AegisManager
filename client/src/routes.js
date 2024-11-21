@@ -244,6 +244,16 @@ const router = createRouter({
         },
       ],
     },
+    {
+      path: "/organization/:orgIndex/monitor",
+      name: "OrgChatMonitor",
+      component: () => import("./views/OrgChatMonitor.vue"),
+      props: route => ({
+        organizationId: Number(route.params.orgIndex),
+        organizationName: route.query.name,
+      }),
+      meta: { requiresAuth: true },
+    }
   ],
 });
 
