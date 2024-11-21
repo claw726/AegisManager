@@ -130,10 +130,11 @@ This test plan covers the UI testing of the team management chat functionality, 
 **Steps**:
 
 1. Log in as User A in one browser
-2. Log in as User B in another browser
-3. Open the same chat in both browsers
-4. Send messages from User B
-5. Observe User A's interface
+2. As User A, create a direct chat to User B
+3. Log in as User B in another browser
+4. Open the same chat in both browsers
+5. Send messages from User B
+6. Observe User A's interface
 
 **Expected Results**:
 
