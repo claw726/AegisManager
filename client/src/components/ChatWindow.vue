@@ -98,11 +98,29 @@
         </div>
 
         <div>
-          <div class="flex items-center">
+          <div class="flex items-center space-x-2">
+            <!-- Chat Type Badge -->
+            <span
+              class="px-2 py-0.5 text-xs font-medium rounded-full"
+              :class="{
+                'bg-gray-100 text-gray-800': activeChat?.type === 'direct',
+                'bg-amber-100 text-amber-800': activeChat?.type === 'group',
+                'bg-blue-100 text-blue-800':
+                  activeChat?.type === 'organization',
+                'bg-green-100 text-green-800': activeChat?.type === 'project',
+                'bg-indigo-100 text-indigo-800': activeChat?.type === 'task',
+              }"
+            >
+              {{ formatChatType(activeChat?.type) }}
+            </span>
+
+            <!-- Chat Title -->
             <h2 class="text-xl font-semibold">{{ displayTitle }}</h2>
-            <i :class="[chatTypeIconSmall, 'ml-2 text-gray-400']"></i>
+            <i :class="[chatTypeIconSmall, 'text-gray-400']"></i>
           </div>
-          <p class="text-sm text-gray-500 flex items-center">
+
+          <!-- Participant Count -->
+          <p class="text-sm text-gray-500 flex items-center mt-1">
             <i class="fas fa-users mr-1"></i>
             {{ activeChat?.participants?.length || 0 }} members
           </p>
@@ -159,7 +177,7 @@
         >
           <MessageBubble
             :message="message"
-            :isOwn="message.senderId === currentUser?.userID"
+            :isOwn="message.senderID === currentUser?.userID"
             :showSender="shouldShowSenderName(message, index)"
             :showTimestamp="shouldShowTimestamp(message, index)"
             class="w-full"
@@ -175,6 +193,11 @@
       >
         <p>No messages yet. Start the conversation!</p>
       </div>
+    </div>
+
+    <div class="py-1 text-center text-xs text-gray-400">
+      <i class="fas fa-shield-alt mr-1"></i>
+      Messages may be monitored by organization administrators
     </div>
 
     <!-- Message Input -->
@@ -422,6 +445,20 @@ export default {
   methods: {
     ...mapActions("chat", ["sendMessage"]),
 
+    formatChatType(type) {
+      if (!type) return "Chat";
+
+      const typeMap = {
+        direct: "Direct Message",
+        group: "Group Chat",
+        organization: "Organization",
+        project: "Project Chat",
+        task: "Task Chat",
+      };
+
+      return typeMap[type] || "Chat";
+    },
+
     async handleMessageUpdate() {
       if (!this.activeChat?.id) return;
 
@@ -512,7 +549,7 @@ export default {
       if (this.activeChat?.type === "direct") return false;
 
       // Don't show sender name for own messages
-      if (message.senderId === this.currentUser?.id) return false;
+      if (message.senderID === this.currentUser?.id) return false;
 
       // Show sender name if it's the first message
       if (index === 0) return true;
@@ -521,7 +558,7 @@ export default {
       const previousMessage = this.chatMessages[index - 1];
 
       // Show sender name if previous message was from a different sender
-      return previousMessage.senderId !== message.senderId;
+      return previousMessage.senderID !== message.senderID;
     },
     shouldShowTimestamp(message, index) {
       if (index === 0) return true;

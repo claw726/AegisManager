@@ -21,6 +21,18 @@ def get_house_md_characters() -> List[Character]:
       Character("Remy", "Hadley", "thirteen@ppth.edu"),
       Character("Lawrence", "Kutner", "kutner@ppth.edu")
   ]
+def get_clear_skies_characters() -> List[Character]:
+  """Returns a list of main characters from Clear Skies"""
+  return [
+      Character("John", "Rourke", "captain@clearskies.space"),
+      Character("Solomon", "Burke", "burke@clearskies.space"),
+      Character("Charlie", "Fodder", "fodder@clearskies.space"),
+      Character("Tarquin", "Smith", "smith@clearskies.space"),
+      Character("Sascha", "Culhane", "culhane@clearskies.space"),
+      Character("Falcon", "Hausmann", "hausmann@clearskies.space"),
+      Character("Guy", "Stone", "ghost@clearskies.space")
+  ]
+
 
 def get_base64_image(character_lastname: str) -> str:
   """Reads the base64 data URL from the generated text file"""
@@ -80,6 +92,7 @@ def main():
   
   # Get all characters
   characters = get_house_md_characters()
+  characters += get_clear_skies_characters()
   
   # Create users for each character
   results = []

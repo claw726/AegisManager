@@ -138,7 +138,7 @@ export default {
     ...mapState("chat", ["users"]),
 
     sender() {
-      return this.users.find((user) => user.userID === this.message.senderId);
+      return this.users.find((user) => user.userID === this.message.senderID);
     },
 
     senderProfilePicture() {

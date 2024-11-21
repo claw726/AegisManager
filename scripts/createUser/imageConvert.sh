@@ -5,15 +5,13 @@ mkdir -p pictures_avif
 
 # List of House M.D. characters
 characters=(
-	"house"
-	"wilson"
-	"cuddy"
-	"foreman"
-	"chase"
-	"cameron"
-	"taub"
-	"hadley"
-	"kutner"
+	"Rourke"
+	"Burke"
+	"Fodder"
+	"Smith"
+	"Culhane"
+	"Hausmann"
+	"Stone"
 )
 
 for character in "${characters[@]}"; do
