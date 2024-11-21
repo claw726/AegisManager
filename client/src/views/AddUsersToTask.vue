@@ -78,44 +78,40 @@ export default {
 
     async handleAddUser() {
       try {
-        //const s = this.addUser(this.email);
-        const s = await this.sendInvite(this.email);
+        const s = await this.sendInvite(this.email);  // Await the result of sendInvite
         if (!s) {
-          return;
+          return;  // If the result is falsy (e.g., false), exit early
         }
 
         let erroneous = false;
 
-        s.then((result) => {
-          this.promiseResult = result;
-          //console.log("Promise resolved with: ", result);
+        // Handle the result of sendInvite directly
+        if (s === 404) {
+          console.log("User not found, unable to add to task.");
+          this.showNotification(
+            "error",
+            "User not found, unable to add to task."
+          );
+          erroneous = true;  // Set erroneous to true to prevent success notification
+        }
 
-          if (result == 404) {
-            //user not found error
-            console.log("User not found, unable to add to task.");
-            this.showNotification(
-              "error",
-              "User not found, unable to add to task."
-            );
-            erroneous = true;
-            return;
-          }
-        }).catch((error) => {
-          console.error("Promise rejected with: ", error);
-        });
-
-        if (erroneous == false) {
+        if (!erroneous) {
           this.showNotification("success", "Successfully added user to task!");
         }
+
+        // Wait for 2.5 seconds before navigating to the TDList
         await new Promise((resolve) => setTimeout(resolve, 2500));
+
+        // After waiting, push to the TDList route
+        this.$router.push({ name: "TDList" });
+
       } catch (error) {
         console.error("Failed to add user to task", error);
         this.showNotification(
           "error",
-          "Unexpected error with task delegation."
+          error.message || "Unexpected error occurred."
         );
       }
-      this.$router.push({ name: "TDList" });
     },
 
     async sendInvite(email) {
