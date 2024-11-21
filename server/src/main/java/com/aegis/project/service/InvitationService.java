@@ -41,6 +41,9 @@ public class InvitationService {
             int invitationType,
             String message
     ) {
+        if (senderEmail.equals(recipientEmail)) {
+            throw new RuntimeException("Cannot send an invitation to yourself");
+        }
         if (invitationType >= 2 && invitationType <= 4 && invitationRepository.existsInvitationByMessageAndRecipient(message, recipientEmail)) {
             throw new RuntimeException(
                     "Invitation with given message has already been sent to the user"

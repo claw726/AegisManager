@@ -376,19 +376,39 @@ const actions = {
   async addFile({ rootState }, data) {
     try {
       const response = await axios.post(
-        `/api/tasks/${data.taskID}/addFile`,  // URL without query parameters
-        data,  // Send the data object in the body
+        `/api/tasks/${data.taskID}/addFile`,
+        data,
         {
           headers: {
             Authorization: `Bearer ${rootState.auth.authToken}`,
-            'Content-Type': 'application/json'  // Ensure the content type is JSON
-          }
+            'Content-Type': 'application/json',
+          },
         }
       );
       return response.data;
     } catch (error) {
-      console.error("Failed to add file");
-      throw new Error("Failed to add file");
+      let errorMessage = "An unexpected error occurred.";
+      console.log("THE ERROR IS BEING LOGGED");
+      if (error.response) {
+        switch (error.response.status) {
+          case 404:
+            errorMessage = "Task or user not found.";
+            break;
+          case 401:
+            errorMessage = "You do not have permission to add a file to this task.";
+            break;
+          case 400:
+            errorMessage = "The file is malformed.";
+            break;
+          case 409:
+            errorMessage = "An identical file already exists.";
+            break;
+          default:
+            errorMessage = error.response.data || errorMessage;
+        }
+      }
+      console.log(errorMessage);
+      throw new Error(errorMessage);
     }
   },
   async fetchAllFiles({ commit, rootState }, taskID) {
