@@ -379,7 +379,7 @@ export default defineComponent({
     const getChatDisplayName = (chat) => {
       if (!chat) return "";
 
-      if (chat.type !== "group" || chat.type !== "direct") {
+      if (chat.type !== "group" && chat.type !== "direct") {
         return chat.title || "Unnamed Channel";
       }
 
@@ -400,7 +400,6 @@ export default defineComponent({
         const remainingCount = participantNames.length - 3;
         return `${firstThreeNames} + ${remainingCount} ${remainingCount === 1 ? "other" : "others"}`;
       }
-
       // For direct messages and smaller group chats, show all names
       return participantNames.join(", ") || "Unknown Chat";
     };
@@ -409,7 +408,7 @@ export default defineComponent({
     const getShortChatDisplayName = (chat) => {
       if (!chat) return "";
 
-      if (chat.type !== "group" || chat.type !== "direct") {
+      if (chat.type !== "group" && chat.type !== "direct") {
         return chat.title || "Unnamed Channel";
       }
 

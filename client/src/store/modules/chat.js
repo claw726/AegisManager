@@ -272,8 +272,6 @@ const actions = {
         },
       });
 
-      console.log("Response:", response.data);
-
       return response.data;
     } catch (error) {
       console.error("Error fetching org messages:", error);
@@ -352,12 +350,40 @@ const actions = {
     }
   },
 
-  handleNewMessage({ commit, state, rootState }, messageData) {
+  async handleNewMessage({ commit, state, rootState, dispatch }, messageData) {
     try {
       // Validate message
       if (!messageData || !messageData.chatId) {
         console.warn("Invalid message data:", messageData);
         return;
+      }
+
+      var chatInfo = state.chats.find((chat) => chat.id === messageData.chatId);
+      if (!chatInfo) {
+        try {
+          chatInfo = await dispatch("getChat", messageData.chatId);
+          if (chatInfo) {
+            commit("ADD_CHAT", {
+              id: messageData.chatId,
+              title: chatInfo.title,
+              lastMessage: messageData.content,
+              participants: chatInfo.participants || [],
+              type: chatInfo.type || "direct",
+              unreadCount: 0,
+            });
+          }
+        } catch (error) {
+          console.error("Error fetching chat info:", error);
+          // create a temporary chat object
+          chatInfo = {
+            id: messageData.chatId,
+            title: "Loading...",
+            participants: [],
+            type: "direct",
+            unreadCount: 0,
+          };
+          commit("ADD_CHAT", chatInfo);
+        }
       }
 
       // Create a formatted message object
@@ -393,17 +419,6 @@ const actions = {
         chatId: messageData.chatId,
         lastMessage: formattedMessage,
       });
-
-      // If this is a new chat, add it to the chats list
-      if (!state.chats.find((chat) => chat.id === messageData.chatId)) {
-        commit("ADD_CHAT", {
-          id: messageData.chatId,
-          title: messageData.chatTitle,
-          lastMessage: formattedMessage.content,
-          participants: messageData.participants || [],
-          type: messageData.chatType || "direct",
-        });
-      }
 
       // Update the unread count
       if (messageData.senderID !== rootState.auth.currentUser.userID) {
