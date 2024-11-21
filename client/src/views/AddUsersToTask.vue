@@ -4,10 +4,7 @@
     <NavBar />
 
     <!-- Main Content -->
-    <div
-      v-if="fetchedTask"
-      class="cc text-4xl font-bold text-hunter-green mb-6"
-    >
+    <div v-if="fetchedTask" class="cc text-4xl font-bold text-hunter-green mb-6">
       Add Users to Task
     </div>
 
@@ -16,31 +13,18 @@
       <div class="flex flex-wrap cc -mx-4 bg-grey shadow-lg rounded-lg p-8">
         <div class="w-full md:w-1/2 px-4 mb-4">
           <label class="block text-sm font-semibold text-gray-800 mb-2">
-            Please Enter the Assignee's Email</label
-          >
-          <input
-            v-model="email"
-            type="text"
-            class="w-full border border-highlight rounded-lg p-3"
-          />
+            Please Enter the Assignee's Email</label>
+          <input v-model="email" type="text" class="w-full border border-highlight rounded-lg p-3" />
         </div>
 
-        <NotificationComponent
-          class="flex"
-          :show="notification.show"
-          :type="notification.type"
-          @close="closeNotification"
-        >
+        <NotificationComponent class="flex" :show="notification.show" :type="notification.type"
+          @close="closeNotification">
           {{ notification.message }}
         </NotificationComponent>
 
         <!-- Submit Button -->
-        <button
-          type="submit"
-          class="w-full mt-4 bg-primary text-white font-semibold py-3 rounded-lg"
-          data-testid="submit-button"
-          @click="handleAddUser"
-        >
+        <button type="submit" class="w-full mt-4 bg-primary text-white font-semibold py-3 rounded-lg"
+          data-testid="submit-button" @click="handleAddUser">
           Submit
         </button>
       </div>
@@ -95,7 +79,10 @@ export default {
     async handleAddUser() {
       try {
         //const s = this.addUser(this.email);
-        const s = this.sendInvite(this.email);
+        const s = await this.sendInvite(this.email);
+        if (!s) {
+          return;
+        }
 
         let erroneous = false;
 
@@ -118,7 +105,6 @@ export default {
         });
 
         if (erroneous == false) {
-          //console.log("User added to task WEEEEEEEEEEE.");
           this.showNotification("success", "Successfully added user to task!");
         }
         await new Promise((resolve) => setTimeout(resolve, 2500));
@@ -134,25 +120,26 @@ export default {
 
     async sendInvite(email) {
       try {
+        // Check if the user is trying to invite themselves
+        if (this.currentUser.email.trim() === email.trim()) {
+          this.showNotification("error", "Cannot send invitation to yourself");
+          return false;  // Return false to exit early and avoid sending an invite
+        }
+
         const data = {
           senderEmail: this.currentUser.email,
           recipientEmail: email,
           invitationType: 4,
-          message:
-            this.fetchedTask.taskID +
-            ": Task Addition Request - " +
-            this.fetchedTask.taskName,
+          message: this.fetchedTask.taskID + ": Task Addition Request - " + this.fetchedTask.taskName,
         };
-        console.log("DATA");
-        console.log(data);
+
+        // Call the action and handle success
         await this.$store.dispatch("invitations/createInvitation", data);
         this.showNotification("success", "Successfully sent task invite!");
-        return true;
+        return true;  // Return true if invitation is successfully sent
       } catch (error) {
-        this.showNotification(
-          "error",
-          "Unexpected error with adding user to project."
-        );
+        // Catch the error thrown from createInvitation and display the message
+        this.showNotification("error", error.message || "An unexpected error occurred.");
         return false;
       }
     },
@@ -208,7 +195,9 @@ export default {
   text-align: center;
   padding-top: 50px;
   display: flex;
-  justify-content: center; /* Center horizontally */
-  align-items: center; /* Center vertically */
+  justify-content: center;
+  /* Center horizontally */
+  align-items: center;
+  /* Center vertically */
 }
 </style>

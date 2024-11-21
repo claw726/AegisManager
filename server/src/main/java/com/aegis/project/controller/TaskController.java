@@ -384,12 +384,14 @@ public class TaskController {
         String fileName;
         String fileType;
         String fileContents;
+        int fileSize;
         int uploaderID;
         System.out.println("Accessed");
         try {
             fileName = fileUploadRequest.getFileName();
             fileType = fileUploadRequest.getFileType();
             fileContents = fileUploadRequest.getFileContents();
+            fileSize = fileUploadRequest.getFileSize();
             uploaderID = fileUploadRequest.getUploaderID();
         } catch (RuntimeException e) {
             logger.info("Invalid request: " + e.getMessage());
@@ -397,7 +399,7 @@ public class TaskController {
         }
         try {
             logger.info("Received file addition for task ID: {}, file name: {}, user ID: {} ", taskID, fileName, uploaderID);
-            return ResponseEntity.ok(taskService.addFile(taskID, fileName, fileType, fileContents, uploaderID));
+            return ResponseEntity.ok(taskService.addFile(taskID, fileName, fileType, fileSize, fileContents, uploaderID));
         } catch (RuntimeException e) {
             if (e.getMessage().contains("Task not found with id:")) {
                 logger.info("No task found with ID: {}", taskID);
@@ -420,7 +422,6 @@ public class TaskController {
             } else {
                 return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(e.getMessage());
             }
-            //"
         }
     }
 
@@ -485,6 +486,7 @@ public class TaskController {
         private String fileName;
         private String fileType;
         private String fileContents; // Base64 encoded file content
+        private int fileSize;
         private int uploaderID;
 
         // Getters and setters
@@ -510,6 +512,14 @@ public class TaskController {
 
         public void setFileContents(String fileContents) {
             this.fileContents = fileContents;
+        }
+
+        public int getFileSize() {
+            return fileSize;
+        }
+
+        public void setFileSize(int fileSize) {
+            this.fileSize = fileSize;
         }
 
         public int getUploaderID() {
