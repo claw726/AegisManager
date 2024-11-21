@@ -1,4 +1,5 @@
 <template>
+  <NavBar />
   <div class="p-4 min-h-screen bg-gray-50">
     <!-- Header -->
     <div class="max-w-7xl mx-auto mb-6">
@@ -233,6 +234,7 @@
 import { defineComponent, ref, computed, onMounted } from "vue";
 import { useStore } from "vuex";
 import { useRoute } from "vue-router";
+import NavBar from "@/components/NavBar.vue";
 import {
   TransitionRoot,
   TransitionChild,
@@ -250,6 +252,7 @@ export default defineComponent({
     Dialog,
     DialogPanel,
     DialogTitle,
+    NavBar,
   },
 
   props: {
