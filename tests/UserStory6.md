@@ -1,10 +1,10 @@
 # User Story 6 Test - Task Document Management
 
-## Test Suite ID: TASK-001
+## Test Suite ID: FILE-002
 ### Feature: Viewing and Downloading Documents Attached to Tasks
 
 ### 1. Task Document List Display
-**Test ID:** TASK-001-01  
+**Test ID:** FILE-002-01  
 **Objective:** Verify that the list of attached documents displays correctly on the task details page.  
 **Acceptance Criteria Reference:** AC1
 
@@ -22,7 +22,7 @@
 ---
 
 ### 2. Document Download Functionality
-**Test ID:** TASK-001-02  
+**Test ID:** FILE-002-02  
 **Objective:** Verify that clicking the download button next to a document triggers a file download.  
 **Acceptance Criteria Reference:** AC2
 
@@ -40,7 +40,7 @@
 ---
 
 ### 3. Error Handling for Unavailable Documents
-**Test ID:** TASK-001-03  
+**Test ID:** FILE-002-03  
 **Objective:** Verify that appropriate error messages are displayed when a document is unavailable.  
 **Acceptance Criteria Reference:** AC3
 
