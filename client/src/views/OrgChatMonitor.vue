@@ -353,29 +353,19 @@ export default defineComponent({
       if (!timestamp) return "";
 
       const date = new Date(timestamp + "Z");
-      const now = new Date();
-      const diff = now - date;
+      const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
-      // Less than 24 hours ago
-      if (diff < 24 * 60 * 60 * 1000) {
-        return date.toLocaleTimeString([], {
-          hour: "2-digit",
-          minute: "2-digit",
-          timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-        });
-      }
-
-      // Less than 7 days ago
-      if (diff < 7 * 24 * 60 * 60 * 1000) {
-        const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-        return days[date.getDay()];
-      }
-
-      // More than 7 days ago
-      return date.toLocaleDateString([], {
-        month: "short",
+      return date.toLocaleString('en-US', {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
         day: "numeric",
-        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        timeZoneName: "short",
+        timeZone: userTimeZone,
+        hour12: false
       });
     };
 
