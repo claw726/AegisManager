@@ -11,6 +11,7 @@ const state = {
   loading: false,
   error: null,
   wsConnected: false,
+  chatInfoCache: {},
 };
 
 const mutations = {
@@ -66,6 +67,9 @@ const mutations = {
   SET_ERROR(state, error) {
     state.error = error;
   },
+  SET_CHAT_INFO(state, { chatId, chatInfo }) {
+    state.chatInfoCache[chatId] = chatInfo;
+  },
   UPDATE_CHAT_LAST_MESSAGE(state, { chatId, lastMessage }) {
     const chat = state.chats.find((chat) => chat.id === chatId);
     if (chat) {
@@ -83,11 +87,25 @@ const mutations = {
   },
   DELETE_MESSAGE(state, { chatId, messageId, deleted }) {
     if (state.messages[chatId]) {
-      const message = state.messages[chatId].find(
+      const messageIndex = state.messages[chatId].findIndex(
         (msg) => msg.id === messageId,
       );
-      if (message) {
-        message.deleted = deleted;
+      if (messageIndex !== -1) {
+        // Create a new message object with the deleted flag
+        const updatedMessage = {
+          ...state.messages[chatId][messageIndex],
+          deleted: deleted,
+        };
+
+        // create a new array with the updated message
+        const updatedMessages = [...state.messages[chatId]];
+        updatedMessages[messageIndex] = updatedMessage;
+
+        // Update the messages in the state
+        state.messages = {
+          ...state.messages,
+          [chatId]: updatedMessages,
+        };
       }
     }
   },
@@ -112,7 +130,6 @@ const actions = {
   async fetchUsers({ rootState, commit }) {
     try {
       commit("SET_LOADING", true);
-      console.log("Fetching users...");
       const response = await axios.get("/api/users/getAllUsers", {
         headers: {
           Authorization: `Bearer ${rootState.auth.authToken}`,
@@ -122,7 +139,6 @@ const actions = {
       const users = Array.isArray(response.data)
         ? response.data
         : [response.data];
-      console.log("Fetched users:", users);
       commit("SET_USERS", users);
     } catch (error) {
       console.error("Error fetching users:", error);
@@ -141,8 +157,6 @@ const actions = {
     const numericChatId = parseInt(chatId.match(/\d+/)[0]);
     commit("SET_LOADING", true);
     try {
-      console.log(`Fetching messages for chat ${chatId}`);
-
       const response = await axios.get(
         `/api/messages/${numericChatId}/getMessages`,
         {
@@ -156,7 +170,6 @@ const actions = {
         commit("SET_MESSAGES", { chatId, messages: [] });
       }
       const messages = response.data || [];
-      console.log(`Retrieved ${messages.length} messages for chat ${chatId}`);
       commit("SET_MESSAGES", { chatId, messages: messages });
       return messages;
     } catch (error) {
@@ -175,7 +188,6 @@ const actions = {
     }
 
     try {
-      console.log(`Selecting chat ${chatId}`);
       // Get chat and messages in parallel
       const [chat, messages] = await Promise.all([
         dispatch("getChat", chatId),
@@ -218,10 +230,12 @@ const actions = {
       await sendMessage({
         chatId: chatId,
         content: content,
+        senderID: rootState.auth.currentUser.userID,
         senderEmail: rootState.auth.currentUser.email,
         targetEmail: state.activeChat.participants.find(
           (p) => p !== rootState.auth.currentUser.userID,
         ),
+        date: new Date().toISOString(),
       });
       return;
     } catch (error) {
@@ -244,6 +258,25 @@ const actions = {
       return response.data;
     } catch (error) {
       commit("SET_ERROR", error.response?.data || "Failed to get chat");
+      throw error;
+    } finally {
+      commit("SET_LOADING", false);
+    }
+  },
+
+  async fetchOrgMessages({ rootState, commit }, orgId) {
+    commit("SET_LOADING", true);
+    try {
+      const response = await axios.get(`/api/messages/history/${orgId}`, {
+        headers: {
+          Authorization: `Bearer ${rootState.auth.authToken}`,
+        },
+      });
+
+      return response.data;
+    } catch (error) {
+      console.error("Error fetching org messages:", error);
+      commit("SET_ERROR", "Failed to fetch organization messages");
       throw error;
     } finally {
       commit("SET_LOADING", false);
@@ -300,12 +333,6 @@ const actions = {
         formData.append("participants", participantId);
       });
 
-      console.log("Creating chat with params:", {
-        type,
-        participants: Array.from(participants),
-        title,
-      });
-
       const response = await axios.post("/api/chats/create", formData, {
         headers: {
           Authorization: `Bearer ${rootState.auth.authToken}`,
@@ -324,7 +351,7 @@ const actions = {
     }
   },
 
-  handleNewMessage({ commit, state, rootState }, messageData) {
+  async handleNewMessage({ commit, state, rootState, dispatch }, messageData) {
     try {
       // Validate message
       if (!messageData || !messageData.chatId) {
@@ -332,12 +359,41 @@ const actions = {
         return;
       }
 
+      var chatInfo = state.chats.find((chat) => chat.id === messageData.chatId);
+      if (!chatInfo) {
+        try {
+          chatInfo = await dispatch("getChat", messageData.chatId);
+          if (chatInfo) {
+            commit("ADD_CHAT", {
+              id: messageData.chatId,
+              title: chatInfo.title,
+              lastMessage: messageData.content,
+              participants: chatInfo.participants || [],
+              type: chatInfo.type || "direct",
+              unreadCount: 0,
+            });
+          }
+        } catch (error) {
+          console.error("Error fetching chat info:", error);
+          // create a temporary chat object
+          chatInfo = {
+            id: messageData.chatId,
+            title: "Loading...",
+            participants: [],
+            type: "direct",
+            unreadCount: 0,
+          };
+          commit("ADD_CHAT", chatInfo);
+        }
+      }
+
       // Create a formatted message object
       const formattedMessage = {
         id: messageData.id || `temp-${Date.now()}`,
         chatId: messageData.chatId,
         content: messageData.content,
-        senderId: messageData.senderId,
+        deleted: messageData.deleted || false,
+        senderID: messageData.senderID,
         senderEmail: messageData.senderEmail,
         timestamp: messageData.timestamp || new Date().toISOString(),
         status: messageData.status || "delivered",
@@ -350,25 +406,23 @@ const actions = {
         message: formattedMessage,
       });
 
-      // Update chat last message
-      commit("UPDATE_CHAT_LAST_MESSAGE", {
-        chatId: messageData.chatId,
-        lastMessage: formattedMessage.content,
-      });
-
-      // If this is a new chat, add it to the chats list
-      if (!state.chats.find((chat) => chat.id === messageData.chatId)) {
-        commit("ADD_CHAT", {
-          id: messageData.chatId,
-          title: messageData.chatTitle,
-          lastMessage: formattedMessage.content,
-          participants: messageData.participants || [],
-          type: messageData.chatType || "direct",
+      // set the delete flag if the deleted flag is true
+      if (messageData.deleted) {
+        commit("DELETE_MESSAGE", {
+          chatId: messageData.chatId,
+          messageId: messageData.id,
+          deleted: true,
         });
       }
 
+      // Update chat last message
+      commit("UPDATE_CHAT_LAST_MESSAGE", {
+        chatId: messageData.chatId,
+        lastMessage: formattedMessage,
+      });
+
       // Update the unread count
-      if (messageData.senderId !== rootState.auth.currentUser.userID) {
+      if (messageData.senderID !== rootState.auth.currentUser.userID) {
         const chat = state.chats.find((chat) => chat.id === messageData.chatId);
         if (chat) {
           chat.unreadCount = chat.unreadCount ? chat.unreadCount + 1 : 1;
@@ -421,6 +475,9 @@ const getters = {
 
   getActiveChat: (state) => state.activeChat,
   getAllUsers: (state) => state.users || [],
+  getUserById: (state) => (userId) => {
+    return state.users.find((user) => user.userID === userId);
+  },
 };
 
 export default {

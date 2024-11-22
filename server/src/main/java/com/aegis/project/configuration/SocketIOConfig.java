@@ -24,15 +24,6 @@ public class SocketIOConfig {
     @Value("${socket.port}")
     private int SOCKETPORT;
 
-    @Value("${server.ssl.key-store}")
-    private String keyStore;
-
-    @Value("${server.ssl.key-store-password}")
-    private String keyStorePassword;
-
-    @Value("${server.ssl.key-store-type}")
-    private String keyStoreType;
-
     private SocketIOServer server;
     @Bean
     public SocketIOServer socketIOServer() {

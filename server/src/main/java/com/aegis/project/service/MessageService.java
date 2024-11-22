@@ -1,6 +1,8 @@
 package com.aegis.project.service;
 
 import com.aegis.project.controller.SocketIOController;
+import com.aegis.project.dto.ChatDTO;
+import com.aegis.project.dto.ChatMessagesDTO;
 import com.aegis.project.dto.MessageDTO;
 import com.aegis.project.exception.UserNotFoundException;
 import com.aegis.project.model.*;
@@ -180,7 +182,7 @@ public class MessageService {
         logger.info("Message with ID {} has been deleted", messageID);
     }
 
-    public List<MessageDTO> getOrgMessages(int orgID) {
+    public List<ChatMessagesDTO> getOrgMessages(int orgID) {
         Authentication authentication = SecurityContextHolder.getContext().getAuthentication();
         String currentUsername = ((UserDetails) authentication.getPrincipal()).getUsername();
 
@@ -195,8 +197,7 @@ public class MessageService {
         }
 
         Set<UserModel> users = org.getUsers();
-
-        List<MessageDTO> messageDTOs = new ArrayList<>();
+        List<ChatMessagesDTO> chatMessagesDTOs = new ArrayList<>();
 
         for (UserModel user : users) {
             List<ChatModel> chats = chatRepository.findByParticipantsContaining(user.getUserID());
@@ -213,15 +214,24 @@ public class MessageService {
                     continue;
                 }
                 List<MessageModel> messages = chat.getMessages();
-                for (MessageModel message : messages) {
-                    MessageDTO messageDTO = new MessageDTO(message);
-                    if (!messageDTOs.contains(messageDTO)) {
-                        messageDTOs.add(messageDTO);
+                List<MessageDTO> messageDTOs = messages.stream()
+                        .map(MessageDTO::new)
+                        .collect(Collectors.toList());
+                ChatDTO chatDTO = new ChatDTO(chat);
+                ChatMessagesDTO chatMessagesDTO = new ChatMessagesDTO(chatDTO, messageDTOs);
+                boolean chatExists = false;
+                for (ChatMessagesDTO chatMessagesDTO1 : chatMessagesDTOs) {
+                    if (chatMessagesDTO1.getChat().getId().equals(chatDTO.getId())) {
+                        chatExists = true;
+                        break;
                     }
+                }
+                if (!chatExists) {
+                    chatMessagesDTOs.add(chatMessagesDTO);
                 }
             }
         }
 
-        return messageDTOs;
+        return chatMessagesDTOs;
     }
 }
