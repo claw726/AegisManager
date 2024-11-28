@@ -3,8 +3,9 @@
     <NavBar />
 
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <!-- Header Section -->
-      <div class="mb-8">
+    <div class="mb-8">
+    <div class="flex justify-between items-center">
+      <div>
         <h1 class="text-3xl font-bold text-gray-900 flex items-center">
           <i class="fas fa-envelope-open-text mr-3 text-blue-600"></i>
           Invitations & Notifications
@@ -13,6 +14,17 @@
           Manage your pending invitations and notifications
         </p>
       </div>
+      <!-- Mark All as Read Button -->
+      <button
+        v-if="hasUnreadNotifications"
+        @click="markAllAsRead"
+        class="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500 transition-colors duration-200 shadow-sm"
+      >
+        <i class="fas fa-check-double mr-2"></i>
+        Mark All as Read
+      </button>
+    </div>
+    </div>
 
       <!-- Notification Component -->
       <NotificationComponent
@@ -153,6 +165,9 @@ export default {
   },
   computed: {
     ...mapState("auth", ["isLoggedIn", "currentUser"]),
+    hasUnreadNotifications() {
+      return this.invitations.some(invitation => invitation.invitationType === 0);
+    }
   },
   async created() {
     await this.getRecipientInvitations();
@@ -201,6 +216,26 @@ export default {
         }));
       } catch (error) {
         this.showNotification("error", "Error getting invitations");
+      }
+    },
+    async markAllAsRead() {
+      try {
+        const notificationIds = this.invitations
+          .filter(inv => inv.invitationType === 0)
+          .map(inv => inv.id);
+
+        // Create an array of promises for each notification
+        const markReadPromises = notificationIds.map(id =>
+          this.$store.dispatch("invitations/reject", id)
+        );
+
+        // Wait for all promises to resolve
+        await Promise.all(markReadPromises);
+
+        this.showNotification("success", "All notifications marked as read!");
+        await this.getRecipientInvitations();
+      } catch (error) {
+        this.showNotification("error", "Error marking notifications as read");
       }
     },
     convertNumberToType(invitationType) {

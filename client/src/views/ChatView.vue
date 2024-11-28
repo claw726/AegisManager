@@ -349,6 +349,8 @@ export default {
         return [];
       }
 
+      const filtered = this.searchQuery.trim() ? this.filteredChats : this.chats;
+
       return this.userOrganizations.map((org) => ({
         ...org,
         chat: this.findChat("organization", org.chatID),
@@ -356,23 +358,34 @@ export default {
           .filter((project) => project && project.parentOrgID === org.orgID)
           .map((project) => ({
             ...project,
-            chat: this.findChat("project", project.chatID), // Use project.chatID
+            chat: this.findChat("project", project.chatID),
             tasks: (project.tasks || project.projectTasks || [])
               .map((task) => {
-                // Make sure task exists and has an ID
                 if (!task || !task.taskID) return null;
-
-                // Find the chat for this task using task.chatID
                 const taskChat = this.findChat("task", task.chatID);
-
+                // Only include if no search query or chat matches filter
+                if (this.searchQuery.trim() && !filtered.find(c => c.id === taskChat?.id)) {
+                  return null;
+                }
                 return {
                   ...task,
                   chat: taskChat,
                 };
               })
-              .filter((task) => task !== null), // Remove null tasks
-          })),
-      }));
+              .filter((task) => task !== null),
+          }))
+          // Only include projects that have matching chats or tasks when searching
+          .filter(project => {
+            if (!this.searchQuery.trim()) return true;
+            return filtered.find(c => c.id === project.chat?.id) || project.tasks.length > 0;
+          }),
+      }))
+      // Only include organizations that have matching chats, projects, or tasks when searching
+      .filter(org => {
+        if (!this.searchQuery.trim()) return true;
+        return filtered.find(c => c.id === org.chat?.id) || 
+              org.projects.length > 0;
+      });
     },
 
     categorizedChats() {
@@ -407,16 +420,27 @@ export default {
 
       return this.chats.filter((chat) => {
         // Search in chat title
-        if (chat.title.toLowerCase().includes(query)) {
+        if (chat.title?.toLowerCase().includes(query)) {
           return true;
+        }
+
+        // For direct chats, search in participant names
+        if (chat.type === 'direct') {
+          const otherUser = this.$store.state.chat.users.find(
+            user => chat.participants.includes(user.userID) && user.userID !== this.currentUser.userID
+          );
+          if (otherUser?.name?.toLowerCase().includes(query) || 
+              otherUser?.userName?.toLowerCase().includes(query)) {
+            return true;
+          }
         }
 
         // Search in chat messages
         const chatMessages = this.messages[chat.id] || [];
         return chatMessages.some(
           (message) =>
-            message.content.toLowerCase().includes(query) ||
-            message.senderName.toLowerCase().includes(query),
+            message.content?.toLowerCase().includes(query) ||
+            message.senderName?.toLowerCase().includes(query),
         );
       });
     },
@@ -428,11 +452,21 @@ export default {
     },
     searchQuery(newValue) {
       if (newValue.trim()) {
-        Object.keys(this.expandedCategories).forEach((category) => {
-          this.expandedCategories[category] = true;
-        });
+        // Expand all categories when searching
+        this.expandedCategories = {
+          direct: true,
+          groups: true,
+          ...this.userOrganizations.reduce((acc, org) => {
+            acc[`org-${org.orgID}`] = true;
+            org.projects?.forEach((project) => {
+              acc[`project-${project.projectID}`] = true;
+              acc[`tasks-${project.projectID}`] = true;
+            });
+            return acc;
+          }, {}),
+        };
       }
-    },
+    }
   },
 
   created() {

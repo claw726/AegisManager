@@ -138,9 +138,7 @@
             v-if="chat.lastMessage"
             class="flex items-center text-xs text-gray-400 mt-1 transition-colors duration-300 hover:text-gray-600"
           >
-            <span class="font-medium max-w-[120px] truncate">
-              {{ chat.lastMessage.senderName }}
-            </span>
+            <span class="font-medium max-w-[120px] truncate" v-html="highlightText(chat.lastMessage.senderName)"/>
             <span class="mx-1">•</span>
             <span>{{ formatTimestamp(chat.lastMessage.timestamp) }}</span>
           </div>
@@ -160,6 +158,8 @@
 
 <script>
 import { mapState } from "vuex";
+import { CHAT_ICONS, AVATAR_POSITIONS } from '@/constants/chat.js';
+
 
 export default {
   name: "ChatListItem",
@@ -225,37 +225,11 @@ export default {
     },
 
     chatTypeIcon() {
-      switch (this.chat.type) {
-        case "direct":
-          return "fas fa-user";
-        case "group":
-          return "fas fa-users";
-        case "organization":
-          return "fas fa-building";
-        case "project":
-          return "fas fa-project-diagram";
-        case "task":
-          return "fas fa-tasks";
-        default:
-          return "fas fa-comment";
-      }
+      return CHAT_ICONS[this.chat?.type]?.large || CHAT_ICONS.default.large;
     },
 
     chatTypeIconSmall() {
-      switch (this.chat.type) {
-        case "direct":
-          return "fas fa-user-circle";
-        case "group":
-          return "fas fa-users";
-        case "organization":
-          return "fas fa-building";
-        case "project":
-          return "fas fa-project-diagram";
-        case "task":
-          return "fas fa-tasks";
-        default:
-          return "fas fa-comment";
-      }
+      return CHAT_ICONS[this.chat?.type]?.small || CHAT_ICONS.default.small;
     },
 
     organizationLogo() {
@@ -289,13 +263,7 @@ export default {
     },
 
     getAvatarPosition(index) {
-      const positions = {
-        0: "top-0 left-0",
-        1: "top-0 right-0",
-        2: "bottom-0 left-0",
-        3: "bottom-0 right-0",
-      };
-      return positions[index] || "";
+      return AVATAR_POSITIONS[index] || '';
     },
 
     getInitials(name) {
@@ -309,23 +277,28 @@ export default {
     },
 
     highlightText(text) {
-      if (!this.searchQuery.trim() || !text) {
+      // Early return if no search query or text
+      if (!this.searchQuery?.trim() || !text) {
         return text;
       }
 
-      const query = this.searchQuery.toLowerCase();
-      const index = text.toLowerCase().indexOf(query);
+      try {
+        // Escape special characters in the search query to prevent regex errors
+        const escapedQuery = this.searchQuery.trim().replace(/[-\/\\^$*+?.()|[${}]/g, '\\$&');
 
-      if (index === -1) {
-        return text;
+        // Create a case-insensitive regular expression
+        const regex = new RegExp(escapedQuery, 'gi');
+
+        // Replace matches with highlighted spans
+        return text.replace(regex, match => 
+          `<span class="highlight">${match}</span>`
+        );
+      } catch (error) {
+        console.error('Regex error in highlightText:', error);
+        return text; // Return original text if there's an error
       }
-
-      const before = text.slice(0, index);
-      const match = text.slice(index, index + query.length);
-      const after = text.slice(index + query.length);
-
-      return `${before}<span class="highlight">${match}</span>${after}`;
     },
+
     formatTimestamp(timestamp) {
       if (!timestamp) return "";
 
@@ -430,14 +403,20 @@ export default {
 <style scoped>
 /* Animation keyframes */
 @keyframes avatar-pop {
-  0% {
-    transform: scale(0.8);
-    opacity: 0;
-  }
-  100% {
-    transform: scale(1);
-    opacity: 1;
-  }
+0% { @apply scale-75 opacity-0; }
+100% { @apply scale-100 opacity-100; }
+}
+
+.avatar-pop {
+animation: avatar-pop 0.3s ease forwards;
+}
+
+:deep(.highlight) {
+@apply bg-yellow-200 px-0.5 rounded inline transition-all duration-200 hover:bg-yellow-300;
+}
+
+:deep(.highlight:hover) {
+@apply bg-yellow-300;
 }
 
 /* Animation classes */
@@ -459,25 +438,11 @@ export default {
 }
 
 /* Chat type indicators */
-.chat-type-organization {
-  border-left: 3px solid theme("colors.blue.500");
-}
-
-.chat-type-project {
-  border-left: 3px solid theme("colors.green.500");
-}
-
-.chat-type-task {
-  border-left: 3px solid theme("colors.purple.500");
-}
-
-.chat-type-direct {
-  border-left: 3px solid theme("colors.gray.500");
-}
-
-.chat-type-group {
-  border-left: 3px solid theme("colors.yellow.500");
-}
+.chat-type-organization { @apply border-l-4 border-blue-500; }
+.chat-type-project { @apply border-l-4 border-green-500; }
+.chat-type-task { @apply border-l-4 border-purple-500; }
+.chat-type-direct { @apply border-l-4 border-gray-500; }
+.chat-type-group { @apply border-l-4 border-yellow-500; }
 
 /* Complex hover interactions */
 .chat-list-item:hover .profile-picture-container img {

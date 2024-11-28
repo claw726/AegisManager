@@ -48,22 +48,30 @@
 
             <!-- Settings Dropdown -->
             <div v-click-outside="closeDropdown" class="relative">
-              <button
-                class="flex items-center space-x-2"
-                @click.stop="toggleDropdown"
-              >
+            <button
+              class="flex items-center space-x-2 relative"
+              @click.stop="toggleDropdown"
+            >
+              <div class="relative">
                 <img
                   :src="currentUser?.profilePicture || defaultProfilePicture"
                   :alt="currentUser?.name || 'User'"
                   class="w-10 h-10 rounded-full border-2 border-transparent hover:border-blue-400 transition-all duration-300 object-cover"
                 />
-                <i
-                  :class="[
-                    'fas fa-chevron-down text-gray-300 transition-transform duration-300',
-                    { 'transform rotate-180': isDropdownOpen },
-                  ]"
-                ></i>
-              </button>
+                <!-- Notification Dot -->
+                <div
+                  v-if="invitationCount > 0"
+                  class="absolute bottom-0 left-0 w-3 h-3 bg-red-500 rounded-full pulse"
+                  :title="`${invitationCount} pending invitation${invitationCount > 1 ? 's' : ''}`"
+                ></div>
+              </div>
+              <i
+                :class="[
+                  'fas fa-chevron-down text-gray-300 transition-transform duration-300',
+                  { 'transform rotate-180': isDropdownOpen },
+                ]"
+              ></i>
+            </button>
 
               <!-- Dropdown Menu -->
               <div
@@ -77,6 +85,13 @@
                 >
                   <i :class="iconClass" aria-hidden="true"></i>
                   <span>Invitations</span>
+                    <!-- Optional: Add count badge -->
+                    <span
+                      v-if="invitationCount > 0"
+                      class="ml-auto bg-red-100 text-red-600 text-xs rounded-full px-2 py-0.5"
+                    >
+                      {{ invitationCount }}
+                    </span>
                 </a>
 
                 <a
@@ -251,3 +266,26 @@ export default {
   },
 };
 </script>
+
+<style scoped>
+@keyframes pulse {
+0% {
+  transform: scale(0.95);
+  box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+}
+
+70% {
+  transform: scale(1);
+  box-shadow: 0 0 0 6px rgba(239, 68, 68, 0);
+}
+
+100% {
+  transform: scale(0.95);
+  box-shadow: 0 0 0 0 rgba(239, 68, 68, 0);
+}
+}
+
+.pulse {
+animation: pulse 2s infinite;
+}
+</style>
