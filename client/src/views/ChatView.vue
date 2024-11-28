@@ -11,7 +11,7 @@
               v-model="searchQuery"
               type="text"
               placeholder="Search"
-              class="w-full px-4 py-2 pl-10 bg-[#ffffff] rounded-full border-none focus:ring-2 focus:ring-blue-500"
+              class="w-full px-4 py-2 pl-10 bg-white rounded-full border-none focus:ring-2 focus:ring-blue-500 search-input-focus"
             />
             <i class="fas fa-search absolute left-4 top-3 text-gray-400"></i>
           </div>
@@ -20,7 +20,7 @@
         <!-- Loading State -->
         <div v-if="loading" class="flex-1 flex items-center justify-center">
           <div class="text-center">
-            <i class="fas fa-spinner fa-spin text-2xl text-gray-400 mb-2"></i>
+            <i class="fas fa-spinner animate-spin-custom text-2xl text-gray-400 mb-2"/>
             <p class="text-gray-600">Loading chats...</p>
           </div>
         </div>
@@ -71,7 +71,7 @@
             >
               <!-- Organization Header -->
               <div
-                class="px-4 py-2 text-sm font-semibold text-gray-500 bg-gray-100 cursor-pointer hover:bg-gray-200 transition-colors flex items-center justify-between"
+                class="px-4 py-2 text-sm font-semibold text-gray-500 bg-gray-100 cursor-pointer hover:bg-gray-200 category-transition flex items-center justify-between"
                 @click="toggleCategory(`org-${org.orgID}`)"
               >
                 <div class="flex items-center">
@@ -81,10 +81,8 @@
                 <i
                   :class="[
                     'fas',
-                    expandedCategories[`org-${org.orgID}`]
-                      ? 'fa-chevron-down'
-                      : 'fa-chevron-right',
-                    'text-xs transition-transform duration-200',
+                    expandedCategories[`org-${org.orgID}`] ? 'fa-chevron-down icon-rotate-active' : 'fa-chevron-right',
+                    'icon-rotate'
                   ]"
                 ></i>
               </div>
@@ -99,7 +97,7 @@
                   :active="activeChat?.id === org.chat.id"
                   :searchQuery="searchQuery"
                   @select="handleChatSelect"
-                  class="border-l-2 border-gray-200"
+                  class="border-l-2 border-gray-200 chat-item-hover"
                 />
 
                 <!-- Projects within Organization -->
@@ -109,7 +107,7 @@
                 >
                   <!-- Project Header -->
                   <div
-                    class="px-4 py-2 text-sm font-semibold text-gray-500 bg-gray-50 cursor-pointer hover:bg-gray-100 transition-colors flex items-center justify-between border-l-2 border-gray-200"
+                    class="px-4 py-2 text-sm font-semibold text-gray-500 bg-gray-100 cursor-pointer hover:bg-gray-200 category-transition flex items-center justify-between"
                     @click="toggleCategory(`project-${project.projectID}`)"
                   >
                     <div class="flex items-center">
@@ -120,9 +118,9 @@
                       :class="[
                         'fas',
                         expandedCategories[`project-${project.projectID}`]
-                          ? 'fa-chevron-down'
+                          ? 'fa-chevron-down icon-rotate-active'
                           : 'fa-chevron-right',
-                        'text-xs transition-transform duration-200',
+                        'text-xs transition-transform duration-200 icon-rotate',
                       ]"
                     ></i>
                   </div>
@@ -140,12 +138,13 @@
                       :active="activeChat?.id === project.chat.id"
                       :searchQuery="searchQuery"
                       @select="handleChatSelect"
+                      class="border-l-2 border-gray-200 chat-item-hover"
                     />
 
                     <!-- Template section for tasks -->
                     <template v-if="project.tasks && project.tasks.length > 0">
                       <div
-                        class="px-4 py-2 text-sm font-semibold text-gray-500 bg-gray-50 cursor-pointer hover:bg-gray-100 transition-colors flex items-center justify-between"
+                        class="px-4 py-2 text-sm font-semibold text-gray-500 bg-gray-100 cursor-pointer hover:bg-gray-200 category-transition flex items-center justify-between"
                         @click="toggleCategory(`tasks-${project.projectID}`)"
                       >
                         <div class="flex items-center">
@@ -156,9 +155,9 @@
                           :class="[
                             'fas',
                             expandedCategories[`tasks-${project.projectID}`]
-                              ? 'fa-chevron-down'
+                              ? 'fa-chevron-down icon-rotate-active'
                               : 'fa-chevron-right',
-                            'text-xs transition-transform duration-200',
+                            'text-xs transition-transform duration-200 icon-rotate',
                           ]"
                         ></i>
                       </div>
@@ -184,7 +183,7 @@
                             "
                             :searchQuery="searchQuery"
                             @select="handleChatSelect"
-                            class="ml-4"
+                            class="border-l-2 border-gray-200 chat-item-hover"
                           />
                         </template>
                       </div>
@@ -198,7 +197,7 @@
             <template v-if="categorizedChats.direct.length > 0">
               <!-- Direct Messages Header -->
               <div
-                class="px-4 py-2 text-sm font-semibold text-gray-500 bg-gray-100 cursor-pointer hover:bg-gray-200 transition-colors flex items-center justify-between"
+                class="px-4 py-2 text-sm font-semibold text-gray-500 bg-gray-100 cursor-pointer hover:bg-gray-200 category-transition flex items-center justify-between"
                 @click="toggleCategory('direct')"
               >
                 <div class="flex items-center">
@@ -209,9 +208,9 @@
                   :class="[
                     'fas',
                     expandedCategories['direct']
-                      ? 'fa-chevron-down'
+                      ? 'fa-chevron-down icon-rotate-active'
                       : 'fa-chevron-right',
-                    'text-xs transition-transform duration-200',
+                    'text-xs transition-transform duration-200 icon-rotate',
                   ]"
                 ></i>
               </div>
@@ -225,7 +224,7 @@
                   :active="activeChat?.id === chat.id"
                   :searchQuery="searchQuery"
                   @select="handleChatSelect"
-                  class="border-l-2 border-gray-200"
+                  class="border-l-2 border-gray-200 chat-item-hover"
                 />
               </div>
             </template>
@@ -234,7 +233,7 @@
             <template v-if="categorizedChats.groups.length > 0">
               <!-- Groups Header -->
               <div
-                class="px-4 py-2 text-sm font-semibold text-gray-500 bg-gray-100 cursor-pointer hover:bg-gray-200 transition-colors flex items-center justify-between"
+                class="px-4 py-2 text-sm font-semibold text-gray-500 bg-gray-100 cursor-pointer hover:bg-gray-200 category-transition flex items-center justify-between"
                 @click="toggleCategory('groups')"
               >
                 <div class="flex items-center">
@@ -245,9 +244,9 @@
                   :class="[
                     'fas',
                     expandedCategories['groups']
-                      ? 'fa-chevron-down'
+                      ? 'fa-chevron-down icon-rotate-active'
                       : 'fa-chevron-right',
-                    'text-xs transition-transform duration-200',
+                    'text-xs transition-transform duration-200 icon-rotate',
                   ]"
                 ></i>
               </div>
@@ -261,7 +260,7 @@
                   :active="activeChat?.id === chat.id"
                   :searchQuery="searchQuery"
                   @select="handleChatSelect"
-                  class="border-l-2 border-gray-200"
+                  class="border-l-2 border-gray-200 chat-item-hover"
                 />
               </div>
             </template>
@@ -271,7 +270,7 @@
         <!-- New Chat Button -->
         <div class="p-3 border-t flex-shrink-0">
           <button
-            class="w-full bg-blue-500 hover:bg-blue-600 text-white rounded-full px-4 py-2 flex items-center justify-center transition-colors"
+            class="w-full bg-blue-500 hover:bg-blue-600 text-white rounded-full px-4 py-2 flex items-center justify-center button-hover transition-colors"
             @click="showNewChatModal = true"
           >
             <i class="fas fa-pen mr-2"></i>
@@ -319,8 +318,6 @@ export default {
     return {
       loading: true,
       error: null,
-      loading: true,
-      error: null,
       showNewChatModal: false,
       searchQuery: "",
       expandedCategories: {},
@@ -349,6 +346,8 @@ export default {
         return [];
       }
 
+      const filtered = this.searchQuery.trim() ? this.filteredChats : this.chats;
+
       return this.userOrganizations.map((org) => ({
         ...org,
         chat: this.findChat("organization", org.chatID),
@@ -356,23 +355,34 @@ export default {
           .filter((project) => project && project.parentOrgID === org.orgID)
           .map((project) => ({
             ...project,
-            chat: this.findChat("project", project.chatID), // Use project.chatID
+            chat: this.findChat("project", project.chatID),
             tasks: (project.tasks || project.projectTasks || [])
               .map((task) => {
-                // Make sure task exists and has an ID
                 if (!task || !task.taskID) return null;
-
-                // Find the chat for this task using task.chatID
                 const taskChat = this.findChat("task", task.chatID);
-
+                // Only include if no search query or chat matches filter
+                if (this.searchQuery.trim() && !filtered.find(c => c.id === taskChat?.id)) {
+                  return null;
+                }
                 return {
                   ...task,
                   chat: taskChat,
                 };
               })
-              .filter((task) => task !== null), // Remove null tasks
-          })),
-      }));
+              .filter((task) => task !== null),
+          }))
+          // Only include projects that have matching chats or tasks when searching
+          .filter(project => {
+            if (!this.searchQuery.trim()) return true;
+            return filtered.find(c => c.id === project.chat?.id) || project.tasks.length > 0;
+          }),
+      }))
+      // Only include organizations that have matching chats, projects, or tasks when searching
+      .filter(org => {
+        if (!this.searchQuery.trim()) return true;
+        return filtered.find(c => c.id === org.chat?.id) || 
+              org.projects.length > 0;
+      });
     },
 
     categorizedChats() {
@@ -407,16 +417,27 @@ export default {
 
       return this.chats.filter((chat) => {
         // Search in chat title
-        if (chat.title.toLowerCase().includes(query)) {
+        if (chat.title?.toLowerCase().includes(query)) {
           return true;
+        }
+
+        // For direct chats, search in participant names
+        if (chat.type === 'direct') {
+          const otherUser = this.$store.state.chat.users.find(
+            user => chat.participants.includes(user.userID) && user.userID !== this.currentUser.userID
+          );
+          if (otherUser?.name?.toLowerCase().includes(query) || 
+              otherUser?.userName?.toLowerCase().includes(query)) {
+            return true;
+          }
         }
 
         // Search in chat messages
         const chatMessages = this.messages[chat.id] || [];
         return chatMessages.some(
           (message) =>
-            message.content.toLowerCase().includes(query) ||
-            message.senderName.toLowerCase().includes(query),
+            message.content?.toLowerCase().includes(query) ||
+            message.senderName?.toLowerCase().includes(query),
         );
       });
     },
@@ -428,11 +449,21 @@ export default {
     },
     searchQuery(newValue) {
       if (newValue.trim()) {
-        Object.keys(this.expandedCategories).forEach((category) => {
-          this.expandedCategories[category] = true;
-        });
+        // Expand all categories when searching
+        this.expandedCategories = {
+          direct: true,
+          groups: true,
+          ...this.userOrganizations.reduce((acc, org) => {
+            acc[`org-${org.orgID}`] = true;
+            org.projects?.forEach((project) => {
+              acc[`project-${project.projectID}`] = true;
+              acc[`tasks-${project.projectID}`] = true;
+            });
+            return acc;
+          }, {}),
+        };
       }
-    },
+    }
   },
 
   created() {
@@ -750,125 +781,76 @@ export default {
 </script>
 
 <style scoped>
+/* Base transitions for all animated elements */
+@keyframes fadeIn {
+  from { opacity: 0; }
+  to { opacity: 1; }
+}
+
+@keyframes slideIn {
+  from { transform: translateX(-20px); opacity: 0; }
+  to { transform: translateX(0); opacity: 1; }
+}
+
+/* Clean up and organize transitions */
 .chat-list-enter-active,
 .chat-list-leave-active {
-  transition: all 0.5s ease;
+  @apply transition-all duration-300 ease-in-out;
 }
 
-.chat-list-enter-from {
-  opacity: 0;
-  transform: translateX(-30px);
-}
-
+.chat-list-enter-from,
 .chat-list-leave-to {
-  opacity: 0;
-  transform: translateX(30px);
+  @apply opacity-0 -translate-x-4;
 }
 
-.chat-list-move {
-  transition: transform 0.5s ease;
+/* Smooth height transitions */
+.expand-transition {
+  @apply transition-all duration-300 ease-in-out;
 }
 
-.highlight {
-  background-color: yellow;
-  padding: 0 2px;
-  border-radius: 2px;
+/* Category transitions */
+.category-transition {
+  @apply transition-all duration-200 ease-in-out;
 }
 
-.category-header {
-  position: sticky;
-  top: 0;
-  z-index: 10;
-  backdrop-filter: blur(8px);
-  border-bottom: 1px solid theme("colors.gray.200");
+/* Hover effects */
+.hover-effect {
+  @apply transition-colors duration-200 ease-in-out;
 }
 
-/* Smooth transitions for category sections */
-.chat-list-enter-active .category-header,
-.chat-list-leave-active .category-header {
-  transition: all 0.5s ease;
+/* Loading spinner animation */
+@keyframes spin {
+  to { transform: rotate(360deg); }
 }
 
-.chat-list-enter-from .category-header {
-  opacity: 0;
-  transform: translateY(-20px);
+.animate-spin-custom {
+  animation: spin 1s linear infinite;
 }
 
-.chat-list-leave-to .category-header {
-  opacity: 0;
-  transform: translateY(20px);
-}
-.list-enter-active,
-.list-leave-active {
-  transition: all 0.3s ease;
-  overflow: hidden;
+/* Search input focus animation */
+.search-input-focus {
+  @apply transition-all duration-200 ease-in-out;
+  @apply focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50;
 }
 
-.list-enter-from,
-.list-leave-to {
-  opacity: 0;
-  transform: translateY(-20px);
-  max-height: 0;
+/* Button hover animations */
+.button-hover {
+  @apply transform transition-all duration-200 ease-in-out;
+  @apply hover:scale-105 active:scale-95;
 }
 
-.list-enter-to,
-.list-leave-from {
-  opacity: 1;
-  transform: translateY(0);
-  max-height: 1000px;
+/* Chat list item hover effect */
+.chat-item-hover {
+  @apply transition-all duration-200 ease-in-out;
+  @apply hover:bg-gray-50 hover:translate-x-1;
 }
 
-/* Chevron rotation animation */
-.fa-chevron-down,
-.fa-chevron-right {
-  transition: transform 0.2s ease;
+/* Icon rotation animation */
+.icon-rotate {
+  @apply transition-transform duration-200 ease-in-out;
 }
 
-.fa-chevron-down {
-  transform: rotate(0deg);
-}
-
-.fa-chevron-right {
-  transform: rotate(-90deg);
-}
-
-/* Category header hover effect */
-.category-header {
-  transition: background-color 0.2s ease;
-}
-
-.category-header:hover {
-  background-color: theme("colors.gray.100");
-}
-.chat-list-item {
-  @apply transition-all duration-200;
-}
-
-.chat-list-item:hover {
-  @apply bg-gray-100;
-}
-
-/* Indentation and hierarchy lines */
-.ml-4 {
-  @apply border-l border-gray-200;
-}
-
-/* Transition animations for expanding/collapsing */
-.expand-enter-active,
-.expand-leave-active {
-  transition: all 0.3s ease-in-out;
-  overflow: hidden;
-}
-
-.expand-enter-from,
-.expand-leave-to {
-  opacity: 0;
-  max-height: 0;
-}
-
-.expand-enter-to,
-.expand-leave-from {
-  opacity: 1;
-  max-height: 1000px;
+.icon-rotate-active {
+  @apply transform rotate-180;
 }
 </style>
