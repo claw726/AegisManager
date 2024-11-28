@@ -172,6 +172,7 @@ export default {
         };
         await this.$store.dispatch("invitations/createInvitation", data);
         this.showNotification("success", "Successfully sent project invite!");
+        await this.fetchProjMembers();
         return true;
       } catch (error) {
         this.showNotification(
@@ -226,10 +227,13 @@ export default {
         );
         console.log("All org Users:", allUsers);
 
+        const message =  this.$route.params.projIndex + ": Project Addition Request - " 
+        const invitedUsers = await this.$store.dispatch("invitations/fetchUsersWithInvites", message)
+
         // Filter out users who are not a member of this project
         const memberIDs = this.members.map((member) => member.userID);
         this.availableUsers = allUsers.filter(
-          (user) => !memberIDs.includes(user.userID)
+          (user) => !memberIDs.includes(user.userID) && !invitedUsers.includes(user.email)
         );
       } catch (error) {
         console.error("Error fetching project members:", error.message);

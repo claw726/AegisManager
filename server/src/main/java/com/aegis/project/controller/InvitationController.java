@@ -158,4 +158,13 @@ public class InvitationController {
             }
         }
     }
+
+    @GetMapping("/getUsersWithInvites")
+    public ResponseEntity<Set<String>> getUsersWithInvites(@RequestParam String message) {
+        try {
+            return ResponseEntity.ok(invitationService.getUsersWithInvites(message));
+        } catch (Exception e) {
+            return ResponseEntity.status(HttpStatus.INTERNAL_SERVER_ERROR).body(null);
+        }
+    }
 }

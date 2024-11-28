@@ -89,6 +89,22 @@ const actions = {
       throw new Error("Failed to reject invitation");
     }
   },
+  async fetchUsersWithInvites({ rootState }, message) {
+    try {
+      const response = await axios.get(
+        `/api/invitations//getUsersWithInvites?message=${message}`,
+        {
+          headers: {
+            Authorization: `Bearer ${rootState.auth.authToken}`,
+          },
+        },
+      );
+      return response.data;
+    } catch (error) {
+      console.error("Failed to fetch invitations", error.response.data);
+      throw new Error("Failed to fetch invitations");
+    }
+  },
 };
 
 export default {

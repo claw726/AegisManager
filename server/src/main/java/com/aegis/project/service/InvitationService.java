@@ -1,15 +1,18 @@
 package com.aegis.project.service;
 
+import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
+import org.springframework.web.bind.annotation.RequestParam;
 
 import com.aegis.project.dto.InvitationDTO;
 import com.aegis.project.dto.ProjectDTO;
 import com.aegis.project.dto.TaskDTO;
+import com.aegis.project.dto.UserDTO;
 import com.aegis.project.model.InvitationModel;
 import com.aegis.project.model.OrgModel;
 import com.aegis.project.model.UserModel;
@@ -209,5 +212,10 @@ public class InvitationService {
                 )
                 )
                 .collect(Collectors.toSet());
+    }
+
+    public Set<String> getUsersWithInvites(String message) {
+        List<String> users = invitationRepository.findRecipientEmailsByMessage(message);
+        return new HashSet<String>(users);
     }
 }

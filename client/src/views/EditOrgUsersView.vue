@@ -171,6 +171,7 @@ export default {
         };
         await this.$store.dispatch("invitations/createInvitation", data);
         this.showNotification("success", "Successfully sent org invite!");
+        await this.fetchOrgMembers();
         return true;
       } catch (error) {
         this.showNotification(
@@ -223,9 +224,11 @@ export default {
         );
         const allUsers = await this.$store.dispatch("users/fetchAllUsers");
 
+        const message =  this.$route.params.orgIndex + ": Org Addition Request - " 
+        const invitedUsers = await this.$store.dispatch("invitations/fetchUsersWithInvites", message)
         const memberIDs = this.members.map((member) => member.userID);
         this.availableUsers = allUsers.filter(
-          (user) => !memberIDs.includes(user.userID)
+          (user) => !memberIDs.includes(user.userID) && !invitedUsers.includes(user.email)
         );
       } catch (error) {
         this.showNotification(

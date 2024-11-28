@@ -27,4 +27,7 @@ public interface InvitationRepository
             + "FROM InvitationModel i WHERE i.Message = :message AND i.RecipientEmail = :recipient"
     )
     boolean existsInvitationByMessageAndRecipient(String message, String recipient);
+
+    @Query("SELECT i.RecipientEmail FROM InvitationModel i WHERE i.Message LIKE %:message%")
+    List<String> findRecipientEmailsByMessage(@Param("message") String message);
 }

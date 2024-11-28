@@ -166,54 +166,70 @@
               </div>
 
               <!-- Messages -->
-              <div class="max-h-[60vh] overflow-y-auto p-6 space-y-4">
+              <div class="max-h-[60vh] overflow-y-auto p-6">
+              <div class="space-y-6"> <!-- Increased space between messages -->
                 <div
                   v-for="message in selectedChat?.messages"
                   :key="message.id"
-                  class="flex items-start gap-3"
+                  class="flex items-start gap-4 p-4 rounded-lg border border-gray-100 bg-white shadow-sm"
                 >
                   <div
                     v-if="getUserProfilePicture(message.senderID)"
-                    class="w-10 h-10"
+                    class="w-12 h-12 flex-shrink-0"
                   >
                     <img
                       :src="getUserProfilePicture(message.senderID)"
                       :alt="message.senderName"
-                      class="w-full h-full rounded-full object-cover"
+                      class="w-full h-full rounded-full object-cover ring-2 ring-gray-100"
                       @error="handleImageError(message.senderID)"
                     />
                   </div>
                   <div
                     v-else
-                    class="w-10 h-10 rounded-full flex items-center justify-center"
+                    class="w-12 h-12 rounded-full flex items-center justify-center flex-shrink-0"
                     :class="getInitialsBackgroundColor(message.senderID)"
                   >
                     <span class="text-sm font-medium text-white">
                       {{ getInitials(message.senderName) }}
                     </span>
                   </div>
-                  <div class="flex-1">
-                    <div class="flex items-baseline gap-2">
-                      <span class="font-medium text-gray-900">{{
-                        message.senderName
-                      }}</span>
-                      <span class="text-xs text-gray-500">{{
-                        formatDate(message.timestamp)
-                      }}</span>
+                  <div class="flex-1 space-y-3"> <!-- Added vertical spacing between elements -->
+                    <div class="flex items-start justify-between">
+                      <div class="space-y-1"> <!-- Organized user info -->
+                        <div class="flex items-center gap-2">
+                          <i class="fas fa-user text-gray-400 text-sm"></i>
+                          <span class="font-medium text-gray-900">
+                            {{ message.senderName }}
+                          </span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                          <i class="fas fa-envelope text-gray-400 text-xs"></i>
+                          <span class="text-xs text-gray-500">
+                            {{ getUserEmail(message.senderID) }}
+                          </span>
+                        </div>
+                      </div>
+                      <div class="flex items-center gap-1 bg-gray-50 px-2 py-1 rounded-full">
+                        <i class="far fa-clock text-gray-400 text-xs"></i>
+                        <span class="text-xs text-gray-500">
+                          {{ formatDate(message.timestamp) }}
+                        </span>
+                      </div>
                     </div>
+
                     <div
-                      class="mt-1 p-3 rounded-2xl bg-gray-100 relative"
-                      :class="{ 'bg-gray-50': message.deleted }"
+                      class="p-4 rounded-xl bg-gray-50 relative"
+                      :class="{ 'bg-gray-100/50': message.deleted }"
                     >
                       <p
-                        class="text-gray-700"
+                        class="text-gray-700 leading-relaxed"
                         :class="{ 'text-gray-400': message.deleted }"
                       >
                         {{ message.content }}
                       </p>
                       <div
                         v-if="message.deleted"
-                        class="flex items-center gap-1 text-xs text-red-500 mt-2"
+                        class="flex items-center gap-1 text-xs text-red-500 mt-3 pt-3 border-t border-gray-200"
                       >
                         <i class="fas fa-trash-alt"></i>
                         <span>Deleted {{ formatDate(message.deletedAt) }}</span>
@@ -221,6 +237,7 @@
                     </div>
                   </div>
                 </div>
+              </div>
               </div>
             </DialogPanel>
           </div>
@@ -313,6 +330,11 @@ export default defineComponent({
       return user?.profilePicture || null;
     };
 
+    const getUserEmail = (userId) => {
+      const user = store.getters["chat/getUserById"](userId);
+      return user?.email || "Unknown Email";
+    };
+
     const handleImageError = (userId) => {
       failedImages.value.add(userId);
     };
@@ -353,29 +375,19 @@ export default defineComponent({
       if (!timestamp) return "";
 
       const date = new Date(timestamp + "Z");
-      const now = new Date();
-      const diff = now - date;
+      const userTimeZone = Intl.DateTimeFormat().resolvedOptions().timeZone;
 
-      // Less than 24 hours ago
-      if (diff < 24 * 60 * 60 * 1000) {
-        return date.toLocaleTimeString([], {
-          hour: "2-digit",
-          minute: "2-digit",
-          timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
-        });
-      }
-
-      // Less than 7 days ago
-      if (diff < 7 * 24 * 60 * 60 * 1000) {
-        const days = ["Sun", "Mon", "Tue", "Wed", "Thu", "Fri", "Sat"];
-        return days[date.getDay()];
-      }
-
-      // More than 7 days ago
-      return date.toLocaleDateString([], {
-        month: "short",
+      return date.toLocaleString('en-US', {
+        weekday: "long",
+        year: "numeric",
+        month: "long",
         day: "numeric",
-        timeZone: Intl.DateTimeFormat().resolvedOptions().timeZone,
+        hour: "2-digit",
+        minute: "2-digit",
+        second: "2-digit",
+        timeZoneName: "short",
+        timeZone: userTimeZone,
+        hour12: false
       });
     };
 
@@ -484,6 +496,7 @@ export default defineComponent({
       openChatModal,
       closeModal,
       getUserProfilePicture,
+      getUserEmail,
       handleImageError,
       getInitials,
       getInitialsBackgroundColor,
@@ -514,5 +527,15 @@ export default defineComponent({
 .overflow-y-auto::-webkit-scrollbar-thumb {
   background-color: #cbd5e1;
   border-radius: 3px;
+}
+.message-enter-active,
+.message-leave-active {
+transition: all 0.3s ease;
+}
+
+.message-enter-from,
+.message-leave-to {
+opacity: 0;
+transform: translateY(20px);
 }
 </style>
