@@ -1,116 +1,216 @@
 <template>
-  <div class="relative w-full min-h-screen h-full bg-background">
+  <div class="min-h-screen bg-gray-50">
     <NavBar />
 
-    <div v-if="!isLoggedIn" class="flex flex-col items-center mt-20">
-      <div class="text-3xl font-bold text-primary">Create Profile</div>
-      <div class="text-xl font-semibold text-secondary mt-2">
-        Register Securely with Aegis
+    <div v-if="!isLoggedIn" class="container mx-auto px-4 py-12">
+      <div class="text-center mb-12">
+        <h1 class="text-4xl font-bold text-gray-800 mb-2">
+          <i class="fas fa-user-plus text-primary mr-2"></i>
+          Create Your Account
+        </h1>
+
+        <p class="text-gray-600">Join our community and get started today</p>
       </div>
 
-      <div class="w-3/4 max-w-4xl mt-10 bg-white shadow-lg rounded-lg p-8">
-        <div class="flex flex-wrap -mx-4">
-          <!-- First Name -->
-          <div class="w-full md:w-1/2 px-4 mb-4">
-            <label class="block text-sm font-semibold text-gray-800 mb-2"
-              >First Name</label
-            >
-            <input
-              v-model="user.firstName"
-              type="text"
-              class="w-full border border-highlight rounded-lg p-3"
-              @focus="clearError('firstName')"
-            />
-            <p v-if="errors.firstName" class="mt-1 text-sm text-red-500">
-              {{ errors.firstName }}
-            </p>
+      <div class="max-w-4xl mx-auto">
+        <div class="bg-white rounded-2xl shadow-xl p-8 md:p-10">
+          <div class="flex justify-center mb-10">
+            <div class="flex items-center space-x-4">
+              <div class="flex items-center">
+                <div
+                  class="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center"
+                >
+                  <i class="fas fa-user text-sm"></i>
+                </div>
+
+                <div class="ml-2 text-sm font-medium text-primary">
+                  Personal Info
+                </div>
+              </div>
+
+              <div class="w-16 h-0.5 bg-primary"></div>
+              <div class="flex items-center">
+                <div
+                  class="w-8 h-8 rounded-full bg-primary text-white flex items-center justify-center"
+                >
+                  <i class="fas fa-lock text-sm"></i>
+                </div>
+
+                <div class="ml-2 text-sm font-medium text-primary">
+                  Security
+                </div>
+              </div>
+            </div>
           </div>
 
-          <!-- Last Name -->
-          <div class="w-full md:w-1/2 px-4 mb-4">
-            <label class="block text-sm font-semibold text-gray-800 mb-2"
-              >Last Name</label
-            >
-            <input
-              v-model="user.lastName"
-              type="text"
-              class="w-full border border-highlight rounded-lg p-3"
-              @focus="clearError('lastName')"
-            />
-            <p v-if="errors.lastName" class="mt-1 text-sm text-red-500">
-              {{ errors.lastName }}
-            </p>
-          </div>
-
-          <!-- Email Address -->
-          <div class="w-full md:w-1/2 px-4 mb-4">
-            <label class="block text-sm font-semibold text-gray-800 mb-2"
-              >Email Address</label
-            >
-            <input
-              v-model="user.email"
-              type="email"
-              class="w-full border border-highlight rounded-lg p-3"
-              @focus="clearError('email')"
-            />
-            <p v-if="errors.email" class="mt-1 text-sm text-red-500">
-              {{ errors.email }}
-            </p>
-          </div>
-
-          <!-- Profile Picture -->
-          <div class="w-full md:w-1/2 px-4 mb-4">
-            <label class="block text-sm font-semibold text-gray-800 mb-2"
-              >Profile Picture</label
-            >
-            <input
-              ref="fileInput"
-              type="file"
-              accept="image/jpeg"
-              class="hidden"
-              @change="handleFileUpload"
-            />
-            <button
-              class="w-full bg-primary text-white font-semibold py-3 rounded-lg"
-              @click="triggerFileInput"
-            >
-              Upload Image
-              <span v-if="imageUploaded" class="text-gray-500 ml-2"
-                >(Image Uploaded)</span
+          <div class="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div class="form-group">
+              <label class="form-label">
+                <i class="fas fa-user text-primary mr-2"></i>
+                First Name</label
               >
-            </button>
-          </div>
+              <input
+                v-model="user.firstName"
+                type="text"
+                class="form-input"
+                placeholder="John"
+                @focus="clearError('firstName')"
+              />
 
-          <!-- Password Input -->
-          <div class="w-full flex justify-center px-4 mb-4">
-            <div class="w-full md:w-1/2">
+              <p v-if="errors.firstName" class="form-error">
+                <i class="fas fa-exclamation-circle mr-1"></i>
+                {{ errors.firstName }}
+              </p>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">
+                <i class="fas fa-user text-primary mr-2"></i>
+                LastName</label
+              >
+              <input
+                v-model="user.lastName"
+                type="text"
+                class="form-input"
+                placeholder="Doe"
+                @focus="clearError('lastName')"
+              />
+
+              <p v-if="errors.lastName" class="form-error">
+                <i class="fas fa-exclamation-circle mr-1"></i>
+                {{ errors.lastName }}
+              </p>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">
+                <i class="fas fa-envelope text-primary mr-2"></i>
+                Email Address</label
+              >
+              <input
+                v-model="user.email"
+                type="email"
+                class="form-input"
+                placeholder="john.doe@example.com"
+                @focus="clearError('email')"
+              />
+
+              <p v-if="errors.email" class="form-error">
+                <i class="fas fa-exclamation-circle mr-1"></i>
+                {{ errors.email }}
+              </p>
+            </div>
+
+            <div class="form-group">
+              <label class="form-label">
+                <i class="fas fa-camera text-primary mr-2"></i>
+                Profile Picture</label
+              >
+
+              <div
+                @drop.prevent="handleDrop"
+                @dragover.prevent="dragOver = true"
+                @dragleave.prevent="dragOver = false"
+                @click="triggerFileInput"
+                :class="[
+                  'relative group cursor-pointer transition-all duration-300',
+                  'border-2 border-dashed rounded-xl p-4 h-[150px]',
+                  dragOver ? 'border-primary bg-primary/5' : 'border-gray-300',
+                  imageUploaded ? 'bg-green-50' : 'hover:bg-gray-50',
+                ]"
+              >
+                <div
+                  v-if="imagePreview"
+                  class="flex items-center justify-center h-full"
+                >
+                  <div class="relative">
+                    <img
+                      :src="imagePreview"
+                      class="w-24 h-24 rounded-full object-cover shadow-lg"
+                      alt="Profile preview"
+                    />
+                    <button
+                      @click.stop="clearImage"
+                      class="absolute -top-2 -right-2 bg-red-500 text-white rounded-full p-1.5 hover:bg-red-600 transition-colors duration-200 shadow-lg"
+                    >
+                      <i class="fas fa-times text-xs"></i>
+                    </button>
+                  </div>
+                </div>
+
+                <div
+                  v-else
+                  class="flex flex-col items-center justify-center h-full"
+                >
+                  <i
+                    class="fas fa-cloud-upload-alt text-4xl text-primary mb-2 group-hover:scale-110 transition-transform duration-200"
+                  ></i>
+
+                  <p class="text-sm text-gray-600 text-center">
+                    Drag and drop your image here or click to browse
+                  </p>
+
+                  <p class="text-xs text-gray-400 mt-1">
+                    Supported formats: JPG, PNG, GIF, WebP (Max 5MB)
+                  </p>
+                  <input
+                    ref="fileInputRef"
+                    type="file"
+                    accept="image/jpeg,image/png,image/gif,image/webp"
+                    class="hidden"
+                    @change="handleFileUpload"
+                  />
+                </div>
+              </div>
+              <p v-if="errors.profilePicture" class="form-error">
+                <i class="fas fa-exclamation-circle mr-1"></i>
+                {{ errors.profilePicture }}
+              </p>
+            </div>
+
+            <div class="col-span-full">
               <PasswordInput
-                :Title="'Password'"
+                :Title="'Create Password'"
                 @update-password="updatePassword"
               />
-              <p v-if="errors.password" class="mt-1 text-sm text-red-500">
+
+              <p v-if="errors.password" class="form-error">
+                <i class="fas fa-exclamation-circle mr-1"></i>
                 {{ errors.password }}
               </p>
             </div>
           </div>
 
-          <!-- Submit Button -->
-          <button
-            data-testid="submit-button"
-            class="w-full mt-4 bg-primary text-white font-semibold py-3 rounded-lg"
-            @click="submitForm"
-          >
-            Submit
-          </button>
-        </div>
+          <div class="mt-8">
+            <button
+              data-testid="submit-button"
+              class="w-full bg-primary hover:bg-primary/90 text-white font-semibold py-4 rounded-xl transition-all duration-200 transform hover:scale-[1.02] focus:outline-none focus:ring-2 focus:ring-primary focus:ring-offset-2"
+              @click="submitForm"
+            >
+              <i class="fas fa-check-circle mr-2"></i>
+              Create Account
+            </button>
+          </div>
 
-        <!-- General Error Message -->
-        <div v-if="errors.general" class="mt-4">
-          <div
-            class="bg-red-100 border border-red-400 text-red-700 px-4 py-3 rounded relative"
-            role="alert"
-          >
-            <span class="block sm:inline">{{ errors.general }}</span>
+          <div v-if="errors.general" class="mt-6">
+            <div
+              class="bg-red-50 border-l-4 border-red-500 text-red-700 p-4 rounded-lg"
+              role="alert"
+            >
+              <div class="flex items-center">
+                <i class="fas fa-exclamation-triangle mr-2"></i>
+                <span>{{ errors.general }}</span>
+              </div>
+            </div>
+          </div>
+
+          <div class="text-center mt-6 text-gray-600">
+            Already have an account?<router-link
+              to="/login"
+              class="text-primary hover:text-primary/80 font-medium ml-1"
+            >
+              Sign In
+            </router-link>
           </div>
         </div>
       </div>
@@ -144,7 +244,12 @@ export default {
         email: "",
         password: "",
         general: "",
+        profilePicture: "",
       },
+      dragOver: false,
+      imagePreview: null,
+      maxFileSize: 5 * 1024 * 1024, // 5MB
+      supportedFormats: ["image/jpeg", "image/png", "image/webp", "image/avif"],
     };
   },
   computed: {
@@ -163,99 +268,138 @@ export default {
       this.errors.general = "";
     },
     triggerFileInput() {
-      this.$refs.fileInput.click();
+      this.$refs.fileInputRef.click();
     },
-    async handleFileUpload(event) {
-      event.preventDefault();
+    handleDrop(event) {
+      this.dragOver = false;
+      const file = event.dataTransfer.files[0];
+      if (file) {
+        this.processFile(file);
+      }
+    },
+
+    clearImage() {
+      this.imagePreview = null;
+      this.user.profilePicture = null;
+      this.imageUploaded = false;
+      if (this.$refs.fileInput) {
+        this.$refs.fileInput.value = "";
+      }
+    },
+
+    handleFileUpload(event) {
       const file = event.target.files[0];
       if (file) {
-        try {
-          // options for image compression
-          const options = {
-            maxSizeMB: 0.032,
-            maxWidthOrHeight: 256,
-            useWebWorker: true,
-          };
+        this.processFile(file);
+      }
+    },
 
-          // Read the file as a data URL
-          const reader = new FileReader();
-          reader.onload = (e) => {
-            const imageDataUrl = e.target.result;
-            const image = new Image();
-            image.onload = async () => {
-              // Create a canvas to crop the image
-              const canvas = document.createElement("canvas");
-              const ctx = canvas.getContext("2d");
-              const { width: imageWidth, height: imageHeight } = image;
-              const aspectRatio = imageWidth / imageHeight;
-              let newWidth, newHeight;
+    validateFile(file) {
+      if (!this.supportedFormats.includes(file.type)) {
+        this.errors.profilePicture =
+          "Please select a supported image format (JPG, PNG, WEBP, or AVIF)";
+        return false;
+      }
 
-              // Calculate the dimensions for the 1:1 aspect ratio crop
-              if (aspectRatio < 1) {
-                newWidth = imageWidth;
-                newHeight = newWidth;
-              } else {
-                newWidth = imageHeight;
-                newHeight = newWidth;
-              }
+      if (file.size > this.maxFileSize) {
+        this.errors.profilePicture = "File size must be less than 5MB";
+        return false;
+      }
 
-              // Calculate the center coordinates for the crop
-              const x = (imageWidth - newWidth) / 2;
-              const y = (imageHeight - newHeight) / 2;
+      return true;
+    },
 
-              // Set the canvas dimensions and draw the new image
-              canvas.width = newWidth;
-              canvas.height = newHeight;
-              ctx.drawImage(
-                image,
-                x,
-                y,
-                newWidth,
-                newHeight,
-                0,
-                0,
-                newWidth,
-                newHeight,
-              );
+    async processFile(file) {
+      this.errors.profilePicture = "";
 
-              // Convert the Canvas to a URL
-              const croppedDataURL = canvas.toDataURL("image/webp", 0.92);
+      if (!this.validateFile(file)) {
+        return;
+      }
 
-              // Convert the data URL to a BLOB
-              const blob = await fetch(croppedDataURL).then((res) =>
-                res.blob(),
-              );
+      try {
+        // options for image compression
+        const options = {
+          maxSizeMB: 0.032,
+          maxWidthOrHeight: 256,
+          useWebWorker: true,
+        };
 
-              // Create a new file from the BLOB
-              const newFile = new File([blob], file.name, {
-                type: "image/webp",
-              });
+        // Read the file as a data URL
+        const reader = new FileReader();
+        reader.onload = (e) => {
+          this.imagePreview = e.target.result;
+          const imageDataUrl = e.target.result;
+          const image = new Image();
+          image.onload = async () => {
+            // Create a canvas to crop the image
+            const canvas = document.createElement("canvas");
+            const ctx = canvas.getContext("2d");
+            const { width: imageWidth, height: imageHeight } = image;
+            const aspectRatio = imageWidth / imageHeight;
+            let newWidth, newHeight;
 
-              // Compress the cropped image
-              const compressedCroppedFile = await imageCompression(
-                newFile,
-                options,
-              );
+            // Calculate the dimensions for the 1:1 aspect ratio crop
+            if (aspectRatio < 1) {
+              newWidth = imageWidth;
+              newHeight = newWidth;
+            } else {
+              newWidth = imageHeight;
+              newHeight = newWidth;
+            }
 
-              // Read the compressed file as a data URL
-              const reader = new FileReader();
-              reader.onload = (e) => {
-                // Set the user profile photo to the compressed cropped photo
-                this.user.profilePicture = e.target.result;
-                this.imageUploaded = true;
-              };
-              reader.readAsDataURL(compressedCroppedFile);
+            // Calculate the center coordinates for the crop
+            const x = (imageWidth - newWidth) / 2;
+            const y = (imageHeight - newHeight) / 2;
+
+            // Set the canvas dimensions and draw the new image
+            canvas.width = newWidth;
+            canvas.height = newHeight;
+            ctx.drawImage(
+              image,
+              x,
+              y,
+              newWidth,
+              newHeight,
+              0,
+              0,
+              newWidth,
+              newHeight,
+            );
+
+            // Convert the Canvas to a URL
+            const croppedDataURL = canvas.toDataURL("image/webp", 0.92);
+            this.imagePreview = croppedDataURL;
+
+            // Convert the data URL to a BLOB
+            const blob = await fetch(croppedDataURL).then((res) => res.blob());
+
+            // Create a new file from the BLOB
+            const newFile = new File([blob], file.name, {
+              type: "image/webp",
+            });
+
+            // Compress the cropped image
+            const compressedCroppedFile = await imageCompression(
+              newFile,
+              options,
+            );
+
+            // Read the compressed file as a data URL
+            const reader = new FileReader();
+            reader.onload = (e) => {
+              // Set the user profile photo to the compressed cropped photo
+              this.user.profilePicture = e.target.result;
+              this.imageUploaded = true;
             };
-            image.src = imageDataUrl;
+            reader.readAsDataURL(compressedCroppedFile);
           };
-          reader.readAsDataURL(file);
-        } catch (error) {
-          console.error("Error compressing image:", error);
-          this.errors.general =
-            "An error occurred while compressing the image. Please try again with a new file.";
-        }
-      } else {
-        this.errors.general = "Please select a valid image format.";
+          image.src = imageDataUrl;
+        };
+        reader.readAsDataURL(file);
+      } catch (error) {
+        console.error("Error compressing image:", error);
+        this.errors.profilePicture =
+          "An error occurred while compressing the image. Please try again with a new file.";
       }
     },
     async submitForm() {
@@ -323,5 +467,33 @@ export default {
 </script>
 
 <style scoped>
-/* Add any additional styles here if needed */
+.form-group {
+  @apply space-y-1;
+}
+
+.form-label {
+  @apply block text-sm font-medium text-gray-700;
+}
+
+.form-input  {
+  @apply w-full px-4 py-3 rounded-lg border border-gray-300
+  focus:ring-2 focus:ring-primary focus:border-primary
+  transition-all duration-200 bg-white
+  placeholder:text-gray-400;
+}
+
+.form-error  {
+  @apply text-sm text-red-500 mt-1;
+}
+
+/* Animations */
+.fade-enter-active,
+.fade-leave-active {
+  @apply transition-opacity duration-300;
+}
+
+.fade-enter-from,
+.fade-leave-to {
+  @apply opacity-0;
+}
 </style>

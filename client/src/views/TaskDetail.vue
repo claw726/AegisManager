@@ -593,9 +593,7 @@ export default {
       this.$router.push({
         name: "addUserTask",
         params: {
-          orgIndex: this.fetchedTask.parentOrgID,
-          projIndex: this.fetchedTask.parentProjectID,
-          taskId: this.$route.params.taskId,
+          taskId: this.fetchedTask.taskID.toString(),
         },
       });
     },
