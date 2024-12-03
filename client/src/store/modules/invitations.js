@@ -92,7 +92,7 @@ const actions = {
   async fetchUsersWithInvites({ rootState }, message) {
     try {
       const response = await axios.get(
-        `/api/invitations//getUsersWithInvites?message=${message}`,
+        `/api/invitations/getUsersWithInvites?message=${message}`,
         {
           headers: {
             Authorization: `Bearer ${rootState.auth.authToken}`,
