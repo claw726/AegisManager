@@ -5,24 +5,23 @@
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <!-- Header Section -->
       <div class="mb-8">
-        <div class="flex items-center justify-between">
+        <div class="flex items-center justify-between bg-white p-6 rounded-lg shadow-md">
           <div>
             <h1 class="text-3xl font-bold text-gray-900 flex items-center">
-              <i class="fas fa-file mr-3 text-blue-600"></i>
+              <i class="fas fa-folder-open mr-3 text-blue-500"></i>
               Task Files
             </h1>
-            <p class="mt-2 text-sm text-gray-600">
-              Manage all files associated with task
+            <p class="mt-2 text-sm text-gray-500">
+              Manage all files associated with this task.
             </p>
           </div>
-          <label class="px-4 py-2 upload-btn text-white rounded-lg bg-blue-600 hover:bg-blue-700 cursor-pointer">
-            Upload File
+          <label class="flex items-center space-x-2 px-4 py-2 text-white rounded-lg bg-blue-600 hover:bg-blue-700 cursor-pointer transition duration-200">
+            <i class="fas fa-upload"></i>
+            <span>Upload File</span>
             <input type="file" class="hidden" @change="handleFileUpload" />
           </label>
         </div>
       </div>
-
-
 
       <!-- Notification Component -->
       <NotificationComponent class="mb-6" :show="notification.show" :type="notification.type"
@@ -30,87 +29,49 @@
         {{ notification.message }}
       </NotificationComponent>
 
-      <!-- Files List -->
-      <div class="space-y-4">
+      <!-- Files Grid -->
+      <div class="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
         <div v-for="file in files" :key="file.fileID"
-          class="bg-white rounded-xl shadow-sm border border-gray-200 hover:shadow-md transition-shadow duration-200">
-          <div class="p-6">
-            <div class="flex items-center justify-between">
-              <!-- Invitation Content -->
-              <div class="flex-1 min-w-0">
-                <div class="flex items-center mb-2">
-
-                  <div class="flex-1 min-w-0" style="flex: 3 1 55%;">
-                    <p class="text-lg font-semibold text-gray-900 truncate">
-                      {{ file.fileName }}
-                    </p>
-                  </div>
-                  <div class="flex-1 min-w-0" style="flex: 1 1 20%;">
-                    <p class="text-lg text-gray-900 truncate">
-                      {{ uploaderEmails[file.fileID] || "Loading..." }}
-                    </p>
-                  </div>
-                  <div class="flex-1 min-w-0" style="flex: 1 1 15%;">
-                    <p class="text-lg text-gray-900 truncate">
-                      {{ getMimeTypeDescription(file.fileType) || "Loading..." }}
-                    </p>
-                  </div>
-                  <div class="flex-1 min-w-0" style="flex: 1 1 10%;">
-                    <p class="text-lg text-gray-900 truncate">
-                      {{ formatFileSize(file.fileSize) || "Loading..." }}
-                    </p>
-                  </div>
-
-                </div>
-              </div>
-
-              <!-- Action Buttons -->
-              <label class="px-4 py-2 upload-btn text-white rounded-lg bg-blue-600 hover:bg-blue-700 cursor-pointer"
-                @click="downloadFile(file)">
-                Download
-              </label>
-              <!----
-              <label v-if="hasDeletePermissions(file)"
-                class="px-4 py-2 text-white rounded-lg bg-red-600 hover:bg-red-700 cursor-pointer"
-                @click="deleteFile(file)">
-                Delete
-              </label>
-            -->
-              <label v-if="hasDeletePermissions(file)"
-                class="px-4 py-2 text-white rounded-lg bg-red-600 hover:bg-red-700 cursor-pointer"
-                @click="setFileToDelete(file)">
-                Delete
-              </label>
-
+          class="bg-white rounded-lg shadow-md border border-gray-200 hover:shadow-lg transition-duration-200 p-6 flex flex-col">
+            <!-- File Icon -->
+             <div class="flex justify-center mb-4">
+              <i :class="[
+                getFileIcon(file.fileType),
+                getFileColor(file.fileType),
+                'text-5xl transition-all duration-200 group-hover:scale-110'
+              ]"></i>
             </div>
-            <div v-if="showPopup" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
-              <div class="bg-white rounded-lg p-6 max-w-sm w-full mx-4">
-                <h3 class="text-lg font-medium text-gray-900 mb-4">
-                  <i class="fas fa-exclamation-triangle text-yellow-500 mr-2"></i>
-                  Confirm Deletion
-                </h3>
-                <p class="text-gray-500 mb-6">
-                  Are you sure you want to delete this file? This action cannot be undone.
-                </p>
-                <div class="flex justify-end space-x-3">
-                  <button
-                    class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-gray-500 transition-colors duration-200"
-                    @click="handleNo">
-                    Cancel
-                  </button>
-                  <button
-                    class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500 transition-colors duration-200"
-                    @click="handleYes">
-                    Delete
-                  </button>
-                </div>
+
+            <!-- File Info -->
+            <div class="text-center mb-4">
+              <h3 class="font-medium text-gray-900 truncate mb-1" :title="file.fileName">
+                {{ file.fileName }}
+              </h3>
+              <div class="text-sm text-gray-500 space-y-1">
+                <p>{{ getMimeTypeDescription(file.fileType) }}</p>
+                <p>{{ formatFileSize(file.fileSize) }}</p>
+                <p class="text-xs">Uploaded by: {{ uploaderEmails[file.fileID] || "Loading..." }}</p>
               </div>
+            </div>
+
+            <!-- Action Buttons -->
+            <div class="flex justify-center space-x-2 mt-4">
+              <button class="p-2 text-blue-600 hover:bg-blue-50 rounded-full transition duration-200"
+                @click="downloadFile(file)"
+                title="Download">
+                <i class="fas fa-download"/>
+              </button>
+              <button v-if="hasDeletePermissions(file)"
+                class="py-2 text-red-600 hover:bg-red-50 rounded-full transition duration-200"
+                @click="setFileToDelete(file)"
+                title="Delete">
+                <i class="fas fa-trash"/>
+              </button>
             </div>
           </div>
-        </div>
 
         <!-- Empty State -->
-        <div v-if="files.length === 0" class="text-center py-12 bg-white rounded-xl shadow-sm border border-gray-200">
+        <div v-if="files.length === 0" class="col-span-full text-center py-12 bg-white rounded-xl shadow-sm border border-gray-200">
           <i class="fas fa-inbox text-gray-400 text-5xl mb-4"></i>
           <h3 class="text-lg font-medium text-gray-900 mb-2">No Files</h3>
           <p class="text-gray-500">There have been no files uploaded to this task.</p>
@@ -118,12 +79,40 @@
       </div>
     </div>
   </div>
+
+
+  <!-- Delete Confirmation Modal -->
+  <div v-if="showPopup" class="fixed inset-0 bg-black bg-opacity-50 flex items-center justify-center z-50">
+  <div class="bg-white rounded-lg p-6 max-w-sm w-full mx-4 shadow-lg">
+    <h3 class="text-lg font-medium text-gray-900 mb-4 flex items-center">
+      <i class="fas fa-exclamation-triangle text-yellow-500 mr-2"></i>
+      Confirm Deletion
+    </h3>
+    <p class="text-gray-500 mb-6">
+      Are you sure you want to delete this file? This action cannot be undone.
+    </p>
+    <div class="flex justify-end space-x-3">
+      <button
+        class="px-4 py-2 text-sm font-medium text-gray-700 bg-gray-100 rounded-lg hover:bg-gray-200 transition duration-200"
+        @click="handleNo">
+        Cancel
+      </button>
+      <button
+        class="px-4 py-2 text-sm font-medium text-white bg-red-600 rounded-lg hover:bg-red-700 transition duration-200"
+        @click="handleYes">
+        Delete
+      </button>
+    </div>
+  </div>
+</div>
 </template>
 
 <script>
 import NavBar from "../components/NavBar.vue";
 import { mapState } from "vuex";
 import NotificationComponent from "@/components/NotificationComponent.vue";
+import { FILE_TYPE_DESCRIPTIONS } from "@/constants/fileTypes.js";
+import { getFileIcon, getFileColor, getFileCategory } from "@/constants/fileIcons.js";
 
 export default {
   name: "TaskFiles",
@@ -197,7 +186,7 @@ export default {
     async handleFileUpload(event) {
       try {
         const file = event.target.files[0];
-        const MAX_FILE_SIZE = 50 * 1024 * 1024;
+        const MAX_FILE_SIZE = 50 * 1024 * 1024; //50MB
         if (file.size > MAX_FILE_SIZE) {
           this.showNotification("error", "File size exceeds the 50 MB limit.");
           console.error("File size exceeds 50 MB");
@@ -227,6 +216,8 @@ export default {
       } catch (error) {
         console.error("Error adding file to task:", error.message);
         this.showNotification("error", error.message || "Error adding file to the task");
+      } finally {
+        event.target.value = null;
       }
     },
     readFileAsBase64(file) {
@@ -318,6 +309,10 @@ export default {
       }
     },
     formatFileSize(fileSize) {
+      if (!fileSize || isNaN(fileSize)) {
+        console.error("Invalid file size:", fileSize);
+        return "Unknown Size";
+      }
       if (fileSize < 1000) {
         return fileSize + " B"
       }
@@ -329,143 +324,10 @@ export default {
       }
     },
     getMimeTypeDescription(fileType) {
-      switch (fileType) {
-        // Text Files
-        case "text/plain":
-          return "Plain Text";
-        case "text/html":
-          return "HTML";
-        case "text/css":
-          return "CSS";
-        case "application/javascript":
-          return "JavaScript";
-        case "application/json":
-          return "JSON";
-        case "application/xml":
-          return "XML";
-
-        // Image Files
-        case "image/jpeg":
-          return "JPEG";
-        case "image/png":
-          return "PNG";
-        case "image/gif":
-          return "GIF";
-        case "image/bmp":
-          return "BMP";
-        case "image/webp":
-          return "WebP";
-        case "image/svg+xml":
-          return "SVG";
-        case "image/tiff":
-          return "TIFF";
-        case "image/x-icon":
-          return "Icon File";
-
-        // Audio Files
-        case "audio/mpeg":
-          return "MP3";
-        case "audio/wav":
-          return "WAV";
-        case "audio/ogg":
-          return "OGG";
-        case "audio/aac":
-          return "AAC";
-        case "audio/flac":
-          return "FLAC";
-        case "audio/midi":
-          return "MIDI";
-
-        // Video Files
-        case "video/mp4":
-          return "MP4";
-        case "video/webm":
-          return "WebM";
-        case "video/ogg":
-          return "OGG";
-        case "video/x-msvideo":
-          return "AVI";
-        case "video/mpeg":
-          return "MPEG";
-        case "video/quicktime":
-          return "QuickTime (MOV)";
-
-        // Document Files
-        case "application/pdf":
-          return "PDF";
-        case "application/msword":
-          return "Word";
-        case "application/vnd.openxmlformats-officedocument.wordprocessingml.document":
-          return "Word";
-        case "application/vnd.ms-excel":
-          return "Excel";
-        case "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet":
-          return "Excel";
-        case "application/vnd.ms-powerpoint":
-          return "PowerPoint";
-        case "application/vnd.openxmlformats-officedocument.presentationml.presentation":
-          return "PowerPoint";
-        case "application/rtf":
-          return "RTF";
-
-        // Compressed Files
-        case "application/zip":
-          return "ZIP";
-        case "application/vnd.rar":
-          return "RAR";
-        case "application/gzip":
-          return "GZIP";
-        case "application/x-7z-compressed":
-          return "7z";
-        case "application/x-tar":
-          return "TAR";
-
-        // Code Files
-        case "text/x-python":
-          return "Python";
-        case "application/javascript":
-          return "JavaScript";
-        case "text/x-java-source":
-          return "Java Source";
-        case "text/x-c":
-          return "C Source";
-        case "text/x-c++src":
-          return "C++ Source";
-
-        // Application and Executable Files
-        case "application/vnd.microsoft.portable-executable":
-          return "Executable";
-        case "application/x-apple-diskimage":
-          return "Disk Image";
-        case "application/vnd.android.package-archive":
-          return "Package";
-
-        // Font Files
-        case "font/ttf":
-          return "TTF";
-        case "font/otf":
-          return "OTF";
-        case "font/woff":
-          return "WOFF";
-        case "font/woff2":
-          return "WOFF2";
-
-        // Other Common Types
-        case "text/csv":
-          return "CSV";
-        case "application/x-yaml":
-        case "text/yaml":
-          return "YAML";
-        case "text/markdown":
-          return "Markdown";
-        case "text/calendar":
-          return "ICS";
-
-        // Default case for unknown types
-        default:
-          return "File";
-      }
-    }
+      return FILE_TYPE_DESCRIPTIONS.get(fileType) || "Unknown File Type";
+    },
+    getFileIcon,
+    getFileColor,
 
   },
 };
@@ -487,5 +349,19 @@ export default {
 
 .notification-badge {
   animation: pulse 2s cubic-bezier(0.4, 0, 0.6, 1) infinite;
+}
+.file-name {
+  display: -webkit-box;
+  -webkit-line-clamp: 2;
+  -webkit-box-orient: vertical;
+  overflow: hidden;
+}
+
+.action-button {
+  @apply p-2 rounded-full transition duration-200;
+}
+
+.action-button:hover {
+  @apply bg-gray-100;
 }
 </style>
