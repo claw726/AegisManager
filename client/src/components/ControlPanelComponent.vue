@@ -327,8 +327,8 @@ export default {
     emitFilteredTasks() {
       const filteredTasks = this.filteredAndSortedTasks;
       this.$emit("tasks-filtered", {
-        complete: filteredTasks.filter((task) => task.complete),
-        incomplete: filteredTasks.filter((task) => !task.complete),
+        complete: filteredTasks.filter((task) => task.isComplete),
+        incomplete: filteredTasks.filter((task) => !task.isComplete),
       });
     },
 

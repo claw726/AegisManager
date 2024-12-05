@@ -63,12 +63,12 @@
         <span
           :class="[
             'px-2 py-1 text-xs rounded-full',
-            task.complete
+            task.isComplete
               ? 'bg-green-100 text-green-800'
               : 'bg-yellow-100 text-yellow-800',
           ]"
         >
-          {{ task.complete ? "Complete" : "In Progress" }}
+          {{ task.isComplete ? "Complete" : "In Progress" }}
         </span>
       </div>
     </div>

@@ -11,11 +11,11 @@
       <span
         class="px-3 py-1 rounded-full text-sm font-semibold"
         :class="{
-          'bg-green-800 text-white': task.complete,
-          'bg-orange-800 text-white': !task.complete,
+          'bg-green-800 text-white': task.isComplete,
+          'bg-orange-800 text-white': !task.isComplete,
         }"
       >
-        {{ task.complete ? "Complete" : "Incomplete" }}
+        {{ task.isComplete ? "Complete" : "Incomplete" }}
       </span>
     </div>
 

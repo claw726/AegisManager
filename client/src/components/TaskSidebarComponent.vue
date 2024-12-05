@@ -103,12 +103,12 @@ export default {
   },
   computed: {
     completedTasksCount() {
-      return this.tasks.filter((task) => task.complete).length;
+      return this.tasks.filter((task) => task.isComplete).length;
     },
     dueToday() {
       const today = new Date().toISOString().split("T")[0];
       return this.tasks.filter(
-        (task) => task.dueDate?.split("T")[0] === today && !task.complete,
+        (task) => task.dueDate?.split("T")[0] === today && !task.isComplete,
       ).length;
     },
   },

@@ -258,7 +258,7 @@ export default {
   computed: {
     ...mapState("auth", ["isLoggedIn", "currentUser"]),
     uncompletedTasks() {
-      return this.tasks.filter((task) => !task.complete);
+      return this.tasks.filter((task) => !task.isComplete);
     },
   },
   async mounted() {

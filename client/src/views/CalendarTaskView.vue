@@ -96,9 +96,9 @@ export default {
         allDay: true,
         extendedProps: {
           description: task.taskDescription,
-          complete: task.complete,
+          isComplete: task.isComplete,
         },
-        className: task.complete ? "bg-green-500" : "",
+        className: task.isComplete ? "bg-green-500" : "",
       }));
     },
   },

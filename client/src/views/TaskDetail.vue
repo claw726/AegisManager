@@ -31,18 +31,18 @@
             <div class="flex items-center space-x-3">
               <!-- Status Badge -->
               <span class="inline-flex items-center px-3 py-1 rounded-full text-sm font-medium" :class="{
-                'bg-green-100 text-green-800': fetchedTask.complete,
-                'bg-yellow-100 text-yellow-800': !fetchedTask.complete
+                'bg-green-100 text-green-800': fetchedTask.isComplete,
+                'bg-yellow-100 text-yellow-800': !fetchedTask.isComplete
               }">
                 <i :class="[
                   'mr-1.5',
-                  fetchedTask.complete ? 'fas fa-check' : 'fas fa-clock'
+                  fetchedTask.isComplete ? 'fas fa-check' : 'fas fa-clock'
                 ]"></i>
-                {{ fetchedTask.complete ? 'Completed' : 'In Progress' }}
+                {{ fetchedTask.isComplete ? 'Completed' : 'In Progress' }}
               </span>
 
               <!-- Complete Button -->
-              <button v-if="!fetchedTask.complete && showLeftButton"
+              <button v-if="!fetchedTask.isComplete && showLeftButton"
                 class="inline-flex items-center px-4 py-2 bg-green-600 text-white text-sm font-medium rounded-lg hover:bg-green-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-green-500 transition-colors duration-200"
                 @click="markAsComplete">
                 <i class="fas fa-check mr-2"></i>
@@ -125,7 +125,7 @@
                 <i class="fas fa-comments mr-2"></i>
                 Task Chat
               </button>
-              <button v-if="!fetchedTask.complete && showLeftButton"
+              <button v-if="!fetchedTask.isComplete && showLeftButton"
                 class="inline-flex items-center px-4 py-2 bg-indigo-600 text-white text-sm font-medium rounded-lg hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500 transition-colors duration-200"
                 @click="goToAddUsers">
                 <i class="fas fa-user-plus mr-2"></i>
@@ -136,7 +136,7 @@
             <div class="flex items-center space-x-3">
               <!-- Edit Button -->
               <button 
-                v-if="!fetchedTask.complete && showLeftButton"
+                v-if="!fetchedTask.isComplete && showLeftButton"
                 class="inline-flex items-center px-4 py-2 bg-amber-600 text-white text-sm font-medium rounded-lg hover:bg-amber-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-amber-500 transition-colors duration-200"
                 @click="goToEditTask"
               >
@@ -176,7 +176,7 @@
           </div>
         </div>
         <!-- Reassignment Controls -->
-        <div v-if="!fetchedTask.complete && showLeftButton && taskUsers.length > 0"
+        <div v-if="!fetchedTask.isComplete && showLeftButton && taskUsers.length > 0"
             class="mt-6 p-6 bg-gray-50 border-t border-gray-200">
           <div class="flex items-center space-x-4">
             <div class="flex-1">
@@ -299,7 +299,7 @@ export default {
       return this.taskUsers.filter(user => user.userID !== this.currentUser.userID);
     },
     canReassign() {
-      return this.showLeftButton && !this.fetchedTask.complete;
+      return this.showLeftButton && !this.fetchedTask.isComplete;
     }
   },
 
@@ -461,11 +461,11 @@ export default {
         this.showNotification("success", "Task successfully completed!");
         await new Promise((resolve) => setTimeout(resolve, 2500));
 
-        // Reroute to task to do list as task is now marked complete
+        // Reroute to task to do list as task is now marked isComplete
         this.isGrayedOut = true;
         this.$router.push({ name: "TDList" });
       } catch (error) {
-        console.error("Failed to mark task as complete:", error);
+        console.error("Failed to mark task as isComplete:", error);
         // Error will be handled by Vuex store and displayed via updateStatus
       }
     },
@@ -516,7 +516,7 @@ export default {
             assignerID: this.selectedUserID,
             taskPriority: this.fetchedTask.taskPriority,
             dueDate: dueDate,
-            isComplete: this.fetchedTask.complete,
+            isComplete: this.fetchedTask.isComplete,
           };
           await this.$store.dispatch("tasks/updateTask", {
             taskId: this.taskId,
