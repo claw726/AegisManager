@@ -115,7 +115,7 @@ export default {
   },
   computed: {
     uncompletedTasks() {
-      return this.tasks.filter((task) => !task.complete);
+      return this.tasks.filter((task) => !task.isComplete);
     },
   },
   async mounted() {

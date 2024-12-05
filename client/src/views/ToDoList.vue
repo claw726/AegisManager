@@ -367,8 +367,8 @@ export default {
     taskStats() {
       return {
         total: this.tasks.length,
-        completed: this.tasks.filter((task) => task.complete).length,
-        pending: this.tasks.filter((task) => !task.complete).length,
+        completed: this.tasks.filter((task) => task.isComplete).length,
+        pending: this.tasks.filter((task) => !task.isComplete).length,
       };
     },
   },
